@@ -1,7 +1,7 @@
 package eu.janschupke.lines;
 
 /**
- * 
+ *
  * Main Class.
  *
  */

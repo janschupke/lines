@@ -8,16 +8,16 @@ import java.util.Properties;
 import eu.janschupke.lines.StaticMethods;
 
 /**
- * 
+ *
  * Holds information about all application configuration properties,
  * their names and default values.
  *
  */
 public class Configurator {
     ConfigProvider provider;
-    
+
     /**
-     * 
+     *
      * Each key represents one configuration value
      * that can be stored for this application.
      *
@@ -27,9 +27,9 @@ public class Configurator {
         LANGUAGE, TOOLTIPS, DISABLE_CONFIRMS,
         PAINT_GRADIENT
     }
-    
+
     protected Map<String, String> defaultValues;
-    
+
     protected Properties properties;
     protected String fileName;
 
@@ -40,18 +40,18 @@ public class Configurator {
      */
     public static final Integer DEFAULT_SIZE_X = 100;
     public static final Integer DEFAULT_SIZE_Y = 100;
-    
+
     public Configurator(ConfigProvider provider) {
         this.provider = provider;
-        
+
         properties = new Properties();
         defaultValues = new HashMap<String, String>();
 
         fileName = "app.conf";
-        
+
         assignDefaultValues();
     }
-    
+
     /**
      * Assigns a default value to every key.
      */
@@ -71,74 +71,74 @@ public class Configurator {
      */
     public void setDefaultConfig() {
         StaticMethods.printMethodName(this);
-        
+
         for (Map.Entry<String, String> entry : defaultValues.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue().toString();
             properties.setProperty(key, value);
         }
     }
-    
+
     /**
      * Checks for missing keys in the configuration.
      * @return Result.
      */
     public boolean checkConfigIntegrity() {
         StaticMethods.printMethodName(this);
-        
+
         for (Keys k : Keys.values()) {
             if(properties.getProperty(k.toString()) == null ||
                 !properties.containsKey(k.toString())) {
-                
+
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     public void saveWindowDimensions(Integer sizeX, Integer sizeY, Point location) {
         properties.setProperty(
                 Keys.SIZE_X.toString(),
                 sizeX.toString());
-        
+
         properties.setProperty(
                 Keys.SIZE_Y.toString(),
                 sizeY.toString());
-        
+
         properties.setProperty(
                 Keys.POSITION_X.toString(),
                 Integer.toString((int)location.getX()));
-        
+
         properties.setProperty(
                 Keys.POSITION_Y.toString(),
                 Integer.toString((int)location.getY()));
     }
-    
+
     public void saveLanguage(int value) {
         properties.setProperty(
                 Keys.LANGUAGE.toString(),
                 Integer.toString(value));
     }
-    
+
     public void saveTooltips(boolean value) {
         properties.setProperty(
                 Keys.TOOLTIPS.toString(),
                 Boolean.toString(value));
     }
-    
+
     public void saveConfirms(boolean value) {
         properties.setProperty(
                 Keys.DISABLE_CONFIRMS.toString(),
                 Boolean.toString(value));
     }
-    
+
     public void saveGradient(boolean value) {
         properties.setProperty(
                 Keys.PAINT_GRADIENT.toString(),
                 Boolean.toString(value));
     }
-    
+
     /**
      * Returns configuration filename.
      * @return configuration filename
@@ -146,14 +146,14 @@ public class Configurator {
     public String getFileName() {
         return fileName;
     }
-    
+
     public Properties getProperties() {
         return properties;
     }
-    
+
     public Map<String, String> getDefaultValues() {
         return defaultValues;
     }
-    
+
     public ConfigProvider getProvider() { return provider; }
 }

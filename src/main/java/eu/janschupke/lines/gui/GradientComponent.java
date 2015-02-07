@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 import eu.janschupke.lines.StaticMethods;
 
 /**
- * 
+ *
  * A superclass that provides access to the super.paintComponent(g);
  * for any classes that extend GradientComponent.
  * This enables their background to be painted in gradient,

@@ -9,7 +9,7 @@ import eu.janschupke.lines.Values.Debug;
 import eu.janschupke.lines.gui.GradientComponent;
 
 /**
- * 
+ *
  * Contains methods that are used globally
  * within the application.
  *
@@ -21,28 +21,28 @@ public class StaticMethods {
      */
     public static String getMethodName(Object obj) {
         final StackTraceElement[] st = Thread.currentThread().getStackTrace();
-        
+
         /*
          * If this method is called from the print method
          * defined below instead of being called directly,
          * stack pointer value is changed to accommodate this.
          */
         int level = 2;
-        
+
         if(st[level].getMethodName().equals("printMethodName")) {
             level = 3;
         }
-        
+
         // get the full path
         String path = obj.getClass().getName() + "." + st[level].getMethodName() + "()";
-        
+
         // cut the 'eu.janschupke.lines.'
         int charsToCut = 20;
         path = path.substring(charsToCut, path.length());
-        
+
         return path;
     }
-    
+
     /**
      * A method used for debugging.
      * Prints out a full class path to the method from which it is called.
@@ -52,7 +52,7 @@ public class StaticMethods {
             System.out.println("Calling " + getMethodName(obj));
         }
     }
-    
+
     /**
      * Prints a String in a specific debug format.
      * @param message the message to be printed
@@ -62,7 +62,7 @@ public class StaticMethods {
             System.out.println("\t>> " + message);
         }
     }
-    
+
     /**
      * Parses a number value and adds one leading zero
      * if the value is one-digit.
@@ -74,10 +74,10 @@ public class StaticMethods {
         if(value < 10) {
             return new String("0" + value.toString());
         }
-        
+
         return new String(value.toString());
     }
-    
+
     /**
      * Parses a time stamp value into a more readable format
      * of hh:mm:ss.
@@ -86,30 +86,30 @@ public class StaticMethods {
      */
     public static String parseTime(long time) {
         StringBuilder result = new StringBuilder();
-        
+
         long seconds = time / 1000;
         long minutes = 0;
         long hours = 0;
-        
+
         if(seconds >= 60) {
             minutes = seconds / 60;
             seconds %= 60;
         }
-        
+
         if(minutes >= 60) {
             hours = minutes / 60;
             minutes %= 60;
         }
-        
+
         result.append(addLeadingZeros(hours));
         result.append(":");
         result.append(addLeadingZeros(minutes));
         result.append(":");
         result.append(addLeadingZeros(seconds));
-        
+
         return result.toString();
     }
-    
+
     /**
      * Paints the background of the provided component
      * in a gradient color transition.
@@ -138,7 +138,7 @@ public class StaticMethods {
         c.superPaint(g);
         c.setOpaque(true);
     }
-    
+
     /**
      * Removes any possible gradient paint that might
      * have been applied to the component.
@@ -150,9 +150,9 @@ public class StaticMethods {
         }
 
         Graphics2D g2d = (Graphics2D) g;
-        
+
         g2d.setPaint(null);
-        
+
         c.superPaint(g);
         c.setOpaque(true);
     }

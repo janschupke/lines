@@ -11,13 +11,13 @@ import javax.swing.table.AbstractTableModel;
 import eu.janschupke.lines.Lang;
 
 /**
- * 
+ *
  * A model of the Score Board.
  *
  */
 public class ScoreBoard implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Maximum amount of entries in the Score Board.
      */
@@ -27,23 +27,23 @@ public class ScoreBoard implements Serializable {
     private List<ScoreEntry> items;
 
     private AbstractTableModel model;
-    
+
     public ScoreBoard(GameModel gameModel, List<ScoreEntry> items) {
-        
+
         // If no items are provided, creates an empty list.
         if(items == null) {
             this.items = new ArrayList<ScoreEntry>();
         } else {
             this.items = items;
         }
-        
+
         /*
          * Sets the table model that disables cell modification
          * and column dragging.
          */
         model = new AbstractTableModel() {
             private static final long serialVersionUID = 1L;
-            
+
             public String getColumnName(int col) { return getCaptions()[col].toString(); }
             public int getRowCount() { return getData().length; }
             public int getColumnCount() { return getCaptions().length; }
@@ -52,19 +52,19 @@ public class ScoreBoard implements Serializable {
             public void setValueAt(Object value, int row, int col) {}
         };
     }
-    
+
     public ScoreBoard(GameModel gameModel) {
         this(gameModel, null);
     }
-    
+
     public boolean isEmpty() {
         return items.isEmpty();
     }
-    
+
     public boolean isFull() {
         return (items.size() == CAPACITY);
     }
-    
+
     /**
      * Add a new {@link ScoreEntry} into the list. If this action
      * results in exceeding the maximum amount, the entry
@@ -73,14 +73,14 @@ public class ScoreBoard implements Serializable {
      */
     public void addEntry(ScoreEntry entry) {
         items.add(entry);
-        
+
         // Sorts entries based on score values.
         sortEntries();
-        
+
         // Removes the unwanted entry, if any.
         trim();
     }
-    
+
     /**
      * Sorts all entries currently in the list,
      * based on their board sizes and score values.
@@ -96,7 +96,7 @@ public class ScoreBoard implements Serializable {
             }
         });
     }
-    
+
     /**
      * Deletes entries that are above
      * the ScoreBoard size limit.
@@ -109,14 +109,14 @@ public class ScoreBoard implements Serializable {
             }
         }
     }
-    
+
     /**
      * Removes all entries from the Score Board.
      */
     public void reset() {
         items.clear();
     }
-    
+
     /**
      * Checks the provided score value against values that are already
      * in the list. If there is any that is lower, the provided
@@ -128,22 +128,22 @@ public class ScoreBoard implements Serializable {
     public boolean isScoreSuitable(int score, int board) {
         if(items.size() < CAPACITY) return true;
         if(items.size() == 0) return true;
-        
+
         boolean isSuitable = false;
-        
+
         // Goes through all score entries and compares values.
         for(ScoreEntry i : items) {
             if(Integer.parseInt(i.getScore()) < score &&
                 Integer.parseInt(i.getBoardSize()) >= board) {
-                
+
                 isSuitable = true;
                 break;
             }
         }
-        
+
         return isSuitable;
     }
-    
+
     /**
      * Parses the list of Score Entries into an array of Objects.
      * @return all entries in the form of a two-dimensional array of Objects
@@ -157,30 +157,30 @@ public class ScoreBoard implements Serializable {
              */
             return new Object [1][captions.length];
         }
-        
+
         Object [][] data = new Object [items.size()][captions.length];
-        
+
         for(int i = 0; i < items.size(); i++) {
             for(int j = -1; j < captions.length - 1; j++) {
                 if(j == -1) {
                     data[i][0] = i + 1;
                     continue;
                 }
-                
+
                 data[i][j + 1] = items.get(i).getValue(j);
             }
         }
-        
+
         return data;
     }
-    
+
     // Lang is not available when constructing this. Needs to be called separately.
     /**
      * Sets the table caption strings for the ScoreBoard.
      */
     public void setCaptions() {
         captions = new String [7];
-        
+
         captions[0] = Lang.write("dialog.score.caption.position");
         captions[1] = Lang.write("dialog.score.caption.name");
         captions[2] = Lang.write("dialog.score.caption.score");
@@ -189,8 +189,8 @@ public class ScoreBoard implements Serializable {
         captions[5] = Lang.write("dialog.score.caption.total_time");
         captions[6] = Lang.write("dialog.score.caption.date");
     }
-    
+
     public String [] getCaptions() { return captions; }
-    
+
     public AbstractTableModel getModel() { return model; }
 }

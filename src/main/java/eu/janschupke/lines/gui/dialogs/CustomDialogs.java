@@ -16,7 +16,7 @@ import eu.janschupke.lines.gui.MainView;
 
 
 /**
- * 
+ *
  * Contains static methods for creating custom PopUp dialogs.
  *
  */
@@ -28,19 +28,19 @@ public class CustomDialogs {
             MainView win,
             String message,
             Icon icon) {
-        
+
         JOptionPane optionPane = new JOptionPane();
-        
+
         /*
          *  Sets the dialog.
          */
         optionPane.setMessage("<html>" + message);
         optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
         optionPane.setIcon(icon);
-        
+
         return optionPane;
     }
-    
+
     /**
      * Creates a dialog out of the provided OptionPane and an array of JButtons.
      */
@@ -49,7 +49,7 @@ public class CustomDialogs {
             final JOptionPane optionPane,
             final JButton [] options,
             int defaultOptionIndex) {
-        
+
         /*
          *  Assigns listeners to the buttons.
          */
@@ -67,37 +67,37 @@ public class CustomDialogs {
                     }
                 }
             };
-            
+
             option.addActionListener(actionListener);
         }
-        
+
         // Adds the buttons.
         optionPane.setOptions(options);
-        
+
         /*
          *  Creates the dialog.
          */
         JDialog dialog = optionPane.createDialog(
                 optionPane.getParent(),
                 ApplicationValues.NAME.getValue());
-        
+
         /*
          *  Sets the default 'enter' response.
          */
-        JRootPane rootPane = SwingUtilities.getRootPane(options[defaultOptionIndex]); 
+        JRootPane rootPane = SwingUtilities.getRootPane(options[defaultOptionIndex]);
         rootPane.setDefaultButton(options[defaultOptionIndex]);
-        
+
         dialog.setLocationRelativeTo(win);
         dialog.setVisible(true);
-        
+
         if(optionPane.getValue() == null) {
             return -1;
         } else {
             return ((Integer)optionPane.getValue()).intValue();
         }
-        
+
     }
-    
+
     /**
      * Shows a customized error dialog.
      */
@@ -105,11 +105,11 @@ public class CustomDialogs {
         JButton[] options = {
                 new JButton(Lang.write("dialog.button.close"), win.getImageProvider().getCancelIcon())
         };
-        
+
         JOptionPane optionPane = createCustomOptionPane(win,
                 message,
                 win.getImageProvider().getDialogErrorIcon());
-        
+
         createCustomDialog(win, optionPane, options, 0);
     }
 
@@ -123,14 +123,14 @@ public class CustomDialogs {
                 new JButton(Lang.write("dialog.button.yes"),
                         win.getImageProvider().getOKIcon())
         };
-        
+
         JOptionPane optionPane = createCustomOptionPane(win,
                 message,
                 win.getImageProvider().getDialogWarningIcon());
-        
+
         return createCustomDialog(win, optionPane, options, 0);
     }
-    
+
     /**
      * Shows a customizes question dialog with 'Yes' and 'No' options.
      */
@@ -141,7 +141,7 @@ public class CustomDialogs {
                 new JButton(Lang.write("dialog.button.yes"),
                         win.getImageProvider().getOKIcon())
         };
-        
+
         return showQuestionDialog(
                 win,
                 message,
@@ -155,15 +155,15 @@ public class CustomDialogs {
         JButton[] options = {
                 new JButton(Lang.write("dialog.button.ok"), win.getImageProvider().getOKIcon())
         };
-        
+
         // The message and icon are predefined.
         JOptionPane optionPane = createCustomOptionPane(win,
                 Lang.write("dialog.popup.restart_required.text"),
                 win.getImageProvider().getDialogIcon());
-        
+
         createCustomDialog(win, optionPane, options, 0);
     }
-    
+
     /**
      * Shows a customized question dialog with custom amount of options.
      */
@@ -172,12 +172,12 @@ public class CustomDialogs {
             String message,
             JButton [] options,
             int defaultOptionIndex) {
-        
+
         JOptionPane optionPane = createCustomOptionPane(
                 win,
                 message,
                 win.getImageProvider().getDialogIcon());
-        
+
         return createCustomDialog(win, optionPane, options, defaultOptionIndex);
     }
 }

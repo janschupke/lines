@@ -19,14 +19,14 @@ import eu.janschupke.lines.model.MetadataContainer;
 import eu.janschupke.lines.model.ScoreBoard;
 
 /**
- * 
+ *
  * Contains all methods that in some way
  * involve window manipulation.
  *
  */
 public class WindowActions {
     private ActionProvider provider;
-    
+
     public WindowActions(ActionProvider provider) {
         this.provider = provider;
     }
@@ -37,12 +37,12 @@ public class WindowActions {
      */
     private boolean executeCleanup() {
         StaticMethods.printMethodName(this);
-        
+
         Configurator config = provider.getWindow().getGame().getConfigProvider().getConfig();
         MetadataContainer meta = provider.getWindow().getGame().getModel().getMeta();
-        
+
         boolean success = true;
-        
+
         /*
          * Updates the window dimensions for future.
          */
@@ -50,13 +50,13 @@ public class WindowActions {
                 provider.getWindow().getWidth(),
                 provider.getWindow().getHeight(),
                 provider.getWindow().getLocation());
-        
+
         // Saves the configuration.
         if(!provider.getConfigActions().saveAll()) {
             StaticMethods.debug("Cleanup failed.");
             success = false;
         }
-        
+
         // Debug timer printout.
         if(Debug.TIMERS.getValue()) {
             StaticMethods.debug("Game start time:\t\t" +
@@ -68,20 +68,20 @@ public class WindowActions {
             StaticMethods.debug("Current session time:\t" +
                     meta.getCurrentSessionTime());
         }
-        
+
         return success;
     }
-    
+
     /**
      * Checks that the application state was saved
      * and exits.
      */
     public void invokeExit() {
         StaticMethods.printMethodName(this);
-        
+
         if(!executeCleanup()) {
             StaticMethods.debug("Invoking exit confirm request.");
-            
+
             /*
              * If the cleanup (config. saving) is unsuccessful,
              * require confirmation to exit the application.
@@ -89,11 +89,11 @@ public class WindowActions {
             String message = String.format(
                     Lang.write("dialog.popup.exit.unsaved_config"),
                     FileSystemValues.FULL_CONFIG_PATH.getValue());
-            
+
             int i = CustomDialogs.showWarningDialog(
                     provider.getWindow(),
                     message);
-            
+
             /*
              * Does not exit if the 'no' option is selected.
              */
@@ -102,7 +102,7 @@ public class WindowActions {
                 return;
             }
         }
-        
+
         System.exit(0);
     }
 
@@ -112,7 +112,7 @@ public class WindowActions {
      */
     public void setLAF() {
         StaticMethods.printMethodName(this);
-        
+
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -127,12 +127,12 @@ public class WindowActions {
             } catch (Exception e2) {
                 StaticMethods.debug("System LaF setup failed.");
                 StaticMethods.debug(e2.getMessage());
-                
+
                 System.exit(1);
             }
         }
     }
-    
+
     /**
      * Updates the positions of all dialogs
      * so that they are centered relative
@@ -145,7 +145,7 @@ public class WindowActions {
         provider.getWindow().getGuideDialog().updatePosition();
         provider.getWindow().getGameEndDialog().updatePosition();
     }
-    
+
     /**
      * Displays a confirmation dialog for the game restart
      * when user attempts to change the size of the game board ({@link BoardPanel}).
@@ -153,11 +153,11 @@ public class WindowActions {
      */
     public boolean showBoardChangePrompt() {
         StaticMethods.printMethodName(this);
-        
+
         Properties properties = provider.getGame().getConfigProvider().getConfig().getProperties();
         String key = properties.getProperty(Configurator.Keys.DISABLE_CONFIRMS.toString());
         boolean confirmsDisabled = Boolean.parseBoolean(key);
-        
+
         /*
          * If the confirmation dialogs are disabled,
          * board change is automatically confirmed.
@@ -165,47 +165,47 @@ public class WindowActions {
         if(confirmsDisabled) {
             return true;
         }
-        
+
         boolean confirmed = false;
-        
+
         /*
          *  Shows confirmation dialog.
          */
         int i = CustomDialogs.showWarningDialog(
                 provider.getWindow(),
                 Lang.write("dialog.popup.change_board.confirm"));
-        
+
         /*
          * Confirmation will result in the game restart.
          */
         if (i == 1) {
             StaticMethods.debug("Confirmed.");
-            
+
             confirmed = true;
         } else {
             StaticMethods.debug("Not confirmed.");
-            
+
             confirmed = false;
         }
-        
+
         return confirmed;
     }
-    
+
     /**
      * Displays a confirmation dialog before
      * allowing the game to be restarted.
      */
     public void showNewGamePrompt() {
         StaticMethods.printMethodName(this);
-        
+
         Properties properties = provider.getGame().getConfigProvider().getConfig().getProperties();
         String key = properties.getProperty(Configurator.Keys.DISABLE_CONFIRMS.toString());
         boolean confirmsDisabled = Boolean.parseBoolean(key);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
-        
+
         int i;
-        
+
         /*
          * Game restart confirmation is only necessary
          * if the game is in progress, meaning that some turns
@@ -222,38 +222,38 @@ public class WindowActions {
             i = CustomDialogs.showWarningDialog(
                     provider.getWindow(),
                     Lang.write("dialog.popup.new_game.confirm"));
-            
+
         }
-        
+
         // Resets if confirmed.
         if (i == 1) {
             StaticMethods.debug("Game restart confirmed.");
-            
+
             provider.getGameActions().startNewGame();
         }
     }
-    
+
     /**
      * Displays a confirmation dialog before
      * allowing the {@link ScoreBoard} to be cleared.
      */
     public void showScoreResetPrompt() {
         StaticMethods.printMethodName(this);
-        
+
         ScoreDialog scoreDialog = provider.getGame().getView().getScoreDialog();
         ScoreBoard scoreBoard = provider.getGame().getModel().getScoreBoard();
 
         Properties properties = provider.getGame().getConfigProvider().getConfig().getProperties();
         String key = properties.getProperty(Configurator.Keys.DISABLE_CONFIRMS.toString());
         boolean confirmsDisabled = Boolean.parseBoolean(key);
-        
+
         /*
          * Reset is not relevant if there are no entries.
          */
         if(scoreBoard.isEmpty()) return;
-        
+
         int i;
-        
+
         /*
          * Shows confirmation dialog.
          */
@@ -264,16 +264,16 @@ public class WindowActions {
                     provider.getWindow(),
                     Lang.write("dialog.popup.reset_score.confirm"));
         }
-        
+
         // Resets if confirmed.
         if (i == 1) {
             StaticMethods.debug("Reset confirmed.");
-            
+
             provider.getGameActions().resetScore();
             scoreDialog.toggleUI();
         }
     }
-    
+
     /**
      * Displays a confirmation dialog before
      * allowing the configuration to be reset.
@@ -281,13 +281,13 @@ public class WindowActions {
      */
     public void showConfigResetPrompt() {
         StaticMethods.printMethodName(this);
-        
+
         Properties properties = provider.getGame().getConfigProvider().getConfig().getProperties();
         String key = properties.getProperty(Configurator.Keys.DISABLE_CONFIRMS.toString());
         boolean confirmsDisabled = Boolean.parseBoolean(key);
-        
+
         int i;
-        
+
         /*
          * Shows confirmation dialog.
          */
@@ -298,27 +298,27 @@ public class WindowActions {
                     provider.getWindow(),
                     Lang.write("dialog.popup.reset_config.confirm"));
         }
-        
+
         /*
          * Resets if confirmed.
          */
         if(i == 1) {
             StaticMethods.debug("Confirmed.");
-            
+
             provider.getConfigActions().resetConfiguration();
         }
     }
-    
+
     /**
      * Changes the visibility state for floating tooltips.
      * @param state tooltips' visibility state
      */
     public void toggleTooltips(boolean state) {
         StaticMethods.printMethodName(this);
-        
+
         ToolTipManager.sharedInstance().setEnabled(state);
     }
-    
+
     /**
      * Verifies that the guide file has been loaded
      * and open the dialog, if it's not empty.
@@ -326,7 +326,7 @@ public class WindowActions {
      */
     public void showGuide() {
         GuideDialog dialog = provider.getWindow().getGuideDialog();
-        
+
         if(dialog.isAvailable()) {
             dialog.setVisible(true);
         } else {

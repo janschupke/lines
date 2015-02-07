@@ -14,26 +14,26 @@ import eu.janschupke.lines.gui.ImageProvider;
 import eu.janschupke.lines.gui.StatusBar;
 
 /**
- * 
+ *
  * A menu that contains all main
  * navigation links.
  *
  */
 public class MainMenu extends JMenu {
     private static final long serialVersionUID = 1L;
-    
+
     private MainMenuBar mainMenuBar;
 
     private JMenuItem newGameItem;
     private JMenuItem configItem;
     private JMenuItem scoreItem;
     private JMenuItem exitItem;
-    
+
     public MainMenu(MainMenuBar mainMenuBar, String title) {
         super(title);
-        
+
         this.mainMenuBar = mainMenuBar;
-        
+
         initFields();
         addFields();
         addTooltips();
@@ -41,23 +41,23 @@ public class MainMenu extends JMenu {
         assignHotkeys();
         assignListeners();
     }
-    
+
     private void initFields() {
         String title;
-        
+
         title = Lang.write("menu.main.new_game");
         newGameItem = new JMenuItem(title);
-        
+
         title = Lang.write("menu.main.config");
         configItem = new JMenuItem(title);
-        
+
         title = Lang.write("menu.main.score");
         scoreItem = new JMenuItem(title);
-        
+
         title = Lang.write("menu.main.exit");
         exitItem = new JMenuItem(title);
     }
-    
+
     private void addFields() {
         add(newGameItem);
         addSeparator();
@@ -66,28 +66,28 @@ public class MainMenu extends JMenu {
         addSeparator();
         add(exitItem);
     }
-    
+
     private void addTooltips() {
         StatusBar sb = mainMenuBar.getWindow().getStatusBar();
-        
+
         String label;
-        
+
         label = Lang.write("menu.main.new_game.tooltip");
         Behaviour.setTooltip(newGameItem, label, sb);
-        
+
         label = Lang.write("menu.main.config.tooltip");
         Behaviour.setTooltip(configItem, label, sb);
-        
+
         label = Lang.write("menu.main.score.tooltip");
         Behaviour.setTooltip(scoreItem, label, sb);
-        
+
         label = Lang.write("menu.main.exit.tooltip");
         Behaviour.setTooltip(exitItem, label, sb);
     }
 
     private void setIcons() {
         final ImageProvider images = mainMenuBar.getWindow().getImageProvider();
-        
+
         newGameItem.setIcon(images.getOKIcon());
         configItem.setIcon(images.getConfigIcon());
         scoreItem.setIcon(images.getScoreIcon());
@@ -100,31 +100,31 @@ public class MainMenu extends JMenu {
         scoreItem.setAccelerator(Hotkeys.SHOW_SCORE_DIALOG.getValue());
         exitItem.setAccelerator(Hotkeys.EXIT_APPLICATION.getValue());
     }
-    
+
     private void assignListeners() {
         final ActionProvider actionProvider = mainMenuBar.getWindow().getGame().getActionProvider();
-        
+
         newGameItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actionProvider.getWindowActions().showNewGamePrompt();
             }
         });
-        
+
         configItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mainMenuBar.getWindow().getConfigDialog().setVisible(true);
             }
         });
-        
+
         scoreItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mainMenuBar.getWindow().getScoreDialog().setVisible(true);
             }
         });
-        
+
         exitItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

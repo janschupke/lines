@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
+ *
  * Tests the adding and sorting of the entries
  * within the Score Board model.
  *
@@ -16,7 +16,7 @@ import org.junit.Test;
 public class ScoreBoardTest {
     private ScoreBoard emptyBoard;
     private ScoreBoard boardWithEntries;
-    
+
     private ScoreEntry mainEntry;
     private ScoreEntry highEntry;
     private ScoreEntry lowEntry;
@@ -52,25 +52,25 @@ public class ScoreBoardTest {
             "N/A",
             "N/A"
     };
-    
+
     @Before
     public void create() {
         mainEntry = new ScoreEntry(mainValues);
         highEntry = new ScoreEntry(highValues);
         lowEntry = new ScoreEntry(lowValues);
-        
+
         emptyBoard = new ScoreBoard(null);
-        
+
         // Entries are added in its test.
         boardWithEntries = new ScoreBoard(null);
     }
-    
+
     @After
     public void clean() {
         emptyBoard.reset();
         boardWithEntries.reset();
     }
-    
+
     /**
      * Fills the entire board up to its capacity
      * with testing entries.
@@ -79,10 +79,10 @@ public class ScoreBoardTest {
         for(int i = 0; i < ScoreBoard.CAPACITY; i++) {
             board.addEntry(mainEntry);
         }
-        
+
         return board;
     }
-    
+
     /**
      * Default ScoreBoard state should be empty.
      */
@@ -90,39 +90,39 @@ public class ScoreBoardTest {
     public void testIsEmpty() {
         assertEquals(true, emptyBoard.isEmpty());
     }
-    
+
     @Test
     public void testIsFull() {
         boardWithEntries = fillBoard(boardWithEntries);
-        
+
         assertEquals(true, boardWithEntries.isFull());
     }
-    
+
     @Test
     public void testReset() {
         assertFalse("Not empty.", !emptyBoard.isEmpty());
-        
+
         emptyBoard.addEntry(mainEntry);
         assertFalse("Is empty after add attempt.", emptyBoard.isEmpty());
-        
+
         emptyBoard.reset();
         assertFalse("Not empty after reset.", !emptyBoard.isEmpty());
     }
-    
+
     /**
      * Testing full board situation, adding the same entry.
      */
     @Test
     public void testIsScoreSuitable1() {
         boardWithEntries = fillBoard(boardWithEntries);
-        
+
         int score = Integer.parseInt(mainEntry.getScore());
         int board = Integer.parseInt(mainEntry.getBoardSize());
-        
+
         assertFalse("Board is full, should not be suitable.",
                 boardWithEntries.isScoreSuitable(score, board));
     }
-    
+
     /**
      * Testing insertion of higher score into a full board.
      */
@@ -132,11 +132,11 @@ public class ScoreBoardTest {
 
         int score = Integer.parseInt(highEntry.getScore());
         int board = Integer.parseInt(highEntry.getBoardSize());
-        
+
         assertFalse("Score is higher, should be suitable.",
                 !boardWithEntries.isScoreSuitable(score, board));
     }
-    
+
     /**
      * Testing insertion of lower score into a full board.
      */
@@ -146,11 +146,11 @@ public class ScoreBoardTest {
 
         int score = Integer.parseInt(lowEntry.getScore());
         int board = Integer.parseInt(lowEntry.getBoardSize());
-        
+
         assertFalse("Score is lower, should not be suitable.",
                 boardWithEntries.isScoreSuitable(score, board));
     }
-    
+
     /**
      * Testing insertion of lower score into a board
      * that is not yet completely filled up.
@@ -163,7 +163,7 @@ public class ScoreBoardTest {
 
         int score = Integer.parseInt(lowEntry.getScore());
         int board = Integer.parseInt(lowEntry.getBoardSize());
-        
+
         assertFalse("Board is not fulll yet, should be suitable.",
                 !boardWithEntries.isScoreSuitable(score, board));
     }

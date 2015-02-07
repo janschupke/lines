@@ -11,7 +11,7 @@ import eu.janschupke.lines.config.Configurator;
 import eu.janschupke.lines.gui.dialogs.CustomDialogs;
 
 /**
- * 
+ *
  * Handles the operation with configuration files.
  * Takes care of creating files and loading and saving of config. properties.
  * @see Configurator
@@ -22,39 +22,39 @@ public class ConfigHandler extends FileHandler {
     private Configurator config;
 
     private FileOutputStream out;
-    
+
     public ConfigHandler(Configurator config) {
         super();
-        
+
         this.config = config;
 
         // A path to the application configuration file.
         file = new File(this.folder + System.getProperty("file.separator") + config.getFileName());
     }
-    
+
     private void storeData() throws IOException {
         out = new FileOutputStream(file);
         config.getProperties().store(out, "");
         out.close();
     }
-    
+
     /**
      * Tries to load values. Sets defaults if the file is not available.
      */
     @Override
     public boolean load() {
         super.load();
-        
+
         try {
             if(file.exists()) {
                 // Loads from existing.
                 config.getProperties().load(new FileInputStream(file));
-                
+
                 if(!config.checkConfigIntegrity()) {
                     config.setDefaultConfig();
                     storeData();
                 }
-                
+
             } else {
                 /*
                  * Creates a new config. file and saves defaults.
@@ -62,9 +62,9 @@ public class ConfigHandler extends FileHandler {
                 config.setDefaultConfig();
                 storeData();
             }
-            
+
             return true;
-            
+
         } catch (Exception e) {
             StaticMethods.debug("Exception in " + StaticMethods.getMethodName(this));
 
@@ -72,11 +72,11 @@ public class ConfigHandler extends FileHandler {
              * Cannot even log the error here.
              * Should be called from somewhere else.
              */
-            
+
             return false;
         }
     }
-    
+
     /**
      * Tries to save new values into the file.
      * @return success state
@@ -84,15 +84,15 @@ public class ConfigHandler extends FileHandler {
     @Override
     public boolean save() {
         super.save();
-        
+
         try {
             /*
              * Save the config. file.
              */
             storeData();
-            
+
             return true;
-            
+
         } catch (Exception e) {
             StaticMethods.debug("Exception in " + StaticMethods.getMethodName(this));
 
@@ -103,7 +103,7 @@ public class ConfigHandler extends FileHandler {
             // Shows error message on the screen.
             CustomDialogs.showErrorDialog(config.getProvider().getWindow(),
                     Lang.write("file.config.save.error"));
-            
+
             return false;
         }
     }

@@ -16,13 +16,13 @@ import eu.janschupke.lines.model.Balls;
 import eu.janschupke.lines.model.Cell;
 
 /**
- * 
+ *
  * Represents the graphical view of one {@link Cell}.
  *
  */
 public class CellPanel extends GradientComponent {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Different displaying options for balls
      * inside a cell panel.
@@ -42,35 +42,35 @@ public class CellPanel extends GradientComponent {
          */
         INCOMING;
     }
-    
+
     /**
      * The board to which this panel
      * is associated to.
      */
     private BoardPanel board;
-    
+
     /**
      * An instance from the model,
      * which is encapsulated by this panel.
      * @see Cell
      */
     private Cell cell;
-    
+
     /**
      * Pixel size of the cell panel.
      */
     private int cellSize;
-    
+
     /**
      * Ball style for this specific cell.
      */
     private Styles style;
-    
+
     /**
      * A label on which the ball is painted.
      */
     private JLabel ballLabel;
-    
+
     /**
      * A value that represents the background color that this Panel
      * is supposed to have. Since global repaints happen, during which
@@ -84,7 +84,7 @@ public class CellPanel extends GradientComponent {
      * @see CellPanel#highlightUnreachable(boolean state)
      */
     private Color expectedBackground;
-    
+
     /**
      * Creates a new {@link CellPanel} with custom displaying ball style.
      * @param board the {@link BoardPanel} into which this {@link CellPanel} belongs to
@@ -96,13 +96,13 @@ public class CellPanel extends GradientComponent {
         this.board = board;
         this.style = style;
         this.cell = cell;
-        
+
         setBackground(Colors.DEFAULT_CELL.getValue());
-        
+
         initFields();
         addFields();
     }
-    
+
     /**
      * Creates a new {@link CellPanel} with default displaying ball style.
      * @param board the {@link BoardPanel} into which this cell belongs to
@@ -111,7 +111,7 @@ public class CellPanel extends GradientComponent {
     public CellPanel(BoardPanel board, Cell cell) {
         this(board, cell, Styles.NORMAL);
     }
-    
+
     /**
      * Paints the background of the cell
      * based on the configured background style.
@@ -121,33 +121,33 @@ public class CellPanel extends GradientComponent {
         Properties properties = board.getWindow().getGame().getConfigProvider().getConfig().getProperties();
         String key = properties.getProperty(Configurator.Keys.PAINT_GRADIENT.toString());
         boolean paintGradient = Boolean.parseBoolean(key);
-        
+
         if(paintGradient) {
             StaticMethods.setGradient(this, g);
         } else {
             StaticMethods.removeGradient(this, g);
         }
     }
-    
+
     private void initFields() {
         highlightActive(false);
-        
+
         expectedBackground = Colors.DEFAULT_CELL.getValue();
-        
+
         /*
          * Does not actually change style.
          * Only called to set cell size, which is done
-         * inside setStyle(). 
+         * inside setStyle().
          */
         setStyle(style);
-        
+
         ballLabel = new JLabel();
     }
-    
+
     private void addFields() {
         add(ballLabel);
     }
-    
+
     private void setStyle(Styles s) {
         this.style = s;
 
@@ -158,18 +158,18 @@ public class CellPanel extends GradientComponent {
             case DIMINISHED:
                 cellSize = 35;
                 break;
-                
+
             case INCOMING:
                 cellSize = 55;
                 break;
-                
+
             default:
             case NORMAL:
                 cellSize = 55;
                 break;
         }
     }
-    
+
     /**
      * Paints or removes a ball according to the current
      * state of the associated {@link Cell} model.
@@ -180,9 +180,9 @@ public class CellPanel extends GradientComponent {
             ballLabel.setIcon(null);
             return;
         }
-        
+
         Balls ballID;
-        
+
         /*
          * Diminished style is used for the Info Panel
          * and should not ever change for any panels
@@ -202,7 +202,7 @@ public class CellPanel extends GradientComponent {
         } else {
             ballID = cell.getBall();
         }
-        
+
         /*
          * Removes the ball icon if the model
          * does not contain any ball information.
@@ -211,14 +211,14 @@ public class CellPanel extends GradientComponent {
             ballLabel.setIcon(null);
             return;
         }
-        
+
         ImageIcon ball;
-        
+
         // Does the painting.
         ball = assignImage(ballID);
         paintBall(ball);
     }
-    
+
     /**
      * Retrieves the actual image based on the provided ball
      * information from the model.
@@ -226,44 +226,44 @@ public class CellPanel extends GradientComponent {
     private ImageIcon assignImage(Balls ballID) {
         ImageProvider iProvider = board.getWindow().getImageProvider();
         ImageIcon ball;
-        
+
         switch(ballID) {
             case BLUE:
                 ball = iProvider.getBlueBall();
                 break;
-                
+
             case GREEN:
                 ball = iProvider.getGreenBall();
                 break;
-                
+
             case ORANGE:
                 ball = iProvider.getOrangeBall();
                 break;
-                
+
             case PURPLE:
                 ball = iProvider.getPurpleBall();
                 break;
-                
+
             case RED:
                 ball = iProvider.getRedBall();
                 break;
-                
+
             case YELLOW:
                 ball = iProvider.getYellowBall();
                 break;
-    
+
             case BLACK:
                 ball = iProvider.getBlackBall();
                 break;
-    
+
             default:
                 ball = iProvider.getOrangeBall();
                 break;
         }
-        
+
         return ball;
     }
-    
+
     /**
      * Adjusts the ball size. Incoming balls are displayed smaller.
      * They are also indented from the top by assigning a border
@@ -281,15 +281,15 @@ public class CellPanel extends GradientComponent {
             case INCOMING:
                 // 1.0f makes the image opaque.
                 float alpha = 0.7f;
-                
+
                 ball = board.getWindow().getImageProvider().resizeImage(ball, cellSize - 33);
-                
+
                 AlphaImageIcon smallBall = new AlphaImageIcon(ball, alpha);
-                
+
                 ballLabel.setBorder(Borders.SMALL_BALL_PADDING.getValue());
                 ballLabel.setIcon(smallBall);
                 break;
-            
+
             /*
              * Normal Game Board balls are already resized so that
              * they fit the cell. No resizing is done here
@@ -299,20 +299,20 @@ public class CellPanel extends GradientComponent {
                 ballLabel.setBorder(null);
                 ballLabel.setIcon(ball);
                 break;
-            
+
             /*
              * In all other cases, the ball size is adjusted according to the
              * current cell size.
              */
             default:
                 ball = board.getWindow().getImageProvider().resizeImage(ball, cellSize - 12);
-                
+
                 ballLabel.setBorder(null);
                 ballLabel.setIcon(ball);
                 break;
         }
     }
-    
+
     /**
      * Changes the panels' border appearance according to the provided state.
      * @param state the state into which the CellPanel should switch
@@ -340,7 +340,7 @@ public class CellPanel extends GradientComponent {
             }
         }
     }
-    
+
     /**
      * Changes the background color of this panel
      * so that it represents a reachable cell.
@@ -352,10 +352,10 @@ public class CellPanel extends GradientComponent {
         } else {
             expectedBackground = Colors.DEFAULT_CELL.getValue();
         }
-        
+
         setBackground(expectedBackground);
     }
-    
+
     /**
      * Changes the background color of this panel
      * so that it represents an unreachable cell.
@@ -367,10 +367,10 @@ public class CellPanel extends GradientComponent {
         } else {
             expectedBackground = Colors.DEFAULT_CELL.getValue();
         }
-        
+
         setBackground(expectedBackground);
     }
-    
+
     public Cell getCell() { return cell; }
     public int getCellSize() { return cellSize; }
 }

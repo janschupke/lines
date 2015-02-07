@@ -17,46 +17,46 @@ import eu.janschupke.lines.model.ScoreBoard;
 import eu.janschupke.lines.model.ScoreEntry;
 
 /**
- * 
+ *
  * Provides all executive methods that are relevant
  * to the game and it's logic.
  *
  */
 public class GameActions {
     private ActionProvider provider;
-    
+
     private boolean [][] cellsToPop;
-    
+
     public GameActions(ActionProvider provider) {
         this.provider = provider;
     }
-    
+
     public boolean [][] getCellsToPop() {
         return cellsToPop;
     }
-    
+
     /**
      * Sets all game timers to their default values.
      */
     private void resetGameTimers() {
         StaticMethods.printMethodName(this);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
-        
+
         long now = System.currentTimeMillis();
-        
+
         meta.setGameStartTime(now);
         meta.setSessionStartTime(now);
         meta.setPreviousSessionTime(0);
         meta.setCurrentSessionTime(0);
     }
-    
+
     /**
      * Sets all meta information into their default values.
      */
     private void resetMeta() {
         StaticMethods.printMethodName(this);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
 
         resetGameTimers();
@@ -70,13 +70,13 @@ public class GameActions {
      */
     private void populateBoard() {
         StaticMethods.printMethodName(this);
-        
+
         Board board = provider.getGame().getModel().getBoard();
         MetadataContainer meta = provider.getGame().getModel().getMeta();
-        
+
         for(int i = 0; i < GlobalLimits.BALLS_PER_TURN.getValue(); i++) {
             Balls b = meta.getIncomingBalls()[i].getBall();
-            
+
             /*
              * If not empty cells are available, the board is full
              * and the game will be restarted upon returning
@@ -86,12 +86,12 @@ public class GameActions {
                 StaticMethods.debug("Could not find an empty cell.");
                 return;
             }
-            
+
             if(Debug.BOARD.getValue()) {
                 StaticMethods.debug("Spawning ball [" + i + "] onto the " +
                         board.getIncomingPositions()[i]);
             }
-            
+
             /*
              * Sets the ball from 'incoming colors' array
              * into the position saved in the board model array.
@@ -99,7 +99,7 @@ public class GameActions {
             board.getIncomingPositions()[i].setBall(b);
         }
     }
-    
+
     /**
      * Executes all procedures that are necessary
      * in order to start a new game.
@@ -109,24 +109,24 @@ public class GameActions {
 
         MetadataContainer meta = provider.getGame().getModel().getMeta();
         Board board = provider.getGame().getModel().getBoard();
-        
+
         // Score handling etc.
         checkScoreForSaving();
-        
+
         // Sets all meta information into their default values.
         resetMeta();
-        
+
         provider.getGame().getModel().getMeta().setNewBalls();
-        
+
         board.clear();
         board.calculateIncomingPositions();
-        
+
         // Starts a new turn in order to spawn some balls.
         startNewTurn(true);
-        
+
         // Indicates that there is a game currently going on.
         meta.setGameStatus(true);
-        
+
         meta.setFreshStatus(true);
     }
 
@@ -140,9 +140,9 @@ public class GameActions {
 
         MetadataContainer meta = provider.getGame().getModel().getMeta();
         Board board = provider.getGame().getModel().getBoard();
-        
+
         meta.setFreshStatus(false);
-        
+
         resetTurnTimer();
 
         /*
@@ -152,11 +152,11 @@ public class GameActions {
         if(!board.incomingPositionsAvailable()) {
             board.recalculateIncomingPositions();
         }
-        
+
         if(addBalls) {
             populateBoard();
         }
-        
+
         /*
          * Starts a new game if the board fill up.
          * Score assigning is called inside the startNewGame() method
@@ -166,9 +166,9 @@ public class GameActions {
         if(board.isFull()) {
             StaticMethods.debug("The Board is full.");
             startNewGame();
-            
+
             return;
-            
+
         } else {
             /*
              * If the board was not filled up and the game continues,
@@ -177,18 +177,18 @@ public class GameActions {
              */
             popLines();
         }
-        
+
         /*
          * If balls are spawned, new incoming colors and positions
          * are set for the next turn.
          */
         if(addBalls) {
             StaticMethods.debug("Calculating new incoming balls.");
-            
+
             provider.getGame().getModel().getMeta().setNewBalls();
             board.calculateIncomingPositions();
         }
-        
+
         /*
          * Cancels any turn that might have been in process
          * when startNewTurn() was called.
@@ -196,14 +196,14 @@ public class GameActions {
          * an active ball, it is deactivated.
          */
         cancelTurn();
-        
+
         /*
          * Refreshes the scene.
          */
         provider.getWindow().getBoardPanel().toggleUI();
         provider.getWindow().getInfoPanel().toggleUI();
     }
-    
+
     /**
      * Creates a new {@link ScoreEntry} that can be added into the {@link ScoreBoard}.
      * @return  new {@link ScoreEntry}
@@ -213,21 +213,21 @@ public class GameActions {
 
         MetadataContainer meta = provider.getGame().getModel().getMeta();
         Board board = provider.getGame().getModel().getBoard();
-        
+
         /*
          * Converts the timestamp into a more readable format.
          */
         Date gst = new Date(new Long(meta.getGameStartTime()));
         SimpleDateFormat gameStartFormat = new SimpleDateFormat("yyyy-MM-dd");
-        
+
         String turnTime;
-        
+
         if(meta.isTurnTimeEnabled()) {
             turnTime = new Long(meta.getTurnTimeLimit()).toString();
         } else {
             turnTime = Lang.write("misc.na");
         }
-        
+
         /*
          * Creates a String array that represents
          * the score entry.
@@ -240,70 +240,70 @@ public class GameActions {
             StaticMethods.parseTime(new Long(meta.getTotalGameTime())),
             gameStartFormat.format(gst)
         };
-        
+
         return new ScoreEntry(values);
     }
-    
+
     /**
      * Creates a new {@link ScoreEntry} and adds it into the {@link ScoreBoard}.
      */
     public void updateScoreBoard() {
         StaticMethods.printMethodName(this);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
         ScoreBoard scoreBoard = provider.getGame().getModel().getScoreBoard();
         GameEndDialog dialog = provider.getGame().getView().getGameEndDialog();
-        
+
         /*
          * User name could have been changed during the dialog.
          */
         meta.setUsername(dialog.getUsernameField().getText());
-        
+
         /*
          * Adds the entry into the board.
          */
         ScoreEntry entry = createScoreEntry();
         scoreBoard.addEntry(entry);
-        
+
         dialog.setVisible(false);
     }
-    
+
     /**
      * If the score achieved during this currently ending game was high enough,
      * a dialog is displayed that allows the player to save this score.
      */
     private void checkScoreForSaving() {
         StaticMethods.printMethodName(this);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
         ScoreBoard scoreBoard = provider.getGame().getModel().getScoreBoard();
         Board board = provider.getGame().getModel().getBoard();
-        
+
         int score = meta.getCurrentScore();
         int boardSize = board.getSize();
-        
+
         /*
          * Displays the dialog, if requirements are met.
          */
         if(score > 0 && scoreBoard.isScoreSuitable(score, boardSize)) {
             StaticMethods.debug("Score is sufficient.");
-            
+
             provider.getGame().getView().getGameEndDialog().toggleUI();
             provider.getGame().getView().getGameEndDialog().setVisible(true);
         }
     }
-    
+
     /**
      * Sets the turn timer to zero.
      */
     private void resetTurnTimer() {
         StaticMethods.printMethodName(this);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
-        
+
         meta.resetTurnTime();
     }
-    
+
     /**
      * Increases the current score based on the amount of balls
      * that that player managed to get rid of during last turn.
@@ -311,14 +311,14 @@ public class GameActions {
      */
     private void updateScore(int total) {
         StaticMethods.printMethodName(this);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
-        
+
         /*
          * Given minimum line length m,
          * total amount of balls t
          * and amount of balls above minimum (t - m),
-         * the score will be increased by 
+         * the score will be increased by
          * m +  2^(t - m)
          */
         double score = 0;
@@ -329,20 +329,20 @@ public class GameActions {
             StaticMethods.debug("Score == 0.");
             return;
         }
-        
+
         if(total == GlobalLimits.MINIMUM_LINE_LENGTH.getValue()) {
             StaticMethods.debug("Assigning minimum score");
-            
+
             score = GlobalLimits.MINIMUM_LINE_LENGTH.getValue();
         } else {
             StaticMethods.debug("Assigning score by formula.");
-            
+
             score = min + Math.pow(2, above);
         }
-        
+
         meta.updateScore((int) score);
     }
-    
+
     /**
      * Removes a ball from the originating {@link Cell}
      * and places it into the destination {@link Cell}.
@@ -351,18 +351,18 @@ public class GameActions {
      */
     private void move(Cell from, Cell to) {
         StaticMethods.printMethodName(this);
-        
+
         to.setBall(from.getBall());
-        
+
         from.setBall(null);
-        
+
         provider.getGame().getView().getBoardPanel().toggleUI();
-        
+
         if(Debug.BOARD.getValue()) {
             StaticMethods.debug("Moved to " + to);
         }
     }
-    
+
     /**
      * Determines whether the path between two cells exists.
      * @param   to destination {@link Cell}
@@ -372,14 +372,14 @@ public class GameActions {
         StaticMethods.printMethodName(this);
 
         Board board = provider.getGame().getModel().getBoard();
-        
+
         if(board.getReachability(to)) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Compares two cells and determines whether they are equal
      * based on their coordinates.
@@ -388,7 +388,7 @@ public class GameActions {
     private boolean comparePositions(Cell from, Cell to) {
         return from == to;
     }
-    
+
     /**
      * Cancels a turn that may have been going on.
      */
@@ -397,18 +397,18 @@ public class GameActions {
 
         Board board = provider.getGame().getModel().getBoard();
         MetadataContainer meta = provider.getGame().getModel().getMeta();
-        
+
         // Deactivates currently active cell on the board.
         if(meta.getOriginatingCell() != null) {
             StaticMethods.debug("Removing originating cell.");
             board.setActive(meta.getOriginatingCell(), false);
         }
-        
+
         // Sets meta information accordingly.
         meta.setTurnStatus(false);
         meta.setOriginatingCell(null);
     }
-    
+
     /**
      * Removes all balls that were flagged for popping
      * at the end of the turn.
@@ -416,11 +416,11 @@ public class GameActions {
      */
     private int removeFlaggedBalls() {
         StaticMethods.printMethodName(this);
-        
+
         Board board = provider.getGame().getModel().getBoard();
-        
+
         int popped = 0;
-        
+
         /*
          * Goes through the boolean array
          * that represents popping flags for every
@@ -437,10 +437,10 @@ public class GameActions {
                     if(Debug.BOARD.getValue()) {
                         StaticMethods.debug("Removing " + board.getCell(x, y));
                     }
-                    
+
                     popped++;
                     board.getCell(x, y).setBall(null);
-                    
+
                     /*
                      * Sets the flag back to its default value
                      * for future re-use. Not exactly needed,
@@ -450,10 +450,10 @@ public class GameActions {
                 }
             }
         }
-        
+
         return popped;
     }
-    
+
     /**
      * Checks every newly spawned ball on the board to determine
      * whether any sufficiently long lines have formed
@@ -463,28 +463,28 @@ public class GameActions {
      */
     private int popLines() {
         StaticMethods.printMethodName(this);
-        
+
         Board board = provider.getGame().getModel().getBoard();
 
         /*
          * Contains pop flags for every available cell.
          */
         cellsToPop = new boolean[board.getSize()][board.getSize()];
-        
+
         /*
          * Goes through all unchecked newly spawned cells
          * and checks for newly formed lines.
          */
         while(!board.getSpawnedBalls().isEmpty()) {
             Cell c = board.getSpawnedBalls().poll();
-            
+
             if(Debug.BOARD.getValue()) {
                 StaticMethods.debug("Polling cell " + c + " from the queue.");
             }
-            
+
             checkCell(c);
         }
-        
+
         /*
          * Removes flagged balls from the board
          * and returns their amount.
@@ -496,10 +496,10 @@ public class GameActions {
          * that have been popped.
          */
         updateScore(popAmount);
-        
+
         return popAmount;
     }
-    
+
     /**
      * Parses all directions starting at the provided {@link Cell}.
      * Looks for any newly created lines that need to be removed.
@@ -509,13 +509,13 @@ public class GameActions {
         if(Debug.BOARD.getValue()) {
             StaticMethods.printMethodName(this);
         }
-        
+
         parseHorizontalLine(cell);
         parseVerticalLine(cell);
         parseDecreasingDiagonal(cell);
         parseIncreasingDiagonal(cell);
     }
-    
+
     /**
      * Searching for lines horizontally.
      */
@@ -523,29 +523,29 @@ public class GameActions {
         if(Debug.BOARD.getValue()) {
             StaticMethods.printMethodName(this);
         }
-        
+
         Board board = provider.getGame().getModel().getBoard();
         LineChecker checker = provider.getLineChecker();
-        
+
         int y = cell.getPosition()[1];
-        
+
         /*
          * Checks horizontally aligned cells,
          * starting at the left-most cell.
          */
         for(int i = 0; i < board.getSize(); i++) {
             Cell c;
-            
+
             c = board.getCell(i, y);
 
             if(Debug.BOARD.getValue()) {
                 StaticMethods.debug("Checking cell " + c + " horizontally.");
             }
-            
+
             checker.checkHorizontalLine(c);
         }
     }
-    
+
 
     /**
      * Searching for lines vertically.
@@ -554,12 +554,12 @@ public class GameActions {
         if(Debug.BOARD.getValue()) {
             StaticMethods.printMethodName(this);
         }
-        
+
         Board board = provider.getGame().getModel().getBoard();
         LineChecker checker = provider.getLineChecker();
-        
+
         int x = cell.getPosition()[0];
-        
+
         /*
          * Checks vertically aligned cells,
          * starting at the top.
@@ -568,15 +568,15 @@ public class GameActions {
             Cell c;
 
             c = board.getCell(x, i);
-            
+
             if(Debug.BOARD.getValue()) {
                 StaticMethods.debug("Checking cell " + c + " vertically.");
             }
-            
+
             checker.checkVerticalLine(c);
         }
     }
-    
+
 
     /**
      * Searching for lines on the decreasing diagonal.
@@ -585,10 +585,10 @@ public class GameActions {
         if(Debug.BOARD.getValue()) {
             StaticMethods.printMethodName(this);
         }
-        
+
         Board board = provider.getGame().getModel().getBoard();
         LineChecker checker = provider.getLineChecker();
-        
+
         /*
          * Prepares coordinates of a starting cell
          * for the decreasing diagonal check.
@@ -597,29 +597,29 @@ public class GameActions {
         int j = cell.getPosition()[1];
 
         int s = board.getSize();
-        
+
         while(i > 0 && j > 0) {
             i--;
             j--;
         }
-        
+
         /*
          * Checks the decreasing diagonal that goes through
          * the cell in question.
          */
         for(; i < s && j < s; i++, j++) {
             Cell c;
-            
+
             c = board.getCell(i, j);
-            
+
             if(Debug.BOARD.getValue()) {
                 StaticMethods.debug("Checking cell " + c + "\'s decreasing diagonal.");
             }
-            
+
             checker.checkDecreasingDiagonal(c);
         }
     }
-    
+
 
     /**
      * Searching for lines on the increasing diagonal.
@@ -628,19 +628,19 @@ public class GameActions {
         if(Debug.BOARD.getValue()) {
             StaticMethods.printMethodName(this);
         }
-        
+
         Board board = provider.getGame().getModel().getBoard();
         LineChecker checker = provider.getLineChecker();
-        
+
         /*
          * Prepares coordinates of a starting cell
          * for the increasing diagonal check.
          */
         int i = cell.getPosition()[0];
         int j = cell.getPosition()[1];
-        
+
         int s = board.getSize();
-        
+
         while(i > 0 && j < s - 1) {
             i--;
             j++;
@@ -652,27 +652,27 @@ public class GameActions {
          */
         for(; i < s && j >= 0; i++, j--) {
             Cell c;
-            
+
             c = board.getCell(i, j);
-            
+
             if(Debug.BOARD.getValue()) {
                 StaticMethods.debug("Checking cell " + c + "\'s increasing diagonal.");
             }
-            
+
             checker.checkIncreasingDiagonal(c);
         }
     }
-    
+
     /**
      * Takes appropriate actions every time the player clicks a cell ({@link CellPanel}).
      * @param   cell    the actual {@link Cell} inside the {@link CellPanel} that was clicked
      */
     public void handleCellClick(Cell cell) {
         StaticMethods.printMethodName(this);
-        
+
         MetadataContainer meta = provider.getGame().getModel().getMeta();
         Board board = provider.getGame().getModel().getBoard();
-        
+
         /*
          * Tries to start a new turn
          * if there is not one in process already.
@@ -685,12 +685,12 @@ public class GameActions {
              */
             if(!cell.isEmpty()) {
                 StaticMethods.debug("Cell contains a ball. Starting a turn.");
-                
+
                 meta.setTurnStatus(true);
-                
+
                 board.setActive(cell, true);
                 meta.setOriginatingCell(cell);
-                
+
                 board.calculateReachabilityMatrix(cell);
             } else {
                 StaticMethods.debug("The cell is empty.");
@@ -709,7 +709,7 @@ public class GameActions {
                  */
                 if(comparePositions(meta.getOriginatingCell(), cell)) {
                     StaticMethods.debug("Clicked the same cell again.");
-                    
+
                     cancelTurn();
                 /*
                  * Clicking another ball will make this
@@ -717,12 +717,12 @@ public class GameActions {
                  */
                 } else {
                     StaticMethods.debug("Clicked another ball.");
-                    
+
                     board.setActive(meta.getOriginatingCell(), false);
                     board.setActive(cell, true);
-                    
+
                     meta.setOriginatingCell(cell);
-                    
+
                     board.calculateReachabilityMatrix(cell);
                 }
             /*
@@ -736,9 +736,9 @@ public class GameActions {
                 if(pathExists(cell)) {
                     StaticMethods.debug("Path exists.");
                     move(meta.getOriginatingCell(), cell);
-                    
+
                     board.setActive(meta.getOriginatingCell(), false);
-                    
+
                     /*
                      * No additional balls are spawned
                      * on successful turn (lines popped).
@@ -748,7 +748,7 @@ public class GameActions {
                     } else {
                         startNewTurn(true);
                     }
-                    
+
                     /*
                      * Ends the current turn.
                      */
@@ -759,7 +759,7 @@ public class GameActions {
             }
         }
     }
-    
+
     /**
      * Wipes the {@link ScoreBoard} if the user confirms this action.
      */
@@ -767,7 +767,7 @@ public class GameActions {
         StaticMethods.printMethodName(this);
 
         ScoreBoard scoreBoard = provider.getGame().getModel().getScoreBoard();
-        
+
         scoreBoard.reset();
     }
 }

@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
+ *
  * Mainly comparisons of entries that have different
  * score amounts and board sizes.
  *
@@ -18,13 +18,13 @@ public class ScoreEntryTest {
     private ScoreEntry smallBoardHighScore;
     private ScoreEntry largeBoardLowScore;
     private ScoreEntry largeBoardHighScore;
-    
+
     private final String mainScore = "15";
     private final String mainBoardSize = "9";
-    
+
     private final String highScore = "50";
     private final String largeBoardSize = "12";
-    
+
     /*
      * User Name
      * Score
@@ -77,17 +77,17 @@ public class ScoreEntryTest {
             "N/A",
             "N/A"
     };
-    
+
     @Before
     public void create() {
         mainEntry = new ScoreEntry(mainValues);
-        
+
         smallBoardLowScore = new ScoreEntry(smallBoardLowScoreValues);
         smallBoardHighScore = new ScoreEntry(smallBoardHighScoreValues);
         largeBoardLowScore = new ScoreEntry(largeBoardLowScoreValues);
         largeBoardHighScore = new ScoreEntry(largeBoardHighScoreValues);
     }
-    
+
     /**
      * Verifies OutOfBoundsExpection
      */
@@ -96,7 +96,7 @@ public class ScoreEntryTest {
         @SuppressWarnings("unused")
         String value = mainEntry.getValue(6);
     }
-    
+
     /**
      * Should be tested, since the value within the object
      * is represented as an array index. Array ordering could
@@ -106,7 +106,7 @@ public class ScoreEntryTest {
     public void getScore() {
         String expectedValue = mainScore;
         String actualValue = mainEntry.getScore();
-        
+
         assertEquals(expectedValue, actualValue);
     }
 
@@ -119,17 +119,17 @@ public class ScoreEntryTest {
     public void getBoardSize() {
         String expectedValue = mainBoardSize;
         String actualValue = mainEntry.getBoardSize();
-        
+
         assertEquals(expectedValue, actualValue);
     }
-    
+
     /**
      * Higher score should win.
      */
     @Test
     public void testCompareTo1() {
         int value = smallBoardLowScore.compareTo(smallBoardHighScore);
-        
+
         assertEquals(-1, value);
     }
 
@@ -139,20 +139,20 @@ public class ScoreEntryTest {
     @Test
     public void testCompareTo2() {
         int value = smallBoardHighScore.compareTo(smallBoardLowScore);
-        
+
         assertEquals(1, value);
     }
-    
+
     /**
      * Equal scores and board sizes. Neither should win.
      */
     @Test
     public void testCompareTo3() {
         int value = smallBoardHighScore.compareTo(smallBoardHighScore);
-        
+
         assertEquals(0, value);
     }
-    
+
     /**
      * Smaller board should always win.
      */

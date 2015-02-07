@@ -3,7 +3,7 @@ package eu.janschupke.lines.model;
 import java.util.Random;
 
 /**
- * 
+ *
  * A list of all different ball colors used in the game.
  *
  */
@@ -15,11 +15,11 @@ public enum Balls {
     RED(4),
     YELLOW(5),
     BLACK(6);
-    
+
     private final int value;
     Balls(int value) { this.value = value; }
     public int getValue() { return value; }
-    
+
     /**
      * Returns a Ball with the provided value.
      * @return a Ball that is associated with the provided value,
@@ -31,10 +31,10 @@ public enum Balls {
                 return b;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Gets a random Ball.
      * @return randomly selected Ball.

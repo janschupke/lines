@@ -15,14 +15,14 @@ import java.io.Serializable;
 import eu.janschupke.lines.StaticMethods;
 
 /**
- * 
+ *
  * A class that provides static versions of
  * file-handling methods.
  *
  */
 public class FileManipulator implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Object serialization.
      * @param file destination file
@@ -36,17 +36,17 @@ public class FileManipulator implements Serializable {
             oos.writeObject(object);
             oos.flush();
             oos.close();
-            
+
             return true;
         } catch (FileNotFoundException e) {
             StaticMethods.debug(e.getMessage());
         } catch(Exception e) {
             StaticMethods.debug(e.getMessage());
         }
-        
+
         return false;
     }
-    
+
     /**
      * Object deserialization.
      * @param file the file to be read from
@@ -55,7 +55,7 @@ public class FileManipulator implements Serializable {
      */
     public static Object readObj(String file) {
         Object object = null;
-        
+
         try {
             FileInputStream fis = new FileInputStream(file);
             ObjectInputStream ois = new ObjectInputStream(fis);
@@ -63,13 +63,13 @@ public class FileManipulator implements Serializable {
             ois.close();
         } catch (Exception e) {
             FileManipulator.writeObj(file, null);
-            
+
             StaticMethods.debug(e.getMessage());
         }
 
         return object;
     }
-    
+
     /**
      * Reads a plain text file.
      * @return contents of a text file
@@ -81,15 +81,15 @@ public class FileManipulator implements Serializable {
         FileInputStream fis = null;
         BufferedInputStream bis = null;
         BufferedReader dis = null;
-        
+
         String inputLine = "";
 
         try {
-            
+
             fis = new FileInputStream(f);
             bis = new BufferedInputStream(fis);
             dis = new BufferedReader(new InputStreamReader(bis));
-            
+
             /*
              * Reads lines.
              */
@@ -109,7 +109,7 @@ public class FileManipulator implements Serializable {
         } catch (IOException e) {
             StaticMethods.debug(e.getMessage());
         }
-        
-        return content; 
+
+        return content;
     }
 }

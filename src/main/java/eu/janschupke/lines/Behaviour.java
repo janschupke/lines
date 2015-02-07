@@ -25,7 +25,7 @@ public class Behaviour {
      */
     public static void setTooltip(JComponent field, final String tooltip, final StatusBar statusBar) {
         field.setToolTipText(tooltip);
-        
+
         field.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {}
@@ -45,7 +45,7 @@ public class Behaviour {
             }
         });
     }
-    
+
     /**
      * Assigns an unified behavior for number JSpinner components:
      * 1] Listens to mouse wheel.
@@ -55,7 +55,7 @@ public class Behaviour {
     @SuppressWarnings("unchecked")
     public static void setSpinner(final JSpinner spinner) {
         final SpinnerNumberModel model = (SpinnerNumberModel)spinner.getModel();
-        
+
         ((JSpinner.DefaultEditor)spinner.getEditor()).getTextField().addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {}
@@ -69,16 +69,16 @@ public class Behaviour {
                 if(!spinner.isEnabled()) {
                     return;
                 }
-                
+
                 /*
                  * When the enter is pressed, values are checked and actions are taken.
                  */
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     JTextField editor = ((JSpinner.DefaultEditor)spinner.getEditor()).getTextField();
-                    
+
                     try {
                         Integer value = Integer.parseInt(editor.getText());
-                        
+
                         /*
                          * Checks whether the requested value is within allowed range.
                          */
@@ -89,7 +89,7 @@ public class Behaviour {
                         } else {
                             model.setValue(value);
                         }
-                        
+
                     // Ignores the request, if it's not a number.
                     } catch(NumberFormatException ex) {
                         editor.setText(model.getValue().toString());
@@ -98,7 +98,7 @@ public class Behaviour {
                 }
             }
         });
-        
+
         spinner.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
@@ -108,27 +108,27 @@ public class Behaviour {
                 if(!spinner.isEnabled()) {
                     return;
                 }
-                
+
                 if(e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
                     return;
                 }
-                
+
                 Integer value = (Integer)model.getValue();
-                
+
                 // Each scroll action represents one step based on the model.
                 value -= e.getUnitsToScroll() / e.getScrollAmount() * (Integer)model.getStepSize();
-                
+
                 // The value keeps changing until it reaches the allowed limit.
                 if(model.getMaximum().compareTo(value) >= 0 && model.getMinimum().compareTo(value) <= 0) {
                     model.setValue(value);
                 } else {
                     return;
                 }
-                
+
             }
         });
     }
-    
+
     /**
      * Enables the ComboBoxes to respond to the mouse wheel.
      */
@@ -142,16 +142,16 @@ public class Behaviour {
                 if(!combo.isEnabled()) {
                     return;
                 }
-                
+
                 if(e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
                     return;
                 }
-                
+
                 Integer value = (Integer)combo.getSelectedIndex();
-                
+
                 // Each scroll action represents one step based on the model.
                 value += e.getUnitsToScroll() / e.getScrollAmount();
-                
+
                 // The value keeps changing until it reaches the allowed limit.
                 if(value < combo.getItemCount() && value >= 0) {
                     combo.setSelectedIndex(value);

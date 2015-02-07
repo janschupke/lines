@@ -6,23 +6,23 @@ import eu.janschupke.lines.StaticMethods;
 import eu.janschupke.lines.Values.FileSystemValues;
 
 /**
- * 
+ *
  * A class from which all file handling classes derive.
  * Calls the Init class that takes care of folder integrity verification.
- * 
+ *
  */
 public abstract class FileHandler {
     protected Init init;
-    
+
     protected File file;
     protected File folder;
-    
+
     public FileHandler() {
         init = new Init();
-        
+
         folder = new File(FileSystemValues.FULL_CONFIG_PATH.getValue());
     }
-    
+
     /**
      * File loading method stub. Calls init
      * in order to prepare the folder structure.
@@ -30,9 +30,9 @@ public abstract class FileHandler {
      */
     public boolean load() {
         StaticMethods.printMethodName(this);
-        
+
         init.prepareFolders();
-        
+
         return true;
     }
 
@@ -43,9 +43,9 @@ public abstract class FileHandler {
      */
     public boolean save() {
         StaticMethods.printMethodName(this);
-        
+
         init.prepareFolders();
-        
+
         return true;
     }
 }

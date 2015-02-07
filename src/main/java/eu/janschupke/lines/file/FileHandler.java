@@ -12,40 +12,40 @@ import eu.janschupke.lines.Values.FileSystemValues;
  * 
  */
 public abstract class FileHandler {
-	protected Init init;
-	
-	protected File file;
-	protected File folder;
-	
-	public FileHandler() {
-		init = new Init();
-		
-		folder = new File(FileSystemValues.FULL_CONFIG_PATH.getValue());
-	}
-	
-	/**
-	 * File loading method stub. Calls init
-	 * in order to prepare the folder structure.
-	 * @return true if successful, false otherwise
-	 */
-	public boolean load() {
-		StaticMethods.printMethodName(this);
-		
-		init.prepareFolders();
-		
-		return true;
-	}
+    protected Init init;
+    
+    protected File file;
+    protected File folder;
+    
+    public FileHandler() {
+        init = new Init();
+        
+        folder = new File(FileSystemValues.FULL_CONFIG_PATH.getValue());
+    }
+    
+    /**
+     * File loading method stub. Calls init
+     * in order to prepare the folder structure.
+     * @return true if successful, false otherwise
+     */
+    public boolean load() {
+        StaticMethods.printMethodName(this);
+        
+        init.prepareFolders();
+        
+        return true;
+    }
 
-	/**
-	 * File saving method stub. Calls init
-	 * in order to prepare the folder structure.
-	 * @return true if successful, false otherwise
-	 */
-	public boolean save() {
-		StaticMethods.printMethodName(this);
-		
-		init.prepareFolders();
-		
-		return true;
-	}
+    /**
+     * File saving method stub. Calls init
+     * in order to prepare the folder structure.
+     * @return true if successful, false otherwise
+     */
+    public boolean save() {
+        StaticMethods.printMethodName(this);
+        
+        init.prepareFolders();
+        
+        return true;
+    }
 }

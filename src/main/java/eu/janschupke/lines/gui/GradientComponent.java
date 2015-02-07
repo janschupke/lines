@@ -16,9 +16,9 @@ import eu.janschupke.lines.StaticMethods;
  *
  */
 public abstract class GradientComponent extends JPanel {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public void superPaint(Graphics g) {
-		super.paintComponent(g);
-	}
+    public void superPaint(Graphics g) {
+        super.paintComponent(g);
+    }
 }

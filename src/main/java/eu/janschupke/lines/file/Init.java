@@ -12,24 +12,24 @@ import eu.janschupke.lines.Values.FileSystemValues;
  *
  */
 public class Init {
-	private File appFolder;
-	
-	public Init() {
-		appFolder = new File(FileSystemValues.FULL_CONFIG_PATH.getValue());
-	}
-	
-	/*
-	 * Checks for the existence of config. folders.
-	 * Creates the path if needed.
-	 */
-	public void prepareFolders() {
-		StaticMethods.printMethodName(this);
-		
-		/*
-		 * Creates the application folder structure.
-		 */
-		if(!appFolder.exists()) {
-			appFolder.mkdirs();
-		}
-	}
+    private File appFolder;
+    
+    public Init() {
+        appFolder = new File(FileSystemValues.FULL_CONFIG_PATH.getValue());
+    }
+    
+    /*
+     * Checks for the existence of config. folders.
+     * Creates the path if needed.
+     */
+    public void prepareFolders() {
+        StaticMethods.printMethodName(this);
+        
+        /*
+         * Creates the application folder structure.
+         */
+        if(!appFolder.exists()) {
+            appFolder.mkdirs();
+        }
+    }
 }

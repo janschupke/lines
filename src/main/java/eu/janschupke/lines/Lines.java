@@ -6,8 +6,8 @@ package eu.janschupke.lines;
  *
  */
 public class Lines {
-	public static void main(String [] args) {
-		@SuppressWarnings("unused")
-		Game game = new Game();
-	}
+    public static void main(String [] args) {
+        @SuppressWarnings("unused")
+        Game game = new Game();
+    }
 }

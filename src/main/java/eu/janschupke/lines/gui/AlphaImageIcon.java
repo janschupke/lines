@@ -1,7 +1,7 @@
 package eu.janschupke.lines.gui;
 
 /**
- * @(#)AlphaImageIcon.java	1.0 08/16/10
+ * @(#)AlphaImageIcon.java  1.0 08/16/10
  */
 
 import java.awt.AlphaComposite;

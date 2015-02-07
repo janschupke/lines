@@ -1,0 +1,156 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Lines</title>
+	<style type="text/css">
+	body {
+		background-color:#f5f5f5;
+		width:600px;
+		padding:10px 30px 10px 20px;
+		font-size:110%;
+		text-align:justify;
+	}
+	
+	h1, h2, h3 {
+		font-family:Verdana, "Geneva CE", lucida, sans-serif, Sans;
+	}
+	
+	h1 {
+		font-size:130%;
+	}
+	
+	h2 {
+		font-size:120%;
+		border-top:1px solid #cccccc;
+	}
+	
+	h3 {
+		font-size:115%;
+	}
+	
+	p {
+		margin:7px 0px;
+	}
+	
+	table {
+		width:103%;
+		border-collapse:collapse;
+		
+	}
+	
+	th, td {
+		font-size:103%;
+		text-align:justify;
+	}
+	
+	table tr {
+		margin:0px;
+		padding:0px;
+	}
+	
+	table td.key {
+		font-weight:bold;
+	}
+	
+	table tr.head {
+		background-color:#eeeeee;
+		border-top:1px solid #cccccc;
+		border-bottom:1px solid #cccccc;
+	}
+	
+	li {
+		font-size:103%;
+	}
+	
+	img {
+		margin:0px 0px 0px 10px;
+	}
+	</style>
+</head>
+<body>
+
+<h1>Lines - User's Guide</h1>
+
+<h2>Overview</h2>
+<p>Lines is a&nbsp;logical game based around arranging balls of the same color into lines. Each turn, a&nbsp;player can pick any one of the balls and move it to any free cell on the board, if&nbsp;this cell is reachable by a&nbsp;direct path. If&nbsp;this action forms a&nbsp;line of <b>at least 5&nbsp;balls of the same color</b>, that line is removed from the board and the player is awarded a&nbsp;certain amount of points.</p>
+<p><b>Multiple lines can be removed in 1&nbsp;turn</b>, if&nbsp;they meet the criteria stated in the above paragraph. If&nbsp;any line is removed from the board, the next turn starts without spawning any additional balls. However, if a&nbsp;ball is moved and this action does not create a&nbsp;sufficiently long line, three new balls are spawned at the beginning of the following turn.</p>
+<p><b>Game ends</b> either by restarting it through the menu, or <b>by filling up the entire board with balls</b>. If&nbsp;the player's score at the end of the game is high enough, he is given a&nbsp;choice to save this result into the Score Board. Player's name can be modified at that point.</p>
+<p>High enough score either means that the Score Board is not fully filled up yet, or the currently reached score is higher than the lowest entry in the Score Board. Also, <b>smaller board size is always prioritized when saving a&nbsp;score entry</b>, regardless of the amount of points achieved (large amount of score points achieved by playing on larger board will not be saved, if the Score Board is filled up by entries achieved on smaller board).</p>
+
+<h2>Game Window</h2>
+<p>The game window consists of three main parts:</p>
+<ol>
+	<li>Info Panel at the top,</li>
+	<li>Game Board with Cells in the middle,</li>
+	<li>Status Bar at the bottom.</li>
+</ol>
+
+<h3>Info Panel</h3>
+<p>Info Panel contains information about the <b>player's name</b> and his <b>current score</b>, and also shows <b>what types of balls (colors) will be spawned</b> the next time the spawning is needed (end of turn that did not involve line removing).</p>
+<p>Player name in the top left corner of the window <b>can be modified by clicking at the text</b>. Pressing the Enter button confirms the name change, pressing the Escape button cancels any changes made. Name modification is also available during the score-saving process in a&nbsp;separate dialog.</p>
+<p>Icons of incoming balls can be hidden by checking off the appropriate box in the configuration&nbsp;(<b>F2</b>).</p>
+
+<h3>Game Board</h3>
+<p>The main Game Board is a&nbsp;grid of cells that can be <b>clicked</b> to issue ball movement. <b>No dragging is allowed</b>. <b>Left-clicking a&nbsp;ball makes it active</b>, another <b>left click</b> on any reachable free cell moves the ball to that destination. Right click anywhere on the board cancels the current turn.</p>
+<p>If the highlighing feature is enabled in the configuration, empty cells' background is changed every time a&nbsp;ball is activated, to indicate whether the given cell is reachable from that position.</p>
+
+<h3>Cell</h3>
+<p>Cells are the individual squares that the main board consists of. There are two types of ball images that can be painted onto a&nbsp;cell:</p>
+<table>
+	<tr>
+		<td valign="top"><b>The smaller versions</b> of balls represent <b>hints</b> about positions where these balls <b>would spawn</b> at the beginning of the <b>next turn</b>. These cells are still considered empty, <b>cannot be activated</b> and are viable destinations for any ball that can reach them by a&nbsp;direct path. If&nbsp;the player chooses to move a&nbsp;ball onto any position that expects a&nbsp;ball spawn, the actual spawn location for that particular incoming ball is recalculated when needed.</td>
+		<td valign="top">[hint]</td></tr>
+	<tr>
+		<td valign="top"><b>The full-sized images</b> represent the actual balls that the player <b>can activate and move</b>.</td>
+		<td valign="top">[ball]</td></tr>
+</table>
+
+<h3>Status Bar</h3>
+<p>Status Bar consists of two parts. Whenever the mouse cursor is moved over anything that has a&nbsp;displayable tooltip, this tooltip is, in conjunction with the floating bubble at the point of the mouse cursor, shown in the left part of the Status Bar. On the right-hand side, timers for the current turn and total game time are displayed.</p>
+
+<h2>Application Controls</h2>
+<p>The application is mostly mouse-driven. Gameplay is done entirely by <b>left mouse clicks</b>. However, some hotkeys have been added for convenience. Full hotkey list is displayed below:</p>
+
+<h3>List of Hotkeys</h3>
+
+<table>
+	<tr class="head">
+		<th>Hotkey</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td class="key">F1</td>
+		<td>Starts a new game</td>
+	</tr>
+	<tr>
+		<td class="key">F2</td>
+		<td>Opens the Configuration</td>
+	</tr>
+	<tr>
+		<td class="key">F3</td>
+		<td>Open the Score Board</td>
+	</tr>
+	<tr>
+		<td class="key">F4</td>
+		<td>Opens the About tab</td>
+	</tr>
+	<tr>
+		<td class="key">F5</td>
+		<td>Opens this Guide</td>
+	</tr>
+	<tr>
+		<td class="key">Escape</td>
+		<td>Deselects selected cell (ball)</td>
+	</tr>
+	<tr>
+		<td class="key">N</td>
+		<td>Starts new turn</td>
+	</tr>
+	<tr>
+		<td class="key">&lt;CTRL&gt; + &lt;ALT&gt; + Q</td>
+		<td>Exits the Application</td>
+	</tr>
+</table>
+
+</body>
+</html>

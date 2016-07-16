@@ -1,8 +1,8 @@
-#Lines#
+# Lines #
 
 A turn based game that involves forming lines of balls on a two-dimensional grid while preventing the board from filling up. Every time the player moves a ball, new balls are spawned onto the board. When a line is formed, it is removed from the board and score points are awarded according to the line length.
 
-##Feature list:##
+## Feature list: ##
 
 * Customizable board size
 * Highlighting of reachable cells within the board

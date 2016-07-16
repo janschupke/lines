@@ -73,9 +73,9 @@ public class Values {
 
     public enum FileSystemValues {
         DOCS_ROOT("docs"),
-        APP_FILENAME("Lines"),
-        MAIN_FOLDER("JanSchupke"),
-        APP_FOLDER("Lines"),
+        APP_FILENAME("lines"),
+        MAIN_FOLDER(".schupke"),
+        APP_FOLDER("lines"),
         FULL_CONFIG_PATH(
                 System.getProperty("user.home") +
                 System.getProperty("file.separator") +

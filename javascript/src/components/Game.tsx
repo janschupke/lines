@@ -159,6 +159,30 @@ function placePreviewBalls(board: Cell[][], colors: BallColor[], exclude: Set<st
   return newBoard;
 }
 
+const About: React.FC = () => (
+  <div className="about-container" style={{ marginTop: 32, padding: 16, border: '1px solid #ccc', borderRadius: 8, maxWidth: 400 }}>
+    <h2>About</h2>
+    <p>
+      Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
+    </p>
+    <p>
+      This is a JavaScript/React port of the original Java version.
+    </p>
+  </div>
+);
+
+const Guide: React.FC = () => (
+  <div className="guide-container" style={{ marginTop: 32, padding: 16, border: '1px solid #ccc', borderRadius: 8, maxWidth: 400 }}>
+    <h2>Guide</h2>
+    <ul>
+      <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
+      <li>Form lines of 5 or more balls of the same color (horizontally, vertically, or diagonally) to clear them and score points.</li>
+      <li>After each move, new balls (shown in the preview) will appear on the board.</li>
+      <li>The game ends when the board is full and no more moves are possible.</li>
+    </ul>
+  </div>
+);
+
 const Game: React.FC = () => {
   const [board, setBoard] = useState<Cell[][]>(() => placeRandomBalls(createEmptyBoard(), INITIAL_BALLS));
   const [score, setScore] = useState(0);
@@ -245,10 +269,16 @@ const Game: React.FC = () => {
   };
 
   return (
-    <div className="game-container">
-      <InfoPanel score={score} onNewGame={startNewGame} nextBalls={nextBalls} />
-      <Board board={board} onCellClick={handleCellClick} />
-      <StatusBar status={status} />
+    <div className="game-layout" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 32 }}>
+      <div className="game-container">
+        <InfoPanel score={score} onNewGame={startNewGame} nextBalls={nextBalls} />
+        <Board board={board} onCellClick={handleCellClick} />
+        <StatusBar status={status} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <About />
+        <Guide />
+      </div>
     </div>
   );
 };

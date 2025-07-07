@@ -226,7 +226,7 @@ const Game: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [nextBalls, setNextBalls] = useState<BallColor[]>(() => getRandomNextBalls(BALLS_PER_TURN));
   const [timer, setTimer] = useState(0);
-  const [timerActive, setTimerActive] = useState(true);
+  const [timerActive, setTimerActive] = useState(false);
   const [movingBall, setMovingBall] = useState<null | {color: BallColor; path: [number, number][]}>(null);
   const [movingStep, setMovingStep] = useState(0);
   const animationRef = useRef<number | null>(null);
@@ -316,6 +316,10 @@ const Game: React.FC = () => {
       setSelected(null);
       setMovingBall(null);
       setMovingStep(0);
+      // Start timer after first move
+      if (!timerActive && timer === 0) {
+        setTimerActive(true);
+      }
       // Check for lines
       const movedColor = newBoard[toY][toX].ball?.color;
       const allLines: Set<string> = new Set();
@@ -370,7 +374,7 @@ const Game: React.FC = () => {
     setGameOver(false);
     setNextBalls(initialNext);
     setTimer(0);
-    setTimerActive(true);
+    setTimerActive(false);
   };
 
   // Render the moving ball absolutely above the board
@@ -396,7 +400,7 @@ const Game: React.FC = () => {
       </div>
       <div style={{ height: 24 }} />
       <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
-        <Board board={board} onCellClick={handleCellClick}>
+        <Board board={board} onCellClick={handleCellClick} movingBall={movingBall}>
           {movingBallEl}
         </Board>
       </div>

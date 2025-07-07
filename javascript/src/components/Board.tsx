@@ -13,6 +13,7 @@ interface BoardProps {
   board: Cell[][];
   onCellClick: (x: number, y: number) => void;
   children?: React.ReactNode;
+  movingBall?: { color: BallColor; path: [number, number][] } | null;
 }
 
 const BoardGrid = styled.div<{cols: number; rows: number}>`
@@ -22,7 +23,7 @@ const BoardGrid = styled.div<{cols: number; rows: number}>`
   grid-template-rows: repeat(${props => props.rows}, ${CELL_SIZE}px);
   gap: ${GAP}px;
   background: #bbb;
-  /* padding: ${PADDING}px; */
+  padding: ${PADDING}px;
   border-radius: 12px;
   box-shadow: 0 2px 12px #0002;
   margin: 0 auto;
@@ -73,20 +74,30 @@ const BallSpan = styled.span<{color: BallColor; active: boolean}>`
   ${props => props.active && highlightGlow}
 `;
 
-const Board: React.FC<BoardProps> = ({ board, onCellClick, children }) => {
+const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall }) => {
   return (
     <BoardGrid cols={board[0].length} rows={board.length}>
-      {board.flat().map((cell) => (
-        <CellDiv
-          key={`${cell.x},${cell.y}`}
-          active={cell.active}
-          onClick={() => onCellClick(cell.x, cell.y)}
-        >
-          {cell.ball && (
-            <BallSpan color={cell.ball.color} active={cell.active} title={cell.ball.color} />
-          )}
-        </CellDiv>
-      ))}
+      {board.flat().map((cell) => {
+        // Hide the ball in the source cell if a ball is moving
+        let hideBall = false;
+        if (movingBall && movingBall.path && movingBall.path.length > 0) {
+          const [fromX, fromY] = movingBall.path[0];
+          if (cell.x === fromX && cell.y === fromY) {
+            hideBall = true;
+          }
+        }
+        return (
+          <CellDiv
+            key={`${cell.x},${cell.y}`}
+            active={cell.active}
+            onClick={() => onCellClick(cell.x, cell.y)}
+          >
+            {cell.ball && !hideBall && (
+              <BallSpan color={cell.ball.color} active={cell.active} title={cell.ball.color} />
+            )}
+          </CellDiv>
+        );
+      })}
       {children}
     </BoardGrid>
   );

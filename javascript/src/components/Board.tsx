@@ -1,76 +1,94 @@
 import React from 'react';
+import styled, { css, keyframes } from 'styled-components';
 import type { Cell, BallColor } from './Game';
+import { colorMap } from './colorMap';
+
+export const CELL_SIZE = 56;
+export const GAP = 4;
+export const PADDING = 8;
+export const BALL_SIZE = 40;
+export const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
 
 interface BoardProps {
   board: Cell[][];
   onCellClick: (x: number, y: number) => void;
+  children?: React.ReactNode;
 }
 
-const colorMap: Record<BallColor, string> = {
-  red: '#e74c3c',
-  green: '#27ae60',
-  blue: '#2980b9',
-  yellow: '#f1c40f',
-  purple: '#8e44ad',
-  cyan: '#1abc9c',
-  black: '#222',
-};
+const BoardGrid = styled.div<{cols: number; rows: number}>`
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(${props => props.cols}, ${CELL_SIZE}px);
+  grid-template-rows: repeat(${props => props.rows}, ${CELL_SIZE}px);
+  gap: ${GAP}px;
+  background: #bbb;
+  /* padding: ${PADDING}px; */
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0002;
+  margin: 0 auto;
+  box-sizing: content-box;
+  width: fit-content;
+  height: fit-content;
+`;
 
-const CELL_SIZE = 56;
+const CellDiv = styled.div<{active: boolean}>`
+  width: ${CELL_SIZE}px;
+  height: ${CELL_SIZE}px;
+  background: ${props => props.active ? '#ffe082' : '#eee'};
+  border: 2px solid #888;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-sizing: border-box;
+`;
 
-const Board: React.FC<BoardProps> = ({ board, onCellClick }) => {
+const highlightGlow = css`
+  box-shadow: 0 0 16px 4px #ffe082, 0 0 0 4px #ffe082;
+  border: 2px solid #ffb300;
+`;
+
+const moveBall = keyframes`
+  0% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+`;
+
+const BallSpan = styled.span<{color: BallColor; active: boolean}>`
+  display: block;
+  width: ${BALL_SIZE}px;
+  height: ${BALL_SIZE}px;
+  border-radius: 50%;
+  background: ${props => colorMap[props.color]};
+  border: 2px solid #555;
+  box-shadow: ${props => props.active ? '0 0 8px 2px #ffe082' : '0 1px 4px #0003'};
+  animation: ${moveBall} 0.25s cubic-bezier(0.4, 0.2, 0.2, 1);
+  ${props => props.active && highlightGlow}
+`;
+
+const Board: React.FC<BoardProps> = ({ board, onCellClick, children }) => {
   return (
-    <div
-      className="board"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${board[0].length}, ${CELL_SIZE}px)`,
-        gridTemplateRows: `repeat(${board.length}, ${CELL_SIZE}px)`,
-        gap: 4,
-        background: '#bbb',
-        padding: 8,
-        borderRadius: 12,
-        boxShadow: '0 2px 12px #0002',
-        margin: '0 auto',
-        boxSizing: 'content-box',
-      }}
-    >
+    <BoardGrid cols={board[0].length} rows={board.length}>
       {board.flat().map((cell) => (
-        <div
+        <CellDiv
           key={`${cell.x},${cell.y}`}
-          className={`cell${cell.active ? ' active' : ''}`}
+          active={cell.active}
           onClick={() => onCellClick(cell.x, cell.y)}
-          style={{
-            width: CELL_SIZE,
-            height: CELL_SIZE,
-            background: cell.active ? '#ffe082' : '#eee',
-            border: '2px solid #888',
-            borderRadius: 8,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-            boxSizing: 'border-box',
-          }}
         >
           {cell.ball && (
-            <span
-              style={{
-                display: 'block',
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                background: colorMap[cell.ball.color],
-                border: '2px solid #555',
-                boxShadow: cell.active ? '0 0 8px 2px #ffe082' : '0 1px 4px #0003',
-              }}
-              title={cell.ball.color}
-            />
+            <BallSpan color={cell.ball.color} active={cell.active} title={cell.ball.color} />
           )}
-        </div>
+        </CellDiv>
       ))}
-    </div>
+      {children}
+    </BoardGrid>
   );
 };
 

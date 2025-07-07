@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import Board from './Board';
+import React, { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
+import Board, { CELL_SIZE, GAP } from './Board';
+import { colorMap } from './colorMap';
 
 // Types for the game
 export type BallColor = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'black';
@@ -19,6 +21,9 @@ const BOARD_SIZE = 9; // Default size from Java code
 const INITIAL_BALLS = 5;
 const BALL_COLORS: BallColor[] = ['red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'black'];
 const BALLS_PER_TURN = 3;
+
+const BALL_SIZE = 40;
+const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
 
 function getRandomColor(): BallColor {
   return BALL_COLORS[Math.floor(Math.random() * BALL_COLORS.length)];
@@ -60,34 +65,6 @@ function placeRandomBalls(board: Cell[][], count: number, exclude: Set<string> =
     newBoard[y][x].ball = { color: getRandomColor() };
   });
   return newBoard;
-}
-
-// Pathfinding: BFS to check if a path exists between two cells
-function pathExists(board: Cell[][], from: {x: number, y: number}, to: {x: number, y: number}): boolean {
-  if (from.x === to.x && from.y === to.y) return false;
-  const visited = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(false));
-  const queue: [number, number][] = [[from.x, from.y]];
-  visited[from.y][from.x] = true;
-  const directions = [
-    [0, 1], [1, 0], [0, -1], [-1, 0]
-  ];
-  while (queue.length > 0) {
-    const [x, y] = queue.shift()!;
-    for (const [dx, dy] of directions) {
-      const nx = x + dx, ny = y + dy;
-      if (
-        nx >= 0 && nx < BOARD_SIZE &&
-        ny >= 0 && ny < BOARD_SIZE &&
-        !visited[ny][nx] &&
-        !board[ny][nx].ball
-      ) {
-        if (nx === to.x && ny === to.y) return true;
-        visited[ny][nx] = true;
-        queue.push([nx, ny]);
-      }
-    }
-  }
-  return false;
 }
 
 // Helper to find a line in a direction
@@ -156,6 +133,27 @@ function placePreviewBalls(board: Cell[][], colors: BallColor[], exclude: Set<st
   });
   return newBoard;
 }
+
+// Helper to get the pixel position of a cell in the board
+const getCellPosition = (x: number, y: number) => ({
+  left: x * (CELL_SIZE + GAP) + OFFSET,
+  top: y * (CELL_SIZE + GAP) + OFFSET,
+});
+
+const MovingBall = styled.div<{color: string; left: number; top: number}>`
+  position: absolute;
+  width: ${BALL_SIZE}px;
+  height: ${BALL_SIZE}px;
+  border-radius: 50%;
+  background: ${props => props.color};
+  border: 2px solid #555;
+  box-shadow: 0 0 8px 2px #ffe082;
+  z-index: 10;
+  left: ${props => props.left}px;
+  top: ${props => props.top}px;
+  transition: left 0.08s linear, top 0.08s linear;
+  pointer-events: none;
+`;
 
 const InfoContainer: React.FC = () => (
   <div
@@ -229,6 +227,9 @@ const Game: React.FC = () => {
   const [nextBalls, setNextBalls] = useState<BallColor[]>(() => getRandomNextBalls(BALLS_PER_TURN));
   const [timer, setTimer] = useState(0);
   const [timerActive, setTimerActive] = useState(true);
+  const [movingBall, setMovingBall] = useState<null | {color: BallColor; path: [number, number][]}>(null);
+  const [movingStep, setMovingStep] = useState(0);
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!timerActive) return;
@@ -241,69 +242,124 @@ const Game: React.FC = () => {
     if (gameOver) setTimerActive(false);
   }, [gameOver]);
 
-  // Reset timer on new game
-  useEffect(() => {
-    setTimer(0);
-    setTimerActive(true);
-  }, [board]);
+  // Pathfinding for animation: returns the path as a list of [x, y] from start to end
+  function findPath(board: Cell[][], from: {x: number, y: number}, to: {x: number, y: number}): [number, number][] | null {
+    if (from.x === to.x && from.y === to.y) return null;
+    const visited = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(false));
+    const prev: (null | [number, number])[][] = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
+    const queue: [number, number][] = [[from.x, from.y]];
+    visited[from.y][from.x] = true;
+    const directions = [
+      [0, 1], [1, 0], [0, -1], [-1, 0]
+    ];
+    while (queue.length > 0) {
+      const [x, y] = queue.shift()!;
+      for (const [dx, dy] of directions) {
+        const nx = x + dx, ny = y + dy;
+        if (
+          nx >= 0 && nx < BOARD_SIZE &&
+          ny >= 0 && ny < BOARD_SIZE &&
+          !visited[ny][nx] &&
+          !board[ny][nx].ball
+        ) {
+          visited[ny][nx] = true;
+          prev[ny][nx] = [x, y];
+          if (nx === to.x && ny === to.y) {
+            // Reconstruct path
+            const path: [number, number][] = [];
+            let cx = nx, cy = ny;
+            while (!(cx === from.x && cy === from.y)) {
+              path.push([cx, cy]);
+              [cx, cy] = prev[cy][cx]!;
+            }
+            path.push([from.x, from.y]);
+            path.reverse();
+            return path;
+          }
+          queue.push([nx, ny]);
+        }
+      }
+    }
+    return null;
+  }
 
   // Handle cell click: select or move
   const handleCellClick = (x: number, y: number) => {
-    if (gameOver) return;
+    if (gameOver || movingBall) return;
     const cell = board[y][x];
     if (cell.ball) {
       setSelected({ x, y });
       setBoard(prev => prev.map((row, yy) => row.map((c, xx) => ({ ...c, active: xx === x && yy === y }))));
     } else if (selected) {
-      if (pathExists(board, selected, { x, y })) {
-        const newBoard = board.map(row => row.map(cell => ({ ...cell, active: false })));
-        newBoard[y][x].ball = board[selected.y][selected.x].ball;
-        newBoard[selected.y][selected.x].ball = null;
-        setSelected(null);
-        // Check for lines
-        const movedColor = newBoard[y][x].ball?.color;
-        const allLines: Set<string> = new Set();
-        const ballsToRemove: [number, number][] = [];
-        if (movedColor) {
-          const lines = findLine(newBoard, x, y, movedColor);
-          lines.forEach(line => {
-            line.forEach(([lx, ly]) => {
-              const key = `${lx},${ly}`;
-              if (!allLines.has(key)) {
-                allLines.add(key);
-                ballsToRemove.push([lx, ly]);
-              }
-            });
-          });
-        }
-        if (ballsToRemove.length > 0) {
-          ballsToRemove.forEach(([lx, ly]) => {
-            newBoard[ly][lx].ball = null;
-          });
-          setBoard(newBoard);
-          setScore(s => s + ballsToRemove.length);
-          if (isBoardFull(newBoard)) {
-            setGameOver(true);
-          }
-          setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
-        } else {
-          // Only spawn as many balls as there are empty cells
-          const emptyCount = getRandomEmptyCells(newBoard, BOARD_SIZE * BOARD_SIZE).length;
-          if (emptyCount === 0) {
-            setBoard(newBoard);
-            setGameOver(true);
-            return;
-          }
-          const afterBalls = placePreviewBalls(newBoard, nextBalls.slice(0, Math.min(BALLS_PER_TURN, emptyCount)));
-          setBoard(afterBalls);
-          setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
-          if (isBoardFull(afterBalls)) {
-            setGameOver(true);
-          }
-        }
+      const path = findPath(board, selected, { x, y });
+      if (path && path.length > 1) {
+        // Start animation
+        setMovingBall({ color: board[selected.y][selected.x].ball!.color, path });
+        setMovingStep(0);
       }
     }
   };
+
+  // Animate the moving ball
+  useEffect(() => {
+    if (!movingBall) return;
+    if (movingStep < movingBall.path.length - 1) {
+      animationRef.current = setTimeout(() => setMovingStep(s => s + 1), 80);
+    } else if (movingStep === movingBall.path.length - 1) {
+      // Animation done, update board
+      const [fromX, fromY] = movingBall.path[0];
+      const [toX, toY] = movingBall.path[movingBall.path.length - 1];
+      const newBoard = board.map(row => row.map(cell => ({ ...cell, active: false })));
+      newBoard[toY][toX].ball = board[fromY][fromX].ball;
+      newBoard[fromY][fromX].ball = null;
+      setBoard(newBoard);
+      setSelected(null);
+      setMovingBall(null);
+      setMovingStep(0);
+      // Check for lines
+      const movedColor = newBoard[toY][toX].ball?.color;
+      const allLines: Set<string> = new Set();
+      const ballsToRemove: [number, number][] = [];
+      if (movedColor) {
+        const lines = findLine(newBoard, toX, toY, movedColor);
+        lines.forEach(line => {
+          line.forEach(([lx, ly]) => {
+            const key = `${lx},${ly}`;
+            if (!allLines.has(key)) {
+              allLines.add(key);
+              ballsToRemove.push([lx, ly]);
+            }
+          });
+        });
+      }
+      if (ballsToRemove.length > 0) {
+        ballsToRemove.forEach(([lx, ly]) => {
+          newBoard[ly][lx].ball = null;
+        });
+        setBoard(newBoard);
+        setScore(s => s + ballsToRemove.length);
+        if (isBoardFull(newBoard)) {
+          setGameOver(true);
+        }
+        setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+      } else {
+        // Only spawn as many balls as there are empty cells
+        const emptyCount = getRandomEmptyCells(newBoard, BOARD_SIZE * BOARD_SIZE).length;
+        if (emptyCount === 0) {
+          setBoard(newBoard);
+          setGameOver(true);
+          return;
+        }
+        const afterBalls = placePreviewBalls(newBoard, nextBalls.slice(0, Math.min(BALLS_PER_TURN, emptyCount)));
+        setBoard(afterBalls);
+        setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+        if (isBoardFull(afterBalls)) {
+          setGameOver(true);
+        }
+      }
+    }
+    return () => { if (animationRef.current) clearTimeout(animationRef.current); };
+  }, [movingBall, movingStep]);
 
   // Start new game with random balls and preview
   const startNewGame = () => {
@@ -313,7 +369,19 @@ const Game: React.FC = () => {
     setSelected(null);
     setGameOver(false);
     setNextBalls(initialNext);
+    setTimer(0);
+    setTimerActive(true);
   };
+
+  // Render the moving ball absolutely above the board
+  let movingBallEl = null;
+  if (movingBall && movingStep < movingBall.path.length) {
+    const [mx, my] = movingBall.path[movingStep];
+    const { left, top } = getCellPosition(mx, my);
+    movingBallEl = (
+      <MovingBall color={colorMap[movingBall.color]} left={left} top={top} />
+    );
+  }
 
   return (
     <div className="game-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
@@ -328,7 +396,9 @@ const Game: React.FC = () => {
       </div>
       <div style={{ height: 24 }} />
       <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
-        <Board board={board} onCellClick={handleCellClick} />
+        <Board board={board} onCellClick={handleCellClick}>
+          {movingBallEl}
+        </Board>
       </div>
       <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
         Game time: {timer}s

@@ -1,0 +1,26 @@
+# Maven
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# NetBeans
+/nbproject/private/
+/build/
+/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log 

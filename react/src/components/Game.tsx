@@ -175,7 +175,7 @@ const InfoContainer: React.FC = () => (
       Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
     </p>
     <p>
-      This is a JavaScript/React port of the original Java version.
+      This is a React port of the original Java version.
     </p>
     <h2>Guide</h2>
     <ul>
@@ -218,6 +218,18 @@ const NextBallsPreview: React.FC<{ nextBalls: BallColor[] }> = ({ nextBalls }) =
     </div>
   );
 };
+
+// Helper to format time as hh:mm:ss or mm:ss
+function formatTime(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  } else {
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+}
 
 const Game: React.FC = () => {
   const [board, setBoard] = useState<Cell[][]>(() => placeRandomBalls(createEmptyBoard(), INITIAL_BALLS));
@@ -398,14 +410,14 @@ const Game: React.FC = () => {
           <span style={{ fontWeight: 700, fontSize: 22, color: '#ffe082', minWidth: 100, textAlign: 'right' }}>Score: {score}</span>
         </div>
       </div>
-      <div style={{ height: 24 }} />
+      <div style={{ height: 8 }} />
       <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
         <Board board={board} onCellClick={handleCellClick} movingBall={movingBall}>
           {movingBallEl}
         </Board>
       </div>
       <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
-        Game time: {timer}s
+        Game time: {formatTime(timer)}
       </div>
       <InfoContainer />
     </div>

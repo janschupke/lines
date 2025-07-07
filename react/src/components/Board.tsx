@@ -32,10 +32,10 @@ const BoardGrid = styled.div<{cols: number; rows: number}>`
   height: fit-content;
 `;
 
-const CellDiv = styled.div<{active: boolean}>`
+const CellDiv = styled.div<{$active: boolean}>`
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
-  background: ${props => props.active ? '#ffe082' : '#eee'};
+  background: ${props => props.$active ? '#ffe082' : '#eee'};
   border: 2px solid #888;
   border-radius: 8px;
   display: flex;
@@ -89,8 +89,10 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall 
         return (
           <CellDiv
             key={`${cell.x},${cell.y}`}
-            active={cell.active}
+            $active={cell.active}
             onClick={() => onCellClick(cell.x, cell.y)}
+            role="button"
+            tabIndex={0}
           >
             {cell.ball && !hideBall && (
               <BallSpan color={cell.ball.color} active={cell.active} title={cell.ball.color} />

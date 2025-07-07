@@ -217,13 +217,13 @@ public class GameActions {
         /*
          * Converts the timestamp into a more readable format.
          */
-        Date gst = new Date(new Long(meta.getGameStartTime()));
+        Date gst = new Date(Long.valueOf(meta.getGameStartTime()));
         SimpleDateFormat gameStartFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         String turnTime;
 
         if(meta.isTurnTimeEnabled()) {
-            turnTime = new Long(meta.getTurnTimeLimit()).toString();
+            turnTime = String.valueOf(meta.getTurnTimeLimit());
         } else {
             turnTime = Lang.write("misc.na");
         }
@@ -235,9 +235,9 @@ public class GameActions {
         String [] values = new String [] {
             meta.getUsername().toString(),
             meta.getCurrentScore().toString(),
-            new Integer(board.getSize()).toString(),
+            String.valueOf(board.getSize()),
             turnTime,
-            StaticMethods.parseTime(new Long(meta.getTotalGameTime())),
+            StaticMethods.parseTime(Long.valueOf(meta.getTotalGameTime())),
             gameStartFormat.format(gst)
         };
 

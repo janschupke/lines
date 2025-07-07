@@ -1,0 +1,16 @@
+# generic
+target
+bin
+*.class
+*.jar
+*.war
+*.ear
+
+# eclipse
+.settings
+.classpath
+.project
+
+# idea
+.idea
+*.iml

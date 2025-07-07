@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Board from './Board';
-import InfoPanel from './InfoPanel';
-import StatusBar from './StatusBar';
 
 // Types for the game
 export type BallColor = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'black';
@@ -159,20 +157,28 @@ function placePreviewBalls(board: Cell[][], colors: BallColor[], exclude: Set<st
   return newBoard;
 }
 
-const About: React.FC = () => (
-  <div className="about-container" style={{ marginTop: 32, padding: 16, border: '1px solid #ccc', borderRadius: 8, maxWidth: 400 }}>
-    <h2>About</h2>
+const InfoContainer: React.FC = () => (
+  <div
+    className="info-container"
+    style={{
+      margin: '32px auto 0 auto',
+      padding: 24,
+      border: '1px solid #222',
+      borderRadius: 12,
+      maxWidth: 600,
+      width: '100%',
+      background: '#23272f',
+      color: '#f5f7fa',
+      boxShadow: '0 2px 12px #0004',
+    }}
+  >
+    <h2 style={{ marginTop: 0 }}>About</h2>
     <p>
       Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
     </p>
     <p>
       This is a JavaScript/React port of the original Java version.
     </p>
-  </div>
-);
-
-const Guide: React.FC = () => (
-  <div className="guide-container" style={{ marginTop: 32, padding: 16, border: '1px solid #ccc', borderRadius: 8, maxWidth: 400 }}>
     <h2>Guide</h2>
     <ul>
       <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
@@ -183,13 +189,63 @@ const Guide: React.FC = () => (
   </div>
 );
 
+const NextBallsPreview: React.FC<{ nextBalls: BallColor[] }> = ({ nextBalls }) => {
+  const colorMap: Record<BallColor, string> = {
+    red: '#e74c3c',
+    green: '#27ae60',
+    blue: '#2980b9',
+    yellow: '#f1c40f',
+    purple: '#8e44ad',
+    cyan: '#1abc9c',
+    black: '#222',
+  };
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12 }}>
+      {nextBalls.map((color, i) => (
+        <span
+          key={i}
+          style={{
+            display: 'block',
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            background: colorMap[color],
+            border: '2px solid #888',
+            margin: '0 4px',
+            verticalAlign: 'middle',
+          }}
+          title={color}
+        />
+      ))}
+    </div>
+  );
+};
+
 const Game: React.FC = () => {
   const [board, setBoard] = useState<Cell[][]>(() => placeRandomBalls(createEmptyBoard(), INITIAL_BALLS));
   const [score, setScore] = useState(0);
-  const [status, setStatus] = useState('Game in progress');
   const [selected, setSelected] = useState<{x: number, y: number} | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [nextBalls, setNextBalls] = useState<BallColor[]>(() => getRandomNextBalls(BALLS_PER_TURN));
+  const [timer, setTimer] = useState(0);
+  const [timerActive, setTimerActive] = useState(true);
+
+  useEffect(() => {
+    if (!timerActive) return;
+    const interval = setInterval(() => setTimer(t => t + 1), 1000);
+    return () => clearInterval(interval);
+  }, [timerActive]);
+
+  // Stop timer on game over
+  useEffect(() => {
+    if (gameOver) setTimerActive(false);
+  }, [gameOver]);
+
+  // Reset timer on new game
+  useEffect(() => {
+    setTimer(0);
+    setTimerActive(true);
+  }, [board]);
 
   // Handle cell click: select or move
   const handleCellClick = (x: number, y: number) => {
@@ -198,7 +254,6 @@ const Game: React.FC = () => {
     if (cell.ball) {
       setSelected({ x, y });
       setBoard(prev => prev.map((row, yy) => row.map((c, xx) => ({ ...c, active: xx === x && yy === y }))));
-      setStatus(`Selected ball at (${x}, ${y})`);
     } else if (selected) {
       if (pathExists(board, selected, { x, y })) {
         const newBoard = board.map(row => row.map(cell => ({ ...cell, active: false })));
@@ -227,10 +282,8 @@ const Game: React.FC = () => {
           });
           setBoard(newBoard);
           setScore(s => s + ballsToRemove.length);
-          setStatus(`Removed ${ballsToRemove.length} balls!`);
           if (isBoardFull(newBoard)) {
             setGameOver(true);
-            setStatus('Game over! Board is full.');
           }
           setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
         } else {
@@ -239,20 +292,15 @@ const Game: React.FC = () => {
           if (emptyCount === 0) {
             setBoard(newBoard);
             setGameOver(true);
-            setStatus('Game over! Board is full.');
             return;
           }
           const afterBalls = placePreviewBalls(newBoard, nextBalls.slice(0, Math.min(BALLS_PER_TURN, emptyCount)));
           setBoard(afterBalls);
-          setStatus(`Moved ball to (${x}, ${y}) and spawned ${Math.min(BALLS_PER_TURN, emptyCount)} balls.`);
           setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
           if (isBoardFull(afterBalls)) {
             setGameOver(true);
-            setStatus('Game over! Board is full.');
           }
         }
-      } else {
-        setStatus('No path to target cell');
       }
     }
   };
@@ -262,23 +310,30 @@ const Game: React.FC = () => {
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
     setBoard(placeRandomBalls(createEmptyBoard(), INITIAL_BALLS));
     setScore(0);
-    setStatus('New game started');
     setSelected(null);
     setGameOver(false);
     setNextBalls(initialNext);
   };
 
   return (
-    <div className="game-layout" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 32 }}>
-      <div className="game-container">
-        <InfoPanel score={score} onNewGame={startNewGame} nextBalls={nextBalls} />
+    <div className="game-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+      <div style={{ maxWidth: 600, width: '100%', margin: '0 auto', marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={startNewGame} style={{ fontWeight: 600, fontSize: 18, padding: '8px 18px', borderRadius: 8, border: 'none', background: '#444', color: '#fff', cursor: 'pointer' }}>New Game</button>
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <NextBallsPreview nextBalls={nextBalls} />
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 22, color: '#ffe082', minWidth: 100, textAlign: 'right' }}>Score: {score}</span>
+        </div>
+      </div>
+      <div style={{ height: 24 }} />
+      <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
         <Board board={board} onCellClick={handleCellClick} />
-        <StatusBar status={status} />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <About />
-        <Guide />
+      <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
+        Game time: {timer}s
       </div>
+      <InfoContainer />
     </div>
   );
 };

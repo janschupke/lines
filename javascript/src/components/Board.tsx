@@ -16,7 +16,7 @@ const colorMap: Record<BallColor, string> = {
   black: '#222',
 };
 
-const CELL_SIZE = 40;
+const CELL_SIZE = 56;
 
 const Board: React.FC<BoardProps> = ({ board, onCellClick }) => {
   return (
@@ -32,6 +32,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick }) => {
         borderRadius: 12,
         boxShadow: '0 2px 12px #0002',
         margin: '0 auto',
+        boxSizing: 'content-box',
       }}
     >
       {board.flat().map((cell) => (
@@ -57,8 +58,8 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick }) => {
             <span
               style={{
                 display: 'block',
-                width: 28,
-                height: 28,
+                width: 40,
+                height: 40,
                 borderRadius: '50%',
                 background: colorMap[cell.ball.color],
                 border: '2px solid #555',

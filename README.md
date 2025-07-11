@@ -17,4 +17,4 @@ A turn based game that involves forming lines of balls on a two-dimensional grid
 * Extensive Game Guide available through the game menu
 * etc...
 
-React app is up at [https://lines-black.vercel.app/](https://lines-black.vercel.app/).
+React app is up at [https://lines.schupke.io/](https://lines.schupke.io/).

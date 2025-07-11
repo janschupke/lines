@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import Board, { CELL_SIZE, GAP } from './Board';
 import { colorMap } from './colorMap';
+import HighScoreManager from '../utils/highScoreManager';
+import GameEndDialog from './GameEndDialog';
+import HighScoreDisplay from './HighScoreDisplay';
+import type { HighScore } from '../utils/configManager';
 
 // Types for the game
 export type BallColor = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'black';
@@ -169,36 +173,58 @@ const MovingBall = styled.div<{color: string; left: number; top: number}>`
   pointer-events: none;
 `;
 
-const InfoContainer: React.FC = () => (
-  <div
-    className="info-container"
-    style={{
-      margin: '32px auto 0 auto',
-      padding: 24,
-      border: '1px solid #222',
-      borderRadius: 12,
-      maxWidth: 600,
-      width: '100%',
-      background: '#23272f',
-      color: '#f5f7fa',
-      boxShadow: '0 2px 12px #0004',
-    }}
-  >
-    <h2 style={{ marginTop: 0 }}>About</h2>
-    <p>
-      Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
-    </p>
-    <p>
-      This is a React port of the original Java version.
-    </p>
-    <h2>Guide</h2>
-    <ul>
-      <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
-      <li>Form lines of 5 or more balls of the same color (horizontally, vertically, or diagonally) to clear them and score points.</li>
-      <li>After each move, new balls (shown in the preview) will appear on the board.</li>
-      <li>The game ends when the board is full and no more moves are possible.</li>
-    </ul>
-  </div>
+const InfoContainer: React.FC<{ highScores: HighScore[]; isNewHighScore: boolean; currentScore?: number; currentSessionScore?: number; showGuide?: boolean }> = ({ 
+  highScores, 
+  isNewHighScore, 
+  currentScore,
+  currentSessionScore,
+  showGuide = false
+}) => (
+      <div
+      className="info-container"
+      style={{
+        margin: '32px auto 0 auto',
+        padding: 24,
+        border: '1px solid #222',
+        borderRadius: 12,
+        maxWidth: 600,
+        width: '100%',
+        background: '#23272f',
+        color: '#f5f7fa',
+        boxShadow: '0 2px 12px #0004',
+      }}
+    >
+      {showGuide ? (
+        <>
+          <h2 style={{ marginTop: 0 }}>About</h2>
+          <p>
+            Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
+          </p>
+          <p>
+            This is a React port of the original Java version.
+          </p>
+          <h2>Guide</h2>
+          <ul>
+            <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
+            <li>Form lines of 5 or more balls of the same color (horizontally, vertically, or diagonally) to clear them and score points.</li>
+            <li>After each move, new balls (shown in the preview) will appear on the board.</li>
+            <li>The game ends when the board is full and no more moves are possible.</li>
+          </ul>
+        </>
+      ) : (
+        <>
+          {/* Add high score display */}
+          <div style={{ marginTop: 24 }}>
+            <HighScoreDisplay 
+              highScores={highScores.slice(0, 5)} 
+              currentScore={isNewHighScore ? currentScore : undefined}
+              isNewHighScore={isNewHighScore}
+              currentSessionScore={currentSessionScore}
+            />
+          </div>
+        </>
+      )}
+    </div>
 );
 
 const NextBallsPreview: React.FC<{ nextBalls: BallColor[] }> = ({ nextBalls }) => {
@@ -259,6 +285,15 @@ const Game: React.FC = () => {
   const [movingBall, setMovingBall] = useState<null | {color: BallColor; path: [number, number][]}>(null);
   const [movingStep, setMovingStep] = useState(0);
   const animationRef = useRef<number | null>(null);
+  
+  // High score state
+  const [highScores, setHighScores] = useState<HighScore[]>([]);
+  const [currentHighScore, setCurrentHighScore] = useState(0);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [showGameEndDialog, setShowGameEndDialog] = useState(false);
+  const [currentSessionScore, setCurrentSessionScore] = useState(0);
+  
+  const highScoreManager = useMemo(() => new HighScoreManager(), []);
 
   useEffect(() => {
     if (!timerActive) return;
@@ -266,10 +301,39 @@ const Game: React.FC = () => {
     return () => clearInterval(interval);
   }, [timerActive]);
 
+  // Initialize high scores
+  useEffect(() => {
+    const loadHighScores = () => {
+      const scores = highScoreManager.getHighScores();
+      const currentHigh = highScoreManager.getCurrentHighScore();
+      const config = highScoreManager.getConfig();
+      setHighScores(scores);
+      setCurrentHighScore(currentHigh);
+      setCurrentSessionScore(config.currentSessionScore || 0);
+    };
+
+    loadHighScores();
+  }, [highScoreManager]);
+
   // Stop timer on game over
   useEffect(() => {
     if (gameOver) setTimerActive(false);
   }, [gameOver]);
+
+  // Check for new high score
+  const checkForNewHighScore = (currentScore: number): boolean => {
+    if (highScoreManager.isNewHighScore(currentScore)) {
+      const success = highScoreManager.addHighScore(currentScore, timer);
+      if (success) {
+        setHighScores(highScoreManager.getHighScores());
+        setCurrentHighScore(highScoreManager.getCurrentHighScore());
+        setCurrentSessionScore(highScoreManager.getConfig().currentSessionScore || 0);
+        setIsNewHighScore(true);
+        return true;
+      }
+    }
+    return false;
+  };
 
   // Pathfinding for animation: returns the path as a list of [x, y] from start to end
   function findPath(board: Cell[][], from: {x: number, y: number}, to: {x: number, y: number}): [number, number][] | null {
@@ -378,9 +442,15 @@ const Game: React.FC = () => {
           newBoard[ly][lx].ball = null;
         });
         setBoard(newBoard);
-        setScore(s => s + ballsToRemove.length);
+        const newScore = score + ballsToRemove.length;
+        setScore(newScore);
+        
+        // Check for new high score
+        checkForNewHighScore(newScore);
+        
         if (isBoardFull(newBoard)) {
           setGameOver(true);
+          setShowGameEndDialog(true);
         }
         setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
       } else {
@@ -407,6 +477,7 @@ const Game: React.FC = () => {
         setNextBalls(nextPreviewBalls);
         if (isBoardFull(afterBalls)) {
           setGameOver(true);
+          setShowGameEndDialog(true);
         }
       }
     }
@@ -422,10 +493,26 @@ const Game: React.FC = () => {
     setScore(0);
     setSelected(null);
     setGameOver(false);
+    setIsNewHighScore(false);
+    setShowGameEndDialog(false);
     setNextBalls(initialNext);
     setTimer(0);
     setTimerActive(false);
   };
+
+  // Game end dialog handlers
+  const handleNewGameFromDialog = () => {
+    setShowGameEndDialog(false);
+    startNewGame();
+  };
+
+  const handleCloseDialog = () => {
+    setShowGameEndDialog(false);
+  };
+
+  // UI state for toggles
+  const [showGuide, setShowGuide] = useState(false);
+  const [showHighScores, setShowHighScores] = useState(false);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
@@ -439,25 +526,104 @@ const Game: React.FC = () => {
 
   return (
     <div className="game-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+      {/* Toggle buttons */}
       <div style={{ maxWidth: 600, width: '100%', margin: '0 auto', marginBottom: 16 }}>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={startNewGame} style={{ fontWeight: 600, fontSize: 18, padding: '8px 18px', borderRadius: 8, border: 'none', background: '#444', color: '#fff', cursor: 'pointer' }}>New Game</button>
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <NextBallsPreview nextBalls={nextBalls} />
-          </div>
-          <span style={{ fontWeight: 700, fontSize: 22, color: '#ffe082', minWidth: 100, textAlign: 'right' }}>Score: {score}</span>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
+          <button 
+            onClick={() => setShowGuide(!showGuide)} 
+            style={{ 
+              fontWeight: 600, 
+              fontSize: 16, 
+              padding: '8px 16px', 
+              borderRadius: 8, 
+              border: 'none', 
+              background: showGuide ? '#ffe082' : '#444', 
+              color: showGuide ? '#000' : '#fff', 
+              cursor: 'pointer' 
+            }}
+          >
+            {showGuide ? 'Hide Guide' : 'Show Guide'}
+          </button>
+          <button 
+            onClick={() => setShowHighScores(!showHighScores)} 
+            style={{ 
+              fontWeight: 600, 
+              fontSize: 16, 
+              padding: '8px 16px', 
+              borderRadius: 8, 
+              border: 'none', 
+              background: showHighScores ? '#ffe082' : '#444', 
+              color: showHighScores ? '#000' : '#fff', 
+              cursor: 'pointer' 
+            }}
+          >
+            {showHighScores ? 'Hide Scores' : 'Show Scores'}
+          </button>
         </div>
+        
+        {/* Game header - only show when not showing guide or scores */}
+        {!showGuide && !showHighScores && (
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <button onClick={startNewGame} style={{ fontWeight: 600, fontSize: 18, padding: '8px 18px', borderRadius: 8, border: 'none', background: '#444', color: '#fff', cursor: 'pointer' }}>New Game</button>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <NextBallsPreview nextBalls={nextBalls} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+              <span style={{ fontWeight: 700, fontSize: 22, color: '#ffe082' }}>Score: {score}</span>
+              <span style={{ fontSize: 14, color: '#ccc' }}>Best: {currentHighScore}</span>
+            </div>
+          </div>
+        )}
       </div>
-      <div style={{ height: 8 }} />
-      <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
-        <Board board={board} onCellClick={handleCellClick} movingBall={movingBall}>
-          {movingBallEl}
-        </Board>
-      </div>
-      <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
-        Game time: {formatTime(timer)}
-      </div>
-      <InfoContainer />
+      
+      {/* Game content - only show when not showing guide or scores */}
+      {!showGuide && !showHighScores && (
+        <>
+          <div style={{ height: 8 }} />
+          <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
+            <Board board={board} onCellClick={handleCellClick} movingBall={movingBall}>
+              {movingBallEl}
+            </Board>
+          </div>
+          <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
+            Game time: {formatTime(timer)}
+          </div>
+        </>
+      )}
+      
+      {/* Guide content */}
+      {showGuide && (
+        <div style={{ maxWidth: 600, width: '100%', margin: '0 auto' }}>
+          <InfoContainer 
+            highScores={highScores}
+            isNewHighScore={isNewHighScore}
+            currentScore={score}
+            currentSessionScore={currentSessionScore}
+            showGuide={true}
+          />
+        </div>
+      )}
+      
+      {/* High scores content */}
+      {showHighScores && (
+        <div style={{ maxWidth: 600, width: '100%', margin: '0 auto' }}>
+          <HighScoreDisplay 
+            highScores={highScores}
+            currentScore={isNewHighScore ? score : undefined}
+            isNewHighScore={isNewHighScore}
+            currentSessionScore={currentSessionScore}
+          />
+        </div>
+      )}
+      
+      {/* Add game end dialog */}
+      <GameEndDialog
+        isOpen={showGameEndDialog}
+        score={score}
+        isNewHighScore={isNewHighScore}
+        onNewGame={handleNewGameFromDialog}
+        onClose={handleCloseDialog}
+      />
     </div>
   );
 };

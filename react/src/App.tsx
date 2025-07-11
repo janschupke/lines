@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import Game from './components/Game';
 import styled, { createGlobalStyle } from 'styled-components';
+import ConfigManager from './utils/configManager';
 
 const GlobalStyle = createGlobalStyle`
   :root {
@@ -64,6 +66,11 @@ const AppContainer = styled.div`
 `;
 
 function App() {
+  useEffect(() => {
+    // Initialize configuration system
+    ConfigManager.getInstance();
+  }, []);
+
   return (
     <>
       <GlobalStyle />

@@ -74,6 +74,17 @@ const BallSpan = styled.span<{color: BallColor; active: boolean}>`
   ${props => props.active && highlightGlow}
 `;
 
+const IncomingBallSpan = styled.span<{color: BallColor}>`
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${props => colorMap[props.color]};
+  border: 1px solid #666;
+  box-shadow: 0 1px 2px #0002;
+  opacity: 0.8;
+`;
+
 const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall }) => {
   return (
     <BoardGrid cols={board[0].length} rows={board.length}>
@@ -96,6 +107,9 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall 
           >
             {cell.ball && !hideBall && (
               <BallSpan color={cell.ball.color} active={cell.active} title={cell.ball.color} />
+            )}
+            {!cell.ball && cell.incomingBall && (
+              <IncomingBallSpan color={cell.incomingBall.color} title={`Preview: ${cell.incomingBall.color}`} />
             )}
           </CellDiv>
         );

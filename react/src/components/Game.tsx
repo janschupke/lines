@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import Board, { CELL_SIZE, GAP } from './Board';
 import { colorMap } from './colorMap';
+import HighScoreManager from '../utils/highScoreManager';
+import GameEndDialog from './GameEndDialog';
+import HighScoreDisplay from './HighScoreDisplay';
+import type { HighScore } from '../utils/configManager';
 
 // Types for the game
 export type BallColor = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'black';
@@ -169,7 +173,12 @@ const MovingBall = styled.div<{color: string; left: number; top: number}>`
   pointer-events: none;
 `;
 
-const InfoContainer: React.FC = () => (
+const InfoContainer: React.FC<{ highScores: HighScore[]; isNewHighScore: boolean; currentScore?: number; currentSessionScore?: number }> = ({ 
+  highScores, 
+  isNewHighScore, 
+  currentScore,
+  currentSessionScore
+}) => (
   <div
     className="info-container"
     style={{
@@ -198,6 +207,16 @@ const InfoContainer: React.FC = () => (
       <li>After each move, new balls (shown in the preview) will appear on the board.</li>
       <li>The game ends when the board is full and no more moves are possible.</li>
     </ul>
+    
+    {/* Add high score display */}
+    <div style={{ marginTop: 24 }}>
+      <HighScoreDisplay 
+        highScores={highScores.slice(0, 5)} 
+        currentScore={isNewHighScore ? currentScore : undefined}
+        isNewHighScore={isNewHighScore}
+        currentSessionScore={currentSessionScore}
+      />
+    </div>
   </div>
 );
 
@@ -259,6 +278,15 @@ const Game: React.FC = () => {
   const [movingBall, setMovingBall] = useState<null | {color: BallColor; path: [number, number][]}>(null);
   const [movingStep, setMovingStep] = useState(0);
   const animationRef = useRef<number | null>(null);
+  
+  // High score state
+  const [highScores, setHighScores] = useState<HighScore[]>([]);
+  const [currentHighScore, setCurrentHighScore] = useState(0);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [showGameEndDialog, setShowGameEndDialog] = useState(false);
+  const [currentSessionScore, setCurrentSessionScore] = useState(0);
+  
+  const highScoreManager = useMemo(() => new HighScoreManager(), []);
 
   useEffect(() => {
     if (!timerActive) return;
@@ -266,10 +294,39 @@ const Game: React.FC = () => {
     return () => clearInterval(interval);
   }, [timerActive]);
 
+  // Initialize high scores
+  useEffect(() => {
+    const loadHighScores = () => {
+      const scores = highScoreManager.getHighScores();
+      const currentHigh = highScoreManager.getCurrentHighScore();
+      const config = highScoreManager.getConfig();
+      setHighScores(scores);
+      setCurrentHighScore(currentHigh);
+      setCurrentSessionScore(config.currentSessionScore || 0);
+    };
+
+    loadHighScores();
+  }, [highScoreManager]);
+
   // Stop timer on game over
   useEffect(() => {
     if (gameOver) setTimerActive(false);
   }, [gameOver]);
+
+  // Check for new high score
+  const checkForNewHighScore = (currentScore: number): boolean => {
+    if (highScoreManager.isNewHighScore(currentScore)) {
+      const success = highScoreManager.addHighScore(currentScore, timer);
+      if (success) {
+        setHighScores(highScoreManager.getHighScores());
+        setCurrentHighScore(highScoreManager.getCurrentHighScore());
+        setCurrentSessionScore(highScoreManager.getConfig().currentSessionScore || 0);
+        setIsNewHighScore(true);
+        return true;
+      }
+    }
+    return false;
+  };
 
   // Pathfinding for animation: returns the path as a list of [x, y] from start to end
   function findPath(board: Cell[][], from: {x: number, y: number}, to: {x: number, y: number}): [number, number][] | null {
@@ -378,9 +435,15 @@ const Game: React.FC = () => {
           newBoard[ly][lx].ball = null;
         });
         setBoard(newBoard);
-        setScore(s => s + ballsToRemove.length);
+        const newScore = score + ballsToRemove.length;
+        setScore(newScore);
+        
+        // Check for new high score
+        checkForNewHighScore(newScore);
+        
         if (isBoardFull(newBoard)) {
           setGameOver(true);
+          setShowGameEndDialog(true);
         }
         setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
       } else {
@@ -407,6 +470,7 @@ const Game: React.FC = () => {
         setNextBalls(nextPreviewBalls);
         if (isBoardFull(afterBalls)) {
           setGameOver(true);
+          setShowGameEndDialog(true);
         }
       }
     }
@@ -422,9 +486,21 @@ const Game: React.FC = () => {
     setScore(0);
     setSelected(null);
     setGameOver(false);
+    setIsNewHighScore(false);
+    setShowGameEndDialog(false);
     setNextBalls(initialNext);
     setTimer(0);
     setTimerActive(false);
+  };
+
+  // Game end dialog handlers
+  const handleNewGameFromDialog = () => {
+    setShowGameEndDialog(false);
+    startNewGame();
+  };
+
+  const handleCloseDialog = () => {
+    setShowGameEndDialog(false);
   };
 
   // Render the moving ball absolutely above the board
@@ -445,7 +521,10 @@ const Game: React.FC = () => {
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <NextBallsPreview nextBalls={nextBalls} />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 22, color: '#ffe082', minWidth: 100, textAlign: 'right' }}>Score: {score}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+            <span style={{ fontWeight: 700, fontSize: 22, color: '#ffe082' }}>Score: {score}</span>
+            <span style={{ fontSize: 14, color: '#ccc' }}>Best: {currentHighScore}</span>
+          </div>
         </div>
       </div>
       <div style={{ height: 8 }} />
@@ -457,7 +536,21 @@ const Game: React.FC = () => {
       <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
         Game time: {formatTime(timer)}
       </div>
-      <InfoContainer />
+      <InfoContainer 
+        highScores={highScores}
+        isNewHighScore={isNewHighScore}
+        currentScore={score}
+        currentSessionScore={currentSessionScore}
+      />
+      
+      {/* Add game end dialog */}
+      <GameEndDialog
+        isOpen={showGameEndDialog}
+        score={score}
+        isNewHighScore={isNewHighScore}
+        onNewGame={handleNewGameFromDialog}
+        onClose={handleCloseDialog}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import Game from './components/Game';
+import { useEffect, useState } from 'react';
+import Game, { ToggleBar } from './components/Game';
 import styled, { createGlobalStyle } from 'styled-components';
 import ConfigManager from './utils/configManager';
 
@@ -54,14 +54,28 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const AppContainer = styled.div`
-  min-height: 100vh;
-  min-width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const StickyHeader = styled.header`
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: #23272f;
-  padding: 32px;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 64px;
+  box-shadow: 0 2px 8px #0002;
+  padding: 0 0 8px 0;
+`;
+
+const MainContent = styled.main`
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 80px; /* Height of sticky header + some gap */
   box-sizing: border-box;
 `;
 
@@ -71,12 +85,29 @@ function App() {
     ConfigManager.getInstance();
   }, []);
 
+  // Move toggle state up to App
+  const [showGuide, setShowGuide] = useState(false);
+  const [showHighScores, setShowHighScores] = useState(false);
+
   return (
     <>
       <GlobalStyle />
-      <AppContainer>
-        <Game />
-      </AppContainer>
+      <StickyHeader>
+        <ToggleBar
+          showGuide={showGuide}
+          setShowGuide={setShowGuide}
+          showHighScores={showHighScores}
+          setShowHighScores={setShowHighScores}
+        />
+      </StickyHeader>
+      <MainContent>
+        <Game
+          showGuide={showGuide}
+          setShowGuide={setShowGuide}
+          showHighScores={showHighScores}
+          setShowHighScores={setShowHighScores}
+        />
+      </MainContent>
     </>
   );
 }

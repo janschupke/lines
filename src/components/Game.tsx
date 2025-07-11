@@ -23,12 +23,24 @@ export interface Cell {
 }
 
 const BOARD_SIZE = 9; // Default size from Java code
-const INITIAL_BALLS = 5;
+const INITIAL_BALLS = 3;
 const BALL_COLORS: BallColor[] = ['red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'black'];
 const BALLS_PER_TURN = 3;
 
 const BALL_SIZE = 40;
 const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
+
+// Scoring system based on line length
+function calculateLineScore(lineLength: number): number {
+  switch (lineLength) {
+    case 5: return 5;
+    case 6: return 8;
+    case 7: return 13;
+    case 8: return 21;
+    case 9: return 34;
+    default: return lineLength; // Fallback for any other length
+  }
+}
 
 function getRandomColor(): BallColor {
   return BALL_COLORS[Math.floor(Math.random() * BALL_COLORS.length)];
@@ -203,6 +215,15 @@ const InfoContainer: React.FC<{ highScores: HighScore[]; isNewHighScore: boolean
           <p>
             This is a React port of the original Java version.
           </p>
+          <h2>Scoring</h2>
+          <p>Score points by forming lines of the same color:</p>
+          <ul>
+            <li>Line of 5 balls: 5 points</li>
+            <li>Line of 6 balls: 8 points</li>
+            <li>Line of 7 balls: 13 points</li>
+            <li>Line of 8 balls: 21 points</li>
+            <li>Line of 9 balls: 34 points</li>
+          </ul>
           <h2>Guide</h2>
           <ul>
             <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
@@ -271,7 +292,51 @@ function formatTime(seconds: number): string {
   }
 }
 
-const Game: React.FC = () => {
+export interface GameToggleProps {
+  showGuide: boolean;
+  setShowGuide: (v: boolean) => void;
+  showHighScores: boolean;
+  setShowHighScores: (v: boolean) => void;
+}
+
+export const ToggleBar: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScores, setShowHighScores }) => (
+  <div style={{ display: 'flex', justifyContent: 'center', gap: 12, width: '100%', maxWidth: 600, margin: '0 auto' }}>
+    <button
+      onClick={() => setShowGuide(!showGuide)}
+      style={{
+        fontWeight: 600,
+        fontSize: 16,
+        padding: '8px 16px',
+        borderRadius: 8,
+        border: 'none',
+        background: showGuide ? '#ffe082' : '#444',
+        color: showGuide ? '#000' : '#fff',
+        cursor: 'pointer',
+        minWidth: 120,
+      }}
+    >
+      {showGuide ? 'Hide Guide' : 'Show Guide'}
+    </button>
+    <button
+      onClick={() => setShowHighScores(!showHighScores)}
+      style={{
+        fontWeight: 600,
+        fontSize: 16,
+        padding: '8px 16px',
+        borderRadius: 8,
+        border: 'none',
+        background: showHighScores ? '#ffe082' : '#444',
+        color: showHighScores ? '#000' : '#fff',
+        cursor: 'pointer',
+        minWidth: 120,
+      }}
+    >
+      {showHighScores ? 'Hide Scores' : 'Show Scores'}
+    </button>
+  </div>
+);
+
+const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScores, setShowHighScores }) => {
   const [board, setBoard] = useState<Cell[][]>(() => {
     const initialBoard = placeRandomBalls(createEmptyBoard(), INITIAL_BALLS);
     return placePreviewBalls(initialBoard, getRandomNextBalls(BALLS_PER_TURN));
@@ -442,7 +507,16 @@ const Game: React.FC = () => {
           newBoard[ly][lx].ball = null;
         });
         setBoard(newBoard);
-        const newScore = score + ballsToRemove.length;
+        
+        // Calculate score based on line lengths
+        let totalScore = 0;
+        if (movedColor) {
+          const lines = findLine(newBoard, toX, toY, movedColor);
+          lines.forEach(line => {
+            totalScore += calculateLineScore(line.length);
+          });
+        }
+        const newScore = score + totalScore;
         setScore(newScore);
         
         // Check for new high score
@@ -511,8 +585,8 @@ const Game: React.FC = () => {
   };
 
   // UI state for toggles
-  const [showGuide, setShowGuide] = useState(false);
-  const [showHighScores, setShowHighScores] = useState(false);
+  // REMOVE: const [showGuide, setShowGuide] = useState(false);
+  // REMOVE: const [showHighScores, setShowHighScores] = useState(false);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
@@ -526,41 +600,8 @@ const Game: React.FC = () => {
 
   return (
     <div className="game-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
-      {/* Toggle buttons */}
+      {/* ToggleBar is now rendered in App.tsx sticky header */}
       <div style={{ maxWidth: 600, width: '100%', margin: '0 auto', marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
-          <button 
-            onClick={() => setShowGuide(!showGuide)} 
-            style={{ 
-              fontWeight: 600, 
-              fontSize: 16, 
-              padding: '8px 16px', 
-              borderRadius: 8, 
-              border: 'none', 
-              background: showGuide ? '#ffe082' : '#444', 
-              color: showGuide ? '#000' : '#fff', 
-              cursor: 'pointer' 
-            }}
-          >
-            {showGuide ? 'Hide Guide' : 'Show Guide'}
-          </button>
-          <button 
-            onClick={() => setShowHighScores(!showHighScores)} 
-            style={{ 
-              fontWeight: 600, 
-              fontSize: 16, 
-              padding: '8px 16px', 
-              borderRadius: 8, 
-              border: 'none', 
-              background: showHighScores ? '#ffe082' : '#444', 
-              color: showHighScores ? '#000' : '#fff', 
-              cursor: 'pointer' 
-            }}
-          >
-            {showHighScores ? 'Hide Scores' : 'Show Scores'}
-          </button>
-        </div>
-        
         {/* Game header - only show when not showing guide or scores */}
         {!showGuide && !showHighScores && (
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>

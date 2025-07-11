@@ -15,6 +15,11 @@ interface BoardProps {
   children?: React.ReactNode;
   movingBall?: { color: BallColor; path: [number, number][] } | null;
   poppingBalls?: Set<string>;
+  hoveredCell?: { x: number, y: number } | null;
+  pathTrail?: [number, number][] | null;
+  notReachable?: boolean;
+  onCellHover?: (x: number, y: number) => void;
+  onCellLeave?: () => void;
 }
 
 const BoardGrid = styled.div<{cols: number; rows: number}>`
@@ -33,18 +38,24 @@ const BoardGrid = styled.div<{cols: number; rows: number}>`
   height: fit-content;
 `;
 
-const CellDiv = styled.div<{$active: boolean}>`
+const CellDiv = styled.div<{$active: boolean; $hovered?: boolean; $inPath?: boolean; $notReachable?: boolean}>`
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
-  background: ${props => props.$active ? '#ffe082' : '#eee'};
-  border: 2px solid #888;
+  background: ${props =>
+    props.$active ? '#ffe082' :
+    props.$inPath ? '#b3d1ff' :
+    props.$hovered ? '#bbb' :
+    '#eee'};
+  border: 2px solid
+    ${props => props.$notReachable ? '#e74c3c' : props.$inPath ? '#1976d2' : '#888'};
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, border 0.2s;
   box-sizing: border-box;
+  position: relative;
 `;
 
 const highlightGlow = css`
@@ -105,7 +116,9 @@ const IncomingBallSpan = styled.span<{color: BallColor}>`
   opacity: 0.8;
 `;
 
-const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall, poppingBalls }) => {
+const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall, poppingBalls, hoveredCell, pathTrail, notReachable, onCellHover, onCellLeave }) => {
+  // Convert pathTrail to a Set for fast lookup
+  const pathSet = pathTrail ? new Set(pathTrail.map(([x, y]) => `${x},${y}`)) : new Set();
   return (
     <BoardGrid cols={board[0].length} rows={board.length}>
       {board.flat().map((cell) => {
@@ -119,11 +132,19 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
         }
         const key = `${cell.x},${cell.y}`;
         const popping = poppingBalls && poppingBalls.has(key);
+        const isHovered = !!(hoveredCell && hoveredCell.x === cell.x && hoveredCell.y === cell.y);
+        const inPath = !!pathSet.has(key);
+        const showNotReachable = isHovered && !!notReachable && !cell.ball;
         return (
           <CellDiv
             key={key}
             $active={cell.active}
+            $hovered={isHovered}
+            $inPath={inPath}
+            $notReachable={showNotReachable}
             onClick={() => onCellClick(cell.x, cell.y)}
+            onMouseEnter={() => onCellHover && onCellHover(cell.x, cell.y)}
+            onMouseLeave={() => onCellLeave && onCellLeave()}
             role="button"
             tabIndex={0}
           >
@@ -132,6 +153,24 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
             )}
             {!cell.ball && cell.incomingBall && (
               <IncomingBallSpan color={cell.incomingBall.color} title={`Preview: ${cell.incomingBall.color}`} />
+            )}
+            {/* Not reachable cross */}
+            {showNotReachable && (
+              <span style={{
+                position: 'absolute',
+                left: 8,
+                top: 8,
+                width: CELL_SIZE - 16,
+                height: CELL_SIZE - 16,
+                pointerEvents: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#e74c3c',
+                fontSize: 28,
+                fontWeight: 900,
+                opacity: 0.7,
+              }}>×</span>
             )}
           </CellDiv>
         );

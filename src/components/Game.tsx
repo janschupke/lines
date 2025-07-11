@@ -359,6 +359,9 @@ const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScor
   const [currentSessionScore, setCurrentSessionScore] = useState(0);
   
   const [poppingBalls, setPoppingBalls] = useState<Set<string>>(new Set());
+  const [hoveredCell, setHoveredCell] = useState<{x: number, y: number} | null>(null);
+  const [pathTrail, setPathTrail] = useState<[number, number][] | null>(null);
+  const [notReachable, setNotReachable] = useState<boolean>(false);
 
   const highScoreManager = useMemo(() => new HighScoreManager(), []);
 
@@ -456,8 +459,33 @@ const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScor
         // Start animation
         setMovingBall({ color: board[selected.y][selected.x].ball!.color, path });
         setMovingStep(0);
+        setPathTrail(null);
+        setNotReachable(false);
       }
     }
+  };
+
+  // Handle cell hover
+  const handleCellHover = (x: number, y: number) => {
+    setHoveredCell({ x, y });
+    if (selected && !(selected.x === x && selected.y === y)) {
+      const path = findPath(board, selected, { x, y });
+      if (path && path.length > 1) {
+        setPathTrail(path);
+        setNotReachable(false);
+      } else {
+        setPathTrail(null);
+        setNotReachable(true);
+      }
+    } else {
+      setPathTrail(null);
+      setNotReachable(false);
+    }
+  };
+  const handleCellLeave = () => {
+    setHoveredCell(null);
+    setPathTrail(null);
+    setNotReachable(false);
   };
 
   // Animate the moving ball
@@ -626,7 +654,17 @@ const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScor
         <>
           <div style={{ height: 8 }} />
           <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
-            <Board board={board} onCellClick={handleCellClick} movingBall={movingBall} poppingBalls={poppingBalls}>
+            <Board
+              board={board}
+              onCellClick={handleCellClick}
+              movingBall={movingBall}
+              poppingBalls={poppingBalls}
+              hoveredCell={hoveredCell}
+              pathTrail={pathTrail}
+              notReachable={notReachable}
+              onCellHover={handleCellHover}
+              onCellLeave={handleCellLeave}
+            >
               {movingBallEl}
             </Board>
           </div>

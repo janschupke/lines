@@ -14,6 +14,7 @@ export interface Cell {
   x: number;
   y: number;
   ball: Ball | null;
+  incomingBall: Ball | null; // Add incoming ball for preview
   active: boolean;
 }
 
@@ -53,6 +54,7 @@ function createEmptyBoard(): Cell[][] {
       x,
       y,
       ball: null,
+      incomingBall: null,
       active: false,
     }))
   );
@@ -129,9 +131,21 @@ function placePreviewBalls(board: Cell[][], colors: BallColor[], exclude: Set<st
   const newBoard = board.map(row => row.map(cell => ({ ...cell })));
   const positions = getRandomEmptyCells(newBoard, colors.length, exclude);
   positions.forEach(([x, y], i) => {
-    newBoard[y][x].ball = { color: colors[i] };
+    newBoard[y][x].incomingBall = { color: colors[i] };
   });
   return newBoard;
+}
+
+function recalculateIncomingPositions(board: Cell[][], colors: BallColor[]): Cell[][] {
+  const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+  
+  // Remove all incoming balls
+  newBoard.forEach(row => row.forEach(cell => {
+    cell.incomingBall = null;
+  }));
+  
+  // Place new incoming balls
+  return placePreviewBalls(newBoard, colors);
 }
 
 // Helper to get the pixel position of a cell in the board
@@ -232,7 +246,10 @@ function formatTime(seconds: number): string {
 }
 
 const Game: React.FC = () => {
-  const [board, setBoard] = useState<Cell[][]>(() => placeRandomBalls(createEmptyBoard(), INITIAL_BALLS));
+  const [board, setBoard] = useState<Cell[][]>(() => {
+    const initialBoard = placeRandomBalls(createEmptyBoard(), INITIAL_BALLS);
+    return placePreviewBalls(initialBoard, getRandomNextBalls(BALLS_PER_TURN));
+  });
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<{x: number, y: number} | null>(null);
   const [gameOver, setGameOver] = useState(false);
@@ -324,7 +341,15 @@ const Game: React.FC = () => {
       const newBoard = board.map(row => row.map(cell => ({ ...cell, active: false })));
       newBoard[toY][toX].ball = board[fromY][fromX].ball;
       newBoard[fromY][fromX].ball = null;
-      setBoard(newBoard);
+      
+      // If we moved to a position that had a preview ball, recalculate incoming positions
+      if (board[toY][toX].incomingBall) {
+        const recalculatedBoard = recalculateIncomingPositions(newBoard, nextBalls);
+        setBoard(recalculatedBoard);
+      } else {
+        setBoard(newBoard);
+      }
+      
       setSelected(null);
       setMovingBall(null);
       setMovingStep(0);
@@ -366,9 +391,20 @@ const Game: React.FC = () => {
           setGameOver(true);
           return;
         }
-        const afterBalls = placePreviewBalls(newBoard, nextBalls.slice(0, Math.min(BALLS_PER_TURN, emptyCount)));
+        
+        // Convert incoming balls to real balls, preserving existing balls
+        const boardWithRealBalls = newBoard.map(row => row.map(cell => ({
+          ...cell,
+          ball: cell.incomingBall ? cell.incomingBall : cell.ball,
+          incomingBall: null
+        })));
+        
+        // Generate next preview balls ONCE
+        const nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
+        // Add new preview balls for next turn
+        const afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
         setBoard(afterBalls);
-        setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+        setNextBalls(nextPreviewBalls);
         if (isBoardFull(afterBalls)) {
           setGameOver(true);
         }
@@ -380,7 +416,9 @@ const Game: React.FC = () => {
   // Start new game with random balls and preview
   const startNewGame = () => {
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
-    setBoard(placeRandomBalls(createEmptyBoard(), INITIAL_BALLS));
+    const initialBoard = placeRandomBalls(createEmptyBoard(), INITIAL_BALLS);
+    const boardWithPreview = placePreviewBalls(initialBoard, initialNext);
+    setBoard(boardWithPreview);
     setScore(0);
     setSelected(null);
     setGameOver(false);

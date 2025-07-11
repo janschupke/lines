@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import Game from './Game';
 import '@testing-library/jest-dom';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -11,6 +12,11 @@ Object.defineProperty(window, 'Math', {
   writable: true
 });
 
+// Helper for rendering Game with required props
+const renderGame = () => render(
+  <Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />
+);
+
 describe('Game', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -22,14 +28,14 @@ describe('Game', () => {
 
   describe('Game time functionality and formatting', () => {
     it('renders the board and UI', () => {
-      render(<Game />);
+      renderGame();
       expect(screen.getByText(/Score:/)).toBeInTheDocument();
       expect(screen.getByText(/Game time:/)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /New Game/i })).toBeInTheDocument();
     });
 
     it('starts timer only after first move', async () => {
-      render(<Game />);
+      renderGame();
       expect(screen.getByText(/Game time: 0:00/)).toBeInTheDocument();
       
       // Advance time before any move
@@ -74,7 +80,7 @@ describe('Game', () => {
     });
 
     it('formats time correctly', () => {
-      render(<Game />);
+      renderGame();
       const timeElement = screen.getByText(/Game time:/);
       
       // Test different time formats
@@ -84,12 +90,12 @@ describe('Game', () => {
 
   describe('Scoring component', () => {
     it('starts with score 0', () => {
-      render(<Game />);
+      renderGame();
       expect(screen.getByText(/Score: 0/)).toBeInTheDocument();
     });
 
     it('updates score when a line is cleared', async () => {
-      render(<Game />);
+      renderGame();
       const initialScore = screen.getByText(/Score: 0/);
       
       // Create a scenario where a line can be formed
@@ -101,7 +107,7 @@ describe('Game', () => {
 
   describe('New game button', () => {
     it('starts a new game properly', () => {
-      render(<Game />);
+      renderGame();
       const newGameButton = screen.getByRole('button', { name: /New Game/i });
       
       // Click new game
@@ -113,7 +119,7 @@ describe('Game', () => {
     });
 
     it('resets timer when starting new game', async () => {
-      render(<Game />);
+      renderGame();
       
       // Make a move to start timer
       const cells = screen.getAllByRole('button');
@@ -160,7 +166,7 @@ describe('Game', () => {
 
   describe('Line clearing', () => {
     it('clears balls when a line is formed', async () => {
-      render(<Game />);
+      renderGame();
       
       // This test would require setting up a specific board state
       // where a line can be formed. For now, we test the basic functionality
@@ -169,7 +175,7 @@ describe('Game', () => {
     });
 
     it('adds score when balls are cleared', async () => {
-      render(<Game />);
+      renderGame();
       const initialScore = screen.getByText(/Score: 0/);
       
       // Test that score component exists and can be updated
@@ -179,7 +185,7 @@ describe('Game', () => {
 
   describe('Ball spawning', () => {
     it('spawns 3 balls after a move', async () => {
-      render(<Game />);
+      renderGame();
       
       // Make a move
       const cells = screen.getAllByRole('button');
@@ -202,7 +208,7 @@ describe('Game', () => {
     });
 
     it('calculates new coordinates when spawn cell is occupied', async () => {
-      render(<Game />);
+      renderGame();
       
       // This test would require setting up a scenario where
       // the spawn coordinates are occupied and new ones are calculated
@@ -213,7 +219,7 @@ describe('Game', () => {
 
   describe('Path calculation and animation', () => {
     it('calculates path between two points', async () => {
-      render(<Game />);
+      renderGame();
       
       // Test pathfinding by making a move
       const cells = screen.getAllByRole('button');
@@ -230,7 +236,7 @@ describe('Game', () => {
     });
 
     it('animates ball movement along calculated path', async () => {
-      render(<Game />);
+      renderGame();
       
       const cells = screen.getAllByRole('button');
       const ballCell = cells.find(cell => cell.querySelector('[title]'));
@@ -253,15 +259,62 @@ describe('Game', () => {
 
   describe('Game over conditions', () => {
     it('detects when board is full', () => {
-      render(<Game />);
+      renderGame();
       
       // This would require filling the board completely
       // For now, test that the game renders properly
       expect(screen.getByText(/Score:/)).toBeInTheDocument();
     });
 
+    it('handles last move to cell with incoming ball without overwriting moved ball', async () => {
+      // Custom setup: fill board except one cell, set incoming ball on that cell
+      // Build a 9x9 board with all but one cell filled
+      const BOARD_SIZE = 9;
+      const testColor: import('./Game').BallColor = 'red';
+      const emptyX = 8, emptyY = 8;
+      const initialBoard = Array.from({ length: BOARD_SIZE }, (_, y) =>
+        Array.from({ length: BOARD_SIZE }, (_, x) => ({
+          x,
+          y,
+          ball: (x === emptyX && y === emptyY) ? null : { color: testColor },
+          incomingBall: null,
+          active: false,
+        }) as import('./Game').Cell)
+      );
+      // Set incoming ball on the last cell
+      initialBoard[emptyY][emptyX].incomingBall = { color: testColor };
+      // Set preview balls (not used in this test, but required by prop)
+      const initialNextBalls: import('./Game').BallColor[] = [testColor, testColor, testColor];
+      render(
+        <Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} initialBoard={initialBoard} initialNextBalls={initialNextBalls} />
+      );
+      const cells = screen.getAllByRole('button');
+      // Find the last empty cell and a filled cell
+      const emptyCell = cells.find(cell => !cell.querySelector('[title]'));
+      const ballCell = cells.find(cell => cell.querySelector('[title]'));
+      expect(emptyCell).toBeTruthy();
+      expect(ballCell).toBeTruthy();
+      // Click to select a ball, then move to the last empty cell
+      fireEvent.click(ballCell!);
+      fireEvent.click(emptyCell!);
+      // Advance time to complete animation
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
+      // The moved ball should remain in the last cell
+      await waitFor(() => {
+        expect(emptyCell!.querySelector('[title]')).toBeTruthy();
+      });
+      // The source cell should now be empty
+      await waitFor(() => {
+        expect(ballCell!.querySelector('[title]')).toBeFalsy();
+      });
+      // The game should be over (overlay is shown)
+      expect(screen.getByText(/Much Balls/)).toBeInTheDocument();
+    });
+
     it('stops timer when game is over', async () => {
-      render(<Game />);
+      renderGame();
       
       // Make a move to start timer
       const cells = screen.getAllByRole('button');
@@ -304,7 +357,7 @@ describe('Game', () => {
 
   describe('Ball selection and movement', () => {
     it('selects a ball when clicked', () => {
-      render(<Game />);
+      renderGame();
       
       const cells = screen.getAllByRole('button');
       const ballCell = cells.find(cell => cell.querySelector('[title]'));
@@ -317,7 +370,7 @@ describe('Game', () => {
     });
 
     it('moves ball to empty cell when valid path exists', async () => {
-      render(<Game />);
+      renderGame();
       
       const cells = screen.getAllByRole('button');
       const ballCell = cells.find(cell => cell.querySelector('[title]'));
@@ -335,7 +388,7 @@ describe('Game', () => {
     });
 
     it('does not move ball when no valid path exists', () => {
-      render(<Game />);
+      renderGame();
       
       const cells = screen.getAllByRole('button');
       const ballCell = cells.find(cell => cell.querySelector('[title]'));
@@ -353,7 +406,7 @@ describe('Game', () => {
 
   describe('Next balls preview', () => {
     it('shows preview of next balls', () => {
-      render(<Game />);
+      renderGame();
       
       // Should show preview balls (they have title attributes)
       const previewBalls = screen.getAllByTitle(/yellow|red|blue|green|purple|cyan|black/);
@@ -361,7 +414,7 @@ describe('Game', () => {
     });
 
     it('updates preview after balls are spawned', async () => {
-      render(<Game />);
+      renderGame();
       
       // Make a move to trigger ball spawning
       const cells = screen.getAllByRole('button');

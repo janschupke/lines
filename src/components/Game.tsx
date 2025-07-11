@@ -23,12 +23,23 @@ export interface Cell {
 }
 
 const BOARD_SIZE = 9; // Default size from Java code
-const INITIAL_BALLS = 5;
 const BALL_COLORS: BallColor[] = ['red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'black'];
 const BALLS_PER_TURN = 3;
 
 const BALL_SIZE = 40;
 const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
+
+// Scoring system based on line length
+function calculateLineScore(lineLength: number): number {
+  switch (lineLength) {
+    case 5: return 5;
+    case 6: return 8;
+    case 7: return 13;
+    case 8: return 21;
+    case 9: return 34;
+    default: return lineLength; // Fallback for any other length
+  }
+}
 
 function getRandomColor(): BallColor {
   return BALL_COLORS[Math.floor(Math.random() * BALL_COLORS.length)];
@@ -62,15 +73,6 @@ function createEmptyBoard(): Cell[][] {
       active: false,
     }))
   );
-}
-
-function placeRandomBalls(board: Cell[][], count: number, exclude: Set<string> = new Set()): Cell[][] {
-  const newBoard = board.map(row => row.map(cell => ({ ...cell })));
-  const positions = getRandomEmptyCells(newBoard, count, exclude);
-  positions.forEach(([x, y]) => {
-    newBoard[y][x].ball = { color: getRandomColor() };
-  });
-  return newBoard;
 }
 
 // Helper to find a line in a direction
@@ -203,6 +205,15 @@ const InfoContainer: React.FC<{ highScores: HighScore[]; isNewHighScore: boolean
           <p>
             This is a React port of the original Java version.
           </p>
+          <h2>Scoring</h2>
+          <p>Score points by forming lines of the same color:</p>
+          <ul>
+            <li>Line of 5 balls: 5 points</li>
+            <li>Line of 6 balls: 8 points</li>
+            <li>Line of 7 balls: 13 points</li>
+            <li>Line of 8 balls: 21 points</li>
+            <li>Line of 9 balls: 34 points</li>
+          </ul>
           <h2>Guide</h2>
           <ul>
             <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
@@ -271,10 +282,80 @@ function formatTime(seconds: number): string {
   }
 }
 
-const Game: React.FC = () => {
+export interface GameToggleProps {
+  showGuide: boolean;
+  setShowGuide: (v: boolean) => void;
+  showHighScores: boolean;
+  setShowHighScores: (v: boolean) => void;
+}
+
+export const ToggleBar: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScores, setShowHighScores }) => (
+  <div style={{ display: 'flex', justifyContent: 'center', gap: 12, width: '100%', maxWidth: 600, margin: '0 auto' }}>
+    <button
+      onClick={() => setShowGuide(!showGuide)}
+      style={{
+        fontWeight: 600,
+        fontSize: 16,
+        padding: '8px 16px',
+        borderRadius: 8,
+        border: 'none',
+        background: showGuide ? '#ffe082' : '#444',
+        color: showGuide ? '#000' : '#fff',
+        cursor: 'pointer',
+        minWidth: 120,
+      }}
+    >
+      {showGuide ? 'Hide Guide' : 'Show Guide'}
+    </button>
+    <button
+      onClick={() => setShowHighScores(!showHighScores)}
+      style={{
+        fontWeight: 600,
+        fontSize: 16,
+        padding: '8px 16px',
+        borderRadius: 8,
+        border: 'none',
+        background: showHighScores ? '#ffe082' : '#444',
+        color: showHighScores ? '#000' : '#fff',
+        cursor: 'pointer',
+        minWidth: 120,
+      }}
+    >
+      {showHighScores ? 'Hide Scores' : 'Show Scores'}
+    </button>
+  </div>
+);
+
+interface GameProps extends GameToggleProps {
+  initialBoard?: Cell[][];
+  initialNextBalls?: BallColor[];
+}
+
+const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, initialNextBalls }) => {
   const [board, setBoard] = useState<Cell[][]>(() => {
-    const initialBoard = placeRandomBalls(createEmptyBoard(), INITIAL_BALLS);
-    return placePreviewBalls(initialBoard, getRandomNextBalls(BALLS_PER_TURN));
+    if (initialBoard && initialNextBalls) {
+      // Use provided initial board and preview balls
+      return placePreviewBalls(initialBoard, initialNextBalls);
+    }
+    // For testing: fill all but 6 cells
+    const emptyCells = 6;
+    const board = createEmptyBoard();
+    const allPositions = [];
+    for (let y = 0; y < BOARD_SIZE; y++) for (let x = 0; x < BOARD_SIZE; x++) allPositions.push([x, y]);
+    for (let i = allPositions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
+    }
+    const emptyPositions = new Set(allPositions.slice(0, emptyCells).map(([x, y]) => `${x},${y}`));
+    for (let y = 0; y < BOARD_SIZE; y++) {
+      for (let x = 0; x < BOARD_SIZE; x++) {
+        if (!emptyPositions.has(`${x},${y}`)) {
+          board[y][x].ball = { color: getRandomColor() };
+        }
+      }
+    }
+    const initialNext = getRandomNextBalls(BALLS_PER_TURN);
+    return placePreviewBalls(board, initialNext);
   });
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<{x: number, y: number} | null>(null);
@@ -293,6 +374,13 @@ const Game: React.FC = () => {
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
   const [currentSessionScore, setCurrentSessionScore] = useState(0);
   
+  const [poppingBalls, setPoppingBalls] = useState<Set<string>>(new Set());
+  const [hoveredCell, setHoveredCell] = useState<{x: number, y: number} | null>(null);
+  const [pathTrail, setPathTrail] = useState<[number, number][] | null>(null);
+  const [notReachable, setNotReachable] = useState<boolean>(false);
+  const [totalMoves, setTotalMoves] = useState(0);
+  const [lineStats, setLineStats] = useState<{ [length: number]: { count: number, points: number } }>({});
+
   const highScoreManager = useMemo(() => new HighScoreManager(), []);
 
   useEffect(() => {
@@ -389,8 +477,34 @@ const Game: React.FC = () => {
         // Start animation
         setMovingBall({ color: board[selected.y][selected.x].ball!.color, path });
         setMovingStep(0);
+        setPathTrail(null);
+        setNotReachable(false);
+        setTotalMoves(m => m + 1);
       }
     }
+  };
+
+  // Handle cell hover
+  const handleCellHover = (x: number, y: number) => {
+    setHoveredCell({ x, y });
+    if (selected && !(selected.x === x && selected.y === y)) {
+      const path = findPath(board, selected, { x, y });
+      if (path && path.length > 1) {
+        setPathTrail(path);
+        setNotReachable(false);
+      } else {
+        setPathTrail(null);
+        setNotReachable(true);
+      }
+    } else {
+      setPathTrail(null);
+      setNotReachable(false);
+    }
+  };
+  const handleCellLeave = () => {
+    setHoveredCell(null);
+    setPathTrail(null);
+    setNotReachable(false);
   };
 
   // Animate the moving ball
@@ -405,11 +519,22 @@ const Game: React.FC = () => {
       const newBoard = board.map(row => row.map(cell => ({ ...cell, active: false })));
       newBoard[toY][toX].ball = board[fromY][fromX].ball;
       newBoard[fromY][fromX].ball = null;
+      // Explicitly clear incomingBall for the destination cell
+      newBoard[toY][toX].incomingBall = null;
       
       // If we moved to a position that had a preview ball, recalculate incoming positions
       if (board[toY][toX].incomingBall) {
-        const recalculatedBoard = recalculateIncomingPositions(newBoard, nextBalls);
-        setBoard(recalculatedBoard);
+        if (isBoardFull(newBoard)) {
+          // Board is full: clear all incoming balls, preserve the moved ball, and end game
+          const clearedBoard = newBoard.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
+          setBoard(clearedBoard);
+          setGameOver(true);
+          setShowGameEndDialog(true);
+        } else {
+          // Not full: recalculate incoming positions as usual
+          const recalculatedBoard = recalculateIncomingPositions(newBoard, nextBalls);
+          setBoard(recalculatedBoard);
+        }
       } else {
         setBoard(newBoard);
       }
@@ -425,8 +550,9 @@ const Game: React.FC = () => {
       const movedColor = newBoard[toY][toX].ball?.color;
       const allLines: Set<string> = new Set();
       const ballsToRemove: [number, number][] = [];
+      let lines: [number, number][][] = [];
       if (movedColor) {
-        const lines = findLine(newBoard, toX, toY, movedColor);
+        lines = findLine(newBoard, toX, toY, movedColor);
         lines.forEach(line => {
           line.forEach(([lx, ly]) => {
             const key = `${lx},${ly}`;
@@ -438,41 +564,68 @@ const Game: React.FC = () => {
         });
       }
       if (ballsToRemove.length > 0) {
-        ballsToRemove.forEach(([lx, ly]) => {
-          newBoard[ly][lx].ball = null;
-        });
-        setBoard(newBoard);
-        const newScore = score + ballsToRemove.length;
-        setScore(newScore);
-        
-        // Check for new high score
-        checkForNewHighScore(newScore);
-        
-        if (isBoardFull(newBoard)) {
-          setGameOver(true);
-          setShowGameEndDialog(true);
-        }
-        setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+        // Popping animation: mark balls as popping, then remove after delay
+        setPoppingBalls(new Set(ballsToRemove.map(([lx, ly]) => `${lx},${ly}`)));
+        setTimeout(() => {
+          // If the board is full after the move, exclude the destination cell from removal
+          let filteredBallsToRemove = ballsToRemove;
+          if (isBoardFull(newBoard)) {
+            filteredBallsToRemove = ballsToRemove.filter(([lx, ly]) => !(lx === toX && ly === toY));
+          }
+          filteredBallsToRemove.forEach(([lx, ly]) => {
+            newBoard[ly][lx].ball = null;
+          });
+          setBoard(newBoard);
+          setPoppingBalls(new Set());
+          // Calculate score based on line lengths
+          let totalScore = 0;
+          const newLineStats = { ...lineStats };
+          if (lines.length > 0) {
+            lines.forEach(line => {
+              const len = line.length;
+              const pts = calculateLineScore(len);
+              totalScore += pts;
+              if (!newLineStats[len]) newLineStats[len] = { count: 0, points: 0 };
+              newLineStats[len].count += 1;
+              newLineStats[len].points += pts;
+            });
+          }
+          setLineStats(newLineStats);
+          const newScore = score + totalScore;
+          setScore(newScore);
+          // Check for new high score
+          checkForNewHighScore(newScore);
+          if (isBoardFull(newBoard)) {
+            // Ensure the moved ball is present and all incomingBall are cleared
+            const clearedBoard = newBoard.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
+            setBoard(clearedBoard);
+            setGameOver(true);
+            setShowGameEndDialog(true);
+          }
+          setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+        }, 300); // 300ms for popping animation
       } else {
         // Only spawn as many balls as there are empty cells
         const emptyCount = getRandomEmptyCells(newBoard, BOARD_SIZE * BOARD_SIZE).length;
         if (emptyCount === 0) {
-          setBoard(newBoard);
+          // Board is full after move: clear all incoming balls, do not convert them, and end game
+          const clearedBoard = newBoard.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
+          setBoard(clearedBoard);
           setGameOver(true);
+          setShowGameEndDialog(true);
           return;
         }
-        
-        // Convert incoming balls to real balls, preserving existing balls
+        // Only convert incoming balls if there is at least one empty cell
+        const ballsToAdd = Math.min(BALLS_PER_TURN, emptyCount);
         const boardWithRealBalls = newBoard.map(row => row.map(cell => ({
           ...cell,
           ball: cell.incomingBall ? cell.incomingBall : cell.ball,
           incomingBall: null
         })));
-        
         // Generate next preview balls ONCE
         const nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
-        // Add new preview balls for next turn
-        const afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
+        // Add new preview balls for next turn, but only if there is space
+        const afterBalls = ballsToAdd > 0 ? placePreviewBalls(boardWithRealBalls, nextPreviewBalls.slice(0, ballsToAdd)) : boardWithRealBalls;
         setBoard(afterBalls);
         setNextBalls(nextPreviewBalls);
         if (isBoardFull(afterBalls)) {
@@ -486,9 +639,28 @@ const Game: React.FC = () => {
 
   // Start new game with random balls and preview
   const startNewGame = () => {
+    // For testing: fill all but 6 cells
+    const emptyCells = 6;
+    const board = createEmptyBoard();
+    // Fill all but 6 random cells
+    const allPositions = [];
+    for (let y = 0; y < BOARD_SIZE; y++) for (let x = 0; x < BOARD_SIZE; x++) allPositions.push([x, y]);
+    // Shuffle and pick empty cells
+    for (let i = allPositions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
+    }
+    const emptyPositions = new Set(allPositions.slice(0, emptyCells).map(([x, y]) => `${x},${y}`));
+    for (let y = 0; y < BOARD_SIZE; y++) {
+      for (let x = 0; x < BOARD_SIZE; x++) {
+        if (!emptyPositions.has(`${x},${y}`)) {
+          board[y][x].ball = { color: getRandomColor() };
+        }
+      }
+    }
+    // Place preview balls as usual
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
-    const initialBoard = placeRandomBalls(createEmptyBoard(), INITIAL_BALLS);
-    const boardWithPreview = placePreviewBalls(initialBoard, initialNext);
+    const boardWithPreview = placePreviewBalls(board, initialNext);
     setBoard(boardWithPreview);
     setScore(0);
     setSelected(null);
@@ -498,6 +670,8 @@ const Game: React.FC = () => {
     setNextBalls(initialNext);
     setTimer(0);
     setTimerActive(false);
+    setTotalMoves(0);
+    setLineStats({});
   };
 
   // Game end dialog handlers
@@ -511,8 +685,8 @@ const Game: React.FC = () => {
   };
 
   // UI state for toggles
-  const [showGuide, setShowGuide] = useState(false);
-  const [showHighScores, setShowHighScores] = useState(false);
+  // REMOVE: const [showGuide, setShowGuide] = useState(false);
+  // REMOVE: const [showHighScores, setShowHighScores] = useState(false);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
@@ -524,43 +698,13 @@ const Game: React.FC = () => {
     );
   }
 
+  // Overlay for end game
+  const showOverlay = gameOver && !showGuide && !showHighScores;
+
   return (
     <div className="game-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
-      {/* Toggle buttons */}
+      {/* ToggleBar is now rendered in App.tsx sticky header */}
       <div style={{ maxWidth: 600, width: '100%', margin: '0 auto', marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
-          <button 
-            onClick={() => setShowGuide(!showGuide)} 
-            style={{ 
-              fontWeight: 600, 
-              fontSize: 16, 
-              padding: '8px 16px', 
-              borderRadius: 8, 
-              border: 'none', 
-              background: showGuide ? '#ffe082' : '#444', 
-              color: showGuide ? '#000' : '#fff', 
-              cursor: 'pointer' 
-            }}
-          >
-            {showGuide ? 'Hide Guide' : 'Show Guide'}
-          </button>
-          <button 
-            onClick={() => setShowHighScores(!showHighScores)} 
-            style={{ 
-              fontWeight: 600, 
-              fontSize: 16, 
-              padding: '8px 16px', 
-              borderRadius: 8, 
-              border: 'none', 
-              background: showHighScores ? '#ffe082' : '#444', 
-              color: showHighScores ? '#000' : '#fff', 
-              cursor: 'pointer' 
-            }}
-          >
-            {showHighScores ? 'Hide Scores' : 'Show Scores'}
-          </button>
-        </div>
-        
         {/* Game header - only show when not showing guide or scores */}
         {!showGuide && !showHighScores && (
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -580,10 +724,72 @@ const Game: React.FC = () => {
       {!showGuide && !showHighScores && (
         <>
           <div style={{ height: 8 }} />
-          <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
-            <Board board={board} onCellClick={handleCellClick} movingBall={movingBall}>
+          <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0, position: 'relative' }}>
+            <Board
+              board={board}
+              onCellClick={handleCellClick}
+              movingBall={movingBall}
+              poppingBalls={poppingBalls}
+              hoveredCell={hoveredCell}
+              pathTrail={pathTrail}
+              notReachable={notReachable}
+              onCellHover={handleCellHover}
+              onCellLeave={handleCellLeave}
+            >
               {movingBallEl}
             </Board>
+            {/* End game overlay */}
+            {showOverlay && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'rgba(30,30,40,0.72)',
+                zIndex: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'auto',
+              }}>
+                <div style={{ fontSize: 44, fontWeight: 900, color: '#ffe082', textShadow: '0 2px 12px #000' }}>Much Balls...</div>
+                {isNewHighScore && (
+                  <div style={{ marginTop: 16, fontSize: 22, color: '#8bc34a', fontWeight: 700, textShadow: '0 2px 8px #000' }}>
+                    New High Score!
+                  </div>
+                )}
+                <div style={{ marginTop: 32, background: '#23272fdd', borderRadius: 12, padding: 24, color: '#fff', minWidth: 320, boxShadow: '0 2px 12px #0006' }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Game Summary</div>
+                  <div style={{ fontSize: 16, marginBottom: 4 }}>Total time: <b>{formatTime(timer)}</b></div>
+                  <div style={{ fontSize: 16, marginBottom: 4 }}>Total moves: <b>{totalMoves}</b></div>
+                  <div style={{ fontSize: 16, margin: '12px 0 4px 0' }}>Scored lines:</div>
+                  <table style={{ width: '100%', color: '#fff', fontSize: 15, borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ color: '#ffe082' }}>
+                        <th align="left">Line Length</th>
+                        <th align="right">Count</th>
+                        <th align="right">Points</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[5,6,7,8,9].map(len => (
+                        <tr key={len}>
+                          <td>Line of {len}</td>
+                          <td align="right">{lineStats[len]?.count || 0}</td>
+                          <td align="right">{lineStats[len]?.points || 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div style={{ marginTop: 12, fontSize: 16, color: '#ffe082', fontWeight: 600 }}>
+                    Total points from lines: <b>{[5,6,7,8,9].reduce((sum, len) => sum + (lineStats[len]?.points || 0), 0)}</b>
+                  </div>
+                  <button onClick={startNewGame} style={{ marginTop: 24, fontWeight: 600, fontSize: 18, padding: '8px 18px', borderRadius: 8, border: 'none', background: '#444', color: '#fff', cursor: 'pointer' }}>New Game</button>
+                </div>
+              </div>
+            )}
           </div>
           <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
             Game time: {formatTime(timer)}

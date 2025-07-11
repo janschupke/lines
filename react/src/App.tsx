@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import Game from './components/Game';
 import styled, { createGlobalStyle } from 'styled-components';
 import ConfigManager from './utils/configManager';

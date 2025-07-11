@@ -358,6 +358,8 @@ const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScor
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
   const [currentSessionScore, setCurrentSessionScore] = useState(0);
   
+  const [poppingBalls, setPoppingBalls] = useState<Set<string>>(new Set());
+
   const highScoreManager = useMemo(() => new HighScoreManager(), []);
 
   useEffect(() => {
@@ -490,8 +492,9 @@ const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScor
       const movedColor = newBoard[toY][toX].ball?.color;
       const allLines: Set<string> = new Set();
       const ballsToRemove: [number, number][] = [];
+      let lines: [number, number][][] = [];
       if (movedColor) {
-        const lines = findLine(newBoard, toX, toY, movedColor);
+        lines = findLine(newBoard, toX, toY, movedColor);
         lines.forEach(line => {
           line.forEach(([lx, ly]) => {
             const key = `${lx},${ly}`;
@@ -503,30 +506,31 @@ const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScor
         });
       }
       if (ballsToRemove.length > 0) {
-        ballsToRemove.forEach(([lx, ly]) => {
-          newBoard[ly][lx].ball = null;
-        });
-        setBoard(newBoard);
-        
-        // Calculate score based on line lengths
-        let totalScore = 0;
-        if (movedColor) {
-          const lines = findLine(newBoard, toX, toY, movedColor);
-          lines.forEach(line => {
-            totalScore += calculateLineScore(line.length);
+        // Popping animation: mark balls as popping, then remove after delay
+        setPoppingBalls(new Set(ballsToRemove.map(([lx, ly]) => `${lx},${ly}`)));
+        setTimeout(() => {
+          ballsToRemove.forEach(([lx, ly]) => {
+            newBoard[ly][lx].ball = null;
           });
-        }
-        const newScore = score + totalScore;
-        setScore(newScore);
-        
-        // Check for new high score
-        checkForNewHighScore(newScore);
-        
-        if (isBoardFull(newBoard)) {
-          setGameOver(true);
-          setShowGameEndDialog(true);
-        }
-        setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+          setBoard(newBoard);
+          setPoppingBalls(new Set());
+          // Calculate score based on line lengths
+          let totalScore = 0;
+          if (lines.length > 0) {
+            lines.forEach(line => {
+              totalScore += calculateLineScore(line.length);
+            });
+          }
+          const newScore = score + totalScore;
+          setScore(newScore);
+          // Check for new high score
+          checkForNewHighScore(newScore);
+          if (isBoardFull(newBoard)) {
+            setGameOver(true);
+            setShowGameEndDialog(true);
+          }
+          setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+        }, 300); // 300ms for popping animation
       } else {
         // Only spawn as many balls as there are empty cells
         const emptyCount = getRandomEmptyCells(newBoard, BOARD_SIZE * BOARD_SIZE).length;
@@ -622,7 +626,7 @@ const Game: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScor
         <>
           <div style={{ height: 8 }} />
           <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0 }}>
-            <Board board={board} onCellClick={handleCellClick} movingBall={movingBall}>
+            <Board board={board} onCellClick={handleCellClick} movingBall={movingBall} poppingBalls={poppingBalls}>
               {movingBallEl}
             </Board>
           </div>

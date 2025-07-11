@@ -14,6 +14,7 @@ interface BoardProps {
   onCellClick: (x: number, y: number) => void;
   children?: React.ReactNode;
   movingBall?: { color: BallColor; path: [number, number][] } | null;
+  poppingBalls?: Set<string>;
 }
 
 const BoardGrid = styled.div<{cols: number; rows: number}>`
@@ -62,7 +63,22 @@ const moveBall = keyframes`
   }
 `;
 
-const BallSpan = styled.span<{color: BallColor; active: boolean}>`
+const popBall = keyframes`
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+`;
+
+const BallSpan = styled.span<{color: BallColor; active: boolean; popping?: boolean}>`
   display: block;
   width: ${BALL_SIZE}px;
   height: ${BALL_SIZE}px;
@@ -72,6 +88,10 @@ const BallSpan = styled.span<{color: BallColor; active: boolean}>`
   box-shadow: ${props => props.active ? '0 0 8px 2px #ffe082' : '0 1px 4px #0003'};
   animation: ${moveBall} 0.25s cubic-bezier(0.4, 0.2, 0.2, 1);
   ${props => props.active && highlightGlow}
+  ${props => props.popping && css`
+    animation: ${popBall} 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+    z-index: 2;
+  `}
 `;
 
 const IncomingBallSpan = styled.span<{color: BallColor}>`
@@ -85,7 +105,7 @@ const IncomingBallSpan = styled.span<{color: BallColor}>`
   opacity: 0.8;
 `;
 
-const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall }) => {
+const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall, poppingBalls }) => {
   return (
     <BoardGrid cols={board[0].length} rows={board.length}>
       {board.flat().map((cell) => {
@@ -97,16 +117,18 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall 
             hideBall = true;
           }
         }
+        const key = `${cell.x},${cell.y}`;
+        const popping = poppingBalls && poppingBalls.has(key);
         return (
           <CellDiv
-            key={`${cell.x},${cell.y}`}
+            key={key}
             $active={cell.active}
             onClick={() => onCellClick(cell.x, cell.y)}
             role="button"
             tabIndex={0}
           >
             {cell.ball && !hideBall && (
-              <BallSpan color={cell.ball.color} active={cell.active} title={cell.ball.color} />
+              <BallSpan color={cell.ball.color} active={cell.active} popping={popping} title={cell.ball.color} />
             )}
             {!cell.ball && cell.incomingBall && (
               <IncomingBallSpan color={cell.incomingBall.color} title={`Preview: ${cell.incomingBall.color}`} />

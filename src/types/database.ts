@@ -25,4 +25,4 @@ export interface DatabaseHighScoreSubmission {
   individual_balls_popped: number;
   lines_popped: number;
   longest_line_popped: number;
-} 
+}

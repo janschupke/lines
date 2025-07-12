@@ -1,8 +1,8 @@
-import { GameStatisticsTracker } from './statisticsTracker';
-import { vi, describe, it, expect } from 'vitest';
+import { GameStatisticsTracker } from "./statisticsTracker";
+import { vi, describe, it, expect } from "vitest";
 
-describe('GameStatisticsTracker', () => {
-  it('initializes with zeroed statistics', () => {
+describe("GameStatisticsTracker", () => {
+  it("initializes with zeroed statistics", () => {
     const tracker = new GameStatisticsTracker();
     const stats = tracker.getCurrentStatistics();
     expect(stats.turnsCount).toBe(0);
@@ -22,14 +22,14 @@ describe('GameStatisticsTracker', () => {
     expect(stats.strategicBonus).toBe(0);
   });
 
-  it('records turns and updates statistics', () => {
+  it("records turns and updates statistics", () => {
     const tracker = new GameStatisticsTracker();
     tracker.recordTurn();
     tracker.recordTurn();
     expect(tracker.getCurrentStatistics().turnsCount).toBe(2);
   });
 
-  it('records line pops and updates statistics', () => {
+  it("records line pops and updates statistics", () => {
     const tracker = new GameStatisticsTracker();
     tracker.recordTurn();
     tracker.recordLinePop(5, 100);
@@ -45,7 +45,7 @@ describe('GameStatisticsTracker', () => {
     expect(stats.consecutiveHighScores).toBe(2);
   });
 
-  it('resets consecutiveHighScores if line < 5', () => {
+  it("resets consecutiveHighScores if line < 5", () => {
     const tracker = new GameStatisticsTracker();
     tracker.recordTurn();
     tracker.recordLinePop(5, 100);
@@ -53,38 +53,38 @@ describe('GameStatisticsTracker', () => {
     expect(tracker.getCurrentStatistics().consecutiveHighScores).toBe(0);
   });
 
-  it('records ball pops', () => {
+  it("records ball pops", () => {
     const tracker = new GameStatisticsTracker();
     tracker.recordBallPop();
     tracker.recordBallPop();
     expect(tracker.getCurrentStatistics().ballsCleared).toBe(2);
   });
 
-  it('updates score', () => {
+  it("updates score", () => {
     const tracker = new GameStatisticsTracker();
     tracker.updateScore(1234);
     expect(tracker.getCurrentStatistics().totalScore).toBe(1234);
   });
 
-  it('records and calculates game duration', () => {
+  it("records and calculates game duration", () => {
     const tracker = new GameStatisticsTracker();
     const mockStartTime = 1000000;
     const mockEndTime = mockStartTime + 5000;
-    
+
     // Mock Date.now to return our controlled timestamps
-    const dateNowSpy = vi.spyOn(Date, 'now');
+    const dateNowSpy = vi.spyOn(Date, "now");
     dateNowSpy.mockReturnValueOnce(mockStartTime); // For startGame
-    dateNowSpy.mockReturnValueOnce(mockEndTime);   // For recordGameDuration
-    
+    dateNowSpy.mockReturnValueOnce(mockEndTime); // For recordGameDuration
+
     tracker.startGame();
     tracker.recordGameDuration();
-    
+
     expect(tracker.getCurrentStatistics().gameDuration).toBe(5);
-    
+
     dateNowSpy.mockRestore();
   });
 
-  it('resets statistics', () => {
+  it("resets statistics", () => {
     const tracker = new GameStatisticsTracker();
     tracker.recordTurn();
     tracker.recordLinePop(5, 100);
@@ -96,4 +96,4 @@ describe('GameStatisticsTracker', () => {
     expect(stats.ballsCleared).toBe(0);
     expect(stats.totalScore).toBe(0);
   });
-}); 
+});

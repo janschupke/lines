@@ -6,17 +6,17 @@ React app is up at [https://lines.schupke.io/](https://lines.schupke.io/).
 
 ## Features
 
-* Highlighting of reachable cells within the board
-* Incoming balls' positions and colors hint
-* Remembers current game state when closed
-* Extensive Game Guide available through the game menu
-* High score table with persistent, cross-device storage (Supabase)
-* Seamless migration of high scores from localStorage to Supabase
-* Real-time high score synchronization and connection status monitoring
-* Offline support with local caching and automatic recovery
-* Mobile-optimized: touch controls, responsive design, and mobile accessibility
-* >80% automated test coverage, all tests and builds must pass for every deployment
-* ...and more!
+- Highlighting of reachable cells within the board
+- Incoming balls' positions and colors hint
+- Remembers current game state when closed
+- Extensive Game Guide available through the game menu
+- High score table with persistent, cross-device storage (Supabase)
+- Seamless migration of high scores from localStorage to Supabase
+- Real-time high score synchronization and connection status monitoring
+- Offline support with local caching and automatic recovery
+- Mobile-optimized: touch controls, responsive design, and mobile accessibility
+- > 80% automated test coverage, all tests and builds must pass for every deployment
+- ...and more!
 
 ---
 
@@ -27,12 +27,14 @@ React app is up at [https://lines.schupke.io/](https://lines.schupke.io/).
 This project supports two development modes:
 
 ### **Local Development (Default)**
+
 - Uses localStorage for high scores
 - No database required
 - Faster startup and development
 - High scores persist in browser only
 
 ### **Database Development (Optional)**
+
 - Uses Docker Compose for PostgreSQL database
 - Full Supabase functionality
 - Cross-device high score sharing
@@ -43,6 +45,7 @@ This project supports two development modes:
 If you want to use the full database functionality locally, this project uses Docker Compose **only for the database** (Supabase/Postgres). The React app is run directly on your host machine.
 
 **Why?**
+
 - Vite 5+ and Node.js 18+ in containers have a known incompatibility with the `crypto.hash` API, causing the dev server to fail in Docker. Running the app on the host avoids this issue and provides a smoother developer experience.
 
 ## Getting Started
@@ -96,9 +99,11 @@ npm run test:run
 ## Environment Variables
 
 ### **Local Development (Default)**
+
 No environment variables needed! The app will automatically use localStorage for high scores.
 
 ### **Database Development (Optional)**
+
 Create a `.env.development` file in the project root:
 
 ```
@@ -132,9 +137,9 @@ If you are developing a production application, we recommend updating the config
 
 ```js
 export default tseslint.config([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       ...tseslint.configs.recommendedTypeChecked,
       ...tseslint.configs.strictTypeChecked,
@@ -142,12 +147,12 @@ export default tseslint.config([
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules.

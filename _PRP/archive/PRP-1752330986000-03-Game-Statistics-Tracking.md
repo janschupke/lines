@@ -3,9 +3,11 @@
 ## Feature: Enhanced High Score System - Game Statistics Tracking
 
 ### Overview
+
 Extend the existing game state to track comprehensive statistics throughout gameplay, including detailed metrics for scoring, performance analysis, and enhanced high score evaluation. This phase implements the data collection infrastructure needed for the enhanced high score system.
 
 ### User Stories
+
 - **As a** player, **I want** to see detailed game statistics, **So that** I can understand my performance beyond just the final score
 - **As a** player, **I want** my high scores to include comprehensive game data, **So that** I can track my progress and compare achievements
 - **As a** player, **I want** to see how many balls I cleared and lines I formed, **So that** I can understand my gameplay efficiency
@@ -13,6 +15,7 @@ Extend the existing game state to track comprehensive statistics throughout game
 ### Functional Requirements
 
 #### Game Statistics Collection
+
 - [ ] Track turns count throughout the game
 - [ ] Monitor individual balls popped during gameplay
 - [ ] Count lines popped and their lengths
@@ -22,6 +25,7 @@ Extend the existing game state to track comprehensive statistics throughout game
 - [ ] Calculate efficiency metrics (balls per turn, lines per turn)
 
 #### Enhanced Scoring System
+
 - [ ] Implement Fibonacci-based scoring for line lengths
 - [ ] Add bonus points for consecutive high-scoring lines
 - [ ] Calculate efficiency bonuses based on game statistics
@@ -29,6 +33,7 @@ Extend the existing game state to track comprehensive statistics throughout game
 - [ ] Implement score multipliers for strategic play
 
 #### Statistics Integration
+
 - [ ] Integrate statistics tracking with existing game logic
 - [ ] Ensure real-time updates of all metrics
 - [ ] Add statistics to game state management
@@ -36,6 +41,7 @@ Extend the existing game state to track comprehensive statistics throughout game
 - [ ] Connect statistics to high score evaluation
 
 #### Performance Analytics
+
 - [ ] Calculate average score per turn
 - [ ] Track peak performance moments
 - [ ] Measure consistency across games
@@ -43,6 +49,7 @@ Extend the existing game state to track comprehensive statistics throughout game
 - [ ] Provide insights for player improvement
 
 ### Non-Functional Requirements
+
 - [ ] Statistics tracking doesn't impact game performance
 - [ ] All metrics are updated in real-time without lag
 - [ ] Statistics are accurate and consistent across game sessions
@@ -52,28 +59,29 @@ Extend the existing game state to track comprehensive statistics throughout game
 ### Technical Requirements
 
 #### Game Statistics Interface
+
 ```typescript
 interface GameStatistics {
   // Basic game metrics
   turnsCount: number;
   gameDuration: number; // in seconds
   ballsCleared: number;
-  
+
   // Line statistics
   linesPopped: number;
   longestLinePopped: number;
   individualBallsPopped: number;
-  
+
   // Scoring details
   totalScore: number;
   scoreProgression: number[];
   lineScores: LineScore[];
-  
+
   // Efficiency metrics
   averageScorePerTurn: number;
   ballsPerTurn: number;
   linesPerTurn: number;
-  
+
   // Performance tracking
   peakScore: number;
   consecutiveHighScores: number;
@@ -99,6 +107,7 @@ interface StatisticsTracker {
 ```
 
 #### Enhanced Game State Integration
+
 ```typescript
 // Extend existing game state
 interface GameState {
@@ -124,11 +133,11 @@ export const useGameStatistics = () => {
     linesPerTurn: 0,
     peakScore: 0,
     consecutiveHighScores: 0,
-    strategicBonus: 0
+    strategicBonus: 0,
   });
 
   const startGame = useCallback(() => {
-    setStatistics(prev => ({
+    setStatistics((prev) => ({
       ...prev,
       turnsCount: 0,
       gameDuration: 0,
@@ -144,24 +153,24 @@ export const useGameStatistics = () => {
       linesPerTurn: 0,
       peakScore: 0,
       consecutiveHighScores: 0,
-      strategicBonus: 0
+      strategicBonus: 0,
     }));
   }, []);
 
   const recordTurn = useCallback(() => {
-    setStatistics(prev => ({
+    setStatistics((prev) => ({
       ...prev,
-      turnsCount: prev.turnsCount + 1
+      turnsCount: prev.turnsCount + 1,
     }));
   }, []);
 
   const recordLinePop = useCallback((length: number, score: number) => {
-    setStatistics(prev => {
+    setStatistics((prev) => {
       const newLineScore: LineScore = {
         length,
         score,
         turnNumber: prev.turnsCount,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       const newLineScores = [...prev.lineScores, newLineScore];
@@ -171,13 +180,15 @@ export const useGameStatistics = () => {
       // Calculate efficiency metrics
       const averageScorePerTurn = newTotalScore / (prev.turnsCount + 1);
       const linesPerTurn = (prev.linesPopped + 1) / (prev.turnsCount + 1);
-      const ballsPerTurn = (prev.individualBallsPopped + length) / (prev.turnsCount + 1);
+      const ballsPerTurn =
+        (prev.individualBallsPopped + length) / (prev.turnsCount + 1);
 
       // Track peak performance
       const peakScore = Math.max(prev.peakScore, score);
-      
+
       // Calculate consecutive high scores (lines of 5+ balls)
-      const consecutiveHighScores = length >= 5 ? prev.consecutiveHighScores + 1 : 0;
+      const consecutiveHighScores =
+        length >= 5 ? prev.consecutiveHighScores + 1 : 0;
 
       // Strategic bonus for efficient play
       const strategicBonus = Math.floor(averageScorePerTurn * 0.1);
@@ -195,22 +206,22 @@ export const useGameStatistics = () => {
         ballsPerTurn: ballsPerTurn,
         peakScore: peakScore,
         consecutiveHighScores: consecutiveHighScores,
-        strategicBonus: strategicBonus
+        strategicBonus: strategicBonus,
       };
     });
   }, []);
 
   const recordBallPop = useCallback(() => {
-    setStatistics(prev => ({
+    setStatistics((prev) => ({
       ...prev,
-      ballsCleared: prev.ballsCleared + 1
+      ballsCleared: prev.ballsCleared + 1,
     }));
   }, []);
 
   const updateGameDuration = useCallback((duration: number) => {
-    setStatistics(prev => ({
+    setStatistics((prev) => ({
       ...prev,
-      gameDuration: duration
+      gameDuration: duration,
     }));
   }, []);
 
@@ -220,44 +231,50 @@ export const useGameStatistics = () => {
     recordTurn,
     recordLinePop,
     recordBallPop,
-    updateGameDuration
+    updateGameDuration,
   };
 };
 ```
 
 #### Fibonacci Scoring Implementation
+
 ```typescript
 // Fibonacci sequence for scoring
-const FIBONACCI_SEQUENCE = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610];
+const FIBONACCI_SEQUENCE = [
+  1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610,
+];
 
 export const calculateLineScore = (lineLength: number): number => {
   if (lineLength < 5) return 0;
-  
+
   // Use Fibonacci sequence for scoring
-  const fibonacciIndex = Math.min(lineLength - 5, FIBONACCI_SEQUENCE.length - 1);
+  const fibonacciIndex = Math.min(
+    lineLength - 5,
+    FIBONACCI_SEQUENCE.length - 1,
+  );
   return FIBONACCI_SEQUENCE[fibonacciIndex] * 100;
 };
 
 export const calculateBonusScore = (
   consecutiveHighScores: number,
   averageScorePerTurn: number,
-  strategicBonus: number
+  strategicBonus: number,
 ): number => {
   let bonus = 0;
-  
+
   // Bonus for consecutive high-scoring lines
   if (consecutiveHighScores >= 3) {
     bonus += consecutiveHighScores * 50;
   }
-  
+
   // Efficiency bonus
   if (averageScorePerTurn > 100) {
     bonus += Math.floor(averageScorePerTurn * 0.2);
   }
-  
+
   // Strategic bonus
   bonus += strategicBonus;
-  
+
   return bonus;
 };
 ```
@@ -265,12 +282,14 @@ export const calculateBonusScore = (
 ### UI/UX Considerations
 
 #### Statistics Display
+
 - **Real-time Updates**: Statistics update immediately during gameplay
 - **Visual Indicators**: Clear display of current statistics
 - **Progress Tracking**: Show score progression and efficiency metrics
 - **Performance Insights**: Highlight peak moments and strategic plays
 
 #### Integration with Existing UI
+
 - **Non-intrusive**: Statistics don't interfere with gameplay
 - **Accessible**: Statistics are available through existing UI elements
 - **Responsive**: Statistics display adapts to different screen sizes
@@ -279,8 +298,9 @@ export const calculateBonusScore = (
 ### Testing Requirements
 
 #### Unit Testing
+
 - **Coverage Target**: >80% for statistics tracking and calculations
-- **Statistics Tests**: 
+- **Statistics Tests**:
   - Game statistics tracking accuracy
   - Score calculation correctness
   - Efficiency metric calculations
@@ -288,11 +308,13 @@ export const calculateBonusScore = (
 - **Utility Tests**: Fibonacci scoring and bonus calculation tests
 
 #### Integration Testing
+
 - **Game Integration**: Statistics tracking with existing game logic
 - **State Management**: Statistics persistence across game sessions
 - **Performance Impact**: Ensure no performance degradation
 
 #### Performance Testing
+
 - **Real-time Updates**: Statistics update without lag
 - **Memory Usage**: Efficient memory usage for statistics tracking
 - **Calculation Speed**: Fast score and efficiency calculations
@@ -300,6 +322,7 @@ export const calculateBonusScore = (
 ### Code Examples
 
 #### Statistics Tracker Implementation
+
 ```typescript
 export class GameStatisticsTracker implements StatisticsTracker {
   private statistics: GameStatistics;
@@ -317,14 +340,18 @@ export class GameStatisticsTracker implements StatisticsTracker {
   endGame(): GameStatistics {
     const finalStatistics = {
       ...this.statistics,
-      gameDuration: Math.floor((Date.now() - this.gameStartTime) / 1000)
+      gameDuration: Math.floor((Date.now() - this.gameStartTime) / 1000),
     };
-    
+
     // Calculate final efficiency metrics
-    finalStatistics.averageScorePerTurn = finalStatistics.totalScore / Math.max(finalStatistics.turnsCount, 1);
-    finalStatistics.linesPerTurn = finalStatistics.linesPopped / Math.max(finalStatistics.turnsCount, 1);
-    finalStatistics.ballsPerTurn = finalStatistics.individualBallsPopped / Math.max(finalStatistics.turnsCount, 1);
-    
+    finalStatistics.averageScorePerTurn =
+      finalStatistics.totalScore / Math.max(finalStatistics.turnsCount, 1);
+    finalStatistics.linesPerTurn =
+      finalStatistics.linesPopped / Math.max(finalStatistics.turnsCount, 1);
+    finalStatistics.ballsPerTurn =
+      finalStatistics.individualBallsPopped /
+      Math.max(finalStatistics.turnsCount, 1);
+
     return finalStatistics;
   }
 
@@ -337,11 +364,14 @@ export class GameStatisticsTracker implements StatisticsTracker {
       length,
       score,
       turnNumber: this.statistics.turnsCount,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.statistics.linesPopped++;
-    this.statistics.longestLinePopped = Math.max(this.statistics.longestLinePopped, length);
+    this.statistics.longestLinePopped = Math.max(
+      this.statistics.longestLinePopped,
+      length,
+    );
     this.statistics.individualBallsPopped += length;
     this.statistics.totalScore += score;
     this.statistics.scoreProgression.push(this.statistics.totalScore);
@@ -356,7 +386,8 @@ export class GameStatisticsTracker implements StatisticsTracker {
     }
 
     // Calculate strategic bonus
-    const currentAverage = this.statistics.totalScore / this.statistics.turnsCount;
+    const currentAverage =
+      this.statistics.totalScore / this.statistics.turnsCount;
     this.statistics.strategicBonus = Math.floor(currentAverage * 0.1);
   }
 
@@ -388,44 +419,57 @@ export class GameStatisticsTracker implements StatisticsTracker {
       linesPerTurn: 0,
       peakScore: 0,
       consecutiveHighScores: 0,
-      strategicBonus: 0
+      strategicBonus: 0,
     };
   }
 }
 ```
 
 #### Integration with Game Logic
+
 ```typescript
 // Integrate with existing game state
 export const useGameWithStatistics = () => {
   const gameState = useGameState(); // Existing game state
-  const { statistics, startGame, recordTurn, recordLinePop, recordBallPop, updateGameDuration } = useGameStatistics();
+  const {
+    statistics,
+    startGame,
+    recordTurn,
+    recordLinePop,
+    recordBallPop,
+    updateGameDuration,
+  } = useGameStatistics();
 
   // Override game actions to include statistics tracking
-  const makeMove = useCallback((from: Position, to: Position) => {
-    const result = gameState.makeMove(from, to);
-    
-    if (result.success) {
-      recordTurn();
-      
-      // Record any balls cleared during the move
-      if (result.ballsCleared) {
-        recordBallPop();
+  const makeMove = useCallback(
+    (from: Position, to: Position) => {
+      const result = gameState.makeMove(from, to);
+
+      if (result.success) {
+        recordTurn();
+
+        // Record any balls cleared during the move
+        if (result.ballsCleared) {
+          recordBallPop();
+        }
+
+        // Record any lines formed
+        if (result.linesFormed) {
+          result.linesFormed.forEach((line) => {
+            const score = calculateLineScore(line.length);
+            recordLinePop(line.length, score);
+          });
+        }
+
+        updateGameDuration(
+          Math.floor((Date.now() - gameState.gameStartTime) / 1000),
+        );
       }
-      
-      // Record any lines formed
-      if (result.linesFormed) {
-        result.linesFormed.forEach(line => {
-          const score = calculateLineScore(line.length);
-          recordLinePop(line.length, score);
-        });
-      }
-      
-      updateGameDuration(Math.floor((Date.now() - gameState.gameStartTime) / 1000));
-    }
-    
-    return result;
-  }, [gameState, recordTurn, recordBallPop, recordLinePop, updateGameDuration]);
+
+      return result;
+    },
+    [gameState, recordTurn, recordBallPop, recordLinePop, updateGameDuration],
+  );
 
   const startNewGame = useCallback(() => {
     gameState.startNewGame();
@@ -436,7 +480,7 @@ export const useGameWithStatistics = () => {
     ...gameState,
     statistics,
     makeMove,
-    startNewGame
+    startNewGame,
   };
 };
 ```
@@ -444,6 +488,7 @@ export const useGameWithStatistics = () => {
 ### Risk Assessment
 
 #### Technical Risks
+
 - **Risk**: Statistics tracking impacts game performance
   - **Impact**: Medium
   - **Mitigation**: Optimize calculations and use efficient data structures
@@ -453,6 +498,7 @@ export const useGameWithStatistics = () => {
   - **Mitigation**: Implement proper cleanup and memory management
 
 #### User Experience Risks
+
 - **Risk**: Statistics display confuses players
   - **Impact**: Low
   - **Mitigation**: Keep statistics display optional and non-intrusive
@@ -489,23 +535,26 @@ export const useGameWithStatistics = () => {
    - Test performance impact
 
 ### Success Criteria
+
 - [ ] All game statistics are tracked accurately in real-time
 - [ ] Enhanced scoring system works correctly
 - [ ] Statistics don't impact game performance
 - [ ] Statistics are integrated with existing game logic
-- [ ] >80% test coverage for statistics tracking
+- [ ] > 80% test coverage for statistics tracking
 - [ ] Statistics provide meaningful insights for players
 - [ ] Performance analytics work correctly
 
 ### Dependencies
+
 - Existing game state management
 - Current game logic and scoring system
 - React hooks for state management
 - Game action tracking system
 
 ### Notes
+
 - Ensure statistics tracking doesn't interfere with existing game functionality
 - Optimize calculations for real-time performance
 - Use efficient data structures for statistics storage
 - Test thoroughly to ensure accuracy of all metrics
-- Keep statistics display optional and non-intrusive 
+- Keep statistics display optional and non-intrusive

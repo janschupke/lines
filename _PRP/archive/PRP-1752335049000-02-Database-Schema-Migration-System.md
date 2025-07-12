@@ -3,17 +3,21 @@
 ## Feature Overview
 
 ### Feature Name
+
 Database Schema Migration System with Versioned Migrations
 
 ### Brief Description
+
 Implement a comprehensive database schema migration system that supports versioned migrations with up/down scripts, automated deployment, and rollback functionality for both local development and production environments.
 
 ### User Value
+
 Developers can safely evolve the database schema over time with version control, automated deployment, and rollback capabilities, ensuring data integrity and consistent database state across all environments.
 
 ## Functional Requirements
 
 ### Migration System Architecture
+
 - [ ] Create versioned migration system with up/down scripts
 - [ ] Implement `schema_migrations` table for tracking applied migrations
 - [ ] Create migration runner with validation and error handling
@@ -22,6 +26,7 @@ Developers can safely evolve the database schema over time with version control,
 - [ ] Add migration validation and testing procedures
 
 ### Migration File Structure
+
 - [ ] Create organized migration file structure
 - [ ] Implement consistent naming convention for migration files
 - [ ] Support SQL-based migrations with up/down scripts
@@ -30,6 +35,7 @@ Developers can safely evolve the database schema over time with version control,
 - [ ] Add migration documentation and comments
 
 ### Automated Migration Runner
+
 - [ ] Create migration service class for running migrations
 - [ ] Implement migration status checking and validation
 - [ ] Add migration conflict detection and resolution
@@ -38,6 +44,7 @@ Developers can safely evolve the database schema over time with version control,
 - [ ] Add migration logging and error reporting
 
 ### Database Schema Management
+
 - [ ] Create high_scores table with proper constraints
 - [ ] Implement database indexes for performance optimization
 - [ ] Set up Row Level Security (RLS) policies
@@ -48,6 +55,7 @@ Developers can safely evolve the database schema over time with version control,
 ## Non-Functional Requirements
 
 ### Performance Requirements
+
 - [ ] Migration execution time < 30 seconds for typical migrations
 - [ ] Database query performance < 500ms for high score operations
 - [ ] Migration validation time < 5 seconds
@@ -55,6 +63,7 @@ Developers can safely evolve the database schema over time with version control,
 - [ ] Minimal impact on application performance during migrations
 
 ### Reliability Requirements
+
 - [ ] 100% successful migration success rate
 - [ ] Zero data loss during migrations
 - [ ] Automatic rollback on migration failures
@@ -62,6 +71,7 @@ Developers can safely evolve the database schema over time with version control,
 - [ ] Data integrity validation after migrations
 
 ### Security Requirements
+
 - [ ] Secure database connection handling
 - [ ] Input validation and sanitization for migration scripts
 - [ ] Row Level Security (RLS) implementation
@@ -71,6 +81,7 @@ Developers can safely evolve the database schema over time with version control,
 ## Technical Implementation
 
 ### Migration System Structure
+
 ```
 src/database/
 ├── migrations/
@@ -89,10 +100,11 @@ src/database/
 ```
 
 ### Migration Service Implementation
+
 ```typescript
 // src/database/services/MigrationService.ts
-import { SupabaseClient } from '@supabase/supabase-js';
-import { Migration, MigrationStatus } from '../types/MigrationTypes';
+import { SupabaseClient } from "@supabase/supabase-js";
+import { Migration, MigrationStatus } from "../types/MigrationTypes";
 
 export class MigrationService {
   private supabase: SupabaseClient;
@@ -107,53 +119,54 @@ export class MigrationService {
     return [
       {
         version: 1,
-        name: 'Create high_scores table',
-        upFile: 'migrations/001_create_high_scores_table.sql',
-        downFile: 'migrations/001_create_high_scores_table_down.sql',
-        description: 'Creates the high_scores table with indexes and RLS policies'
-      }
+        name: "Create high_scores table",
+        upFile: "migrations/001_create_high_scores_table.sql",
+        downFile: "migrations/001_create_high_scores_table_down.sql",
+        description:
+          "Creates the high_scores table with indexes and RLS policies",
+      },
     ];
   }
 
   async runMigrations(): Promise<MigrationStatus[]> {
     const results: MigrationStatus[] = [];
-    
+
     for (const migration of this.migrations) {
       try {
         const isApplied = await this.isMigrationApplied(migration.version);
-        
+
         if (!isApplied) {
           await this.applyMigration(migration);
           results.push({
             version: migration.version,
             name: migration.name,
-            status: 'applied',
-            appliedAt: new Date()
+            status: "applied",
+            appliedAt: new Date(),
           });
         } else {
           results.push({
             version: migration.version,
             name: migration.name,
-            status: 'already_applied',
-            appliedAt: await this.getMigrationAppliedAt(migration.version)
+            status: "already_applied",
+            appliedAt: await this.getMigrationAppliedAt(migration.version),
           });
         }
       } catch (error) {
         results.push({
           version: migration.version,
           name: migration.name,
-          status: 'failed',
-          error: error instanceof Error ? error.message : 'Unknown error'
+          status: "failed",
+          error: error instanceof Error ? error.message : "Unknown error",
         });
         throw error;
       }
     }
-    
+
     return results;
   }
 
   async rollbackMigration(version: number): Promise<void> {
-    const migration = this.migrations.find(m => m.version === version);
+    const migration = this.migrations.find((m) => m.version === version);
     if (!migration) {
       throw new Error(`Migration version ${version} not found`);
     }
@@ -170,12 +183,12 @@ export class MigrationService {
 
   private async isMigrationApplied(version: number): Promise<boolean> {
     const { data, error } = await this.supabase
-      .from('schema_migrations')
-      .select('version')
-      .eq('version', version)
+      .from("schema_migrations")
+      .select("version")
+      .eq("version", version)
       .single();
 
-    if (error && error.code !== 'PGRST116') {
+    if (error && error.code !== "PGRST116") {
       throw error;
     }
 
@@ -195,20 +208,18 @@ export class MigrationService {
   }
 
   private async executeMigrationScript(sql: string): Promise<void> {
-    const { error } = await this.supabase.rpc('execute_sql', { sql });
+    const { error } = await this.supabase.rpc("execute_sql", { sql });
     if (error) {
       throw new Error(`Migration execution failed: ${error.message}`);
     }
   }
 
   private async recordMigration(migration: Migration): Promise<void> {
-    const { error } = await this.supabase
-      .from('schema_migrations')
-      .insert({
-        version: migration.version,
-        name: migration.name,
-        applied_at: new Date().toISOString()
-      });
+    const { error } = await this.supabase.from("schema_migrations").insert({
+      version: migration.version,
+      name: migration.name,
+      applied_at: new Date().toISOString(),
+    });
 
     if (error) {
       throw new Error(`Failed to record migration: ${error.message}`);
@@ -217,9 +228,9 @@ export class MigrationService {
 
   private async removeMigrationRecord(version: number): Promise<void> {
     const { error } = await this.supabase
-      .from('schema_migrations')
+      .from("schema_migrations")
       .delete()
-      .eq('version', version);
+      .eq("version", version);
 
     if (error) {
       throw new Error(`Failed to remove migration record: ${error.message}`);
@@ -228,7 +239,7 @@ export class MigrationService {
 
   private getMigrationSQL(filePath: string): string {
     const migrationScripts: Record<string, string> = {
-      'migrations/001_create_high_scores_table.sql': `
+      "migrations/001_create_high_scores_table.sql": `
         CREATE TABLE IF NOT EXISTS high_scores (
           id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
           player_name TEXT NOT NULL,
@@ -256,17 +267,18 @@ export class MigrationService {
         CREATE POLICY IF NOT EXISTS "Allow insert access" ON high_scores
           FOR INSERT WITH CHECK (true);
       `,
-      'migrations/001_create_high_scores_table_down.sql': `
+      "migrations/001_create_high_scores_table_down.sql": `
         DROP TABLE IF EXISTS high_scores CASCADE;
-      `
+      `,
     };
 
-    return migrationScripts[filePath] || '';
+    return migrationScripts[filePath] || "";
   }
 }
 ```
 
 ### Migration Types
+
 ```typescript
 // src/database/types/MigrationTypes.ts
 export interface Migration {
@@ -280,7 +292,7 @@ export interface Migration {
 export interface MigrationStatus {
   version: number;
   name: string;
-  status: 'applied' | 'already_applied' | 'failed';
+  status: "applied" | "already_applied" | "failed";
   appliedAt?: Date;
   error?: string;
 }
@@ -293,10 +305,11 @@ export interface MigrationResult {
 ```
 
 ### Schema Manager
+
 ```typescript
 // src/database/services/SchemaManager.ts
-import { SupabaseClient } from '@supabase/supabase-js';
-import { MigrationService } from './MigrationService';
+import { SupabaseClient } from "@supabase/supabase-js";
+import { MigrationService } from "./MigrationService";
 
 export class SchemaManager {
   private supabase: SupabaseClient;
@@ -311,36 +324,33 @@ export class SchemaManager {
     try {
       // Ensure schema_migrations table exists
       await this.createMigrationsTable();
-      
+
       // Run all pending migrations
       const results = await this.migrationService.runMigrations();
-      
+
       // Validate schema after migrations
       await this.validateSchema();
-      
-      console.log('Schema deployment completed successfully');
-      console.log('Migration results:', results);
+
+      console.log("Schema deployment completed successfully");
+      console.log("Migration results:", results);
     } catch (error) {
-      console.error('Schema deployment failed:', error);
+      console.error("Schema deployment failed:", error);
       throw error;
     }
   }
 
   async validateSchema(): Promise<boolean> {
-    const requiredTables = ['high_scores', 'schema_migrations'];
+    const requiredTables = ["high_scores", "schema_migrations"];
     const requiredIndexes = [
-      'idx_high_scores_score',
-      'idx_high_scores_achieved_at',
-      'idx_high_scores_turns',
-      'idx_high_scores_lines'
+      "idx_high_scores_score",
+      "idx_high_scores_achieved_at",
+      "idx_high_scores_turns",
+      "idx_high_scores_lines",
     ];
 
     for (const table of requiredTables) {
-      const { error } = await this.supabase
-        .from(table)
-        .select('*')
-        .limit(1);
-      
+      const { error } = await this.supabase.from(table).select("*").limit(1);
+
       if (error) {
         console.error(`Table ${table} does not exist or is not accessible`);
         return false;
@@ -348,14 +358,16 @@ export class SchemaManager {
     }
 
     // Validate indexes (this would require a more complex query in Supabase)
-    console.log('Schema validation completed successfully');
+    console.log("Schema validation completed successfully");
     return true;
   }
 
   private async createMigrationsTable(): Promise<void> {
-    const { error } = await this.supabase.rpc('create_migrations_table_if_not_exists');
+    const { error } = await this.supabase.rpc(
+      "create_migrations_table_if_not_exists",
+    );
     if (error) {
-      console.warn('Failed to create migrations table:', error);
+      console.warn("Failed to create migrations table:", error);
       // Fallback: create table manually
       await this.createMigrationsTableManually();
     }
@@ -370,7 +382,9 @@ export class SchemaManager {
       );
     `;
 
-    const { error } = await this.supabase.rpc('execute_sql', { sql: createTableSQL });
+    const { error } = await this.supabase.rpc("execute_sql", {
+      sql: createTableSQL,
+    });
     if (error) {
       throw new Error(`Failed to create migrations table: ${error.message}`);
     }
@@ -381,6 +395,7 @@ export class SchemaManager {
 ## Testing Requirements
 
 ### Unit Tests
+
 - [ ] Test MigrationService class methods
 - [ ] Test SchemaManager validation logic
 - [ ] Test migration file loading and parsing
@@ -389,6 +404,7 @@ export class SchemaManager {
 - [ ] Test error handling and recovery
 
 ### Integration Tests
+
 - [ ] Test complete migration workflow
 - [ ] Test migration rollback process
 - [ ] Test schema validation after migrations
@@ -397,6 +413,7 @@ export class SchemaManager {
 - [ ] Test migration logging and error reporting
 
 ### Performance Tests
+
 - [ ] Test migration execution time
 - [ ] Test rollback execution time
 - [ ] Test schema validation performance
@@ -406,6 +423,7 @@ export class SchemaManager {
 ## Accessibility Considerations
 
 ### Migration System Accessibility
+
 - [ ] Ensure migration logs are accessible and clear
 - [ ] Provide detailed error messages for migration failures
 - [ ] Create accessible documentation for migration procedures
@@ -415,6 +433,7 @@ export class SchemaManager {
 ## Risk Assessment
 
 ### Technical Risks
+
 - **Risk**: Migration failures causing data loss
   - **Impact**: High
   - **Mitigation**: Comprehensive testing and rollback procedures
@@ -431,6 +450,7 @@ export class SchemaManager {
   - **Probability**: Low
 
 ### User Experience Risks
+
 - **Risk**: Complex migration procedures for developers
   - **Impact**: Medium
   - **Mitigation**: Clear documentation and automated tools
@@ -439,6 +459,7 @@ export class SchemaManager {
 ## Success Metrics
 
 ### Development Metrics
+
 - [ ] Migration execution time < 30 seconds
 - [ ] 100% successful migration success rate
 - [ ] Zero data loss during migrations
@@ -446,6 +467,7 @@ export class SchemaManager {
 - [ ] Schema validation time < 5 seconds
 
 ### User Experience Metrics
+
 - [ ] Single command to run migrations
 - [ ] Clear error messages for all failure scenarios
 - [ ] Comprehensive migration documentation
@@ -454,30 +476,35 @@ export class SchemaManager {
 ## Implementation Steps
 
 ### Step 1: Create Migration System Structure
+
 1. Create database directory structure
 2. Implement MigrationService class
 3. Create migration types and interfaces
 4. Set up migration file organization
 
 ### Step 2: Implement Migration Runner
+
 1. Create migration execution logic
 2. Implement migration status tracking
 3. Add rollback functionality
 4. Create migration validation
 
 ### Step 3: Database Schema Implementation
+
 1. Create high_scores table migration
 2. Implement database indexes
 3. Set up Row Level Security policies
 4. Create user_preferences table migration
 
 ### Step 4: Schema Manager Implementation
+
 1. Create SchemaManager class
 2. Implement schema validation
 3. Add migration table creation
 4. Create deployment workflow
 
 ### Step 5: Testing and Validation
+
 1. Test migration system thoroughly
 2. Validate schema after migrations
 3. Test rollback functionality
@@ -487,6 +514,7 @@ export class SchemaManager {
 ## Documentation Requirements
 
 ### Migration Documentation
+
 - [ ] Migration system architecture guide
 - [ ] Migration file format specification
 - [ ] Migration execution procedures
@@ -494,6 +522,7 @@ export class SchemaManager {
 - [ ] Troubleshooting guide
 
 ### Development Documentation
+
 - [ ] Migration development guide
 - [ ] Schema validation procedures
 - [ ] Database backup procedures
@@ -502,12 +531,14 @@ export class SchemaManager {
 ## Post-Implementation
 
 ### Monitoring
+
 - [ ] Monitor migration execution times
 - [ ] Track migration success rates
 - [ ] Monitor database performance after migrations
 - [ ] Track schema validation results
 
 ### Maintenance
+
 - [ ] Regular migration testing
 - [ ] Database schema optimization
 - [ ] Migration script updates
@@ -516,11 +547,13 @@ export class SchemaManager {
 ## Dependencies
 
 ### External Dependencies
+
 - Supabase client library
 - PostgreSQL database
 - TypeScript runtime
 
 ### Internal Dependencies
+
 - Existing database connection setup
 - Environment variable configuration
 - Error handling utilities
@@ -529,6 +562,7 @@ export class SchemaManager {
 ## Acceptance Criteria
 
 ### Functional Acceptance
+
 - [ ] Migration system runs successfully
 - [ ] All migrations apply correctly
 - [ ] Rollback functionality works
@@ -536,6 +570,7 @@ export class SchemaManager {
 - [ ] Database performance maintained
 
 ### Non-Functional Acceptance
+
 - [ ] Migration execution time < 30 seconds
 - [ ] Rollback execution time < 30 seconds
 - [ ] Schema validation time < 5 seconds
@@ -543,7 +578,8 @@ export class SchemaManager {
 - [ ] 100% migration success rate
 
 ### Quality Acceptance
+
 - [ ] 100% test coverage for migration system
 - [ ] All linting rules pass
 - [ ] TypeScript compilation successful
-- [ ] Database queries perform under 500ms 
+- [ ] Database queries perform under 500ms

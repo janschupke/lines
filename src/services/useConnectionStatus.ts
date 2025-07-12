@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { ConnectionStatus } from './HighScoreService';
-import type { HighScoreServiceInterface } from './HighScoreServiceFactory';
+import { useState, useEffect, useCallback } from "react";
+import type { ConnectionStatus } from "./HighScoreService";
+import type { HighScoreServiceInterface } from "./HighScoreServiceFactory";
 
 export const useConnectionStatus = (service: HighScoreServiceInterface) => {
-  const [status, setStatus] = useState<ConnectionStatus>('disconnected');
+  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [isRetrying, setIsRetrying] = useState(false);
 
   const checkConnection = useCallback(async () => {
@@ -29,6 +29,6 @@ export const useConnectionStatus = (service: HighScoreServiceInterface) => {
     status,
     isRetrying,
     retryConnection,
-    checkConnection
+    checkConnection,
   };
-}; 
+};

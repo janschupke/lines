@@ -7,27 +7,27 @@
   .game-board {
     @apply bg-game-bg-board border border-game-border-default rounded-xl shadow-lg;
   }
-  
+
   .game-cell {
     @apply rounded-lg flex items-center justify-center transition-colors duration-200 box-border relative border-2;
   }
-  
+
   .game-ball {
     @apply block rounded-full border-2 border-game-border-ball shadow-[0_1px_4px_theme(colors.game.shadow.ball)];
   }
-  
+
   .game-ball-active {
     @apply shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent;
   }
-  
+
   .game-button {
     @apply font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors;
   }
-  
+
   .game-button-primary {
     @apply bg-game-button-primary hover:bg-game-button-hover text-game-text-primary;
   }
-  
+
   .game-button-accent {
     @apply bg-game-button-accent hover:bg-game-button-accent-hover text-black;
   }
@@ -39,15 +39,15 @@
 }
 
 .game-scrollbar::-webkit-scrollbar-track {
-  background: theme('colors.game.bg.secondary');
+  background: theme("colors.game.bg.secondary");
   border-radius: 4px;
 }
 
 .game-scrollbar::-webkit-scrollbar-thumb {
-  background: theme('colors.game.border.default');
+  background: theme("colors.game.border.default");
   border-radius: 4px;
 }
 
 .game-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.game.border.accent');
-} 
+  background: theme("colors.game.border.accent");
+}

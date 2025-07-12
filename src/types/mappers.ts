@@ -1,5 +1,5 @@
-import type { DatabaseHighScore } from './database';
-import type { HighScore } from '../services/HighScoreService';
+import type { DatabaseHighScore } from "./database";
+import type { HighScore } from "../services/HighScoreService";
 
 /**
  * Mappers for converting between database and application interfaces
@@ -16,7 +16,7 @@ export function mapDatabaseToHighScore(dbScore: DatabaseHighScore): HighScore {
     turnsCount: dbScore.turns_count,
     individualBallsPopped: dbScore.individual_balls_popped,
     linesPopped: dbScore.lines_popped,
-    longestLinePopped: dbScore.longest_line_popped
+    longestLinePopped: dbScore.longest_line_popped,
   };
 }
 
@@ -31,6 +31,6 @@ export function mapHighScoreToDatabase(appScore: HighScore): DatabaseHighScore {
     turns_count: appScore.turnsCount,
     individual_balls_popped: appScore.individualBallsPopped,
     lines_popped: appScore.linesPopped,
-    longest_line_popped: appScore.longestLinePopped
+    longest_line_popped: appScore.longestLinePopped,
   };
-} 
+}

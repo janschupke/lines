@@ -1,5 +1,5 @@
-import React from 'react';
-import type { BallColor } from '../../game/constants';
+import React from "react";
+import type { BallColor } from "../../game/constants";
 
 interface NextBallsPreviewProps {
   nextBalls: BallColor[];
@@ -19,4 +19,4 @@ const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({ nextBalls }) => {
   );
 };
 
-export default NextBallsPreview; 
+export default NextBallsPreview;

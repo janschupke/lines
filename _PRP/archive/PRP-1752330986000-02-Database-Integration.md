@@ -3,9 +3,11 @@
 ## Feature: Enhanced High Score System - Database Integration
 
 ### Overview
+
 Implement Supabase database integration for persistent high score storage, including connection management, data validation, and error handling. This phase establishes the backend infrastructure for the high score system with proper security and performance optimizations.
 
 ### User Stories
+
 - **As a** player, **I want** my high scores to be saved permanently, **So that** I don't lose my achievements when closing the browser or switching devices
 - **As a** player, **I want** to see detailed game statistics, **So that** I can understand my performance beyond just the final score
 - **As a** player, **I want** new high scores to be automatically saved when game ends, **So that** I don't have to manually save my achievements
@@ -13,6 +15,7 @@ Implement Supabase database integration for persistent high score storage, inclu
 ### Functional Requirements
 
 #### Supabase Database Setup
+
 - [ ] Configure Supabase client with environment variables
 - [ ] Create high_scores table with proper schema and indexes
 - [ ] Implement Row Level Security (RLS) policies
@@ -21,6 +24,7 @@ Implement Supabase database integration for persistent high score storage, inclu
 - [ ] Implement proper error handling for database operations
 
 #### High Score Data Management
+
 - [ ] Implement save functionality for new high scores (top 20 only)
 - [ ] Create retrieve functionality for top 20 high scores
 - [ ] Add data validation with confirmation-based sanitization
@@ -29,6 +33,7 @@ Implement Supabase database integration for persistent high score storage, inclu
 - [ ] Ensure old scores remain in database even if not in top 20
 
 #### Connection Status Handling
+
 - [ ] Show spinner during database connection attempts
 - [ ] Implement retry button after connection timeout
 - [ ] Add graceful degradation when database is unavailable
@@ -36,6 +41,7 @@ Implement Supabase database integration for persistent high score storage, inclu
 - [ ] Handle offline scenarios gracefully
 
 #### Data Validation and Security
+
 - [ ] Implement player name sanitization (unrestricted typing, eggplant emoji conversion)
 - [ ] Add input validation for all high score data
 - [ ] Prevent SQL injection through prepared statements
@@ -43,6 +49,7 @@ Implement Supabase database integration for persistent high score storage, inclu
 - [ ] Add data encryption in transit and at rest
 
 ### Non-Functional Requirements
+
 - [ ] Database queries are optimized for performance (<500ms response time)
 - [ ] Player name input is secure against injection attacks
 - [ ] System works seamlessly with existing game functionality
@@ -53,6 +60,7 @@ Implement Supabase database integration for persistent high score storage, inclu
 ### Technical Requirements
 
 #### Database Schema
+
 ```sql
 CREATE TABLE high_scores (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -75,6 +83,7 @@ CREATE INDEX idx_high_scores_lines ON high_scores(lines_popped DESC);
 ```
 
 #### Supabase Client Configuration
+
 ```typescript
 // Database service interface
 interface HighScoreService {
@@ -85,7 +94,7 @@ interface HighScoreService {
 }
 
 // Connection status types
-type ConnectionStatus = 'connected' | 'connecting' | 'disconnected' | 'error';
+type ConnectionStatus = "connected" | "connecting" | "disconnected" | "error";
 
 interface ConnectionState {
   status: ConnectionStatus;
@@ -95,6 +104,7 @@ interface ConnectionState {
 ```
 
 #### Environment Variables
+
 ```bash
 # Vercel environment variables
 SUPABASE_URL=your_supabase_project_url
@@ -104,8 +114,9 @@ SUPABASE_ANON_KEY=your_supabase_anonymous_key
 ### Database Integration Components
 
 #### High Score Service
+
 ```typescript
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 interface HighScore {
   id?: string;
@@ -122,14 +133,14 @@ interface HighScore {
 
 export class HighScoreService {
   private supabase;
-  private connectionStatus: ConnectionStatus = 'disconnected';
+  private connectionStatus: ConnectionStatus = "disconnected";
 
   constructor() {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
+
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Supabase environment variables not configured');
+      throw new Error("Supabase environment variables not configured");
     }
 
     this.supabase = createClient(supabaseUrl, supabaseKey);
@@ -137,18 +148,20 @@ export class HighScoreService {
 
   async saveHighScore(score: HighScore): Promise<boolean> {
     try {
-      this.connectionStatus = 'connecting';
-      
+      this.connectionStatus = "connecting";
+
       // Check if score qualifies for top 20
       const topScores = await this.getTopScores(20);
-      const qualifies = topScores.length < 20 || score.score > topScores[topScores.length - 1]?.score;
-      
+      const qualifies =
+        topScores.length < 20 ||
+        score.score > topScores[topScores.length - 1]?.score;
+
       if (!qualifies) {
         return false; // Score doesn't qualify for top 20
       }
 
       const { data, error } = await this.supabase
-        .from('high_scores')
+        .from("high_scores")
         .insert({
           player_name: this.sanitizePlayerName(score.playerName),
           score: score.score,
@@ -158,7 +171,7 @@ export class HighScoreService {
           turns_count: score.turnsCount,
           individual_balls_popped: score.individualBallsPopped,
           lines_popped: score.linesPopped,
-          longest_line_popped: score.longestLinePopped
+          longest_line_popped: score.longestLinePopped,
         })
         .select()
         .single();
@@ -167,32 +180,32 @@ export class HighScoreService {
         throw error;
       }
 
-      this.connectionStatus = 'connected';
+      this.connectionStatus = "connected";
       return true;
     } catch (error) {
-      this.connectionStatus = 'error';
-      console.error('Failed to save high score:', error);
+      this.connectionStatus = "error";
+      console.error("Failed to save high score:", error);
       return false;
     }
   }
 
   async getTopScores(limit: number = 20): Promise<HighScore[]> {
     try {
-      this.connectionStatus = 'connecting';
-      
+      this.connectionStatus = "connecting";
+
       const { data, error } = await this.supabase
-        .from('high_scores')
-        .select('*')
-        .order('score', { ascending: false })
+        .from("high_scores")
+        .select("*")
+        .order("score", { ascending: false })
         .limit(limit);
 
       if (error) {
         throw error;
       }
 
-      this.connectionStatus = 'connected';
-      
-      return data.map(row => ({
+      this.connectionStatus = "connected";
+
+      return data.map((row) => ({
         id: row.id,
         playerName: row.player_name,
         score: row.score,
@@ -202,11 +215,11 @@ export class HighScoreService {
         turnsCount: row.turns_count,
         individualBallsPopped: row.individual_balls_popped,
         linesPopped: row.lines_popped,
-        longestLinePopped: row.longest_line_popped
+        longestLinePopped: row.longest_line_popped,
       }));
     } catch (error) {
-      this.connectionStatus = 'error';
-      console.error('Failed to retrieve high scores:', error);
+      this.connectionStatus = "error";
+      console.error("Failed to retrieve high scores:", error);
       return [];
     }
   }
@@ -214,13 +227,13 @@ export class HighScoreService {
   async isConnected(): Promise<boolean> {
     try {
       const { data, error } = await this.supabase
-        .from('high_scores')
-        .select('count', { count: 'exact', head: true });
-      
-      this.connectionStatus = error ? 'error' : 'connected';
+        .from("high_scores")
+        .select("count", { count: "exact", head: true });
+
+      this.connectionStatus = error ? "error" : "connected";
       return !error;
     } catch {
-      this.connectionStatus = 'error';
+      this.connectionStatus = "error";
       return false;
     }
   }
@@ -237,43 +250,44 @@ export class HighScoreService {
     // Unrestricted typing during input, convert to eggplant emoji if invalid on confirmation
     const trimmed = name.trim();
     if (!trimmed || trimmed.length > 50) {
-      return '🍆';
+      return "🍆";
     }
-    
+
     // Basic sanitization for display safety
-    const sanitized = trimmed.replace(/[<>]/g, '');
-    return sanitized || '🍆';
+    const sanitized = trimmed.replace(/[<>]/g, "");
+    return sanitized || "🍆";
   }
 }
 ```
 
 #### Connection Status Hook
+
 ```typescript
-import { useState, useEffect, useCallback } from 'react';
-import { HighScoreService } from './HighScoreService';
+import { useState, useEffect, useCallback } from "react";
+import { HighScoreService } from "./HighScoreService";
 
 export const useConnectionStatus = (service: HighScoreService) => {
-  const [status, setStatus] = useState<ConnectionStatus>('disconnected');
+  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [isRetrying, setIsRetrying] = useState(false);
 
   const checkConnection = useCallback(async () => {
     const connected = await service.isConnected();
-    setStatus(connected ? 'connected' : 'error');
+    setStatus(connected ? "connected" : "error");
   }, [service]);
 
   const retryConnection = useCallback(async () => {
     setIsRetrying(true);
     const connected = await service.retryConnection();
-    setStatus(connected ? 'connected' : 'error');
+    setStatus(connected ? "connected" : "error");
     setIsRetrying(false);
   }, [service]);
 
   useEffect(() => {
     checkConnection();
-    
+
     // Check connection status periodically
     const interval = setInterval(checkConnection, 30000); // Every 30 seconds
-    
+
     return () => clearInterval(interval);
   }, [checkConnection]);
 
@@ -281,7 +295,7 @@ export const useConnectionStatus = (service: HighScoreService) => {
     status,
     isRetrying,
     retryConnection,
-    checkConnection
+    checkConnection,
   };
 };
 ```
@@ -289,12 +303,14 @@ export const useConnectionStatus = (service: HighScoreService) => {
 ### UI/UX Considerations
 
 #### Connection Status Display
+
 - **Spinner**: Show during database connection attempts
 - **Retry Button**: Display after connection timeout with user-friendly message
 - **Status Indicators**: Clear visual feedback for connection state
 - **Graceful Degradation**: Allow game to function without database
 
 #### Error Handling
+
 - **User-Friendly Messages**: Clear explanations for connection issues
 - **Retry Options**: Easy way to retry failed connections
 - **Offline Mode**: Game continues to work without database
@@ -303,8 +319,9 @@ export const useConnectionStatus = (service: HighScoreService) => {
 ### Testing Requirements
 
 #### Unit Testing
+
 - **Coverage Target**: >80% for database service and hooks
-- **Service Tests**: 
+- **Service Tests**:
   - HighScoreService save/retrieve functionality
   - Connection status handling
   - Data validation and sanitization
@@ -312,12 +329,14 @@ export const useConnectionStatus = (service: HighScoreService) => {
 - **Error Handling**: Database error scenarios
 
 #### Integration Testing
+
 - **Database Integration**: End-to-end database operations
 - **Connection Scenarios**: Online/offline behavior testing
 - **Data Persistence**: High score saving and retrieval
 - **Error Recovery**: Connection failure and recovery
 
 #### Performance Testing
+
 - **Query Performance**: Database queries under 500ms
 - **Connection Speed**: Fast connection establishment
 - **Error Recovery**: Quick recovery from connection issues
@@ -325,6 +344,7 @@ export const useConnectionStatus = (service: HighScoreService) => {
 ### Risk Assessment
 
 #### Technical Risks
+
 - **Risk**: Database connection failures during gameplay
   - **Impact**: Medium
   - **Mitigation**: Show spinner during connection attempts, add retry button after timeout
@@ -338,6 +358,7 @@ export const useConnectionStatus = (service: HighScoreService) => {
   - **Mitigation**: Optimized indexes and query performance monitoring
 
 #### User Experience Risks
+
 - **Risk**: Network delays affecting high score submission
   - **Impact**: Low
   - **Mitigation**: Background saving with user feedback
@@ -379,24 +400,27 @@ export const useConnectionStatus = (service: HighScoreService) => {
    - Validate data persistence and retrieval
 
 ### Success Criteria
+
 - [ ] Supabase database is properly configured and connected
 - [ ] High scores are automatically saved when qualifying for top 20
 - [ ] Connection status is properly monitored and displayed
 - [ ] Data validation prevents injection attacks
 - [ ] System gracefully handles connection failures
-- [ ] >80% test coverage for database integration
+- [ ] > 80% test coverage for database integration
 - [ ] Database queries perform under 500ms
 - [ ] High scores persist across browser sessions
 
 ### Dependencies
+
 - Supabase client library
 - Environment variables for database connection
 - Existing game state management
 - React hooks for state management
 
 ### Notes
+
 - Ensure proper environment variable configuration for Vercel deployment
 - Implement comprehensive error handling for all database operations
 - Use prepared statements to prevent SQL injection
 - Monitor database performance and optimize queries as needed
-- Test thoroughly with various connection scenarios 
+- Test thoroughly with various connection scenarios

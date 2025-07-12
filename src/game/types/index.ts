@@ -1,4 +1,4 @@
-import { type BallColor as _BallColor } from '../constants';
+import { type BallColor as _BallColor } from "../constants";
 export type BallColor = _BallColor;
 
 export interface Ball {
@@ -67,4 +67,4 @@ export interface GameActions {
   handleCellLeave: () => void;
   handleNewGameFromDialog: () => void;
   handleCloseDialog: () => void;
-} 
+}

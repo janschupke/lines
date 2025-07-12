@@ -20,7 +20,9 @@ export class MigrationLoader {
       // For now, we'll return the SQL content based on the file path
       return this.getMigrationSQL(filePath);
     } catch (error) {
-      throw new Error(`Failed to load migration file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to load migration file ${filePath}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
@@ -31,7 +33,7 @@ export class MigrationLoader {
    */
   private static getMigrationSQL(filePath: string): string {
     const migrationScripts: Record<string, string> = {
-      'migrations/001_create_high_scores_table.sql': `
+      "migrations/001_create_high_scores_table.sql": `
         CREATE TABLE IF NOT EXISTS high_scores (
           id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
           player_name TEXT NOT NULL,
@@ -59,10 +61,9 @@ export class MigrationLoader {
         CREATE POLICY IF NOT EXISTS "Allow insert access" ON high_scores
           FOR INSERT WITH CHECK (true);
       `,
-      'migrations/001_create_high_scores_table_down.sql': `
+      "migrations/001_create_high_scores_table_down.sql": `
         DROP TABLE IF EXISTS high_scores CASCADE;
       `,
-
     };
 
     const sql = migrationScripts[filePath];
@@ -84,9 +85,17 @@ export class MigrationLoader {
     }
 
     // Basic validation - ensure it contains SQL keywords
-    const sqlKeywords = ['CREATE', 'DROP', 'ALTER', 'INSERT', 'UPDATE', 'DELETE', 'SELECT'];
-    const hasSqlKeywords = sqlKeywords.some(keyword => 
-      content.toUpperCase().includes(keyword)
+    const sqlKeywords = [
+      "CREATE",
+      "DROP",
+      "ALTER",
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "SELECT",
+    ];
+    const hasSqlKeywords = sqlKeywords.some((keyword) =>
+      content.toUpperCase().includes(keyword),
     );
 
     return hasSqlKeywords;
@@ -98,8 +107,8 @@ export class MigrationLoader {
    */
   static getAvailableMigrations(): string[] {
     return [
-      'migrations/001_create_high_scores_table.sql',
-      'migrations/001_create_high_scores_table_down.sql'
+      "migrations/001_create_high_scores_table.sql",
+      "migrations/001_create_high_scores_table_down.sql",
     ];
   }
-} 
+}

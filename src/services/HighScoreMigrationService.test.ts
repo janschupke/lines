@@ -1,23 +1,23 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { HighScoreMigrationService } from './HighScoreMigrationService';
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { HighScoreMigrationService } from "./HighScoreMigrationService";
 
 // Mock Supabase client
 const mockSupabase = {
   from: vi.fn(),
   auth: {
-    onAuthStateChange: vi.fn()
-  }
+    onAuthStateChange: vi.fn(),
+  },
 } as any;
 
-describe('HighScoreMigrationService', () => {
+describe("HighScoreMigrationService", () => {
   let migrationService: HighScoreMigrationService;
 
   beforeEach(() => {
     vi.clearAllMocks();
     migrationService = new HighScoreMigrationService(mockSupabase);
-    
+
     // Mock localStorage
-    Object.defineProperty(window, 'localStorage', {
+    Object.defineProperty(window, "localStorage", {
       value: {
         getItem: vi.fn(),
         setItem: vi.fn(),
@@ -32,52 +32,59 @@ describe('HighScoreMigrationService', () => {
     vi.restoreAllMocks();
   });
 
-  describe('migrateFromLocalStorage', () => {
-    it('should return no migration needed when no local data exists', async () => {
+  describe("migrateFromLocalStorage", () => {
+    it("should return no migration needed when no local data exists", async () => {
       const localStorage = window.localStorage as any;
       localStorage.getItem.mockReturnValue(null);
 
       const result = await migrationService.migrateFromLocalStorage();
 
       expect(result.isComplete).toBe(true);
-      expect(result.currentStep).toBe('No local data to migrate');
+      expect(result.currentStep).toBe("No local data to migrate");
       expect(result.totalRecords).toBe(0);
     });
 
-    it('should migrate valid local data successfully', async () => {
+    it("should migrate valid local data successfully", async () => {
       const testData = [
         {
-          player_name: 'test_player',
+          player_name: "test_player",
           score: 1000,
           turns_count: 10,
           individual_balls_popped: 5,
           lines_popped: 2,
-          longest_line_popped: 5
-        }
+          longest_line_popped: 5,
+        },
       ];
 
       const localStorage = window.localStorage as any;
       localStorage.getItem.mockReturnValue(JSON.stringify(testData));
 
       mockSupabase.from.mockReturnValue({
-        insert: vi.fn().mockResolvedValue({ error: null })
+        insert: vi.fn().mockResolvedValue({ error: null }),
       });
 
       const result = await migrationService.migrateFromLocalStorage();
 
       expect(result.isComplete).toBe(true);
-      expect(result.currentStep).toBe('Migration completed');
+      expect(result.currentStep).toBe("Migration completed");
       expect(result.totalRecords).toBe(1);
       expect(result.processedRecords).toBe(1);
       expect(result.successCount).toBe(1);
       expect(result.errorCount).toBe(0);
     });
 
-    it('should handle invalid local data gracefully', async () => {
+    it("should handle invalid local data gracefully", async () => {
       const invalidData = [
-        { invalid_field: 'test' },
-        { player_name: '', score: 0 },
-        { player_name: 'valid', score: 100, turns_count: 5, individual_balls_popped: 3, lines_popped: 1, longest_line_popped: 3 }
+        { invalid_field: "test" },
+        { player_name: "", score: 0 },
+        {
+          player_name: "valid",
+          score: 100,
+          turns_count: 5,
+          individual_balls_popped: 3,
+          lines_popped: 1,
+          longest_line_popped: 3,
+        },
       ];
 
       const localStorage = window.localStorage as any;
@@ -90,23 +97,25 @@ describe('HighScoreMigrationService', () => {
       expect(result.processedRecords).toBe(1); // Only the valid one
     });
 
-    it('should handle database errors during migration', async () => {
+    it("should handle database errors during migration", async () => {
       const testData = [
         {
-          player_name: 'test_player',
+          player_name: "test_player",
           score: 1000,
           turns_count: 10,
           individual_balls_popped: 5,
           lines_popped: 2,
-          longest_line_popped: 5
-        }
+          longest_line_popped: 5,
+        },
       ];
 
       const localStorage = window.localStorage as any;
       localStorage.getItem.mockReturnValue(JSON.stringify(testData));
 
       mockSupabase.from.mockReturnValue({
-        insert: vi.fn().mockResolvedValue({ error: { message: 'Database error' } })
+        insert: vi
+          .fn()
+          .mockResolvedValue({ error: { message: "Database error" } }),
       });
 
       const result = await migrationService.migrateFromLocalStorage();
@@ -116,47 +125,51 @@ describe('HighScoreMigrationService', () => {
       expect(result.errorCount).toBe(1);
     });
 
-    it('should clean up local data after successful migration', async () => {
+    it("should clean up local data after successful migration", async () => {
       const testData = [
         {
-          player_name: 'test_player',
+          player_name: "test_player",
           score: 1000,
           turns_count: 10,
           individual_balls_popped: 5,
           lines_popped: 2,
-          longest_line_popped: 5
-        }
+          longest_line_popped: 5,
+        },
       ];
 
       const localStorage = window.localStorage as any;
       localStorage.getItem.mockReturnValue(JSON.stringify(testData));
 
       mockSupabase.from.mockReturnValue({
-        insert: vi.fn().mockResolvedValue({ error: null })
+        insert: vi.fn().mockResolvedValue({ error: null }),
       });
 
       await migrationService.migrateFromLocalStorage();
 
-      expect(localStorage.removeItem).toHaveBeenCalledWith('lines-game-high-scores');
+      expect(localStorage.removeItem).toHaveBeenCalledWith(
+        "lines-game-high-scores",
+      );
     });
 
-    it('should not clean up local data if migration has errors', async () => {
+    it("should not clean up local data if migration has errors", async () => {
       const testData = [
         {
-          player_name: 'test_player',
+          player_name: "test_player",
           score: 1000,
           turns_count: 10,
           individual_balls_popped: 5,
           lines_popped: 2,
-          longest_line_popped: 5
-        }
+          longest_line_popped: 5,
+        },
       ];
 
       const localStorage = window.localStorage as any;
       localStorage.getItem.mockReturnValue(JSON.stringify(testData));
 
       mockSupabase.from.mockReturnValue({
-        insert: vi.fn().mockResolvedValue({ error: { message: 'Database error' } })
+        insert: vi
+          .fn()
+          .mockResolvedValue({ error: { message: "Database error" } }),
       });
 
       await migrationService.migrateFromLocalStorage();
@@ -164,46 +177,46 @@ describe('HighScoreMigrationService', () => {
       expect(localStorage.removeItem).not.toHaveBeenCalled();
     });
 
-    it('should handle localStorage errors gracefully', async () => {
+    it("should handle localStorage errors gracefully", async () => {
       const localStorage = window.localStorage as any;
       localStorage.getItem.mockImplementation(() => {
-        throw new Error('localStorage error');
+        throw new Error("localStorage error");
       });
 
       const result = await migrationService.migrateFromLocalStorage();
 
       expect(result.isComplete).toBe(true);
-      expect(result.currentStep).toBe('No local data to migrate');
+      expect(result.currentStep).toBe("No local data to migrate");
     });
   });
 
-  describe('data validation', () => {
-    it('should validate required fields correctly', async () => {
+  describe("data validation", () => {
+    it("should validate required fields correctly", async () => {
       const testData = [
         {
-          player_name: 'valid_player',
+          player_name: "valid_player",
           score: 1000,
           turns_count: 10,
           individual_balls_popped: 5,
           lines_popped: 2,
-          longest_line_popped: 5
+          longest_line_popped: 5,
         },
         {
-          player_name: '', // Invalid: empty name
+          player_name: "", // Invalid: empty name
           score: 1000,
           turns_count: 10,
           individual_balls_popped: 5,
           lines_popped: 2,
-          longest_line_popped: 5
+          longest_line_popped: 5,
         },
         {
-          player_name: 'valid_player_2',
+          player_name: "valid_player_2",
           score: -100, // Invalid: negative score
           turns_count: 10,
           individual_balls_popped: 5,
           lines_popped: 2,
-          longest_line_popped: 5
-        }
+          longest_line_popped: 5,
+        },
       ];
 
       const localStorage = window.localStorage as any;
@@ -215,4 +228,4 @@ describe('HighScoreMigrationService', () => {
       expect(result.processedRecords).toBe(1); // Only the first valid record
     });
   });
-}); 
+});

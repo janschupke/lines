@@ -1,27 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 // Type for the connection status event detail
 interface ConnectionStatusEventDetail {
-  status: 'connected' | 'disconnected' | 'connecting';
+  status: "connected" | "disconnected" | "connecting";
 }
 
 // Type guard to validate event detail structure
-function isValidConnectionStatusEventDetail(detail: unknown): detail is ConnectionStatusEventDetail {
-  if (detail === null || typeof detail !== 'object') {
+function isValidConnectionStatusEventDetail(
+  detail: unknown,
+): detail is ConnectionStatusEventDetail {
+  if (detail === null || typeof detail !== "object") {
     return false;
   }
-  
+
   const detailObj = detail as Record<string, unknown>;
   const status = detailObj.status;
-  
+
   return (
-    typeof status === 'string' &&
-    ['connected', 'disconnected', 'connecting'].includes(status)
+    typeof status === "string" &&
+    ["connected", "disconnected", "connecting"].includes(status)
   );
 }
 
 export function useConnectionStatusEvent() {
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<
+    "connected" | "disconnected" | "connecting"
+  >("disconnected");
 
   useEffect(() => {
     const handleConnectionStatusChange = (event: CustomEvent) => {
@@ -31,12 +35,18 @@ export function useConnectionStatusEvent() {
       }
     };
 
-    window.addEventListener('highScoreConnectionStatus', handleConnectionStatusChange as EventListener);
+    window.addEventListener(
+      "highScoreConnectionStatus",
+      handleConnectionStatusChange as EventListener,
+    );
 
     return () => {
-      window.removeEventListener('highScoreConnectionStatus', handleConnectionStatusChange as EventListener);
+      window.removeEventListener(
+        "highScoreConnectionStatus",
+        handleConnectionStatusChange as EventListener,
+      );
     };
   }, []);
 
   return connectionStatus;
-} 
+}

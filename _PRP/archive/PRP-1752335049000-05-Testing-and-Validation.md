@@ -3,17 +3,21 @@
 ## Feature Overview
 
 ### Feature Name
+
 Comprehensive Testing and Validation for Database Integration
 
 ### Brief Description
+
 Implement comprehensive testing and validation procedures for the complete database integration system, including unit tests, integration tests, performance tests, and user acceptance testing to ensure reliability, performance, and data integrity.
 
 ### User Value
+
 Players will experience a thoroughly tested and validated system that ensures high reliability, fast performance, and data integrity, providing confidence in the high score system and overall game experience.
 
 ## Functional Requirements
 
 ### Unit Testing Requirements
+
 - [ ] Test all database service classes and methods
 - [ ] Test migration service functionality
 - [ ] Test environment configuration validation
@@ -22,6 +26,7 @@ Players will experience a thoroughly tested and validated system that ensures hi
 - [ ] Test error handling and recovery procedures
 
 ### Integration Testing Requirements
+
 - [ ] Test complete database integration workflow
 - [ ] Test migration from localStorage to database
 - [ ] Test real-time synchronization functionality
@@ -30,6 +35,7 @@ Players will experience a thoroughly tested and validated system that ensures hi
 - [ ] Test data integrity across all operations
 
 ### Performance Testing Requirements
+
 - [ ] Test database query performance under load
 - [ ] Test migration completion time
 - [ ] Test real-time synchronization latency
@@ -38,6 +44,7 @@ Players will experience a thoroughly tested and validated system that ensures hi
 - [ ] Test memory usage and resource consumption
 
 ### User Acceptance Testing Requirements
+
 - [ ] Test high score submission and retrieval
 - [ ] Test real-time high score updates
 - [ ] Test migration process for existing users
@@ -48,6 +55,7 @@ Players will experience a thoroughly tested and validated system that ensures hi
 ## Non-Functional Requirements
 
 ### Performance Requirements
+
 - [ ] Database queries complete in < 500ms
 - [ ] Migration process completes in < 30 seconds
 - [ ] Real-time updates have < 100ms latency
@@ -56,6 +64,7 @@ Players will experience a thoroughly tested and validated system that ensures hi
 - [ ] Memory usage stays within acceptable limits
 
 ### Reliability Requirements
+
 - [ ] 100% test coverage for database integration
 - [ ] Zero data loss during all operations
 - [ ] 99.9% uptime for database operations
@@ -64,6 +73,7 @@ Players will experience a thoroughly tested and validated system that ensures hi
 - [ ] Data integrity validation for all operations
 
 ### Security Requirements
+
 - [ ] Secure database connections and data transmission
 - [ ] Input validation and sanitization for all data
 - [ ] Row Level Security (RLS) enforcement
@@ -74,6 +84,7 @@ Players will experience a thoroughly tested and validated system that ensures hi
 ## Technical Implementation
 
 ### Test Suite Structure
+
 ```
 src/
 ├── __tests__/
@@ -101,22 +112,23 @@ src/
 ```
 
 ### Unit Test Implementation
+
 ```typescript
 // src/__tests__/database/services/MigrationService.test.ts
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { MigrationService } from '../../../database/services/MigrationService';
-import { createClient } from '@supabase/supabase-js';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { MigrationService } from "../../../database/services/MigrationService";
+import { createClient } from "@supabase/supabase-js";
 
 // Mock Supabase client
 const mockSupabase = {
   from: vi.fn(),
   rpc: vi.fn(),
   auth: {
-    onAuthStateChange: vi.fn()
-  }
+    onAuthStateChange: vi.fn(),
+  },
 } as any;
 
-describe('MigrationService', () => {
+describe("MigrationService", () => {
   let migrationService: MigrationService;
 
   beforeEach(() => {
@@ -124,89 +136,100 @@ describe('MigrationService', () => {
     migrationService = new MigrationService(mockSupabase);
   });
 
-  describe('runMigrations', () => {
-    it('should run all pending migrations successfully', async () => {
+  describe("runMigrations", () => {
+    it("should run all pending migrations successfully", async () => {
       // Mock successful migration execution
       mockSupabase.rpc.mockResolvedValue({ error: null });
       mockSupabase.from.mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
-          })
+            single: vi
+              .fn()
+              .mockResolvedValue({ data: null, error: { code: "PGRST116" } }),
+          }),
         }),
-        insert: vi.fn().mockResolvedValue({ error: null })
+        insert: vi.fn().mockResolvedValue({ error: null }),
       });
 
       const results = await migrationService.runMigrations();
 
       expect(results).toHaveLength(2);
-      expect(results[0].status).toBe('applied');
-      expect(results[1].status).toBe('applied');
+      expect(results[0].status).toBe("applied");
+      expect(results[1].status).toBe("applied");
     });
 
-    it('should handle migration failures gracefully', async () => {
+    it("should handle migration failures gracefully", async () => {
       // Mock migration failure
-      mockSupabase.rpc.mockRejectedValue(new Error('Database connection failed'));
+      mockSupabase.rpc.mockRejectedValue(
+        new Error("Database connection failed"),
+      );
 
-      await expect(migrationService.runMigrations()).rejects.toThrow('Database connection failed');
+      await expect(migrationService.runMigrations()).rejects.toThrow(
+        "Database connection failed",
+      );
     });
 
-    it('should skip already applied migrations', async () => {
+    it("should skip already applied migrations", async () => {
       // Mock already applied migration
       mockSupabase.from.mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({ 
-              data: { version: 1 }, 
-              error: null 
-            })
-          })
-        })
+            single: vi.fn().mockResolvedValue({
+              data: { version: 1 },
+              error: null,
+            }),
+          }),
+        }),
       });
 
       const results = await migrationService.runMigrations();
 
-      expect(results[0].status).toBe('already_applied');
+      expect(results[0].status).toBe("already_applied");
     });
   });
 
-  describe('rollbackMigration', () => {
-    it('should rollback migration successfully', async () => {
+  describe("rollbackMigration", () => {
+    it("should rollback migration successfully", async () => {
       // Mock successful rollback
       mockSupabase.from.mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({ 
-              data: { version: 1 }, 
-              error: null 
-            })
-          })
+            single: vi.fn().mockResolvedValue({
+              data: { version: 1 },
+              error: null,
+            }),
+          }),
         }),
         delete: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ error: null })
-        })
+          eq: vi.fn().mockResolvedValue({ error: null }),
+        }),
       });
       mockSupabase.rpc.mockResolvedValue({ error: null });
 
-      await expect(migrationService.rollbackMigration(1)).resolves.not.toThrow();
+      await expect(
+        migrationService.rollbackMigration(1),
+      ).resolves.not.toThrow();
     });
 
-    it('should throw error for non-existent migration', async () => {
-      await expect(migrationService.rollbackMigration(999)).rejects.toThrow('Migration version 999 not found');
+    it("should throw error for non-existent migration", async () => {
+      await expect(migrationService.rollbackMigration(999)).rejects.toThrow(
+        "Migration version 999 not found",
+      );
     });
   });
 });
 ```
 
 ### Integration Test Implementation
+
 ```typescript
 // src/__tests__/database/integration/DatabaseIntegration.test.ts
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { createClient } from '@supabase/supabase-js';
-import { DatabaseHighScoreService } from '../../../services/DatabaseHighScoreService';
-import { SchemaManager } from '../../../database/services/SchemaManager';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { createClient } from "@supabase/supabase-js";
+import { DatabaseHighScoreService } from "../../../services/DatabaseHighScoreService";
+import { SchemaManager } from "../../../database/services/SchemaManager";
 
-describe('Database Integration Tests', () => {
+describe("Database Integration Tests", () => {
   let supabase: any;
   let highScoreService: DatabaseHighScoreService;
   let schemaManager: SchemaManager;
@@ -214,48 +237,75 @@ describe('Database Integration Tests', () => {
   beforeAll(async () => {
     // Setup test database
     supabase = createClient(
-      process.env.VITE_SUPABASE_URL || 'http://localhost:5432',
-      process.env.VITE_SUPABASE_ANON_KEY || 'test-key'
+      process.env.VITE_SUPABASE_URL || "http://localhost:5432",
+      process.env.VITE_SUPABASE_ANON_KEY || "test-key",
     );
-    
+
     highScoreService = new DatabaseHighScoreService(supabase);
     schemaManager = new SchemaManager(supabase);
   });
 
   beforeEach(async () => {
     // Clean up test data
-    await supabase.from('high_scores').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase
+      .from("high_scores")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000");
   });
 
   afterAll(async () => {
     // Clean up test database
-    await supabase.from('high_scores').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase
+      .from("high_scores")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000");
   });
 
-  describe('High Score Operations', () => {
-    it('should submit high score successfully', async () => {
+  describe("High Score Operations", () => {
+    it("should submit high score successfully", async () => {
       const testScore = {
-        player_name: 'test_player',
+        player_name: "test_player",
         score: 1000,
         turns_count: 10,
         individual_balls_popped: 5,
         lines_popped: 2,
-        longest_line_popped: 5
+        longest_line_popped: 5,
       };
 
       const result = await highScoreService.submitHighScore(testScore);
 
       expect(result).toBeDefined();
-      expect(result?.player_name).toBe('test_player');
+      expect(result?.player_name).toBe("test_player");
       expect(result?.score).toBe(1000);
     });
 
-    it('should retrieve high scores in correct order', async () => {
+    it("should retrieve high scores in correct order", async () => {
       // Insert test scores
       const scores = [
-        { player_name: 'player1', score: 500, turns_count: 5, individual_balls_popped: 3, lines_popped: 1, longest_line_popped: 3 },
-        { player_name: 'player2', score: 1000, turns_count: 10, individual_balls_popped: 5, lines_popped: 2, longest_line_popped: 5 },
-        { player_name: 'player3', score: 750, turns_count: 7, individual_balls_popped: 4, lines_popped: 1, longest_line_popped: 4 }
+        {
+          player_name: "player1",
+          score: 500,
+          turns_count: 5,
+          individual_balls_popped: 3,
+          lines_popped: 1,
+          longest_line_popped: 3,
+        },
+        {
+          player_name: "player2",
+          score: 1000,
+          turns_count: 10,
+          individual_balls_popped: 5,
+          lines_popped: 2,
+          longest_line_popped: 5,
+        },
+        {
+          player_name: "player3",
+          score: 750,
+          turns_count: 7,
+          individual_balls_popped: 4,
+          lines_popped: 1,
+          longest_line_popped: 4,
+        },
       ];
 
       for (const score of scores) {
@@ -270,47 +320,49 @@ describe('Database Integration Tests', () => {
       expect(retrievedScores[2].score).toBe(500);
     });
 
-    it('should handle database connection errors gracefully', async () => {
+    it("should handle database connection errors gracefully", async () => {
       // Mock connection failure
       const mockSupabase = {
-        from: vi.fn().mockRejectedValue(new Error('Connection failed'))
+        from: vi.fn().mockRejectedValue(new Error("Connection failed")),
       } as any;
 
       const failingService = new DatabaseHighScoreService(mockSupabase);
 
       const result = await failingService.submitHighScore({
-        player_name: 'test',
+        player_name: "test",
         score: 100,
         turns_count: 1,
         individual_balls_popped: 1,
         lines_popped: 1,
-        longest_line_popped: 1
+        longest_line_popped: 1,
       });
 
       expect(result).toBeNull();
     });
   });
 
-  describe('Real-Time Synchronization', () => {
-    it('should receive real-time updates', async () => {
+  describe("Real-Time Synchronization", () => {
+    it("should receive real-time updates", async () => {
       return new Promise<void>((resolve) => {
         let updateReceived = false;
 
-        const unsubscribe = highScoreService.subscribeToHighScoreUpdates((scores) => {
-          updateReceived = true;
-          expect(scores).toBeDefined();
-          unsubscribe();
-          resolve();
-        });
+        const unsubscribe = highScoreService.subscribeToHighScoreUpdates(
+          (scores) => {
+            updateReceived = true;
+            expect(scores).toBeDefined();
+            unsubscribe();
+            resolve();
+          },
+        );
 
         // Trigger an update
         highScoreService.submitHighScore({
-          player_name: 'realtime_test',
+          player_name: "realtime_test",
           score: 500,
           turns_count: 5,
           individual_balls_popped: 3,
           lines_popped: 1,
-          longest_line_popped: 3
+          longest_line_popped: 3,
         });
 
         // Timeout after 5 seconds
@@ -327,19 +379,20 @@ describe('Database Integration Tests', () => {
 ```
 
 ### Performance Test Implementation
+
 ```typescript
 // src/__tests__/performance/DatabasePerformance.test.ts
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { DatabaseHighScoreService } from '../../services/DatabaseHighScoreService';
-import { createClient } from '@supabase/supabase-js';
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { DatabaseHighScoreService } from "../../services/DatabaseHighScoreService";
+import { createClient } from "@supabase/supabase-js";
 
-describe('Database Performance Tests', () => {
+describe("Database Performance Tests", () => {
   let highScoreService: DatabaseHighScoreService;
 
   beforeAll(async () => {
     const supabase = createClient(
-      process.env.VITE_SUPABASE_URL || 'http://localhost:5432',
-      process.env.VITE_SUPABASE_ANON_KEY || 'test-key'
+      process.env.VITE_SUPABASE_URL || "http://localhost:5432",
+      process.env.VITE_SUPABASE_ANON_KEY || "test-key",
     );
     highScoreService = new DatabaseHighScoreService(supabase);
   });
@@ -347,38 +400,41 @@ describe('Database Performance Tests', () => {
   afterAll(async () => {
     // Clean up test data
     const supabase = createClient(
-      process.env.VITE_SUPABASE_URL || 'http://localhost:5432',
-      process.env.VITE_SUPABASE_ANON_KEY || 'test-key'
+      process.env.VITE_SUPABASE_URL || "http://localhost:5432",
+      process.env.VITE_SUPABASE_ANON_KEY || "test-key",
     );
-    await supabase.from('high_scores').delete().like('player_name', 'perf_test_%');
+    await supabase
+      .from("high_scores")
+      .delete()
+      .like("player_name", "perf_test_%");
   });
 
-  describe('Query Performance', () => {
-    it('should retrieve high scores within 500ms', async () => {
+  describe("Query Performance", () => {
+    it("should retrieve high scores within 500ms", async () => {
       const startTime = performance.now();
-      
+
       await highScoreService.getHighScores(10);
-      
+
       const endTime = performance.now();
       const duration = endTime - startTime;
 
       expect(duration).toBeLessThan(500);
     });
 
-    it('should submit high score within 500ms', async () => {
+    it("should submit high score within 500ms", async () => {
       const testScore = {
         player_name: `perf_test_${Date.now()}`,
         score: Math.floor(Math.random() * 1000),
         turns_count: Math.floor(Math.random() * 20),
         individual_balls_popped: Math.floor(Math.random() * 10),
         lines_popped: Math.floor(Math.random() * 5),
-        longest_line_popped: Math.floor(Math.random() * 8)
+        longest_line_popped: Math.floor(Math.random() * 8),
       };
 
       const startTime = performance.now();
-      
+
       await highScoreService.submitHighScore(testScore);
-      
+
       const endTime = performance.now();
       const duration = endTime - startTime;
 
@@ -386,8 +442,8 @@ describe('Database Performance Tests', () => {
     });
   });
 
-  describe('Load Testing', () => {
-    it('should handle concurrent high score submissions', async () => {
+  describe("Load Testing", () => {
+    it("should handle concurrent high score submissions", async () => {
       const concurrentSubmissions = 10;
       const promises = [];
 
@@ -398,7 +454,7 @@ describe('Database Performance Tests', () => {
           turns_count: Math.floor(Math.random() * 20),
           individual_balls_popped: Math.floor(Math.random() * 10),
           lines_popped: Math.floor(Math.random() * 5),
-          longest_line_popped: Math.floor(Math.random() * 8)
+          longest_line_popped: Math.floor(Math.random() * 8),
         };
 
         promises.push(highScoreService.submitHighScore(testScore));
@@ -410,7 +466,7 @@ describe('Database Performance Tests', () => {
       const duration = endTime - startTime;
 
       expect(results).toHaveLength(concurrentSubmissions);
-      expect(results.every(result => result !== null)).toBe(true);
+      expect(results.every((result) => result !== null)).toBe(true);
       expect(duration).toBeLessThan(5000); // Should complete within 5 seconds
     });
   });
@@ -418,6 +474,7 @@ describe('Database Performance Tests', () => {
 ```
 
 ### User Acceptance Test Implementation
+
 ```typescript
 // src/__tests__/user-acceptance/HighScoreOperations.test.ts
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
@@ -509,6 +566,7 @@ describe('High Score User Acceptance Tests', () => {
 ## Testing Requirements
 
 ### Unit Tests
+
 - [ ] Test all database service methods
 - [ ] Test migration service functionality
 - [ ] Test environment configuration
@@ -517,6 +575,7 @@ describe('High Score User Acceptance Tests', () => {
 - [ ] Test error handling and recovery
 
 ### Integration Tests
+
 - [ ] Test complete database integration workflow
 - [ ] Test migration from localStorage
 - [ ] Test real-time synchronization
@@ -525,6 +584,7 @@ describe('High Score User Acceptance Tests', () => {
 - [ ] Test data integrity validation
 
 ### Performance Tests
+
 - [ ] Test database query performance
 - [ ] Test migration completion time
 - [ ] Test real-time synchronization latency
@@ -533,6 +593,7 @@ describe('High Score User Acceptance Tests', () => {
 - [ ] Test memory usage and resource consumption
 
 ### User Acceptance Tests
+
 - [ ] Test high score submission and retrieval
 - [ ] Test real-time high score updates
 - [ ] Test migration process for existing users
@@ -543,6 +604,7 @@ describe('High Score User Acceptance Tests', () => {
 ## Accessibility Considerations
 
 ### Testing Accessibility
+
 - [ ] Ensure test interfaces are accessible
 - [ ] Test with screen readers
 - [ ] Verify keyboard navigation
@@ -552,6 +614,7 @@ describe('High Score User Acceptance Tests', () => {
 ## Risk Assessment
 
 ### Testing Risks
+
 - **Risk**: Incomplete test coverage
   - **Impact**: Medium
   - **Mitigation**: Comprehensive test planning and execution
@@ -570,6 +633,7 @@ describe('High Score User Acceptance Tests', () => {
 ## Success Metrics
 
 ### Testing Metrics
+
 - [ ] 100% test coverage for database integration
 - [ ] All tests pass consistently
 - [ ] Performance benchmarks met
@@ -577,6 +641,7 @@ describe('High Score User Acceptance Tests', () => {
 - [ ] User acceptance criteria met
 
 ### Quality Metrics
+
 - [ ] Database queries perform under 500ms
 - [ ] Migration completes under 30 seconds
 - [ ] Real-time updates have under 100ms latency
@@ -586,6 +651,7 @@ describe('High Score User Acceptance Tests', () => {
 ## Implementation Steps
 
 ### Step 1: Unit Test Implementation
+
 1. Create test structure and organization
 2. Implement unit tests for all services
 3. Test migration service functionality
@@ -593,6 +659,7 @@ describe('High Score User Acceptance Tests', () => {
 5. Test connection status monitoring
 
 ### Step 2: Integration Test Implementation
+
 1. Create integration test suite
 2. Test complete database workflow
 3. Test migration from localStorage
@@ -600,6 +667,7 @@ describe('High Score User Acceptance Tests', () => {
 5. Test connection status management
 
 ### Step 3: Performance Test Implementation
+
 1. Create performance test suite
 2. Test database query performance
 3. Test migration completion time
@@ -607,6 +675,7 @@ describe('High Score User Acceptance Tests', () => {
 5. Test load handling capabilities
 
 ### Step 4: User Acceptance Test Implementation
+
 1. Create user acceptance test suite
 2. Test high score operations
 3. Test migration user flow
@@ -614,6 +683,7 @@ describe('High Score User Acceptance Tests', () => {
 5. Test error handling and feedback
 
 ### Step 5: Test Execution and Validation
+
 1. Run comprehensive test suite
 2. Validate all performance benchmarks
 3. Verify user acceptance criteria
@@ -623,6 +693,7 @@ describe('High Score User Acceptance Tests', () => {
 ## Documentation Requirements
 
 ### Testing Documentation
+
 - [ ] Test plan and strategy
 - [ ] Test case documentation
 - [ ] Performance benchmark documentation
@@ -630,6 +701,7 @@ describe('High Score User Acceptance Tests', () => {
 - [ ] Test result reporting
 
 ### User Documentation
+
 - [ ] User acceptance criteria
 - [ ] Performance expectations
 - [ ] Error handling procedures
@@ -638,12 +710,14 @@ describe('High Score User Acceptance Tests', () => {
 ## Post-Implementation
 
 ### Monitoring
+
 - [ ] Monitor test execution results
 - [ ] Track performance metrics
 - [ ] Monitor user acceptance feedback
 - [ ] Track bug reports and issues
 
 ### Maintenance
+
 - [ ] Regular test updates
 - [ ] Performance benchmark updates
 - [ ] Test environment maintenance
@@ -652,12 +726,14 @@ describe('High Score User Acceptance Tests', () => {
 ## Dependencies
 
 ### External Dependencies
+
 - Vitest testing framework
 - React Testing Library
 - Supabase test environment
 - Performance testing tools
 
 ### Internal Dependencies
+
 - Database integration system
 - Migration service
 - Connection status monitoring
@@ -666,6 +742,7 @@ describe('High Score User Acceptance Tests', () => {
 ## Acceptance Criteria
 
 ### Functional Acceptance
+
 - [ ] All unit tests pass
 - [ ] All integration tests pass
 - [ ] All performance tests meet benchmarks
@@ -673,6 +750,7 @@ describe('High Score User Acceptance Tests', () => {
 - [ ] Zero critical bugs identified
 
 ### Non-Functional Acceptance
+
 - [ ] Database queries perform under 500ms
 - [ ] Migration completes under 30 seconds
 - [ ] Real-time updates have under 100ms latency
@@ -680,8 +758,9 @@ describe('High Score User Acceptance Tests', () => {
 - [ ] 99.9% uptime for database operations
 
 ### Quality Acceptance
+
 - [ ] 100% test coverage for database integration
 - [ ] All linting rules pass
 - [ ] TypeScript compilation successful
 - [ ] Performance benchmarks met
-- [ ] User acceptance criteria satisfied 
+- [ ] User acceptance criteria satisfied

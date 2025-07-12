@@ -1,16 +1,22 @@
-import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useAnimation, useFadeAnimation, useSlideAnimation, useScaleAnimation, ANIMATION_CONFIGS } from './useAnimation';
+import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  useAnimation,
+  useFadeAnimation,
+  useSlideAnimation,
+  useScaleAnimation,
+  ANIMATION_CONFIGS,
+} from "./useAnimation";
 
 // Mock timers
 vi.useFakeTimers();
 
-describe('useAnimation', () => {
+describe("useAnimation", () => {
   beforeEach(() => {
     vi.clearAllTimers();
   });
 
-  it('should initialize with correct default state', () => {
+  it("should initialize with correct default state", () => {
     const { result } = renderHook(() => useAnimation(ANIMATION_CONFIGS.fade));
 
     expect(result.current.isAnimating).toBe(false);
@@ -18,7 +24,7 @@ describe('useAnimation', () => {
     expect(result.current.config).toEqual(ANIMATION_CONFIGS.fade);
   });
 
-  it('should animate in correctly', () => {
+  it("should animate in correctly", () => {
     const { result } = renderHook(() => useAnimation(ANIMATION_CONFIGS.fade));
 
     act(() => {
@@ -36,7 +42,7 @@ describe('useAnimation', () => {
     expect(result.current.isVisible).toBe(true);
   });
 
-  it('should animate out correctly', () => {
+  it("should animate out correctly", () => {
     const { result } = renderHook(() => useAnimation(ANIMATION_CONFIGS.fade));
 
     // First animate in
@@ -63,7 +69,7 @@ describe('useAnimation', () => {
     expect(result.current.isVisible).toBe(false);
   });
 
-  it('should toggle animation state correctly', () => {
+  it("should toggle animation state correctly", () => {
     const { result } = renderHook(() => useAnimation(ANIMATION_CONFIGS.fade));
 
     // Toggle from hidden to visible
@@ -95,8 +101,8 @@ describe('useAnimation', () => {
     expect(result.current.isVisible).toBe(false);
   });
 
-  it('should handle custom animation configuration', () => {
-    const customConfig = { duration: 500, easing: 'ease-in-out' };
+  it("should handle custom animation configuration", () => {
+    const customConfig = { duration: 500, easing: "ease-in-out" };
     const { result } = renderHook(() => useAnimation(customConfig));
 
     act(() => {
@@ -113,7 +119,7 @@ describe('useAnimation', () => {
     expect(result.current.isAnimating).toBe(false);
   });
 
-  it('should handle multiple rapid animations correctly', () => {
+  it("should handle multiple rapid animations correctly", () => {
     const { result } = renderHook(() => useAnimation(ANIMATION_CONFIGS.fade));
 
     // Start multiple animations rapidly
@@ -135,108 +141,108 @@ describe('useAnimation', () => {
   });
 });
 
-describe('useFadeAnimation', () => {
+describe("useFadeAnimation", () => {
   beforeEach(() => {
     vi.clearAllTimers();
   });
 
-  it('should use fade animation configuration', () => {
+  it("should use fade animation configuration", () => {
     const { result } = renderHook(() => useFadeAnimation(300));
 
     expect(result.current.config).toEqual({
       duration: 300,
-      easing: 'ease-in-out'
+      easing: "ease-in-out",
     });
   });
 
-  it('should use default duration when not specified', () => {
+  it("should use default duration when not specified", () => {
     const { result } = renderHook(() => useFadeAnimation());
 
     expect(result.current.config).toEqual({
       duration: 200,
-      easing: 'ease-in-out'
+      easing: "ease-in-out",
     });
   });
 });
 
-describe('useSlideAnimation', () => {
+describe("useSlideAnimation", () => {
   beforeEach(() => {
     vi.clearAllTimers();
   });
 
-  it('should use slide animation configuration', () => {
+  it("should use slide animation configuration", () => {
     const { result } = renderHook(() => useSlideAnimation(500));
 
     expect(result.current.config).toEqual({
       duration: 500,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
     });
   });
 
-  it('should use default duration when not specified', () => {
+  it("should use default duration when not specified", () => {
     const { result } = renderHook(() => useSlideAnimation());
 
     expect(result.current.config).toEqual({
       duration: 400,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
     });
   });
 });
 
-describe('useScaleAnimation', () => {
+describe("useScaleAnimation", () => {
   beforeEach(() => {
     vi.clearAllTimers();
   });
 
-  it('should use scale animation configuration', () => {
+  it("should use scale animation configuration", () => {
     const { result } = renderHook(() => useScaleAnimation(400));
 
     expect(result.current.config).toEqual({
       duration: 400,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
     });
   });
 
-  it('should use default duration when not specified', () => {
+  it("should use default duration when not specified", () => {
     const { result } = renderHook(() => useScaleAnimation());
 
     expect(result.current.config).toEqual({
       duration: 300,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
     });
   });
 });
 
-describe('ANIMATION_CONFIGS', () => {
-  it('should have correct predefined configurations', () => {
+describe("ANIMATION_CONFIGS", () => {
+  it("should have correct predefined configurations", () => {
     expect(ANIMATION_CONFIGS.overlay).toEqual({
       duration: 300,
-      easing: 'ease-in-out'
+      easing: "ease-in-out",
     });
 
     expect(ANIMATION_CONFIGS.modal).toEqual({
       duration: 250,
-      easing: 'ease-out'
+      easing: "ease-out",
     });
 
     expect(ANIMATION_CONFIGS.fade).toEqual({
       duration: 200,
-      easing: 'ease-in-out'
+      easing: "ease-in-out",
     });
 
     expect(ANIMATION_CONFIGS.slide).toEqual({
       duration: 400,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
     });
 
     expect(ANIMATION_CONFIGS.bounce).toEqual({
       duration: 500,
-      easing: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+      easing: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
     });
 
     expect(ANIMATION_CONFIGS.scale).toEqual({
       duration: 300,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
     });
   });
-}); 
+});

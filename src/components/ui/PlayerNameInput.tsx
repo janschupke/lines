@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { sanitizePlayerName, getPlayerNameError } from "../../utils/sanitization";
+import {
+  sanitizePlayerName,
+  getPlayerNameError,
+} from "../../utils/sanitization";
 
 interface PlayerNameInputProps {
   isOpen: boolean;
@@ -23,7 +26,7 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
   const handleSubmit = useCallback(() => {
     const trimmedValue = inputValue.trim();
     const error = getPlayerNameError(trimmedValue);
-    
+
     if (error) {
       setIsValid(false);
       setErrorMessage(error);

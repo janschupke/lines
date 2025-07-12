@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { TIMER_INTERVAL_MS } from '../game/constants';
+import { useState, useEffect, useCallback } from "react";
+import { TIMER_INTERVAL_MS } from "../game/constants";
 
 export const useGameTimer = () => {
   const [timer, setTimer] = useState(0);
@@ -7,7 +7,10 @@ export const useGameTimer = () => {
 
   useEffect(() => {
     if (!timerActive) return;
-    const interval = setInterval(() => setTimer(t => t + 1), TIMER_INTERVAL_MS);
+    const interval = setInterval(
+      () => setTimer((t) => t + 1),
+      TIMER_INTERVAL_MS,
+    );
     return () => clearInterval(interval);
   }, [timerActive]);
 
@@ -24,4 +27,4 @@ export const useGameTimer = () => {
     stopTimer,
     resetTimer,
   };
-}; 
+};

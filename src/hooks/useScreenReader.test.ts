@@ -1,21 +1,21 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
-  isScreenReaderSupported, 
-  prefersReducedMotion, 
-  prefersHighContrast 
-} from './useScreenReader';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  isScreenReaderSupported,
+  prefersReducedMotion,
+  prefersHighContrast,
+} from "./useScreenReader";
 
 // Mock window.matchMedia
 const mockMatchMedia = vi.fn();
 
-describe('Screen Reader Utility Functions', () => {
+describe("Screen Reader Utility Functions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock window.matchMedia
-    Object.defineProperty(window, 'matchMedia', {
+    Object.defineProperty(window, "matchMedia", {
       writable: true,
-      value: mockMatchMedia
+      value: mockMatchMedia,
     });
   });
 
@@ -23,25 +23,25 @@ describe('Screen Reader Utility Functions', () => {
     vi.restoreAllMocks();
   });
 
-  it.skip('should detect screen reader support', () => {
+  it.skip("should detect screen reader support", () => {
     // Mock speechSynthesis
-    Object.defineProperty(window, 'speechSynthesis', {
+    Object.defineProperty(window, "speechSynthesis", {
       writable: true,
-      value: {}
+      value: {},
     });
 
     expect(isScreenReaderSupported()).toBe(true);
 
     // Mock without speechSynthesis
-    Object.defineProperty(window, 'speechSynthesis', {
+    Object.defineProperty(window, "speechSynthesis", {
       writable: true,
-      value: undefined
+      value: undefined,
     });
 
     expect(isScreenReaderSupported()).toBe(false);
   });
 
-  it('should detect reduced motion preference', () => {
+  it("should detect reduced motion preference", () => {
     mockMatchMedia.mockReturnValue({ matches: true });
     expect(prefersReducedMotion()).toBe(true);
 
@@ -49,7 +49,7 @@ describe('Screen Reader Utility Functions', () => {
     expect(prefersReducedMotion()).toBe(false);
   });
 
-  it('should detect high contrast preference', () => {
+  it("should detect high contrast preference", () => {
     mockMatchMedia.mockReturnValue({ matches: true });
     expect(prefersHighContrast()).toBe(true);
 
@@ -57,7 +57,7 @@ describe('Screen Reader Utility Functions', () => {
     expect(prefersHighContrast()).toBe(false);
   });
 
-  it('should handle window not defined', () => {
+  it("should handle window not defined", () => {
     const originalWindow = global.window;
     (global as Record<string, unknown>).window = undefined;
 
@@ -66,4 +66,4 @@ describe('Screen Reader Utility Functions', () => {
 
     global.window = originalWindow;
   });
-}); 
+});

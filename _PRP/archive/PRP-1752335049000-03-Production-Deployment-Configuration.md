@@ -3,17 +3,21 @@
 ## Feature Overview
 
 ### Feature Name
+
 Production Deployment Configuration with Vercel and Supabase
 
 ### Brief Description
+
 Configure production deployment environment with Vercel hosting, Supabase production database, environment variable management, and automated deployment pipeline for the Lines game application.
 
 ### User Value
+
 Players will have access to a reliable, high-performance production environment with persistent high scores, real-time synchronization, and seamless deployment updates without downtime.
 
 ## Functional Requirements
 
 ### Vercel Deployment Configuration
+
 - [ ] Configure Vercel project settings for production deployment
 - [ ] Set up environment variables in Vercel dashboard
 - [ ] Configure build settings and optimization
@@ -22,6 +26,7 @@ Players will have access to a reliable, high-performance production environment 
 - [ ] Configure automatic deployments from main branch
 
 ### Supabase Production Setup
+
 - [ ] Create production Supabase project
 - [ ] Configure production database with proper security
 - [ ] Set up Row Level Security (RLS) policies for production
@@ -30,6 +35,7 @@ Players will have access to a reliable, high-performance production environment 
 - [ ] Implement production database migration system
 
 ### Environment Variable Management
+
 - [ ] Configure production environment variables in Vercel
 - [ ] Set up secure handling of Supabase credentials
 - [ ] Implement environment-specific configurations
@@ -38,6 +44,7 @@ Players will have access to a reliable, high-performance production environment 
 - [ ] Implement secure key rotation procedures
 
 ### Database Migration Deployment
+
 - [ ] Implement automated database migrations for production
 - [ ] Set up migration validation and rollback procedures
 - [ ] Configure migration monitoring and alerting
@@ -48,6 +55,7 @@ Players will have access to a reliable, high-performance production environment 
 ## Non-Functional Requirements
 
 ### Performance Requirements
+
 - [ ] Production deployment time < 5 minutes
 - [ ] Database query response time < 500ms
 - [ ] Application load time < 3 seconds
@@ -55,6 +63,7 @@ Players will have access to a reliable, high-performance production environment 
 - [ ] 99.9% uptime for production environment
 
 ### Security Requirements
+
 - [ ] Secure environment variable handling
 - [ ] HTTPS enforcement for all connections
 - [ ] Row Level Security (RLS) implementation
@@ -63,6 +72,7 @@ Players will have access to a reliable, high-performance production environment 
 - [ ] Regular security audits and updates
 
 ### Reliability Requirements
+
 - [ ] 99.9% uptime for production environment
 - [ ] Automatic rollback on deployment failures
 - [ ] Comprehensive error handling and logging
@@ -72,6 +82,7 @@ Players will have access to a reliable, high-performance production environment 
 ## Technical Implementation
 
 ### Vercel Configuration
+
 ```json
 // vercel.json
 {
@@ -109,6 +120,7 @@ Players will have access to a reliable, high-performance production environment 
 ```
 
 ### Production Environment Variables
+
 ```bash
 # Vercel Environment Variables (configured in dashboard)
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -119,6 +131,7 @@ VITE_APP_VERSION=1.0.0
 ```
 
 ### Production Database Configuration
+
 ```sql
 -- Production database setup
 -- Enable required extensions
@@ -166,10 +179,11 @@ CREATE POLICY IF NOT EXISTS "Allow insert access" ON high_scores
 ```
 
 ### Production Deployment Service
+
 ```typescript
 // src/services/ProductionDeploymentService.ts
-import { SupabaseClient } from '@supabase/supabase-js';
-import { SchemaManager } from '../database/services/SchemaManager';
+import { SupabaseClient } from "@supabase/supabase-js";
+import { SchemaManager } from "../database/services/SchemaManager";
 
 export class ProductionDeploymentService {
   private supabase: SupabaseClient;
@@ -182,7 +196,7 @@ export class ProductionDeploymentService {
 
   async deployToProduction(): Promise<DeploymentResult> {
     try {
-      console.log('Starting production deployment...');
+      console.log("Starting production deployment...");
 
       // Validate environment variables
       await this.validateEnvironmentVariables();
@@ -196,29 +210,29 @@ export class ProductionDeploymentService {
       // Run health checks
       await this.runHealthChecks();
 
-      console.log('Production deployment completed successfully');
-      
+      console.log("Production deployment completed successfully");
+
       return {
         success: true,
         timestamp: new Date(),
-        deploymentId: this.generateDeploymentId()
+        deploymentId: this.generateDeploymentId(),
       };
     } catch (error) {
-      console.error('Production deployment failed:', error);
-      
+      console.error("Production deployment failed:", error);
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date()
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date(),
       };
     }
   }
 
   private async validateEnvironmentVariables(): Promise<void> {
     const requiredVars = [
-      'VITE_SUPABASE_URL',
-      'VITE_SUPABASE_ANON_KEY',
-      'VITE_ENVIRONMENT'
+      "VITE_SUPABASE_URL",
+      "VITE_SUPABASE_ANON_KEY",
+      "VITE_ENVIRONMENT",
     ];
 
     for (const varName of requiredVars) {
@@ -230,44 +244,44 @@ export class ProductionDeploymentService {
 
     // Validate Supabase URL format
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl.startsWith('https://')) {
-      throw new Error('Invalid Supabase URL format');
+    if (!supabaseUrl.startsWith("https://")) {
+      throw new Error("Invalid Supabase URL format");
     }
 
-    console.log('Environment variables validated successfully');
+    console.log("Environment variables validated successfully");
   }
 
   private async deployDatabaseSchema(): Promise<void> {
-    console.log('Deploying database schema...');
+    console.log("Deploying database schema...");
     await this.schemaManager.deploySchema();
-    console.log('Database schema deployed successfully');
+    console.log("Database schema deployed successfully");
   }
 
   private async validateDeployment(): Promise<void> {
-    console.log('Validating deployment...');
-    
+    console.log("Validating deployment...");
+
     // Test database connectivity
     const { error: dbError } = await this.supabase
-      .from('high_scores')
-      .select('count')
+      .from("high_scores")
+      .select("count")
       .limit(1);
-    
+
     if (dbError) {
       throw new Error(`Database connectivity test failed: ${dbError.message}`);
     }
 
     // Test high score operations
     const testScore = {
-      player_name: 'test_player',
+      player_name: "test_player",
       score: 1000,
       turns_count: 10,
       individual_balls_popped: 5,
       lines_popped: 2,
-      longest_line_popped: 5
+      longest_line_popped: 5,
     };
 
     const { error: insertError } = await this.supabase
-      .from('high_scores')
+      .from("high_scores")
       .insert(testScore);
 
     if (insertError) {
@@ -276,37 +290,39 @@ export class ProductionDeploymentService {
 
     // Clean up test data
     await this.supabase
-      .from('high_scores')
+      .from("high_scores")
       .delete()
-      .eq('player_name', 'test_player');
+      .eq("player_name", "test_player");
 
-    console.log('Deployment validation completed successfully');
+    console.log("Deployment validation completed successfully");
   }
 
   private async runHealthChecks(): Promise<void> {
-    console.log('Running health checks...');
-    
+    console.log("Running health checks...");
+
     // Check database connection
     const { error: dbError } = await this.supabase
-      .from('schema_migrations')
-      .select('version')
+      .from("schema_migrations")
+      .select("version")
       .limit(1);
-    
+
     if (dbError) {
       throw new Error(`Health check failed - database: ${dbError.message}`);
     }
 
     // Check application connectivity
     try {
-      const response = await fetch('/api/health');
+      const response = await fetch("/api/health");
       if (!response.ok) {
-        throw new Error(`Health check failed - application: ${response.status}`);
+        throw new Error(
+          `Health check failed - application: ${response.status}`,
+        );
       }
     } catch (error) {
-      console.warn('Application health check failed:', error);
+      console.warn("Application health check failed:", error);
     }
 
-    console.log('Health checks completed successfully');
+    console.log("Health checks completed successfully");
   }
 
   private generateDeploymentId(): string {
@@ -323,12 +339,13 @@ interface DeploymentResult {
 ```
 
 ### Environment Configuration Service
+
 ```typescript
 // src/services/EnvironmentConfigService.ts
 export interface EnvironmentConfig {
   supabaseUrl: string;
   supabaseKey: string;
-  environment: 'development' | 'production' | 'staging';
+  environment: "development" | "production" | "staging";
   isProduction: boolean;
   isDevelopment: boolean;
   appVersion: string;
@@ -338,37 +355,42 @@ export class EnvironmentConfigService {
   static getConfig(): EnvironmentConfig {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    const environment = import.meta.env.VITE_ENVIRONMENT as 'development' | 'production' | 'staging';
-    const appVersion = import.meta.env.VITE_APP_VERSION || '1.0.0';
+    const environment = import.meta.env.VITE_ENVIRONMENT as
+      | "development"
+      | "production"
+      | "staging";
+    const appVersion = import.meta.env.VITE_APP_VERSION || "1.0.0";
 
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Supabase environment variables not configured');
+      throw new Error("Supabase environment variables not configured");
     }
 
     return {
       supabaseUrl,
       supabaseKey,
       environment,
-      isProduction: environment === 'production',
-      isDevelopment: environment === 'development',
-      appVersion
+      isProduction: environment === "production",
+      isDevelopment: environment === "development",
+      appVersion,
     };
   }
 
   static validateProductionConfig(): void {
     const config = this.getConfig();
-    
+
     if (!config.isProduction) {
-      throw new Error('Production configuration validation called in non-production environment');
+      throw new Error(
+        "Production configuration validation called in non-production environment",
+      );
     }
 
     // Additional production-specific validations
-    if (!config.supabaseUrl.startsWith('https://')) {
-      throw new Error('Production Supabase URL must use HTTPS');
+    if (!config.supabaseUrl.startsWith("https://")) {
+      throw new Error("Production Supabase URL must use HTTPS");
     }
 
     if (config.supabaseKey.length < 50) {
-      throw new Error('Invalid Supabase key format for production');
+      throw new Error("Invalid Supabase key format for production");
     }
   }
 }
@@ -377,6 +399,7 @@ export class EnvironmentConfigService {
 ## Testing Requirements
 
 ### Unit Tests
+
 - [ ] Test production deployment service
 - [ ] Test environment configuration validation
 - [ ] Test database schema deployment
@@ -385,6 +408,7 @@ export class EnvironmentConfigService {
 - [ ] Test deployment rollback procedures
 
 ### Integration Tests
+
 - [ ] Test complete production deployment workflow
 - [ ] Test database connectivity in production
 - [ ] Test high score operations in production
@@ -393,6 +417,7 @@ export class EnvironmentConfigService {
 - [ ] Test health check monitoring
 
 ### Performance Tests
+
 - [ ] Test production deployment time
 - [ ] Test database query performance in production
 - [ ] Test application load time in production
@@ -402,6 +427,7 @@ export class EnvironmentConfigService {
 ## Accessibility Considerations
 
 ### Production Environment Accessibility
+
 - [ ] Ensure production logs are accessible
 - [ ] Provide clear error messages for deployment failures
 - [ ] Create accessible deployment documentation
@@ -411,6 +437,7 @@ export class EnvironmentConfigService {
 ## Risk Assessment
 
 ### Technical Risks
+
 - **Risk**: Production deployment failures
   - **Impact**: High
   - **Mitigation**: Comprehensive testing and rollback procedures
@@ -427,6 +454,7 @@ export class EnvironmentConfigService {
   - **Probability**: Low
 
 ### User Experience Risks
+
 - **Risk**: Production downtime during deployments
   - **Impact**: High
   - **Mitigation**: Zero-downtime deployment strategies
@@ -435,6 +463,7 @@ export class EnvironmentConfigService {
 ## Success Metrics
 
 ### Production Metrics
+
 - [ ] Production deployment time < 5 minutes
 - [ ] 99.9% uptime for production environment
 - [ ] Database query response time < 500ms
@@ -442,6 +471,7 @@ export class EnvironmentConfigService {
 - [ ] Zero downtime during deployments
 
 ### User Experience Metrics
+
 - [ ] Reliable high score persistence
 - [ ] Real-time high score synchronization
 - [ ] Fast application performance
@@ -450,6 +480,7 @@ export class EnvironmentConfigService {
 ## Implementation Steps
 
 ### Step 1: Vercel Configuration
+
 1. Configure Vercel project settings
 2. Set up environment variables in Vercel dashboard
 3. Configure build settings and optimization
@@ -457,6 +488,7 @@ export class EnvironmentConfigService {
 5. Configure automatic deployments
 
 ### Step 2: Supabase Production Setup
+
 1. Create production Supabase project
 2. Configure production database security
 3. Set up Row Level Security policies
@@ -464,6 +496,7 @@ export class EnvironmentConfigService {
 5. Implement production database optimization
 
 ### Step 3: Environment Variable Management
+
 1. Configure production environment variables
 2. Implement secure credential handling
 3. Create environment-specific configurations
@@ -471,6 +504,7 @@ export class EnvironmentConfigService {
 5. Create deployment documentation
 
 ### Step 4: Database Migration Deployment
+
 1. Implement automated production migrations
 2. Set up migration validation and rollback
 3. Configure migration monitoring
@@ -478,6 +512,7 @@ export class EnvironmentConfigService {
 5. Create migration deployment procedures
 
 ### Step 5: Testing and Validation
+
 1. Test production deployment workflow
 2. Validate database connectivity
 3. Test high score operations
@@ -487,6 +522,7 @@ export class EnvironmentConfigService {
 ## Documentation Requirements
 
 ### Deployment Documentation
+
 - [ ] Production deployment guide
 - [ ] Environment variable configuration
 - [ ] Database migration procedures
@@ -494,6 +530,7 @@ export class EnvironmentConfigService {
 - [ ] Troubleshooting guide
 
 ### Maintenance Documentation
+
 - [ ] Production monitoring procedures
 - [ ] Database backup procedures
 - [ ] Security update procedures
@@ -502,12 +539,14 @@ export class EnvironmentConfigService {
 ## Post-Implementation
 
 ### Monitoring
+
 - [ ] Monitor production deployment performance
 - [ ] Track database query performance
 - [ ] Monitor application uptime and availability
 - [ ] Track deployment success rates
 
 ### Maintenance
+
 - [ ] Regular security updates
 - [ ] Database optimization and maintenance
 - [ ] Environment variable updates
@@ -516,12 +555,14 @@ export class EnvironmentConfigService {
 ## Dependencies
 
 ### External Dependencies
+
 - Vercel hosting platform
 - Supabase production database
 - SSL certificates and domain configuration
 - Monitoring and alerting services
 
 ### Internal Dependencies
+
 - Database migration system
 - Environment configuration service
 - Error handling and logging system
@@ -530,6 +571,7 @@ export class EnvironmentConfigService {
 ## Acceptance Criteria
 
 ### Functional Acceptance
+
 - [ ] Production deployment completes successfully
 - [ ] Environment variables are properly configured
 - [ ] Database schema is deployed correctly
@@ -537,6 +579,7 @@ export class EnvironmentConfigService {
 - [ ] Health checks pass consistently
 
 ### Non-Functional Acceptance
+
 - [ ] Production deployment time < 5 minutes
 - [ ] Database query response time < 500ms
 - [ ] Application load time < 3 seconds
@@ -544,7 +587,8 @@ export class EnvironmentConfigService {
 - [ ] Zero downtime during deployments
 
 ### Quality Acceptance
+
 - [ ] 100% test coverage for deployment system
 - [ ] All linting rules pass
 - [ ] TypeScript compilation successful
-- [ ] Production security requirements met 
+- [ ] Production security requirements met

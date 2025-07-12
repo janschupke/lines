@@ -1,12 +1,12 @@
-import { calculateLineScore, calculateBonusScore } from './scoring';
-import { describe, it, expect } from 'vitest';
+import { calculateLineScore, calculateBonusScore } from "./scoring";
+import { describe, it, expect } from "vitest";
 
-describe('calculateLineScore', () => {
-  it('returns 0 for lines shorter than 5', () => {
+describe("calculateLineScore", () => {
+  it("returns 0 for lines shorter than 5", () => {
     expect(calculateLineScore(4)).toBe(0);
     expect(calculateLineScore(0)).toBe(0);
   });
-  it('returns correct Fibonacci-based score for line length', () => {
+  it("returns correct Fibonacci-based score for line length", () => {
     expect(calculateLineScore(5)).toBe(100);
     expect(calculateLineScore(6)).toBe(100);
     expect(calculateLineScore(7)).toBe(200);
@@ -26,21 +26,21 @@ describe('calculateLineScore', () => {
   });
 });
 
-describe('calculateBonusScore', () => {
-  it('returns 0 for no bonuses', () => {
+describe("calculateBonusScore", () => {
+  it("returns 0 for no bonuses", () => {
     expect(calculateBonusScore(0, 0, 0)).toBe(0);
   });
-  it('adds bonus for consecutive high scores', () => {
+  it("adds bonus for consecutive high scores", () => {
     expect(calculateBonusScore(3, 0, 0)).toBe(150);
     expect(calculateBonusScore(5, 0, 0)).toBe(250);
   });
-  it('adds bonus for averageScorePerTurn > 100', () => {
+  it("adds bonus for averageScorePerTurn > 100", () => {
     expect(calculateBonusScore(0, 150, 0)).toBe(30);
   });
-  it('adds strategic bonus', () => {
+  it("adds strategic bonus", () => {
     expect(calculateBonusScore(0, 0, 42)).toBe(42);
   });
-  it('combines all bonuses', () => {
-    expect(calculateBonusScore(4, 200, 50)).toBe(4*50 + 40 + 50);
+  it("combines all bonuses", () => {
+    expect(calculateBonusScore(4, 200, 50)).toBe(4 * 50 + 40 + 50);
   });
-}); 
+});

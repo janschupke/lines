@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:run": "vitest run",
-    "prettier:check": "prettier --check ."
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write ."
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.5",

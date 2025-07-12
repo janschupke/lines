@@ -108,12 +108,7 @@ export const useFocusTrap = (config: FocusTrapConfig) => {
           break;
       }
     },
-    [
-      getFocusableElements,
-      focusFirstElement,
-      focusLastElement,
-      config,
-    ],
+    [getFocusableElements, focusFirstElement, focusLastElement, config],
   );
 
   // Set up focus trap

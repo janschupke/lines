@@ -9,7 +9,7 @@ export interface Migration {
 export interface MigrationStatus {
   version: number;
   name: string;
-  status: 'applied' | 'already_applied' | 'failed';
+  status: "applied" | "already_applied" | "failed";
   appliedAt?: Date;
   error?: string;
 }
@@ -18,4 +18,4 @@ export interface MigrationResult {
   success: boolean;
   migrations: MigrationStatus[];
   errors: string[];
-} 
+}

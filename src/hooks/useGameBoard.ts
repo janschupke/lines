@@ -1,9 +1,17 @@
-import { useState } from 'react';
-import { getRandomNextBalls, createEmptyBoard, placeRealBalls, placePreviewBalls } from '../game/logic';
-import type { Cell, BallColor } from '../game/types';
-import { INITIAL_BALLS, BALLS_PER_TURN } from '../game/constants';
+import { useState } from "react";
+import {
+  getRandomNextBalls,
+  createEmptyBoard,
+  placeRealBalls,
+  placePreviewBalls,
+} from "../game/logic";
+import type { Cell, BallColor } from "../game/types";
+import { INITIAL_BALLS, BALLS_PER_TURN } from "../game/constants";
 
-export const useGameBoard = (initialBoard?: Cell[][], initialNextBalls?: BallColor[]) => {
+export const useGameBoard = (
+  initialBoard?: Cell[][],
+  initialNextBalls?: BallColor[],
+) => {
   const [board, setBoard] = useState<Cell[][]>(() => {
     if (initialBoard && initialNextBalls) {
       return placePreviewBalls(initialBoard, initialNextBalls);
@@ -14,7 +22,9 @@ export const useGameBoard = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
     return placePreviewBalls(boardWithRealBalls, initialNext);
   });
-  const [nextBalls, setNextBalls] = useState<BallColor[]>(() => getRandomNextBalls(BALLS_PER_TURN));
+  const [nextBalls, setNextBalls] = useState<BallColor[]>(() =>
+    getRandomNextBalls(BALLS_PER_TURN),
+  );
 
   return {
     board,
@@ -22,4 +32,4 @@ export const useGameBoard = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     nextBalls,
     setNextBalls,
   };
-}; 
+};

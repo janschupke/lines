@@ -1,5 +1,5 @@
-import ConfigManager from './configManager';
-import type { LocalHighScore } from './configManager';
+import ConfigManager from "./configManager";
+import type { LocalHighScore } from "./configManager";
 
 class HighScoreManager {
   private configManager: ConfigManager;
@@ -20,20 +20,30 @@ class HighScoreManager {
     return this.configManager.isHighScore(score);
   }
 
-  addHighScore(score: number, gameTime?: number, playerName?: string, statistics?: {
-    turnsCount?: number;
-    ballsCleared?: number;
-    linesPopped?: number;
-    longestLinePopped?: number;
-    individualBallsPopped?: number;
-  }): boolean {
-    return this.configManager.addHighScore(score, gameTime, playerName, statistics);
+  addHighScore(
+    score: number,
+    gameTime?: number,
+    playerName?: string,
+    statistics?: {
+      turnsCount?: number;
+      ballsCleared?: number;
+      linesPopped?: number;
+      longestLinePopped?: number;
+      individualBallsPopped?: number;
+    },
+  ): boolean {
+    return this.configManager.addHighScore(
+      score,
+      gameTime,
+      playerName,
+      statistics,
+    );
   }
 
   getHighScoreDisplay(): { current: number; isNew: boolean } {
     return {
       current: this.getCurrentHighScore(),
-      isNew: false // Will be set by game logic
+      isNew: false, // Will be set by game logic
     };
   }
 
@@ -42,4 +52,4 @@ class HighScoreManager {
   }
 }
 
-export default HighScoreManager; 
+export default HighScoreManager;

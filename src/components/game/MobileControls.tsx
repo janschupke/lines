@@ -1,5 +1,5 @@
-import React from 'react';
-import { useMobileOptimization } from '../../hooks/useMobileOptimization';
+import React from "react";
+import { useMobileOptimization } from "../../hooks/useMobileOptimization";
 
 interface MobileControlsProps {
   onNewGame: () => void;
@@ -10,13 +10,13 @@ interface MobileControlsProps {
   onToggleGuide: () => void;
 }
 
-const MobileControls: React.FC<MobileControlsProps> = ({ 
-  onNewGame, 
-  onPause, 
-  onResume, 
+const MobileControls: React.FC<MobileControlsProps> = ({
+  onNewGame,
+  onPause,
+  onResume,
   isPaused = false,
   showGuide,
-  onToggleGuide
+  onToggleGuide,
 }) => {
   const { isMobile } = useMobileOptimization();
 
@@ -42,7 +42,7 @@ const MobileControls: React.FC<MobileControlsProps> = ({
         >
           New Game
         </button>
-        
+
         {onPause && onResume && (
           <button
             onClick={isPaused ? onResume : onPause}
@@ -57,10 +57,10 @@ const MobileControls: React.FC<MobileControlsProps> = ({
               min-h-[44px] min-w-[44px]
             "
           >
-            {isPaused ? 'Resume' : 'Pause'}
+            {isPaused ? "Resume" : "Pause"}
           </button>
         )}
-        
+
         <button
           onClick={onToggleGuide}
           className={`
@@ -70,17 +70,18 @@ const MobileControls: React.FC<MobileControlsProps> = ({
             focus:outline-none focus:ring-2 focus:ring-game-border-accent
             shadow-lg
             min-h-[44px] min-w-[44px]
-            ${showGuide 
-              ? 'bg-game-button-accent text-black active:bg-game-button-accent-hover' 
-              : 'bg-game-button-primary text-game-text-primary active:bg-game-button-hover'
+            ${
+              showGuide
+                ? "bg-game-button-accent text-black active:bg-game-button-accent-hover"
+                : "bg-game-button-primary text-game-text-primary active:bg-game-button-hover"
             }
           `}
         >
-          {showGuide ? 'Hide' : 'Help'}
+          {showGuide ? "Hide" : "Help"}
         </button>
       </div>
     </div>
   );
 };
 
-export default MobileControls; 
+export default MobileControls;

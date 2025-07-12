@@ -22,4 +22,4 @@
       "description": "Creates the get_table_indexes SECURITY DEFINER function for dynamic index validation. Grants execute to anon."
     }
   ]
-} 
+}

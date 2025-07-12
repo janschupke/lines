@@ -18,7 +18,7 @@ export interface TableValidation {
   hasRLS: boolean;
 }
 
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export class DatabaseValidator {
   private supabase: SupabaseClient;
@@ -36,7 +36,7 @@ export class DatabaseValidator {
       success: true,
       errors: [],
       warnings: [],
-      details: {}
+      details: {},
     };
 
     try {
@@ -55,25 +55,30 @@ export class DatabaseValidator {
           result.success = false;
         }
         if (!validation.hasRequiredColumns) {
-          result.warnings.push(`Table ${tableName} may be missing required columns`);
+          result.warnings.push(
+            `Table ${tableName} may be missing required columns`,
+          );
         }
       }
 
       // Validate database connectivity
       const connectivityValid = await this.validateConnectivity();
       if (!connectivityValid) {
-        result.errors.push('Database connectivity issues detected');
+        result.errors.push("Database connectivity issues detected");
         result.success = false;
       }
 
       // Validate migration table
       const migrationTableValid = await this.validateMigrationTable();
       if (!migrationTableValid) {
-        result.warnings.push('Migration tracking table may not be properly configured');
+        result.warnings.push(
+          "Migration tracking table may not be properly configured",
+        );
       }
-
     } catch (error) {
-      result.errors.push(`Schema validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      result.errors.push(
+        `Schema validation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       result.success = false;
     }
 
@@ -84,8 +89,10 @@ export class DatabaseValidator {
    * Validate required tables exist and are accessible
    * @returns Object with validation results for each table
    */
-  private async validateRequiredTables(): Promise<Record<string, TableValidation>> {
-    const requiredTables = ['high_scores', 'schema_migrations'];
+  private async validateRequiredTables(): Promise<
+    Record<string, TableValidation>
+  > {
+    const requiredTables = ["high_scores", "schema_migrations"];
     const validations: Record<string, TableValidation> = {};
 
     for (const tableName of requiredTables) {
@@ -94,14 +101,14 @@ export class DatabaseValidator {
         accessible: false,
         hasRequiredColumns: false,
         hasIndexes: false,
-        hasRLS: false
+        hasRLS: false,
       };
 
       try {
         // Test table existence and accessibility
         const { error } = await this.supabase
           .from(tableName)
-          .select('*')
+          .select("*")
           .limit(1);
 
         if (!error) {
@@ -110,14 +117,14 @@ export class DatabaseValidator {
         }
 
         // Column validation (now async)
-        validation.hasRequiredColumns = await this.validateTableColumns(tableName);
+        validation.hasRequiredColumns =
+          await this.validateTableColumns(tableName);
 
         // Index validation (now async)
         validation.hasIndexes = await this.validateTableIndexes(tableName);
 
         // RLS validation (simplified)
         validation.hasRLS = this.validateTableRLS(tableName);
-
       } catch {
         // Table doesn't exist or is not accessible
         validation.exists = false;
@@ -137,8 +144,17 @@ export class DatabaseValidator {
    */
   private async validateTableColumns(tableName: string): Promise<boolean> {
     const requiredColumns: Record<string, string[]> = {
-      'high_scores': ['id', 'player_name', 'score', 'achieved_at', 'turns_count', 'individual_balls_popped', 'lines_popped', 'longest_line_popped'],
-      'schema_migrations': ['version', 'name', 'applied_at']
+      high_scores: [
+        "id",
+        "player_name",
+        "score",
+        "achieved_at",
+        "turns_count",
+        "individual_balls_popped",
+        "lines_popped",
+        "longest_line_popped",
+      ],
+      schema_migrations: ["version", "name", "applied_at"],
     };
 
     const expected = requiredColumns[tableName];
@@ -146,14 +162,16 @@ export class DatabaseValidator {
 
     // Query information_schema.columns for the table
     const { data, error } = await this.supabase
-      .from('information_schema.columns')
-      .select('column_name')
-      .eq('table_name', tableName);
+      .from("information_schema.columns")
+      .select("column_name")
+      .eq("table_name", tableName);
 
     if (error || !data) return false;
 
-    const actualColumns = data.map((row: { column_name: string }) => row.column_name);
-    return expected.every(col => actualColumns.includes(col));
+    const actualColumns = data.map(
+      (row: { column_name: string }) => row.column_name,
+    );
+    return expected.every((col) => actualColumns.includes(col));
   }
 
   /**
@@ -163,8 +181,13 @@ export class DatabaseValidator {
    */
   private async validateTableIndexes(tableName: string): Promise<boolean> {
     const expectedIndexes: Record<string, string[]> = {
-      'high_scores': ['idx_high_scores_score', 'idx_high_scores_achieved_at', 'idx_high_scores_turns', 'idx_high_scores_lines'],
-      'schema_migrations': []
+      high_scores: [
+        "idx_high_scores_score",
+        "idx_high_scores_achieved_at",
+        "idx_high_scores_turns",
+        "idx_high_scores_lines",
+      ],
+      schema_migrations: [],
     };
 
     const expected = expectedIndexes[tableName];
@@ -172,8 +195,9 @@ export class DatabaseValidator {
 
     try {
       // Call the get_table_indexes RPC function
-      const { data, error } = await this.supabase
-        .rpc('get_table_indexes', { table_name: tableName });
+      const { data, error } = await this.supabase.rpc("get_table_indexes", {
+        table_name: tableName,
+      });
 
       if (error) {
         console.error(`Failed to get indexes for table ${tableName}:`, error);
@@ -182,11 +206,15 @@ export class DatabaseValidator {
 
       if (!data) return false;
 
-      const actualIndexes = data.map((row: { index_name: string }) => row.index_name);
-      
+      const actualIndexes = data.map(
+        (row: { index_name: string }) => row.index_name,
+      );
+
       // Check if all expected indexes exist
-      return expected.every(expectedIndex => 
-        actualIndexes.some((actualIndex: string) => actualIndex === expectedIndex)
+      return expected.every((expectedIndex) =>
+        actualIndexes.some(
+          (actualIndex: string) => actualIndex === expectedIndex,
+        ),
       );
     } catch (error) {
       console.error(`Error validating indexes for table ${tableName}:`, error);
@@ -201,7 +229,7 @@ export class DatabaseValidator {
    */
   private validateTableRLS(tableName: string): boolean {
     // Simplified RLS validation
-    const tablesWithRLS = ['high_scores'];
+    const tablesWithRLS = ["high_scores"];
     return tablesWithRLS.includes(tableName);
   }
 
@@ -213,11 +241,11 @@ export class DatabaseValidator {
     try {
       // Simple connectivity test
       const { error } = await this.supabase
-        .from('schema_migrations')
-        .select('version')
+        .from("schema_migrations")
+        .select("version")
         .limit(1);
 
-      return !error || error.code === 'PGRST116'; // PGRST116 is "no rows returned" which is OK
+      return !error || error.code === "PGRST116"; // PGRST116 is "no rows returned" which is OK
     } catch {
       return false;
     }
@@ -230,8 +258,8 @@ export class DatabaseValidator {
   private async validateMigrationTable(): Promise<boolean> {
     try {
       const { error } = await this.supabase
-        .from('schema_migrations')
-        .select('version, name, applied_at')
+        .from("schema_migrations")
+        .select("version, name, applied_at")
         .limit(1);
 
       return !error;
@@ -249,31 +277,35 @@ export class DatabaseValidator {
       success: true,
       errors: [],
       warnings: [],
-      details: {}
+      details: {},
     };
 
     try {
       // Test query performance
       const startTime = Date.now();
       const { error } = await this.supabase
-        .from('high_scores')
-        .select('score')
-        .order('score', { ascending: false })
+        .from("high_scores")
+        .select("score")
+        .order("score", { ascending: false })
         .limit(10);
 
       if (error) {
-        if (error.code === 'PGRST116') {
+        if (error.code === "PGRST116") {
           // No rows returned - table exists but is empty
-          result.warnings.push('High scores table is empty - performance test skipped');
+          result.warnings.push(
+            "High scores table is empty - performance test skipped",
+          );
           result.details.queryPerformance = {
             highScoresQueryTime: 0,
             threshold: 500,
-            status: 'empty_table'
+            status: "empty_table",
           };
           return result;
-        } else if (error.code === '42P01') {
+        } else if (error.code === "42P01") {
           // Table doesn't exist
-          result.errors.push('High scores table does not exist - performance validation failed');
+          result.errors.push(
+            "High scores table does not exist - performance validation failed",
+          );
           result.success = false;
           return result;
         } else {
@@ -287,17 +319,20 @@ export class DatabaseValidator {
       const queryTime = Date.now() - startTime;
 
       if (queryTime > 500) {
-        result.warnings.push(`High score query took ${queryTime}ms (should be < 500ms)`);
+        result.warnings.push(
+          `High score query took ${queryTime}ms (should be < 500ms)`,
+        );
       }
 
       result.details.queryPerformance = {
         highScoresQueryTime: queryTime,
         threshold: 500,
-        status: 'success'
+        status: "success",
       };
-
     } catch (error) {
-      result.errors.push(`Performance validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      result.errors.push(
+        `Performance validation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       result.success = false;
     }
 
@@ -318,10 +353,10 @@ export class DatabaseValidator {
       warnings: [...schemaResult.warnings, ...performanceResult.warnings],
       details: {
         schema: schemaResult.details,
-        performance: performanceResult.details
-      }
+        performance: performanceResult.details,
+      },
     };
 
     return combinedResult;
   }
-} 
+}

@@ -115,30 +115,24 @@ export const useMobileOptimization = () => {
     setTouchStart(null);
   }, [touchStart]);
 
+  // Helper to get CSS variable as number (px)
+  const getVar = (name: string, fallback: number) => {
+    const val = getComputedStyle(document.documentElement).getPropertyValue(name);
+    return val ? parseInt(val) : fallback;
+  };
+
   // Get mobile-specific values
   const getMobileValues = useCallback(() => {
-    if (isMobile) {
-      return {
-        cellSize: isTablet ? 64 : 48, // Smaller cells on mobile
-        gapSize: isTablet ? 6 : 4,    // Smaller gaps on mobile
-        ballSize: isTablet ? 48 : 36, // Smaller balls on mobile
-        boardPadding: isTablet ? 12 : 8,
-        animationDuration: isLowPerformance ? 0 : 300,
-        enableAnimations: !isLowPerformance,
-        touchTargetSize: 44, // Minimum touch target size
-      };
-    }
-    
     return {
-      cellSize: 56,
-      gapSize: 8,
-      ballSize: 40,
-      boardPadding: 8,
-      animationDuration: 300,
-      enableAnimations: true,
-      touchTargetSize: 44,
+      cellSize: getVar('--cell-size', 56),
+      gapSize: getVar('--gap-size', 8),
+      ballSize: getVar('--ball-size', 40),
+      boardPadding: getVar('--board-padding', 8),
+      animationDuration: isLowPerformance ? 0 : getVar('--game-animation-duration', 300),
+      enableAnimations: !isLowPerformance,
+      touchTargetSize: getVar('--touch-target-size', 44),
     };
-  }, [isMobile, isTablet, isLowPerformance]);
+  }, [isLowPerformance]);
 
   return {
     isMobile,

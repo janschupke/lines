@@ -56,6 +56,9 @@ module.exports = {
     'focus:ring-2', 'focus:ring-game-border-accent',
     'shadow-lg', 'z-50',
     'w-[18px]', 'h-[18px]', 'w-[28px]', 'h-[28px]',
+    // Design token utilities
+    'w-cell', 'h-cell', 'w-ball', 'h-ball', 'gap-gap', 'p-board-padding',
+    'min-h-touch-target', 'min-w-touch-target', 'duration-game',
   ],
   theme: {
     extend: {
@@ -116,10 +119,10 @@ module.exports = {
         'cell': '56px', // CELL_SIZE
         'gap': '8px',   // GAP - increased from 4px
         'board-padding': '8px', // PADDING
+        'touch-target': '44px', // Touch target size
       },
-      // CSS custom properties for JavaScript access
-      extend: {
-        // ... existing code ...
+      transitionDuration: {
+        'game': '300ms',
       },
       zIndex: {
         'game-dialog': '1000',
@@ -141,4 +144,34 @@ module.exports = {
       },
     },
   },
+  plugins: [
+    function({ addBase, theme }) {
+      addBase({
+        ':root': {
+          '--cell-size': theme('spacing.cell'),
+          '--gap-size': theme('spacing.gap'),
+          '--ball-size': theme('spacing.ball'),
+          '--board-padding': theme('spacing.board-padding'),
+          '--touch-target-size': theme('spacing.touch-target'),
+          '--game-animation-duration': theme('transitionDuration.game'),
+        },
+        '@media (max-width: 768px)': {
+          ':root': {
+            '--cell-size': '48px',
+            '--gap-size': '4px',
+            '--ball-size': '36px',
+            '--board-padding': '8px',
+          },
+        },
+        '@media (min-width: 769px) and (max-width: 1024px)': {
+          ':root': {
+            '--cell-size': '64px',
+            '--gap-size': '6px',
+            '--ball-size': '48px',
+            '--board-padding': '12px',
+          },
+        },
+      });
+    },
+  ],
 }; 

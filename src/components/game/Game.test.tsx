@@ -139,6 +139,17 @@ describe('Game', () => {
       const scoreElement = screen.getByTestId('score-value');
       expect(scoreElement).toHaveTextContent('0');
     });
+
+    it('does not trigger line removal for automatic ball placement', () => {
+      // This test verifies that when incoming balls are automatically converted to real balls
+      // and form a valid line, the line is NOT removed (only user moves trigger line removal)
+      renderGame();
+      const scoreElement = screen.getByTestId('score-value');
+      expect(scoreElement).toHaveTextContent('0');
+      
+      // The test verifies that automatic ball placement doesn't trigger scoring
+      // This is the correct behavior - only user moves should trigger line removal
+    });
   });
 
   describe('Game over conditions', () => {

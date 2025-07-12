@@ -2,49 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Custom Properties for JavaScript access */
-:root {
-  --cell-size: 56px;
-  --gap-size: 8px;
-  --ball-size: 40px;
-  --board-padding: 8px;
-}
-
-/* Mobile-specific styles */
-@media (max-width: 768px) {
-  :root {
-    --cell-size: 48px;
-    --gap-size: 4px;
-    --ball-size: 36px;
-    --board-padding: 8px;
-  }
-}
-
-/* Tablet-specific styles */
-@media (min-width: 769px) and (max-width: 1024px) {
-  :root {
-    --cell-size: 64px;
-    --gap-size: 6px;
-    --ball-size: 48px;
-    --board-padding: 12px;
-  }
-}
-
-/* Prevent zoom on input focus on mobile */
-@media screen and (max-width: 768px) {
-  input, select, textarea {
-    font-size: 16px;
-  }
-}
-
-/* Touch-friendly styles */
-@media (hover: none) and (pointer: coarse) {
-  /* Disable hover effects on touch devices */
-  .hover\:bg-game-button-hover:hover {
-    background-color: inherit;
+/* Game-specific styles */
+@layer components {
+  .game-board {
+    @apply bg-game-bg-board border border-game-border-default rounded-xl shadow-lg;
   }
   
-  .hover\:bg-game-button-accent-hover:hover {
-    background-color: inherit;
+  .game-cell {
+    @apply rounded-lg flex items-center justify-center transition-colors duration-200 box-border relative border-2;
   }
+  
+  .game-ball {
+    @apply block rounded-full border-2 border-game-border-ball shadow-[0_1px_4px_theme(colors.game.shadow.ball)];
+  }
+  
+  .game-ball-active {
+    @apply shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent;
+  }
+  
+  .game-button {
+    @apply font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors;
+  }
+  
+  .game-button-primary {
+    @apply bg-game-button-primary hover:bg-game-button-hover text-game-text-primary;
+  }
+  
+  .game-button-accent {
+    @apply bg-game-button-accent hover:bg-game-button-accent-hover text-black;
+  }
+}
+
+/* Custom scrollbar for game elements */
+.game-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.game-scrollbar::-webkit-scrollbar-track {
+  background: theme('colors.game.bg.secondary');
+  border-radius: 4px;
+}
+
+.game-scrollbar::-webkit-scrollbar-thumb {
+  background: theme('colors.game.border.default');
+  border-radius: 4px;
+}
+
+.game-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.game.border.accent');
 } 

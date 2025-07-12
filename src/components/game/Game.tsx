@@ -172,6 +172,8 @@ const Game: React.FC<GameProps> = ({
             <p>• {isMobile ? 'Tap' : 'Click'} on a ball to select it</p>
             <p>• {isMobile ? 'Tap' : 'Click'} on an empty cell to move the ball</p>
             <p>• Form lines of 5+ balls to clear them</p>
+            <p>• <strong>Only your moves trigger line removal and scoring</strong></p>
+            <p>• Automatic ball placement won't clear lines</p>
             <p>• Longer lines = more points!</p>
             <p>• Game ends when board is full</p>
           </div>

@@ -137,7 +137,8 @@ Update PLANNING.md with the following user-facing feature descriptions:
 
 [describe features]. 
 
-Focus on what users will experience, not technical implementation details. Use `PLANNING_TEMPLATE.md` as a reference for the `PLANNING.md` file structure.
+Focus on what users will experience, not technical implementation details.
+Use `PLANNING_TEMPLATE.md` as a reference for the `PLANNING.md` file structure.
 ```
 
 ## PRP Naming Convention

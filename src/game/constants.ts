@@ -23,7 +23,7 @@ export function calculateLineScore(lineLength: number): number {
 
 // Animation Durations
 export const ANIMATION_DURATIONS = {
-  MOVE_BALL: 80,
+  MOVE_BALL: 50,
   POP_BALL: 300,
   TRANSITION: 200,
 } as const;

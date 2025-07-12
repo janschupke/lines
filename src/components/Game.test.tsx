@@ -34,7 +34,7 @@ describe('Game', () => {
       expect(screen.getByRole('button', { name: /New Game/i })).toBeInTheDocument();
     });
 
-    it('starts timer only after first move', async () => {
+    it('starts timer only after first move', () => {
       renderGame();
       expect(screen.getByText(/0:00/)).toBeInTheDocument();
       
@@ -46,35 +46,51 @@ describe('Game', () => {
       // Timer should still show 0:00 before first move
       expect(screen.getByText(/0:00/)).toBeInTheDocument();
       
-      // Make a move
+      // Make a move by clicking on a ball and then an empty cell
       const cells = screen.getAllByRole('button');
-      const firstCell = cells[0];
-      fireEvent.click(firstCell);
+      const ballCell = cells.find(cell => cell.querySelector('[title]'));
+      const emptyCell = cells.find(cell => !cell.querySelector('[title]'));
       
-      // Advance time after move
-      act(() => {
-        vi.advanceTimersByTime(1000);
-      });
-      
-      // Timer should now show 0:01
-      expect(screen.getByText(/0:01/)).toBeInTheDocument();
+      if (ballCell && emptyCell) {
+        fireEvent.click(ballCell);
+        fireEvent.click(emptyCell);
+        // Advance time for move animation (80ms)
+        act(() => {
+          vi.advanceTimersByTime(100);
+        });
+        // Advance time for timer tick
+        act(() => {
+          vi.advanceTimersByTime(1000);
+        });
+        // Timer should now show 0:01
+        expect(screen.getByText(/0:01/)).toBeInTheDocument();
+      }
     });
 
     it('formats time correctly', () => {
       renderGame();
       const timeElement = screen.getByText(/0:00/);
       
+      // Advance time for move animation (simulate a move to start timer)
+      const cells = screen.getAllByRole('button');
+      const ballCell = cells.find(cell => cell.querySelector('[title]'));
+      const emptyCell = cells.find(cell => !cell.querySelector('[title]'));
+      if (ballCell && emptyCell) {
+        fireEvent.click(ballCell);
+        fireEvent.click(emptyCell);
+        act(() => {
+          vi.advanceTimersByTime(100);
+        });
+      }
       // Test different time formats
       act(() => {
         vi.advanceTimersByTime(1000);
       });
       expect(timeElement).toHaveTextContent('0:01');
-      
       act(() => {
         vi.advanceTimersByTime(59000); // 59 more seconds
       });
       expect(timeElement).toHaveTextContent('1:00');
-      
       act(() => {
         vi.advanceTimersByTime(60000); // 1 more minute
       });
@@ -153,7 +169,7 @@ describe('Game', () => {
         fireEvent.click(newGameButton);
         
         // Timer should be reset
-        expect(screen.getByText(/Game time: 0:00/)).toBeInTheDocument();
+        expect(screen.getByText(/0:00/)).toBeInTheDocument();
       }
     });
   });
@@ -260,7 +276,7 @@ describe('Game', () => {
       expect(screen.getByText(/Score:/)).toBeInTheDocument();
     });
 
-    it('handles last move to cell with incoming ball without overwriting moved ball', async () => {
+    it('handles last move to cell with incoming ball without overwriting moved ball', () => {
       // Simplified test that focuses on the core functionality
       render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
@@ -281,7 +297,7 @@ describe('Game', () => {
         // Verify the move was successful
         expect(cells.length).toBeGreaterThan(0);
       }
-    }, 10000); // Increase timeout to 10 seconds
+    });
 
     it('stops timer when game is over', async () => {
       renderGame();

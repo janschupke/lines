@@ -1,5 +1,5 @@
 import React from 'react';
-import type { HighScore } from '../utils/configManager';
+import type { HighScore } from '../../utils/configManager';
 
 interface HighScoreDisplayProps {
   highScores: HighScore[];

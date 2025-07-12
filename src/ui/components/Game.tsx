@@ -96,14 +96,13 @@ const Game: React.FC<GameProps> = ({
       </div>
       
       <div className="mt-6 text-center">
-        <div className="text-5xl font-black text-game-text-accent drop-shadow-lg">Much Balls...</div>
-        <div className="mt-4 text-2xl text-game-text-success font-bold drop-shadow-lg">
+        <div className="mt-4 text-2xl text-game-text-success font-bold">
           {formatTime(timer)}
         </div>
       </div>
       
       {showGuide && (
-        <div className="mt-8 p-6 bg-game-bg-secondary bg-opacity-90 rounded-xl text-game-text-primary min-w-[320px] shadow-2xl">
+        <div className="mt-8 p-6 bg-game-bg-secondary border border-game-border-default rounded-xl text-game-text-primary min-w-[320px] shadow-lg">
           <h3 className="text-xl font-bold mb-4 text-game-text-accent">How to Play</h3>
           <div className="text-sm space-y-2">
             <p>• Click on a ball to select it</p>
@@ -154,10 +153,6 @@ const Game: React.FC<GameProps> = ({
           onClose={handleCloseDialog}
         />
       )}
-      
-      <div className="w-full max-w-xl flex justify-center items-center mt-4 text-lg text-game-text-accent tracking-wide">
-        <span>Lines Game</span>
-      </div>
     </div>
   );
 };

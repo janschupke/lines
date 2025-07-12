@@ -51,7 +51,6 @@ export const useScreenReader = () => {
         announcementsRef.current = [];
       } catch (error) {
         // Log the error for debugging, but do not throw
-        // eslint-disable-next-line no-console
         console.error('Error clearing previous announcements:', error);
       }
     }
@@ -66,7 +65,6 @@ export const useScreenReader = () => {
       announcementsRef.current.push(liveRegion);
     } catch (error) {
       // Log the error for debugging, but do not throw
-      // eslint-disable-next-line no-console
       console.error('Error appending live region to document:', error);
       return; // Exit early if we can't append to document
     }
@@ -80,7 +78,6 @@ export const useScreenReader = () => {
         announcementsRef.current = announcementsRef.current.filter(r => r !== liveRegion);
       } catch (error) {
         // Log the error for debugging, but do not throw
-        // eslint-disable-next-line no-console
         console.error('Error cleaning up live region:', error);
       }
     }, timeout);
@@ -132,7 +129,6 @@ export const useScreenReader = () => {
       announcementsRef.current = [];
     } catch (error) {
       // Log the error for debugging, but do not throw
-      // eslint-disable-next-line no-console
       console.error('Error clearing all announcements:', error);
     }
   }, []);

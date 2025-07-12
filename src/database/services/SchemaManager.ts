@@ -1,13 +1,16 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { MigrationService } from './MigrationService';
+import { DatabaseValidator } from '../utils/databaseValidator';
 
 export class SchemaManager {
   private supabase: SupabaseClient;
   private migrationService: MigrationService;
+  private databaseValidator: DatabaseValidator;
 
   constructor(supabase: SupabaseClient) {
     this.supabase = supabase;
     this.migrationService = new MigrationService(supabase);
+    this.databaseValidator = new DatabaseValidator(supabase);
   }
 
   async deploySchema(): Promise<void> {
@@ -30,22 +33,34 @@ export class SchemaManager {
   }
 
   async validateSchema(): Promise<boolean> {
-    const requiredTables = ['high_scores', 'schema_migrations', 'user_preferences'];
-
-    for (const table of requiredTables) {
-      const { error } = await this.supabase
-        .from(table)
-        .select('*')
-        .limit(1);
-      
-      if (error) {
-        console.error(`Table ${table} does not exist or is not accessible`);
-        return false;
-      }
+    const validationResult = await this.databaseValidator.validateSchema();
+    
+    if (!validationResult.success) {
+      console.error('Schema validation failed:', validationResult.errors);
+      return false;
     }
 
-    // Validate indexes (this would require a more complex query in Supabase)
+    if (validationResult.warnings.length > 0) {
+      console.warn('Schema validation warnings:', validationResult.warnings);
+    }
+
     console.log('Schema validation completed successfully');
+    return true;
+  }
+
+  async validatePerformance(): Promise<boolean> {
+    const validationResult = await this.databaseValidator.validatePerformance();
+    
+    if (!validationResult.success) {
+      console.error('Performance validation failed:', validationResult.errors);
+      return false;
+    }
+
+    if (validationResult.warnings.length > 0) {
+      console.warn('Performance validation warnings:', validationResult.warnings);
+    }
+
+    console.log('Performance validation completed successfully');
     return true;
   }
 

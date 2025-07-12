@@ -113,3 +113,42 @@ export default tseslint.config([
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules.
+
+# Production Deployment
+
+## Vercel Hosting
+
+Production is deployed via [Vercel](https://vercel.com/). The `vercel.json` configures static builds, routes, and environment variable mapping. Automatic deployments are triggered from the main branch. Custom domain and SSL are managed via the Vercel dashboard.
+
+## Supabase Production Database
+
+A dedicated Supabase project is used for production. The schema is managed via automated migrations. Row Level Security (RLS) and production indexes are enforced. Backups and monitoring are configured in the Supabase dashboard.
+
+## Environment Variables
+
+Production environment variables are set in the Vercel dashboard:
+
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-production-anon-key
+VITE_ENVIRONMENT=production
+VITE_APP_ENV=production
+VITE_APP_VERSION=1.0.0
+```
+
+## Automated Database Migrations
+
+Schema migrations are run automatically on deployment using the migration system in `src/database/services/`. Migrations are versioned, support up/down, and are validated post-deploy. See the migration system documentation for details.
+
+## Health Checks & Validation
+
+Production deployments include health checks for database connectivity, schema, and application endpoints. Automated tests and build verification are required for every deployment.
+
+## Tech Stack
+
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS (with theme classes, no hardcoded colors)
+- Supabase (Postgres)
+- Vercel (hosting)
+- Vitest + React Testing Library

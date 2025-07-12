@@ -85,7 +85,7 @@ export class DatabaseValidator {
    * @returns Object with validation results for each table
    */
   private async validateRequiredTables(): Promise<Record<string, TableValidation>> {
-    const requiredTables = ['high_scores', 'user_preferences', 'schema_migrations'];
+    const requiredTables = ['high_scores', 'schema_migrations'];
     const validations: Record<string, TableValidation> = {};
 
     for (const tableName of requiredTables) {
@@ -109,11 +109,11 @@ export class DatabaseValidator {
           validation.accessible = true;
         }
 
-        // Basic column validation (simplified)
-        validation.hasRequiredColumns = this.validateTableColumns(tableName);
+        // Column validation (now async)
+        validation.hasRequiredColumns = await this.validateTableColumns(tableName);
 
-        // Index validation (simplified)
-        validation.hasIndexes = this.validateTableIndexes(tableName);
+        // Index validation (now async)
+        validation.hasIndexes = await this.validateTableIndexes(tableName);
 
         // RLS validation (simplified)
         validation.hasRLS = this.validateTableRLS(tableName);
@@ -128,6 +128,81 @@ export class DatabaseValidator {
     }
 
     return validations;
+  }
+
+  /**
+   * Validate table columns using schema introspection
+   * @param tableName - Name of the table to validate
+   * @returns True if table has all required columns
+   */
+  private async validateTableColumns(tableName: string): Promise<boolean> {
+    const requiredColumns: Record<string, string[]> = {
+      'high_scores': ['id', 'player_name', 'score', 'achieved_at', 'turns_count', 'individual_balls_popped', 'lines_popped', 'longest_line_popped'],
+      'schema_migrations': ['version', 'name', 'applied_at']
+    };
+
+    const expected = requiredColumns[tableName];
+    if (!expected) return true;
+
+    // Query information_schema.columns for the table
+    const { data, error } = await this.supabase
+      .from('information_schema.columns')
+      .select('column_name')
+      .eq('table_name', tableName);
+
+    if (error || !data) return false;
+
+    const actualColumns = data.map((row: { column_name: string }) => row.column_name);
+    return expected.every(col => actualColumns.includes(col));
+  }
+
+  /**
+   * Validate table indexes using dynamic schema introspection
+   * @param tableName - Name of the table to validate
+   * @returns True if table has expected indexes
+   */
+  private async validateTableIndexes(tableName: string): Promise<boolean> {
+    const expectedIndexes: Record<string, string[]> = {
+      'high_scores': ['idx_high_scores_score', 'idx_high_scores_achieved_at', 'idx_high_scores_turns', 'idx_high_scores_lines'],
+      'schema_migrations': []
+    };
+
+    const expected = expectedIndexes[tableName];
+    if (!expected) return true;
+
+    try {
+      // Call the get_table_indexes RPC function
+      const { data, error } = await this.supabase
+        .rpc('get_table_indexes', { table_name: tableName });
+
+      if (error) {
+        console.error(`Failed to get indexes for table ${tableName}:`, error);
+        return false;
+      }
+
+      if (!data) return false;
+
+      const actualIndexes = data.map((row: { index_name: string }) => row.index_name);
+      
+      // Check if all expected indexes exist
+      return expected.every(expectedIndex => 
+        actualIndexes.some((actualIndex: string) => actualIndex === expectedIndex)
+      );
+    } catch (error) {
+      console.error(`Error validating indexes for table ${tableName}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Validate table RLS policies (simplified implementation)
+   * @param tableName - Name of the table to validate
+   * @returns True if table has RLS policies
+   */
+  private validateTableRLS(tableName: string): boolean {
+    // Simplified RLS validation
+    const tablesWithRLS = ['high_scores'];
+    return tablesWithRLS.includes(tableName);
   }
 
   /**
@@ -166,51 +241,6 @@ export class DatabaseValidator {
   }
 
   /**
-   * Validate table columns (simplified implementation)
-   * @param tableName - Name of the table to validate
-   * @returns True if table has required columns
-   */
-  private validateTableColumns(tableName: string): boolean {
-    // Simplified column validation
-    const requiredColumns: Record<string, string[]> = {
-      'high_scores': ['id', 'player_name', 'score', 'achieved_at', 'turns_count', 'individual_balls_popped', 'lines_popped', 'longest_line_popped'],
-      'user_preferences': ['id', 'player_name', 'sound_enabled'],
-      'schema_migrations': ['version', 'name', 'applied_at']
-    };
-
-    const columns = requiredColumns[tableName];
-    return columns ? columns.length > 0 : true;
-  }
-
-  /**
-   * Validate table indexes (simplified implementation)
-   * @param tableName - Name of the table to validate
-   * @returns True if table has expected indexes
-   */
-  private validateTableIndexes(tableName: string): boolean {
-    // Simplified index validation
-    const expectedIndexes: Record<string, string[]> = {
-      'high_scores': ['idx_high_scores_score', 'idx_high_scores_achieved_at', 'idx_high_scores_turns', 'idx_high_scores_lines'],
-      'user_preferences': ['idx_user_preferences_player_name'],
-      'schema_migrations': []
-    };
-
-    const indexes = expectedIndexes[tableName];
-    return indexes ? indexes.length >= 0 : true;
-  }
-
-  /**
-   * Validate table RLS policies (simplified implementation)
-   * @param tableName - Name of the table to validate
-   * @returns True if table has RLS policies
-   */
-  private validateTableRLS(tableName: string): boolean {
-    // Simplified RLS validation
-    const tablesWithRLS = ['high_scores', 'user_preferences'];
-    return tablesWithRLS.includes(tableName);
-  }
-
-  /**
    * Validate database performance
    * @returns Performance validation result
    */
@@ -225,11 +255,34 @@ export class DatabaseValidator {
     try {
       // Test query performance
       const startTime = Date.now();
-      await this.supabase
+      const { error } = await this.supabase
         .from('high_scores')
         .select('score')
         .order('score', { ascending: false })
         .limit(10);
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No rows returned - table exists but is empty
+          result.warnings.push('High scores table is empty - performance test skipped');
+          result.details.queryPerformance = {
+            highScoresQueryTime: 0,
+            threshold: 500,
+            status: 'empty_table'
+          };
+          return result;
+        } else if (error.code === '42P01') {
+          // Table doesn't exist
+          result.errors.push('High scores table does not exist - performance validation failed');
+          result.success = false;
+          return result;
+        } else {
+          // Other database errors
+          result.errors.push(`Database query failed: ${error.message}`);
+          result.success = false;
+          return result;
+        }
+      }
 
       const queryTime = Date.now() - startTime;
 
@@ -239,7 +292,8 @@ export class DatabaseValidator {
 
       result.details.queryPerformance = {
         highScoresQueryTime: queryTime,
-        threshold: 500
+        threshold: 500,
+        status: 'success'
       };
 
     } catch (error) {

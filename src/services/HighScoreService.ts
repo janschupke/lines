@@ -1,4 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { mapDatabaseToHighScore } from '../types/mappers';
+import { sanitizePlayerName } from '../utils/sanitization';
 
 export type ConnectionStatus = 'connected' | 'connecting' | 'disconnected' | 'error';
 
@@ -67,18 +69,7 @@ export class HighScoreService {
         .limit(limit);
       if (error) throw error;
       this.connectionStatus = 'connected';
-      return (data || []).map(row => ({
-        id: row.id,
-        playerName: row.player_name,
-        score: row.score,
-        achievedAt: new Date(row.achieved_at),
-        gameDuration: row.game_duration,
-        ballsCleared: row.balls_cleared,
-        turnsCount: row.turns_count,
-        individualBallsPopped: row.individual_balls_popped,
-        linesPopped: row.lines_popped,
-        longestLinePopped: row.longest_line_popped
-      }));
+      return (data || []).map(row => mapDatabaseToHighScore(row));
     } catch (error) {
       this.connectionStatus = 'error';
       console.error('Failed to retrieve high scores:', error);
@@ -96,18 +87,7 @@ export class HighScoreService {
         .order('score', { ascending: false });
       if (error) throw error;
       this.connectionStatus = 'connected';
-      return (data || []).map(row => ({
-        id: row.id,
-        playerName: row.player_name,
-        score: row.score,
-        achievedAt: new Date(row.achieved_at),
-        gameDuration: row.game_duration,
-        ballsCleared: row.balls_cleared,
-        turnsCount: row.turns_count,
-        individualBallsPopped: row.individual_balls_popped,
-        linesPopped: row.lines_popped,
-        longestLinePopped: row.longest_line_popped
-      }));
+      return (data || []).map(row => mapDatabaseToHighScore(row));
     } catch (error) {
       this.connectionStatus = 'error';
       console.error('Failed to retrieve player high scores:', error);
@@ -140,7 +120,8 @@ export class HighScoreService {
     try {
       const { error } = await this.supabase
         .from('high_scores')
-        .select('count', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .limit(1);
       this.connectionStatus = error ? 'error' : 'connected';
       return !error;
     } catch {
@@ -158,9 +139,6 @@ export class HighScoreService {
   }
 
   private sanitizePlayerName(name: string): string {
-    const trimmed = name.trim();
-    if (!trimmed || trimmed.length > 50) return '🍆';
-    const sanitized = trimmed.replace(/[<>]/g, '');
-    return sanitized || '🍆';
+    return sanitizePlayerName(name);
   }
 } 

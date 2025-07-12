@@ -1,11 +1,6 @@
 -- Initialize database for local development
-
--- Create database if not exists
-SELECT 'CREATE DATABASE lines_game'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'lines_game')\gexec
-
--- Connect to the database
-\c lines_game;
+-- Note: The database 'lines_game' is created automatically by Docker
+-- using the POSTGRES_DB environment variable in docker-compose.yml
 
 -- Create extensions
 DO $$
@@ -25,16 +20,16 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 -- Create high_scores table
 CREATE TABLE IF NOT EXISTS high_scores (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    player_name TEXT NOT NULL,
-    score INTEGER NOT NULL,
-    achieved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    game_duration INTEGER,
-    balls_cleared INTEGER,
-    turns_count INTEGER NOT NULL,
-    individual_balls_popped INTEGER NOT NULL,
-    lines_popped INTEGER NOT NULL,
-    longest_line_popped INTEGER NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    player_name TEXT NOT NULL CHECK (LENGTH(TRIM(player_name)) > 0),
+    score INTEGER NOT NULL CHECK (score >= 0),
+    achieved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    game_duration INTEGER CHECK (game_duration IS NULL OR game_duration >= 0),
+    balls_cleared INTEGER CHECK (balls_cleared IS NULL OR balls_cleared >= 0),
+    turns_count INTEGER NOT NULL CHECK (turns_count >= 0),
+    individual_balls_popped INTEGER NOT NULL CHECK (individual_balls_popped >= 0),
+    lines_popped INTEGER NOT NULL CHECK (lines_popped >= 0),
+    longest_line_popped INTEGER NOT NULL CHECK (longest_line_popped >= 0),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
 -- Create indexes for performance

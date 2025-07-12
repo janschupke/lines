@@ -7,14 +7,15 @@ export const useConnectionStatus = (service: HighScoreServiceInterface) => {
   const [isRetrying, setIsRetrying] = useState(false);
 
   const checkConnection = useCallback(async () => {
-    const connected = await service.isConnected();
-    setStatus(connected ? 'connected' : 'error');
+    const connectionStatus = await service.getConnectionStatus();
+    setStatus(connectionStatus);
   }, [service]);
 
   const retryConnection = useCallback(async () => {
     setIsRetrying(true);
-    const connected = await service.retryConnection();
-    setStatus(connected ? 'connected' : 'error');
+    await service.retryConnection();
+    const newStatus = await service.getConnectionStatus();
+    setStatus(newStatus);
     setIsRetrying(false);
   }, [service]);
 

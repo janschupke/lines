@@ -76,8 +76,6 @@ src/database/
 ├── migrations/
 │   ├── 001_create_high_scores_table.sql
 │   ├── 001_create_high_scores_table_down.sql
-│   ├── 002_add_user_preferences_table.sql
-│   ├── 002_add_user_preferences_table_down.sql
 │   └── ...
 ├── services/
 │   ├── MigrationService.ts
@@ -113,13 +111,6 @@ export class MigrationService {
         upFile: 'migrations/001_create_high_scores_table.sql',
         downFile: 'migrations/001_create_high_scores_table_down.sql',
         description: 'Creates the high_scores table with indexes and RLS policies'
-      },
-      {
-        version: 2,
-        name: 'Add user preferences table',
-        upFile: 'migrations/002_add_user_preferences_table.sql',
-        downFile: 'migrations/002_add_user_preferences_table_down.sql',
-        description: 'Creates user_preferences table for storing user settings'
       }
     ];
   }
@@ -267,31 +258,6 @@ export class MigrationService {
       `,
       'migrations/001_create_high_scores_table_down.sql': `
         DROP TABLE IF EXISTS high_scores CASCADE;
-      `,
-      'migrations/002_add_user_preferences_table.sql': `
-        CREATE TABLE IF NOT EXISTS user_preferences (
-          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-          player_name TEXT UNIQUE NOT NULL,
-                        sound_enabled BOOLEAN DEFAULT true,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_user_preferences_player_name ON user_preferences(player_name);
-
-        ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
-
-        CREATE POLICY IF NOT EXISTS "Allow read access" ON user_preferences
-          FOR SELECT USING (true);
-
-        CREATE POLICY IF NOT EXISTS "Allow insert access" ON user_preferences
-          FOR INSERT WITH CHECK (true);
-
-        CREATE POLICY IF NOT EXISTS "Allow update access" ON user_preferences
-          FOR UPDATE USING (true);
-      `,
-      'migrations/002_add_user_preferences_table_down.sql': `
-        DROP TABLE IF EXISTS user_preferences CASCADE;
       `
     };
 
@@ -361,13 +327,12 @@ export class SchemaManager {
   }
 
   async validateSchema(): Promise<boolean> {
-    const requiredTables = ['high_scores', 'schema_migrations', 'user_preferences'];
+    const requiredTables = ['high_scores', 'schema_migrations'];
     const requiredIndexes = [
       'idx_high_scores_score',
       'idx_high_scores_achieved_at',
       'idx_high_scores_turns',
-      'idx_high_scores_lines',
-      'idx_user_preferences_player_name'
+      'idx_high_scores_lines'
     ];
 
     for (const table of requiredTables) {

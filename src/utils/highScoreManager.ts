@@ -1,5 +1,5 @@
 import ConfigManager from './configManager';
-import type { HighScore } from './configManager';
+import type { LocalHighScore } from './configManager';
 
 class HighScoreManager {
   private configManager: ConfigManager;
@@ -8,7 +8,7 @@ class HighScoreManager {
     this.configManager = ConfigManager.getInstance();
   }
 
-  getHighScores(): HighScore[] {
+  getHighScores(): LocalHighScore[] {
     return this.configManager.getHighScores();
   }
 

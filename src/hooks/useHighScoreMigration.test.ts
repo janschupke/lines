@@ -163,7 +163,28 @@ describe('useHighScoreMigration', () => {
     });
 
     it('should reset state when starting new migration', async () => {
-      const mockMigrationService = {
+      const { HighScoreMigrationService } = await import('../services/HighScoreMigrationService');
+
+      // First migration that fails
+      (HighScoreMigrationService as any).mockImplementation(() => ({
+        migrateFromLocalStorage: vi.fn().mockRejectedValue(new Error('Previous error'))
+      }));
+
+      const { result, unmount } = renderHook(() => useHighScoreMigration());
+
+      await act(async () => {
+        await result.current.startMigration();
+      });
+
+      // Verify error state
+      expect(result.current.migrationError).toBe('Previous error');
+      expect(result.current.migrationProgress).toBeNull();
+
+      // Unmount the previous hook to avoid memory leaks
+      unmount();
+
+      // Second migration that succeeds
+      (HighScoreMigrationService as any).mockImplementation(() => ({
         migrateFromLocalStorage: vi.fn().mockResolvedValue({
           totalRecords: 1,
           processedRecords: 1,
@@ -172,25 +193,18 @@ describe('useHighScoreMigration', () => {
           currentStep: 'Migration completed',
           isComplete: true
         })
-      };
+      }));
 
-      const { HighScoreMigrationService } = await import('../services/HighScoreMigrationService');
-      (HighScoreMigrationService as any).mockImplementation(() => mockMigrationService);
-
-      const { result } = renderHook(() => useHighScoreMigration());
-
-      // Set some initial state
-      act(() => {
-        result.current.migrationError = 'Previous error';
-        result.current.migrationProgress = { totalRecords: 0, processedRecords: 0, successCount: 0, errorCount: 0, currentStep: 'Previous', isComplete: false };
-      });
+      // Re-render the hook to pick up the new mock
+      const { result: result2 } = renderHook(() => useHighScoreMigration());
 
       await act(async () => {
-        await result.current.startMigration();
+        await result2.current.startMigration();
       });
 
-      expect(result.current.migrationError).toBeNull();
-      expect(result.current.migrationProgress).toEqual({
+      // Verify state was reset and new migration succeeded
+      expect(result2.current.migrationError).toBeNull();
+      expect(result2.current.migrationProgress).toEqual({
         totalRecords: 1,
         processedRecords: 1,
         successCount: 1,

@@ -1,17 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-
-export interface HighScore {
-  id?: string;
-  player_name: string;
-  score: number;
-  achieved_at: Date;
-  game_duration?: number | null;
-  balls_cleared?: number | null;
-  turns_count: number;
-  individual_balls_popped: number;
-  lines_popped: number;
-  longest_line_popped: number;
-}
+import type { DatabaseHighScore } from '../types/database';
 
 export interface MigrationProgress {
   totalRecords: number;
@@ -105,7 +93,7 @@ export class HighScoreMigrationService {
     }
   }
 
-  private validateLocalScores(scores: unknown[]): HighScore[] {
+  private validateLocalScores(scores: unknown[]): DatabaseHighScore[] {
     return scores.filter((score): score is Record<string, unknown> => {
       return (
         Boolean(score) &&
@@ -139,7 +127,7 @@ export class HighScoreMigrationService {
     }));
   }
 
-  private async migrateScoresToDatabase(scores: HighScore[]): Promise<{ successCount: number; errorCount: number }> {
+  private async migrateScoresToDatabase(scores: DatabaseHighScore[]): Promise<{ successCount: number; errorCount: number }> {
     let successCount = 0;
     let errorCount = 0;
 
@@ -173,8 +161,5 @@ export class HighScoreMigrationService {
     }
   }
 
-  async rollbackMigration(): Promise<void> {
-    // This would restore local data from a backup if needed
-    console.log('Migration rollback not implemented - data would be lost');
-  }
+
 } 

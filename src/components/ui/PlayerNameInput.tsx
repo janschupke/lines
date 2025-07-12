@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { sanitizePlayerName, getPlayerNameError } from "../../utils/sanitization";
 
 interface PlayerNameInputProps {
   isOpen: boolean;
@@ -6,11 +7,6 @@ interface PlayerNameInputProps {
   onCancel: () => void;
   className?: string;
 }
-
-const validatePlayerName = (name: string): boolean => {
-  // Allow any non-empty string that doesn't contain only whitespace
-  return name.trim().length > 0;
-};
 
 export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
   isOpen,
@@ -20,27 +16,35 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [isValid, setIsValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = useCallback(() => {
     const trimmedValue = inputValue.trim();
-    const valid = validatePlayerName(trimmedValue);
-    setIsValid(valid);
+    const error = getPlayerNameError(trimmedValue);
+    
+    if (error) {
+      setIsValid(false);
+      setErrorMessage(error);
+      setHasSubmitted(true);
+      return;
+    }
+
+    setIsValid(true);
+    setErrorMessage("");
     setHasSubmitted(true);
 
-    if (valid) {
-      onSubmit(trimmedValue);
-    } else {
-      // Convert to eggplant emoji if invalid
-      setInputValue("🍆");
-    }
+    // Sanitize the name before submitting
+    const sanitizedName = sanitizePlayerName(trimmedValue);
+    onSubmit(sanitizedName);
   }, [inputValue, onSubmit]);
 
   useEffect(() => {
     if (isOpen) {
       setInputValue("");
       setIsValid(true);
+      setErrorMessage("");
       setHasSubmitted(false);
       // Focus the input after a short delay to ensure the modal is rendered
       setTimeout(() => {
@@ -76,6 +80,7 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
   const handleCancel = () => {
     setInputValue("");
     setIsValid(true);
+    setErrorMessage("");
     setHasSubmitted(false);
     onCancel();
   };
@@ -87,6 +92,7 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
     // Reset validation state when user starts typing again
     if (hasSubmitted) {
       setIsValid(true);
+      setErrorMessage("");
       setHasSubmitted(false);
     }
   };
@@ -132,7 +138,7 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
             />
             {!isValid && hasSubmitted && (
               <p className="text-red-500 text-sm mt-1">
-                Please enter a valid name (not just spaces)
+                {errorMessage || "Please enter a valid name (not just spaces)"}
               </p>
             )}
           </div>

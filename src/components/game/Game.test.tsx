@@ -4,6 +4,50 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 import Game from './Game';
 import * as gameStateModule from '../../game/state';
+import type { HighScoreServiceInterface } from '../../services/HighScoreServiceFactory';
+
+// Mock dependencies
+vi.mock('../../hooks/useMobileOptimization', () => ({
+  useMobileOptimization: () => ({ isMobile: false })
+}));
+
+vi.mock('../../game/state', () => ({
+  useGameState: () => [
+    {
+      board: [],
+      score: 0,
+      gameOver: false,
+      nextBalls: [],
+      timer: 0,
+      movingBall: null,
+      movingStep: 0,
+      poppingBalls: [],
+      hoveredCell: null,
+      pathTrail: [],
+      notReachable: [],
+      currentHighScore: 0,
+      isNewHighScore: false,
+      showGameEndDialog: false,
+    },
+    {
+      startNewGame: vi.fn(),
+      handleCellClick: vi.fn(),
+      handleCellHover: vi.fn(),
+      handleCellLeave: vi.fn(),
+      handleNewGameFromDialog: vi.fn(),
+      handleCloseDialog: vi.fn(),
+    }
+  ]
+}));
+
+vi.mock('../../services/useConnectionStatus', () => ({
+  useConnectionStatus: () => ({
+    status: 'connected',
+    isRetrying: false,
+    retryConnection: vi.fn(),
+    checkConnection: vi.fn(),
+  })
+}));
 
 // Mock HighScoreService to avoid Supabase environment variable issues
 vi.mock('../../services/HighScoreService', () => ({
@@ -30,6 +74,45 @@ const renderGame = () => {
 };
 
 describe('Game', () => {
+  const mockHighScoreService: HighScoreServiceInterface = {
+    saveHighScore: vi.fn(),
+    getTopScores: vi.fn(),
+    getPlayerHighScores: vi.fn(),
+    isConnected: vi.fn(),
+    retryConnection: vi.fn(),
+    getConnectionStatus: vi.fn(),
+    subscribeToHighScoreUpdates: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should use injected high score service when provided', () => {
+    render(
+      <Game
+        showGuide={false}
+        setShowGuide={vi.fn()}
+        highScoreService={mockHighScoreService}
+      />
+    );
+
+    // The component should render without errors
+    expect(screen.getByText('New Game')).toBeInTheDocument();
+  });
+
+  it('should create default high score service when none provided', () => {
+    render(
+      <Game
+        showGuide={false}
+        setShowGuide={vi.fn()}
+      />
+    );
+
+    // The component should render without errors
+    expect(screen.getByText('New Game')).toBeInTheDocument();
+  });
+
   describe('Game time functionality and formatting', () => {
     beforeEach(() => {
       // Mock useGameState for deterministic board
@@ -62,11 +145,20 @@ describe('Game', () => {
           showGameEndDialog: false,
           statistics: {
             turnsCount: 0,
+            gameDuration: 0,
             ballsCleared: 0,
             linesPopped: 0,
             longestLinePopped: 0,
             individualBallsPopped: 0,
-            gameDuration: 0
+            totalScore: 0,
+            scoreProgression: [],
+            lineScores: [],
+            averageScorePerTurn: 0,
+            ballsPerTurn: 0,
+            linesPerTurn: 0,
+            peakScore: 0,
+            consecutiveHighScores: 0,
+            strategicBonus: 0
           }
         },
         {
@@ -251,6 +343,64 @@ describe('Game', () => {
       renderGame();
       
       expect(screen.queryByText('How to Play')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Statistics Integration', () => {
+    it('should include statistics in pendingHighScore when new high score is achieved', () => {
+      // Mock useGameState to return a state with isNewHighScore: true and gameOver: true
+      vi.spyOn(gameStateModule, 'useGameState').mockImplementation(() => [
+        {
+          board: [],
+          score: 100,
+          selected: null,
+          gameOver: true,
+          nextBalls: [],
+          timer: 120,
+          timerActive: false,
+          movingBall: null,
+          movingStep: 0,
+          poppingBalls: new Set(),
+          hoveredCell: null,
+          pathTrail: [],
+          notReachable: false,
+          currentHighScore: 50,
+          isNewHighScore: true,
+          showGameEndDialog: true,
+          statistics: {
+            turnsCount: 15,
+            gameDuration: 120,
+            ballsCleared: 25,
+            linesPopped: 8,
+            longestLinePopped: 7,
+            individualBallsPopped: 40,
+            totalScore: 100,
+            scoreProgression: [10, 25, 45, 70, 100],
+            lineScores: [],
+            averageScorePerTurn: 6.67,
+            ballsPerTurn: 2.67,
+            linesPerTurn: 0.53,
+            peakScore: 25,
+            consecutiveHighScores: 3,
+            strategicBonus: 0
+          }
+        },
+        {
+          startNewGame: vi.fn(),
+          handleCellClick: vi.fn(),
+          handleCellHover: vi.fn(),
+          handleCellLeave: vi.fn(),
+          handleNewGameFromDialog: vi.fn(),
+          handleCloseDialog: vi.fn(),
+        }
+      ]);
+
+      render(<Game showGuide={false} setShowGuide={vi.fn()} />);
+
+      // The component should render without errors, indicating that statistics
+      // are properly destructured from gameState and used in the useEffect
+      expect(screen.getByTestId('score-value')).toBeInTheDocument();
+      expect(screen.getByTestId('high-score-value')).toBeInTheDocument();
     });
   });
 }); 

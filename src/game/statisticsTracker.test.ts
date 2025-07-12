@@ -68,10 +68,20 @@ describe('GameStatisticsTracker', () => {
 
   it('records and calculates game duration', () => {
     const tracker = new GameStatisticsTracker();
+    const mockStartTime = 1000000;
+    const mockEndTime = mockStartTime + 5000;
+    
+    // Mock Date.now to return our controlled timestamps
+    const dateNowSpy = vi.spyOn(Date, 'now');
+    dateNowSpy.mockReturnValueOnce(mockStartTime); // For startGame
+    dateNowSpy.mockReturnValueOnce(mockEndTime);   // For recordGameDuration
+    
     tracker.startGame();
-    vi.spyOn(Date, 'now').mockReturnValueOnce(tracker['gameStartTime'] + 5000);
     tracker.recordGameDuration();
+    
     expect(tracker.getCurrentStatistics().gameDuration).toBe(5);
+    
+    dateNowSpy.mockRestore();
   });
 
   it('resets statistics', () => {

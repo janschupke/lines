@@ -6,9 +6,13 @@ export class ProductionDeploymentService {
   private schemaManager: SchemaManager;
   private env: Record<string, string>;
 
-  constructor(supabase: SupabaseClient, env: Record<string, string> = import.meta.env) {
+  constructor(
+    supabase: SupabaseClient,
+    env: Record<string, string> = import.meta.env,
+    schemaManager?: SchemaManager
+  ) {
     this.supabase = supabase;
-    this.schemaManager = new SchemaManager(supabase);
+    this.schemaManager = schemaManager ?? new SchemaManager(supabase);
     this.env = env;
   }
 

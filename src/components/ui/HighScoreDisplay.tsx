@@ -1,8 +1,8 @@
 import React from 'react';
-import type { HighScore } from '../../utils/configManager';
+import type { LocalHighScore } from '../../utils/configManager';
 
 interface HighScoreDisplayProps {
-  highScores: HighScore[];
+  highScores: LocalHighScore[];
   currentScore?: number;
   isNewHighScore?: boolean;
   showTitle?: boolean;

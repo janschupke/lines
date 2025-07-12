@@ -15,13 +15,29 @@ export interface Cell {
 
 export type Direction = [number, number];
 
+export interface LineScore {
+  length: number;
+  score: number;
+  turnNumber: number;
+  timestamp: number;
+}
+
 export interface GameStatistics {
   turnsCount: number;
+  gameDuration: number;
   ballsCleared: number;
   linesPopped: number;
   longestLinePopped: number;
   individualBallsPopped: number;
-  gameDuration: number;
+  totalScore: number;
+  scoreProgression: number[];
+  lineScores: LineScore[];
+  averageScorePerTurn: number;
+  ballsPerTurn: number;
+  linesPerTurn: number;
+  peakScore: number;
+  consecutiveHighScores: number;
+  strategicBonus: number;
 }
 
 export interface GameState {

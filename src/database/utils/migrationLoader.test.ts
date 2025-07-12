@@ -11,13 +11,7 @@ describe('MigrationLoader', () => {
       expect(content).toContain('ALTER TABLE high_scores ENABLE ROW LEVEL SECURITY');
     });
 
-    it('should load user preferences table migration successfully', async () => {
-      const content = await MigrationLoader.loadMigrationFile('migrations/002_add_user_preferences_table.sql');
-      
-      expect(content).toContain('CREATE TABLE IF NOT EXISTS user_preferences');
-      expect(content).toContain('CREATE INDEX IF NOT EXISTS idx_user_preferences_player_name');
-      expect(content).toContain('ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY');
-    });
+
 
     it('should load down migration files successfully', async () => {
       const content = await MigrationLoader.loadMigrationFile('migrations/001_create_high_scores_table_down.sql');
@@ -80,11 +74,9 @@ describe('MigrationLoader', () => {
     it('should return list of available migration files', () => {
       const migrations = MigrationLoader.getAvailableMigrations();
       
-      expect(migrations).toHaveLength(4);
+      expect(migrations).toHaveLength(2);
       expect(migrations).toContain('migrations/001_create_high_scores_table.sql');
       expect(migrations).toContain('migrations/001_create_high_scores_table_down.sql');
-      expect(migrations).toContain('migrations/002_add_user_preferences_table.sql');
-      expect(migrations).toContain('migrations/002_add_user_preferences_table_down.sql');
     });
 
     it('should return unique migration files', () => {

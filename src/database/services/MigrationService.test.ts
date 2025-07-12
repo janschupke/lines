@@ -35,9 +35,8 @@ describe("MigrationService", () => {
 
       const results = await migrationService.runMigrations();
 
-      expect(results).toHaveLength(2);
+      expect(results).toHaveLength(1);
       expect(results[0].status).toBe("applied");
-      expect(results[1].status).toBe("applied");
     });
 
     it("should handle migration failures gracefully", async () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { HighScoreMigrationService } from '../services/HighScoreMigrationService';
 import type { MigrationProgress } from '../services/HighScoreMigrationService';
 import { createClient } from '@supabase/supabase-js';
@@ -8,12 +8,12 @@ export function useHighScoreMigration() {
   const [isMigrating, setIsMigrating] = useState(false);
   const [migrationError, setMigrationError] = useState<string | null>(null);
 
-  const supabase = createClient(
+  const supabase = useMemo(() => createClient(
     import.meta.env.VITE_SUPABASE_URL || '',
     import.meta.env.VITE_SUPABASE_ANON_KEY || ''
-  );
+  ), []);
 
-  const migrationService = new HighScoreMigrationService(supabase);
+  const migrationService = useMemo(() => new HighScoreMigrationService(supabase), [supabase]);
 
   const startMigration = async (): Promise<void> => {
     setIsMigrating(true);

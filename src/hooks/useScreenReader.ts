@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 
 // Screen reader announcement priority
 export type AnnouncementPriority = 'polite' | 'assertive' | 'off';
@@ -42,27 +42,46 @@ export const useScreenReader = () => {
 
     // Clear previous announcements if requested
     if (clearPrevious) {
-      announcementsRef.current.forEach(region => {
-        if (region.parentNode) {
-          region.parentNode.removeChild(region);
-        }
-      });
-      announcementsRef.current = [];
+      try {
+        announcementsRef.current.forEach(region => {
+          if (region.parentNode) {
+            region.parentNode.removeChild(region);
+          }
+        });
+        announcementsRef.current = [];
+      } catch (error) {
+        // Log the error for debugging, but do not throw
+        // eslint-disable-next-line no-console
+        console.error('Error clearing previous announcements:', error);
+      }
     }
 
     // Create new live region
     const liveRegion = createLiveRegion(priority);
     liveRegion.textContent = message;
     
-    // Add to document
-    document.body.appendChild(liveRegion);
-    announcementsRef.current.push(liveRegion);
+    // Add to document with error handling
+    try {
+      document.body.appendChild(liveRegion);
+      announcementsRef.current.push(liveRegion);
+    } catch (error) {
+      // Log the error for debugging, but do not throw
+      // eslint-disable-next-line no-console
+      console.error('Error appending live region to document:', error);
+      return; // Exit early if we can't append to document
+    }
     
     // Remove after timeout
     setTimeout(() => {
-      if (liveRegion.parentNode) {
-        liveRegion.parentNode.removeChild(liveRegion);
-        announcementsRef.current = announcementsRef.current.filter(region => region !== liveRegion);
+      try {
+        if (liveRegion.parentNode) {
+          liveRegion.parentNode.removeChild(liveRegion);
+        }
+        announcementsRef.current = announcementsRef.current.filter(r => r !== liveRegion);
+      } catch (error) {
+        // Log the error for debugging, but do not throw
+        // eslint-disable-next-line no-console
+        console.error('Error cleaning up live region:', error);
       }
     }, timeout);
   }, [createLiveRegion]);
@@ -104,13 +123,26 @@ export const useScreenReader = () => {
 
   // Clear all announcements
   const clearAnnouncements = useCallback(() => {
-    announcementsRef.current.forEach(region => {
-      if (region.parentNode) {
-        region.parentNode.removeChild(region);
-      }
-    });
-    announcementsRef.current = [];
+    try {
+      announcementsRef.current.forEach(region => {
+        if (region.parentNode) {
+          region.parentNode.removeChild(region);
+        }
+      });
+      announcementsRef.current = [];
+    } catch (error) {
+      // Log the error for debugging, but do not throw
+      // eslint-disable-next-line no-console
+      console.error('Error clearing all announcements:', error);
+    }
   }, []);
+
+  // Cleanup on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      clearAnnouncements();
+    };
+  }, [clearAnnouncements]);
 
   // Utility for announcing form validation errors
   const announceValidationError = useCallback((fieldName: string, error: string) => {

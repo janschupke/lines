@@ -1,16 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import type { HighScore } from './HighScoreMigrationService';
-
-export interface HighScoreSubmission {
-  player_name: string;
-  score: number;
-  game_duration?: number;
-  balls_cleared?: number;
-  turns_count: number;
-  individual_balls_popped: number;
-  lines_popped: number;
-  longest_line_popped: number;
-}
+import type { DatabaseHighScore, DatabaseHighScoreSubmission } from '../types/database';
 
 export class DatabaseHighScoreService {
   private supabase: SupabaseClient;
@@ -23,7 +12,7 @@ export class DatabaseHighScoreService {
     this.initializeConnectionMonitoring();
   }
 
-  async submitHighScore(submission: HighScoreSubmission): Promise<HighScore | null> {
+  async submitHighScore(submission: DatabaseHighScoreSubmission): Promise<DatabaseHighScore | null> {
     try {
       this.updateConnectionStatus('connected');
       this.retryAttempts = 0;
@@ -55,7 +44,7 @@ export class DatabaseHighScoreService {
     }
   }
 
-  async getHighScores(limit: number = 10): Promise<HighScore[]> {
+  async getHighScores(limit: number = 10): Promise<DatabaseHighScore[]> {
     try {
       this.updateConnectionStatus('connected');
       this.retryAttempts = 0;
@@ -78,7 +67,7 @@ export class DatabaseHighScoreService {
     }
   }
 
-  async getPlayerHighScores(playerName: string): Promise<HighScore[]> {
+  async getPlayerHighScores(playerName: string): Promise<DatabaseHighScore[]> {
     try {
       this.updateConnectionStatus('connected');
       this.retryAttempts = 0;
@@ -101,7 +90,7 @@ export class DatabaseHighScoreService {
     }
   }
 
-  subscribeToHighScoreUpdates(callback: (scores: HighScore[]) => void): () => void {
+  subscribeToHighScoreUpdates(callback: (scores: DatabaseHighScore[]) => void): () => void {
     try {
       const subscription = this.supabase
         .channel('high_scores')

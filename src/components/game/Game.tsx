@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Board from './Board';
 import GameEndDialog from '../ui/GameEndDialog';
 import MovingBall from '../ui/MovingBall';
@@ -10,8 +10,9 @@ import { useGameState } from '../../game/state';
 import { useMobileOptimization } from '../../hooks/useMobileOptimization';
 import { formatTime } from '../../utils/formatters';
 import { getGameSpacing } from '../../utils/helpers';
-import { HighScoreServiceFactory } from '../../services/HighScoreServiceFactory';
+import { createHighScoreService } from '../../services/HighScoreServiceFactory';
 import type { HighScore } from '../../services/HighScoreService';
+import type { HighScoreServiceInterface } from '../../services/HighScoreServiceFactory';
 import { useConnectionStatus } from '../../services/useConnectionStatus';
 import type { Cell } from '../../game/types';
 import type { BallColor } from '../../game/constants';
@@ -33,16 +34,21 @@ interface GameProps {
   setShowGuide: (v: boolean) => void;
   initialBoard?: Cell[][];
   initialNextBalls?: BallColor[];
+  highScoreService?: HighScoreServiceInterface;
 }
-
-const highScoreService = HighScoreServiceFactory.createService();
 
 const Game: React.FC<GameProps> = ({ 
   showGuide, 
   setShowGuide,
   initialBoard, 
-  initialNextBalls 
+  initialNextBalls,
+  highScoreService: injectedHighScoreService
 }) => {
+  // Create high score service instance or use injected one
+  const highScoreService = useMemo(() => 
+    injectedHighScoreService || createHighScoreService(), 
+    [injectedHighScoreService]
+  );
   const { isMobile } = useMobileOptimization();
   const [gameState, gameActions] = useGameState(initialBoard, initialNextBalls);
   const [showHighScoreOverlay, setShowHighScoreOverlay] = useState(false);
@@ -77,6 +83,7 @@ const Game: React.FC<GameProps> = ({
     currentHighScore,
     isNewHighScore,
     showGameEndDialog,
+    statistics,
   } = gameState;
 
   const {
@@ -92,12 +99,28 @@ const Game: React.FC<GameProps> = ({
   useEffect(() => {
     if (showHighScoreOverlay) {
       setLoadingScores(true);
-      highScoreService.getTopScores(20).then(scores => {
+      highScoreService.getTopScores(20).then((scores: HighScore[]) => {
         setTopScores(scores);
         setLoadingScores(false);
       });
     }
-  }, [showHighScoreOverlay]);
+  }, [showHighScoreOverlay, highScoreService]);
+
+  // Set pending high score when a new high score is achieved
+  useEffect(() => {
+    if (isNewHighScore && gameOver) {
+      setPendingHighScore({
+        score,
+        statistics: {
+          turnsCount: statistics.turnsCount,
+          ballsCleared: statistics.ballsCleared,
+          linesPopped: statistics.linesPopped,
+          longestLinePopped: statistics.longestLinePopped,
+          individualBallsPopped: statistics.individualBallsPopped,
+        },
+      });
+    }
+  }, [isNewHighScore, gameOver, score, statistics]);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
@@ -282,12 +305,28 @@ const Game: React.FC<GameProps> = ({
       />
       {/* Connection Status UI */}
       {showHighScoreOverlay && (
-        <div className="fixed top-4 right-4 z-50">
-          {connection.status === 'connecting' && <div className="animate-spin">Connecting to database...</div>}
+        <div className={`fixed top-4 right-4 z-50 bg-game-bg-secondary border border-game-border-default rounded-lg shadow-lg p-3 ${
+          isMobile ? 'max-w-xs' : 'max-w-sm'
+        }`}>
+          {connection.status === 'connecting' && (
+            <div className="flex items-center space-x-2 text-game-text-secondary">
+              <div className="animate-spin w-4 h-4 border-2 border-game-border-default border-t-game-text-accent rounded-full"></div>
+              <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>Connecting to database...</span>
+            </div>
+          )}
           {connection.status === 'error' && (
-            <div>
-              <span className="text-red-500">Database connection failed.</span>
-              <button onClick={connection.retryConnection} className="ml-2 bg-game-button-accent px-2 py-1 rounded">Retry</button>
+            <div className="flex flex-col space-y-2">
+              <span className={`text-game-text-error ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                Database connection failed.
+              </span>
+              <button 
+                onClick={connection.retryConnection} 
+                className={`bg-game-button-accent hover:bg-game-button-accent-hover text-black font-semibold rounded border border-game-border-default cursor-pointer transition-colors ${
+                  isMobile ? 'px-2 py-1 text-xs' : 'px-3 py-1 text-sm'
+                }`}
+              >
+                Retry
+              </button>
             </div>
           )}
         </div>

@@ -62,31 +62,7 @@ export class MigrationLoader {
       'migrations/001_create_high_scores_table_down.sql': `
         DROP TABLE IF EXISTS high_scores CASCADE;
       `,
-      'migrations/002_add_user_preferences_table.sql': `
-        CREATE TABLE IF NOT EXISTS user_preferences (
-          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-          player_name TEXT UNIQUE NOT NULL,
-          sound_enabled BOOLEAN DEFAULT true,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
 
-        CREATE INDEX IF NOT EXISTS idx_user_preferences_player_name ON user_preferences(player_name);
-
-        ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
-
-        CREATE POLICY IF NOT EXISTS "Allow read access" ON user_preferences
-          FOR SELECT USING (true);
-
-        CREATE POLICY IF NOT EXISTS "Allow insert access" ON user_preferences
-          FOR INSERT WITH CHECK (true);
-
-        CREATE POLICY IF NOT EXISTS "Allow update access" ON user_preferences
-          FOR UPDATE USING (true);
-      `,
-      'migrations/002_add_user_preferences_table_down.sql': `
-        DROP TABLE IF EXISTS user_preferences CASCADE;
-      `
     };
 
     const sql = migrationScripts[filePath];
@@ -123,9 +99,7 @@ export class MigrationLoader {
   static getAvailableMigrations(): string[] {
     return [
       'migrations/001_create_high_scores_table.sql',
-      'migrations/001_create_high_scores_table_down.sql',
-      'migrations/002_add_user_preferences_table.sql',
-      'migrations/002_add_user_preferences_table_down.sql'
+      'migrations/001_create_high_scores_table_down.sql'
     ];
   }
 } 

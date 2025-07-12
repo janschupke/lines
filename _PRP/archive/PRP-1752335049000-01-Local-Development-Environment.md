@@ -160,13 +160,8 @@ VITE_APP_ENV=development
 ```sql
 -- src/database/init/01_init_database.sql
 -- Initialize database for local development
-
--- Create database if not exists
-SELECT 'CREATE DATABASE lines_game'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'lines_game')\gexec
-
--- Connect to the database
-\c lines_game;
+-- Note: The database 'lines_game' is created automatically by Docker
+-- using the POSTGRES_DB environment variable in docker-compose.yml
 
 -- Create extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

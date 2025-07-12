@@ -10,6 +10,24 @@ export class LocalHighScoreService {
 
   async saveHighScore(score: HighScore): Promise<boolean> {
     try {
+      // Validate required fields
+      if (!score.playerName || typeof score.score !== 'number' || score.score < 0) {
+        console.error('Invalid high score data:', score);
+        this.connectionStatus = 'error';
+        return false;
+      }
+
+      // Check for duplicate scores from the same player
+      const existingScore = this.localScores.find(
+        existing => existing.playerName === score.playerName && existing.score === score.score
+      );
+      
+      if (existingScore) {
+        console.warn('Duplicate score detected for player:', score.playerName);
+        this.connectionStatus = 'connected';
+        return true; // Return true since the score already exists
+      }
+
       this.connectionStatus = 'connecting';
       
       // Add to local scores
@@ -31,9 +49,7 @@ export class LocalHighScoreService {
 
   async getTopScores(limit: number = 20): Promise<HighScore[]> {
     try {
-      this.connectionStatus = 'connecting';
       this.loadLocalScores();
-      this.connectionStatus = 'connected';
       return this.localScores.slice(0, limit);
     } catch (error) {
       this.connectionStatus = 'error';
@@ -44,7 +60,6 @@ export class LocalHighScoreService {
 
   async getPlayerHighScores(playerName: string): Promise<HighScore[]> {
     try {
-      this.connectionStatus = 'connecting';
       this.loadLocalScores();
       this.connectionStatus = 'connected';
       return this.localScores.filter(score => score.playerName === playerName);

@@ -59,7 +59,7 @@ describe('Screen Reader Utility Functions', () => {
 
   it('should handle window not defined', () => {
     const originalWindow = global.window;
-    delete (global as Record<string, unknown>).window;
+    (global as Record<string, unknown>).window = undefined;
 
     expect(prefersReducedMotion()).toBe(false);
     expect(prefersHighContrast()).toBe(false);

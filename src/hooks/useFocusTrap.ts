@@ -109,8 +109,6 @@ export const useFocusTrap = (config: FocusTrapConfig) => {
       }
     },
     [
-      config.active,
-      config.onEscape,
       getFocusableElements,
       focusFirstElement,
       focusLastElement,

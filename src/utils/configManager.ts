@@ -1,5 +1,5 @@
 interface GameConfig {
-  highScores: HighScore[];
+  highScores: LocalHighScore[];
   showHighScores: boolean;
   maxHighScores: number;
   autoSave: boolean;
@@ -8,7 +8,7 @@ interface GameConfig {
   currentSessionGameTime?: number;
 }
 
-interface HighScore {
+interface LocalHighScore {
   score: number;
   date: Date;
   gameTime?: number;
@@ -66,7 +66,7 @@ class ConfigManager {
     const parsedObj = parsed as Partial<GameConfig>;
     const config = { ...DEFAULT_CONFIG, ...parsedObj };
     
-    // Ensure highScores is an array of valid HighScore objects
+    // Ensure highScores is an array of valid LocalHighScore objects
     if (!Array.isArray(config.highScores)) {
       config.highScores = [];
     } else {
@@ -108,7 +108,7 @@ class ConfigManager {
     this.saveConfig();
   }
 
-  getHighScores(): HighScore[] {
+  getHighScores(): LocalHighScore[] {
     return [...this.config.highScores].sort((a, b) => b.score - a.score);
   }
 
@@ -133,7 +133,7 @@ class ConfigManager {
     if (isNewSession) {
       // New session: add current session score to high scores if it's high enough
       if (currentSessionScore > 0) {
-        const sessionScore: HighScore = {
+        const sessionScore: LocalHighScore = {
           score: currentSessionScore,
           date: new Date(this.config.currentSessionDate || new Date()),
           gameTime: this.config.currentSessionGameTime,
@@ -205,4 +205,4 @@ class ConfigManager {
 }
 
 export default ConfigManager;
-export type { GameConfig, HighScore }; 
+export type { GameConfig, LocalHighScore }; 

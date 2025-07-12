@@ -1,4 +1,6 @@
-export interface GameStatistics {
+import type { LineScore } from './types';
+
+interface TrackerGameStatistics {
   turnsCount: number;
   gameDuration: number;
   ballsCleared: number;
@@ -16,15 +18,8 @@ export interface GameStatistics {
   strategicBonus: number;
 }
 
-export interface LineScore {
-  length: number;
-  score: number;
-  turnNumber: number;
-  timestamp: number;
-}
-
 export class GameStatisticsTracker {
-  private statistics: GameStatistics;
+  private statistics: TrackerGameStatistics;
   private gameStartTime: number = 0;
 
   constructor() {
@@ -36,7 +31,7 @@ export class GameStatisticsTracker {
     this.gameStartTime = Date.now();
   }
 
-  endGame(): GameStatistics {
+  endGame(): TrackerGameStatistics {
     const finalStatistics = {
       ...this.statistics,
       gameDuration: Math.floor((Date.now() - this.gameStartTime) / 1000)
@@ -70,7 +65,9 @@ export class GameStatisticsTracker {
     } else {
       this.statistics.consecutiveHighScores = 0;
     }
-    const currentAverage = this.statistics.totalScore / this.statistics.turnsCount;
+    const currentAverage = this.statistics.turnsCount > 0 
+      ? this.statistics.totalScore / this.statistics.turnsCount 
+      : 0;
     this.statistics.strategicBonus = Math.floor(currentAverage * 0.1);
   }
 
@@ -90,11 +87,11 @@ export class GameStatisticsTracker {
     this.startGame();
   }
 
-  getCurrentStatistics(): GameStatistics {
+  getCurrentStatistics(): TrackerGameStatistics {
     return { ...this.statistics };
   }
 
-  private getInitialStatistics(): GameStatistics {
+  private getInitialStatistics(): TrackerGameStatistics {
     return {
       turnsCount: 0,
       gameDuration: 0,

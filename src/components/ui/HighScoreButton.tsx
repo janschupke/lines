@@ -11,6 +11,14 @@ export const HighScoreButton: React.FC<HighScoreButtonProps> = ({
   disabled = false,
   className = ''
 }) => {
+  // Store the latest onClick in a ref to avoid useEffect dependency
+  const onClickRef = React.useRef(onClick);
+  
+  // Update the ref when onClick changes
+  React.useEffect(() => {
+    onClickRef.current = onClick;
+  }, [onClick]);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'h' || e.key === 'H') {
       e.preventDefault();
@@ -22,10 +30,16 @@ export const HighScoreButton: React.FC<HighScoreButtonProps> = ({
 
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Check if the target is an input or textarea element
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        return; // Don't trigger the shortcut when typing in input fields
+      }
+
       if (e.key === 'h' || e.key === 'H') {
         e.preventDefault();
         if (!disabled) {
-          onClick();
+          onClickRef.current();
         }
       }
     };
@@ -34,7 +48,7 @@ export const HighScoreButton: React.FC<HighScoreButtonProps> = ({
     return () => {
       document.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [onClick, disabled]);
+  }, [disabled]); // Only depend on disabled, not onClick
 
   return (
     <button

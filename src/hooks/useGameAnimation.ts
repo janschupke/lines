@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { BallColor } from '../types';
+import type { BallColor } from '../game/types';
 
 export const useGameAnimation = () => {
   const [movingBall, setMovingBall] = useState<null | {color: BallColor; path: [number, number][]}>(null);

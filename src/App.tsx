@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Game from './ui/components/Game';
+import Game from './components/game/Game';
 
 function App() {
   const [showGuide, setShowGuide] = useState(false);

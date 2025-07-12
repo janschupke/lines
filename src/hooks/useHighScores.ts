@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import HighScoreManager from '../../utils/highScoreManager';
+import HighScoreManager from '../utils/highScoreManager';
 
 export const useHighScores = () => {
   const [currentHighScore, setCurrentHighScore] = useState(0);

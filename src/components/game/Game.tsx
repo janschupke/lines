@@ -1,7 +1,7 @@
 import React from 'react';
 import Board from './Board';
-import GameEndDialog from './GameEndDialog';
-import MovingBall from './MovingBall';
+import GameEndDialog from '../ui/GameEndDialog';
+import MovingBall from '../ui/MovingBall';
 import MobileControls from './MobileControls';
 import { useGameState } from '../../game/state';
 import { useMobileOptimization } from '../../hooks/useMobileOptimization';

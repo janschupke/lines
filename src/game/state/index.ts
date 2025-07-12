@@ -15,10 +15,10 @@ import {
 } from '../logic';
 import type { Cell, GameState, GameActions } from '../types';
 import { GamePhaseManager } from './gamePhaseManager';
-import { useGameBoard } from './useGameBoard';
-import { useGameTimer } from './useGameTimer';
-import { useGameAnimation } from './useGameAnimation';
-import { useHighScores } from './useHighScores';
+import { useGameBoard } from '../../hooks/useGameBoard';
+import { useGameTimer } from '../../hooks/useGameTimer';
+import { useGameAnimation } from '../../hooks/useGameAnimation';
+import { useHighScores } from '../../hooks/useHighScores';
 
 export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallColor[]): [GameState, GameActions] => {
   // Board, selection, next balls

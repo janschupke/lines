@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { 
   BALLS_PER_TURN, 
   ANIMATION_DURATIONS,
+  BOARD_SIZE,
   type BallColor
 } from '../../utils/constants';
 import { 
@@ -12,7 +13,8 @@ import {
   recalculateIncomingPositions,
   isBoardFull,
   findLine,
-  findPath
+  findPath,
+  getRandomEmptyCells
 } from '../logic';
 import type { Cell, GameState, GameActions } from '../types';
 import HighScoreManager from '../../utils/highScoreManager';
@@ -217,6 +219,35 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
               setBoard(recalculatedBoard);
             }
           }, ANIMATION_DURATIONS.POP_BALL);
+        } else {
+          // No lines formed - convert incoming balls to real balls and spawn new ones
+          // Only spawn as many balls as there are empty cells
+          const emptyCount = getRandomEmptyCells(newBoard, BOARD_SIZE * BOARD_SIZE).length;
+          if (emptyCount === 0) {
+            // Board is full after move: clear all incoming balls, do not convert them, and end game
+            const clearedBoard = newBoard.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
+            setBoard(clearedBoard);
+            setGameOver(true);
+            setShowGameEndDialog(true);
+            return;
+          }
+          // Only convert incoming balls if there is at least one empty cell
+          const ballsToAdd = Math.min(BALLS_PER_TURN, emptyCount);
+          const boardWithRealBalls = newBoard.map(row => row.map(cell => ({
+            ...cell,
+            ball: cell.incomingBall ? cell.incomingBall : cell.ball,
+            incomingBall: null
+          })));
+          // Generate next preview balls ONCE
+          const nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
+          // Add new preview balls for next turn, but only if there is space
+          const afterBalls = ballsToAdd > 0 ? placePreviewBalls(boardWithRealBalls, nextPreviewBalls.slice(0, ballsToAdd)) : boardWithRealBalls;
+          setBoard(afterBalls);
+          setNextBalls(nextPreviewBalls);
+          if (isBoardFull(afterBalls)) {
+            setGameOver(true);
+            setShowGameEndDialog(true);
+          }
         }
       }
       return;

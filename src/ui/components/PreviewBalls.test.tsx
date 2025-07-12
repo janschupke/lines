@@ -96,9 +96,9 @@ describe('Preview Balls Functionality', () => {
       expect(previewBalls).toHaveLength(3);
 
       // Check that each preview ball has the correct color class
-      expect(previewBalls[0]).toHaveClass('bg-ball-red');
-      expect(previewBalls[1]).toHaveClass('bg-ball-blue');
-      expect(previewBalls[2]).toHaveClass('bg-ball-green');
+      expect(previewBalls[0]).toHaveStyle({ backgroundColor: '#e74c3c' }); // red
+      expect(previewBalls[1]).toHaveStyle({ backgroundColor: '#2980b9' }); // blue
+      expect(previewBalls[2]).toHaveStyle({ backgroundColor: '#27ae60' }); // green
     });
 
     it('preview balls are positioned correctly in empty cells', () => {

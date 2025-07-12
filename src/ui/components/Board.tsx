@@ -1,7 +1,18 @@
 import React from 'react';
-import { BALL_SIZE, COLOR_MAP, type BallColor } from '../../utils/constants';
+import { BALL_SIZE, type BallColor } from '../../utils/constants';
 import { CELL_SIZE, GAP } from '../../utils/boardConstants';
 import type { Cell } from '../../game/types';
+
+// Ball color hex values for inline styles
+const BALL_COLOR_HEX: Record<BallColor, string> = {
+  red: '#e74c3c',
+  green: '#27ae60',
+  blue: '#2980b9',
+  yellow: '#f1c40f',
+  purple: '#8e44ad',
+  cyan: '#1abc9c',
+  black: '#222',
+};
 
 interface BoardProps {
   board: Cell[][];
@@ -84,10 +95,11 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
           >
             {cell.ball && !hideBall && (
               <span
-                className={`block rounded-full border-2 border-game-border-ball ${cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'} ${popping ? 'z-20' : ''} bg-${COLOR_MAP[cell.ball.color]}`}
+                className={`block rounded-full border-2 border-game-border-ball ${cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'} ${popping ? 'z-20' : ''}`}
                 style={{
                   width: BALL_SIZE,
                   height: BALL_SIZE,
+                  backgroundColor: BALL_COLOR_HEX[cell.ball.color],
                   animation: popping ? 'pop-ball' : 'move-ball',
                 }}
                 title={cell.ball.color}
@@ -95,10 +107,11 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`block rounded-full border border-game-border-preview shadow-sm opacity-80 bg-${COLOR_MAP[cell.incomingBall.color]}`}
+                className="block rounded-full border border-game-border-preview shadow-sm opacity-80"
                 style={{
                   width: incomingBallSize,
                   height: incomingBallSize,
+                  backgroundColor: BALL_COLOR_HEX[cell.incomingBall.color],
                 }}
                 title={`Preview: ${cell.incomingBall.color}`}
               />

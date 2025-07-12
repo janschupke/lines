@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+/* CSS Custom Properties for JavaScript access */
+:root {
+  --cell-size: 56px;
+  --gap-size: 8px;
+  --ball-size: 40px;
+  --board-padding: 8px;
+} 

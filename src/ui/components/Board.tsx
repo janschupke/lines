@@ -23,7 +23,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
   
   return (
     <div
-      className="relative grid bg-game-bg-board p-board-padding rounded-xl shadow-lg mx-auto w-fit h-fit box-content"
+      className="relative grid bg-game-bg-board p-board-padding rounded-xl shadow-lg mx-auto w-fit h-fit box-content gap-gap"
       style={{
         gridTemplateColumns: `repeat(${board[0].length}, minmax(0, 1fr))`,
         gridTemplateRows: `repeat(${board.length}, minmax(0, 1fr))`,

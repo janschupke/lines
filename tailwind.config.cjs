@@ -60,10 +60,10 @@ module.exports = {
         // Game theme colors - structured for proper Tailwind access
         game: {
           bg: {
-            primary: '#f5f5f5',      // Light grey background
-            secondary: '#ffffff',     // White card backgrounds
-            tertiary: '#f8f9fa',     // Light grey backgrounds
-            board: '#ffffff',         // White game board background
+            primary: '#1a1a1a',      // Dark grey background
+            secondary: '#2d2d2d',     // Dark card backgrounds
+            tertiary: '#3a3a3a',      // Dark grey backgrounds
+            board: '#ffffff',          // Keep game board white
             cell: {
               empty: '#ffffff',
               hover: '#f8f9fa',
@@ -72,28 +72,28 @@ module.exports = {
             },
           },
           text: {
-            primary: '#212529',
-            secondary: '#6c757d',
-            accent: '#495057',
-            success: '#28a745',
-            error: '#dc3545',
+            primary: '#ffffff',        // White text on dark backgrounds
+            secondary: '#cccccc',      // Light grey text
+            accent: '#ffd700',         // Gold accent text
+            success: '#4ade80',        // Green success text
+            error: '#f87171',          // Red error text
           },
           border: {
-            default: '#dee2e6',
-            path: '#007bff',
-            error: '#dc3545',
-            accent: '#ffc107',
+            default: '#404040',        // Dark grey borders
+            path: '#3b82f6',           // Blue path borders
+            error: '#f87171',          // Red error borders
+            accent: '#ffd700',         // Gold accent borders
             ball: '#6c757d',
             preview: '#adb5bd',
           },
           button: {
-            primary: '#6c757d',
-            hover: '#5a6268',
-            accent: '#ffc107',
-            'accent-hover': '#e0a800',
+            primary: '#404040',        // Dark grey buttons
+            hover: '#525252',          // Lighter grey on hover
+            accent: '#ffd700',         // Gold accent buttons
+            'accent-hover': '#fbbf24', // Darker gold on hover
           },
           shadow: {
-            glow: '#ffc107',
+            glow: '#ffd700',
             ball: '#00000033',
           },
         },
@@ -101,14 +101,18 @@ module.exports = {
       spacing: {
         'ball': '40px', // BALL_SIZE
         'cell': '56px', // CELL_SIZE
-        'gap': '4px',   // GAP
+        'gap': '8px',   // GAP - increased from 4px
         'board-padding': '8px', // PADDING
+      },
+      // CSS custom properties for JavaScript access
+      extend: {
+        // ... existing code ...
       },
       zIndex: {
         'game-dialog': '1000',
       },
       animation: {
-        'move-ball': 'moveBall 0.25s cubic-bezier(0.4, 0.2, 0.2, 1)',
+        'move-ball': 'moveBall 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)', // Slowed from 0.25s to 0.4s
         'pop-ball': 'popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)',
       },
       keyframes: {

@@ -1,24 +1,24 @@
 import React from 'react';
 import Board from './Board';
 import GameEndDialog from './GameEndDialog';
-import GameHeader from './GameHeader';
 import MovingBall from './MovingBall';
 import { useGameState } from '../../game/state';
 import { formatTime } from '../../utils/formatters';
+import { getGameSpacing } from '../../utils/helpers';
 import type { Cell } from '../../game/types';
 import type { BallColor } from '../../utils/constants';
 
-// Tailwind theme values
-const CELL_SIZE = 56;
-const GAP = 4;
-const BALL_SIZE = 40;
-const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
-
 // Helper to get the pixel position of a cell in the board
-const getCellPosition = (x: number, y: number) => ({
-  left: x * (CELL_SIZE + GAP) + OFFSET,
-  top: y * (CELL_SIZE + GAP) + OFFSET,
-});
+const getCellPosition = (x: number, y: number) => {
+  // Get dynamic values from CSS custom properties
+  const { cellSize, gapSize, ballSize, boardPadding } = getGameSpacing();
+  const OFFSET = (cellSize - ballSize) / 2;
+  
+  return {
+    left: boardPadding + x * (cellSize + gapSize) + OFFSET,
+    top: boardPadding + y * (cellSize + gapSize) + OFFSET,
+  };
+};
 
 interface GameProps {
   showGuide: boolean;
@@ -29,6 +29,7 @@ interface GameProps {
 
 const Game: React.FC<GameProps> = ({ 
   showGuide, 
+  setShowGuide,
   initialBoard, 
   initialNextBalls 
 }) => {
@@ -66,20 +67,64 @@ const Game: React.FC<GameProps> = ({
     const [mx, my] = movingBall.path[movingStep];
     const { left, top } = getCellPosition(mx, my);
     movingBallEl = (
-      <MovingBall color={`ball-${movingBall.color}`} left={left} top={top} />
+      <MovingBall color={movingBall.color} left={left} top={top} />
     );
   }
 
   return (
-    <div className="mx-auto mt-8 p-6 border border-game-border-default rounded-xl max-w-xl w-full bg-game-bg-secondary text-game-text-primary shadow-lg">
-      <GameHeader
-        score={score}
-        currentHighScore={currentHighScore}
-        nextBalls={nextBalls}
-        onNewGame={startNewGame}
-      />
-      
-      <div className="mt-6">
+    <div className="flex flex-col items-center space-y-6">
+      {/* Top Controls */}
+      <div className="flex gap-4 items-center">
+        <button
+          onClick={startNewGame}
+          className="bg-game-button-primary hover:bg-game-button-hover text-game-text-primary font-semibold px-4 py-2 rounded-lg border border-game-border-default cursor-pointer transition-colors"
+        >
+          New Game
+        </button>
+        
+        <button
+          onClick={() => setShowGuide(!showGuide)}
+          className={`font-semibold text-base px-4 py-2 rounded-lg border border-game-border-default cursor-pointer transition-colors ${
+            showGuide 
+              ? 'bg-game-button-accent text-black hover:bg-game-button-accent-hover' 
+              : 'bg-game-button-primary text-game-text-primary hover:bg-game-button-hover'
+          }`}
+        >
+          {showGuide ? 'Hide Guide' : 'Show Guide'}
+        </button>
+      </div>
+
+      {/* Game Info Row - Score, Incoming Balls, High Score */}
+      <div className="flex items-center justify-between w-full max-w-2xl">
+        {/* Current Score */}
+        <div className="text-center">
+          <div className="text-2xl font-bold text-game-text-accent">Score</div>
+          <div className="text-xl text-game-text-primary">{score}</div>
+        </div>
+
+        {/* Incoming Balls Panel */}
+        <div className="flex flex-col items-center">
+          <div className="text-sm text-game-text-secondary font-semibold mb-2">Next Balls</div>
+          <div className="flex gap-2">
+            {nextBalls.map((color, index) => (
+              <div
+                key={index}
+                className={`w-6 h-6 rounded-full bg-ball-${color} border-2 border-game-border-ball shadow-sm`}
+                title={color}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* High Score */}
+        <div className="text-center">
+          <div className="text-2xl font-bold text-game-text-accent">High Score</div>
+          <div className="text-xl text-game-text-primary">{currentHighScore}</div>
+        </div>
+      </div>
+
+      {/* Game Board */}
+      <div className="bg-game-bg-board border border-game-border-default rounded-xl p-4 shadow-lg">
         <Board
           board={board}
           onCellClick={handleCellClick}
@@ -94,17 +139,19 @@ const Game: React.FC<GameProps> = ({
           {movingBallEl}
         </Board>
       </div>
-      
-      <div className="mt-6 text-center">
-        <div className="mt-4 text-2xl text-game-text-success font-bold">
+
+      {/* Timer */}
+      <div className="text-center">
+        <div className="text-2xl font-bold text-game-text-success">
           {formatTime(timer)}
         </div>
       </div>
-      
+
+      {/* Guide Panel */}
       {showGuide && (
-        <div className="mt-8 p-6 bg-game-bg-secondary border border-game-border-default rounded-xl text-game-text-primary min-w-[320px] shadow-lg">
-          <h3 className="text-xl font-bold mb-4 text-game-text-accent">How to Play</h3>
-          <div className="text-sm space-y-2">
+        <div className="w-full max-w-2xl bg-game-bg-secondary border border-game-border-default rounded-xl p-6 shadow-lg">
+          <h3 className="text-xl font-bold mb-4 text-game-text-accent text-center">How to Play</h3>
+          <div className="text-sm space-y-2 text-game-text-secondary">
             <p>• Click on a ball to select it</p>
             <p>• Click on an empty cell to move the ball</p>
             <p>• Form lines of 5+ balls to clear them</p>
@@ -112,7 +159,7 @@ const Game: React.FC<GameProps> = ({
             <p>• Game ends when board is full</p>
           </div>
           <div className="mt-4">
-            <h4 className="font-bold text-game-text-accent mb-2">Scoring:</h4>
+            <h4 className="font-bold text-game-text-accent mb-2 text-sm">Scoring:</h4>
             <table className="w-full text-xs">
               <tbody>
                 <tr className="text-game-text-accent">
@@ -138,7 +185,7 @@ const Game: React.FC<GameProps> = ({
               </tbody>
             </table>
           </div>
-          <div className="mt-3 text-base text-game-text-accent font-semibold">
+          <div className="mt-3 text-sm text-game-text-accent font-semibold text-center">
             Good luck!
           </div>
         </div>

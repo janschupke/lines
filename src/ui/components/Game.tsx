@@ -3,13 +3,15 @@ import Board from './Board';
 import GameEndDialog from './GameEndDialog';
 import GameHeader from './GameHeader';
 import MovingBall from './MovingBall';
-import { COLOR_MAP, type BallColor } from '../../utils/constants';
-import { CELL_SIZE, GAP } from '../../utils/boardConstants';
-import { BALL_SIZE } from '../../utils/constants';
 import { useGameState } from '../../game/state';
 import { formatTime } from '../../utils/formatters';
 import type { Cell } from '../../game/types';
+import type { BallColor } from '../../utils/constants';
 
+// Tailwind theme values
+const CELL_SIZE = 56;
+const GAP = 4;
+const BALL_SIZE = 40;
 const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
 
 // Helper to get the pixel position of a cell in the board
@@ -64,7 +66,7 @@ const Game: React.FC<GameProps> = ({
     const [mx, my] = movingBall.path[movingStep];
     const { left, top } = getCellPosition(mx, my);
     movingBallEl = (
-      <MovingBall color={COLOR_MAP[movingBall.color]} left={left} top={top} />
+      <MovingBall color={`ball-${movingBall.color}`} left={left} top={top} />
     );
   }
 

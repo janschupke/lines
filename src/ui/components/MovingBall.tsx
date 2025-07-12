@@ -9,10 +9,8 @@ interface MovingBallProps {
 const MovingBall: React.FC<MovingBallProps> = ({ color, left, top }) => {
   return (
     <div
-      className={`absolute rounded-full border-2 border-game-border-ball shadow-[0_1px_4px_theme(colors.game.shadow.ball)] bg-${color} z-10`}
+      className={`absolute rounded-full border-2 border-game-border-ball shadow-[0_1px_4px_theme(colors.game.shadow.ball)] bg-ball-${color} w-ball h-ball z-game-dialog`}
       style={{
-        width: 40,
-        height: 40,
         left,
         top,
         pointerEvents: 'none',

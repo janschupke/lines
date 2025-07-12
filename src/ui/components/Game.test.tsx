@@ -221,7 +221,7 @@ describe('Game', () => {
       
       // Check that preview balls have the correct size (50% of cell)
       previewBalls.forEach(ball => {
-        expect(ball).toHaveStyle({ width: '28px', height: '28px' });
+        expect(ball).toHaveClass('w-[28px]', 'h-[28px]');
       });
     });
   });

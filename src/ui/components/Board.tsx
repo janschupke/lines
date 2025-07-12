@@ -1,24 +1,11 @@
 import React from 'react';
-import { BALL_SIZE, type BallColor } from '../../utils/constants';
-import { CELL_SIZE, GAP } from '../../utils/boardConstants';
 import type { Cell } from '../../game/types';
-
-// Ball color hex values for inline styles
-const BALL_COLOR_HEX: Record<BallColor, string> = {
-  red: '#e74c3c',
-  green: '#27ae60',
-  blue: '#2980b9',
-  yellow: '#f1c40f',
-  purple: '#8e44ad',
-  cyan: '#1abc9c',
-  black: '#222',
-};
 
 interface BoardProps {
   board: Cell[][];
   onCellClick: (x: number, y: number) => void;
   children?: React.ReactNode;
-  movingBall?: { color: BallColor; path: [number, number][] } | null;
+  movingBall?: { color: string; path: [number, number][] } | null;
   poppingBalls?: Set<string>;
   hoveredCell?: { x: number; y: number } | null;
   pathTrail?: [number, number][] | null;
@@ -32,18 +19,14 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
   const pathSet = pathTrail ? new Set(pathTrail.map(([x, y]) => `${x},${y}`)) : new Set();
   
   // Calculate incoming ball size (50% of cell width)
-  const incomingBallSize = CELL_SIZE * 0.5;
+  const incomingBallSize = 'w-[28px] h-[28px]'; // 50% of 56px cell, use Tailwind arbitrary values
   
   return (
     <div
-      className="relative grid bg-game-bg-board p-2 rounded-xl shadow-lg mx-auto"
+      className="relative grid bg-game-bg-board p-board-padding rounded-xl shadow-lg mx-auto w-fit h-fit box-content"
       style={{
-        gridTemplateColumns: `repeat(${board[0].length}, ${CELL_SIZE}px)`,
-        gridTemplateRows: `repeat(${board.length}, ${CELL_SIZE}px)`,
-        gap: `${GAP}px`,
-        width: 'fit-content',
-        height: 'fit-content',
-        boxSizing: 'content-box',
+        gridTemplateColumns: `repeat(${board[0].length}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${board.length}, minmax(0, 1fr))`,
       }}
     >
       {board.flat().map((cell) => {
@@ -82,11 +65,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
         return (
           <div
             key={key}
-            className={`rounded-lg flex items-center justify-center cursor-pointer transition-colors duration-200 box-border relative border-2 ${cellBgClass} ${borderClass}`}
-            style={{
-              width: CELL_SIZE,
-              height: CELL_SIZE,
-            }}
+            className={`rounded-lg flex items-center justify-center cursor-pointer transition-colors duration-200 box-border relative border-2 ${cellBgClass} ${borderClass} w-cell h-cell`}
             onClick={() => onCellClick(cell.x, cell.y)}
             onMouseEnter={() => onCellHover && onCellHover(cell.x, cell.y)}
             onMouseLeave={() => onCellLeave && onCellLeave()}
@@ -95,11 +74,8 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
           >
             {cell.ball && !hideBall && (
               <span
-                className={`block rounded-full border-2 border-game-border-ball ${cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'} ${popping ? 'z-20' : ''}`}
+                className={`block rounded-full border-2 border-game-border-ball ${cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'} ${popping ? 'z-20' : ''} bg-ball-${cell.ball.color} w-ball h-ball`}
                 style={{
-                  width: BALL_SIZE,
-                  height: BALL_SIZE,
-                  backgroundColor: BALL_COLOR_HEX[cell.ball.color],
                   animation: popping ? 'pop-ball' : 'move-ball',
                 }}
                 title={cell.ball.color}
@@ -107,24 +83,14 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className="block rounded-full border border-game-border-preview shadow-sm opacity-80"
-                style={{
-                  width: incomingBallSize,
-                  height: incomingBallSize,
-                  backgroundColor: BALL_COLOR_HEX[cell.incomingBall.color],
-                }}
+                className={`block rounded-full border border-game-border-preview shadow-sm opacity-80 bg-ball-${cell.incomingBall.color} ${incomingBallSize}`}
                 title={`Preview: ${cell.incomingBall.color}`}
               />
             )}
             {/* Not reachable cross */}
             {showNotReachable && (
               <span
-                className="absolute left-2 top-2 flex items-center justify-center text-game-text-error text-2xl font-extrabold opacity-70"
-                style={{
-                  width: CELL_SIZE - 16,
-                  height: CELL_SIZE - 16,
-                  pointerEvents: 'none',
-                }}
+                className="absolute left-2 top-2 flex items-center justify-center text-game-text-error text-2xl font-extrabold opacity-70 w-[40px] h-[40px] pointer-events-none"
               >×</span>
             )}
           </div>

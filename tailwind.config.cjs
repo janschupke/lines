@@ -62,6 +62,15 @@ module.exports = {
           },
         },
       },
+      spacing: {
+        'ball': '40px', // BALL_SIZE
+        'cell': '56px', // CELL_SIZE
+        'gap': '4px',   // GAP
+        'board-padding': '8px', // PADDING
+      },
+      zIndex: {
+        'game-dialog': '1000',
+      },
       animation: {
         'move-ball': 'moveBall 0.25s cubic-bezier(0.4, 0.2, 0.2, 1)',
         'pop-ball': 'popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)',

@@ -64,15 +64,16 @@ describe('Preview Balls Functionality', () => {
 
       // Check that preview balls have the correct inline style (50% of cell size)
       previewBalls.forEach((ball) => {
-        expect(ball).toHaveStyle({ width: '28px', height: '28px' }); // 50% of 56px cell
+        expect(ball).toHaveClass('w-[28px]', 'h-[28px]'); // 50% of 56px cell
         expect(ball).toHaveClass('rounded-full');
         expect(ball).toHaveClass('border');
+        expect(ball).toHaveClass('shadow-sm');
         expect(ball).toHaveClass('opacity-80');
       });
 
       // Check that regular balls have the full size
       regularBalls.forEach((ball) => {
-        expect(ball).toHaveStyle({ width: '40px', height: '40px' }); // Full ball size
+        expect(ball).toHaveClass('w-ball', 'h-ball'); // Full ball size
       });
     });
 
@@ -96,9 +97,9 @@ describe('Preview Balls Functionality', () => {
       expect(previewBalls).toHaveLength(3);
 
       // Check that each preview ball has the correct color class
-      expect(previewBalls[0]).toHaveStyle({ backgroundColor: '#e74c3c' }); // red
-      expect(previewBalls[1]).toHaveStyle({ backgroundColor: '#2980b9' }); // blue
-      expect(previewBalls[2]).toHaveStyle({ backgroundColor: '#27ae60' }); // green
+      expect(previewBalls[0]).toHaveClass('bg-ball-red'); // red
+      expect(previewBalls[1]).toHaveClass('bg-ball-blue'); // blue
+      expect(previewBalls[2]).toHaveClass('bg-ball-green'); // green
     });
 
     it('preview balls are positioned correctly in empty cells', () => {
@@ -146,8 +147,8 @@ describe('Preview Balls Functionality', () => {
       expect(previewBalls).toHaveLength(2);
 
       previewBalls.forEach(ball => {
-        // Check for inline styles instead of Tailwind classes
-        expect(ball).toHaveStyle({ width: '28px', height: '28px' }); // 50% of 56px cell
+        // Check for Tailwind classes instead of inline styles
+        expect(ball).toHaveClass('w-[28px]', 'h-[28px]'); // 50% of 56px cell
         expect(ball).toHaveClass('rounded-full'); // border-radius: 50%
         expect(ball).toHaveClass('opacity-80'); // opacity: 0.8
         expect(ball).toHaveClass('border'); // border

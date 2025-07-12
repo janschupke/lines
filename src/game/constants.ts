@@ -1,5 +1,6 @@
 // Game Configuration
 export const BOARD_SIZE = 9;
+export const INITIAL_BALLS = 3;
 export const BALLS_PER_TURN = 3;
 
 // Ball Colors - now using Tailwind theme colors

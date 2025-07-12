@@ -6,28 +6,66 @@ React app is up at [https://lines.schupke.io/](https://lines.schupke.io/).
 
 ## Features
 
-* Customizable board size
 * Highlighting of reachable cells within the board
 * Incoming balls' positions and colors hint
-* Optional turn time limit
 * Remembers current game state when closed
 * Extensive Game Guide available through the game menu
-* High score table with session-based tracking
+* High score table with persistent, cross-device storage (Supabase)
+* Seamless migration of high scores from localStorage to Supabase
+* Real-time high score synchronization and connection status monitoring
+* Offline support with local caching and automatic recovery
 * Mobile-optimized: touch controls, responsive design, and mobile accessibility
+* >80% automated test coverage, all tests and builds must pass for every deployment
 * ...and more!
 
 ---
 
 # Local Development Environment
 
-## Database with Docker Compose
+## Development Modes
 
-This project uses Docker Compose **only for the database** (Supabase/Postgres). The React app is run directly on your host machine.
+This project supports two development modes:
+
+### **Local Development (Default)**
+- Uses localStorage for high scores
+- No database required
+- Faster startup and development
+- High scores persist in browser only
+
+### **Database Development (Optional)**
+- Uses Docker Compose for PostgreSQL database
+- Full Supabase functionality
+- Cross-device high score sharing
+- Requires proper Supabase configuration
+
+## Database with Docker Compose (Optional)
+
+If you want to use the full database functionality locally, this project uses Docker Compose **only for the database** (Supabase/Postgres). The React app is run directly on your host machine.
 
 **Why?**
 - Vite 5+ and Node.js 18+ in containers have a known incompatibility with the `crypto.hash` API, causing the dev server to fail in Docker. Running the app on the host avoids this issue and provides a smoother developer experience.
 
 ## Getting Started
+
+### **Quick Start (Local Development)**
+
+1. **Install dependencies:**
+
+```bash
+npm install
+```
+
+2. **Run the development server:**
+
+```bash
+npm run dev
+```
+
+That's it! The app will use localStorage for high scores and work immediately.
+
+### **Full Database Setup (Optional)**
+
+If you want to use the full database functionality:
 
 1. **Start the database with Docker Compose:**
 
@@ -35,11 +73,7 @@ This project uses Docker Compose **only for the database** (Supabase/Postgres). 
 docker-compose up -d
 ```
 
-2. **Install dependencies:**
-
-```bash
-npm install
-```
+2. **Configure environment variables** (see Environment Variables section below)
 
 3. **Run the development server:**
 
@@ -61,11 +95,15 @@ npm run test:run
 
 ## Environment Variables
 
+### **Local Development (Default)**
+No environment variables needed! The app will automatically use localStorage for high scores.
+
+### **Database Development (Optional)**
 Create a `.env.development` file in the project root:
 
 ```
-VITE_SUPABASE_URL=postgresql://postgres:postgres@localhost:5432/lines_game
-VITE_SUPABASE_ANON_KEY=local-dev-key
+VITE_SUPABASE_URL=http://localhost:3000
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 VITE_ENVIRONMENT=development
 VITE_APP_ENV=development
 ```
@@ -149,6 +187,6 @@ Production deployments include health checks for database connectivity, schema, 
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS (with theme classes, no hardcoded colors)
-- Supabase (Postgres)
+- Supabase (Postgres, real-time sync, persistent high scores, migration from localStorage)
 - Vercel (hosting)
-- Vitest + React Testing Library
+- Vitest + React Testing Library (with >80% coverage required)

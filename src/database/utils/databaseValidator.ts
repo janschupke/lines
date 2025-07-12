@@ -174,7 +174,7 @@ export class DatabaseValidator {
     // Simplified column validation
     const requiredColumns: Record<string, string[]> = {
       'high_scores': ['id', 'player_name', 'score', 'achieved_at', 'turns_count', 'individual_balls_popped', 'lines_popped', 'longest_line_popped'],
-      'user_preferences': ['id', 'player_name', 'board_size', 'time_limit', 'sound_enabled'],
+      'user_preferences': ['id', 'player_name', 'sound_enabled'],
       'schema_migrations': ['version', 'name', 'applied_at']
     };
 

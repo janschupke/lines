@@ -86,6 +86,56 @@ export class HighScoreService {
     }
   }
 
+  async getPlayerHighScores(playerName: string): Promise<HighScore[]> {
+    try {
+      this.connectionStatus = 'connecting';
+      const { data, error } = await this.supabase
+        .from('high_scores')
+        .select('*')
+        .eq('player_name', playerName)
+        .order('score', { ascending: false });
+      if (error) throw error;
+      this.connectionStatus = 'connected';
+      return (data || []).map(row => ({
+        id: row.id,
+        playerName: row.player_name,
+        score: row.score,
+        achievedAt: new Date(row.achieved_at),
+        gameDuration: row.game_duration,
+        ballsCleared: row.balls_cleared,
+        turnsCount: row.turns_count,
+        individualBallsPopped: row.individual_balls_popped,
+        linesPopped: row.lines_popped,
+        longestLinePopped: row.longest_line_popped
+      }));
+    } catch (error) {
+      this.connectionStatus = 'error';
+      console.error('Failed to retrieve player high scores:', error);
+      return [];
+    }
+  }
+
+  subscribeToHighScoreUpdates(callback: (scores: HighScore[]) => void): () => void {
+    const subscription = this.supabase
+      .channel('high_scores_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'high_scores' },
+        async () => {
+          try {
+            const scores = await this.getTopScores(10);
+            callback(scores);
+          } catch (error) {
+            console.error('Error in high score subscription:', error);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }
+
   async isConnected(): Promise<boolean> {
     try {
       const { error } = await this.supabase

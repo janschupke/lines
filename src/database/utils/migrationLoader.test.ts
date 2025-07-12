@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MigrationLoader } from '../../../database/utils/migrationLoader';
+import { MigrationLoader } from './migrationLoader';
 
 describe('MigrationLoader', () => {
   describe('loadMigrationFile', () => {

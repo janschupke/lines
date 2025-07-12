@@ -168,8 +168,6 @@ CREATE POLICY IF NOT EXISTS "Allow insert access" ON high_scores
 CREATE TABLE IF NOT EXISTS user_preferences (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     player_name TEXT UNIQUE NOT NULL,
-    board_size INTEGER DEFAULT 9,
-    time_limit INTEGER DEFAULT 0,
     sound_enabled BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

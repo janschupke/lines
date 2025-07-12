@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SchemaManager } from '../../../database/services/SchemaManager';
+import { SchemaManager } from './SchemaManager';
 
 // Mock Supabase client
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

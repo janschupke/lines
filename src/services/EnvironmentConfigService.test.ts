@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { EnvironmentConfigService } from '../../services/EnvironmentConfigService';
+import { EnvironmentConfigService } from './EnvironmentConfigService';
 
 describe('EnvironmentConfigService', () => {
   it('should return config with correct values', () => {

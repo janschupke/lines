@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ProductionDeploymentService } from '../../services/ProductionDeploymentService';
+import { ProductionDeploymentService } from './ProductionDeploymentService';
 
 const mockSupabase = {
   from: vi.fn(),

@@ -10,7 +10,7 @@ import { useGameState } from '../../game/state';
 import { useMobileOptimization } from '../../hooks/useMobileOptimization';
 import { formatTime } from '../../utils/formatters';
 import { getGameSpacing } from '../../utils/helpers';
-import { HighScoreService } from '../../services/HighScoreService';
+import { HighScoreServiceFactory } from '../../services/HighScoreServiceFactory';
 import type { HighScore } from '../../services/HighScoreService';
 import { useConnectionStatus } from '../../services/useConnectionStatus';
 import type { Cell } from '../../game/types';
@@ -35,7 +35,7 @@ interface GameProps {
   initialNextBalls?: BallColor[];
 }
 
-const highScoreService = new HighScoreService();
+const highScoreService = HighScoreServiceFactory.createService();
 
 const Game: React.FC<GameProps> = ({ 
   showGuide, 

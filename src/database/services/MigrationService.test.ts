@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { MigrationService } from '../../../database/services/MigrationService';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import { MigrationService } from './MigrationService';
 
 // Mock Supabase client
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

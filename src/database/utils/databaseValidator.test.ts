@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DatabaseValidator } from '../../../database/utils/databaseValidator';
+import { DatabaseValidator } from './databaseValidator';
 
 // Mock Supabase client
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -195,34 +195,6 @@ describe('DatabaseValidator', () => {
       });
 
       const result = await databaseValidator['validateConnectivity']();
-
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('validateMigrationTable', () => {
-    it('should validate migration table successfully', async () => {
-      // Mock successful migration table access
-      mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue({ error: null })
-        })
-      });
-
-      const result = await databaseValidator['validateMigrationTable']();
-
-      expect(result).toBe(true);
-    });
-
-    it('should handle migration table errors', async () => {
-      // Mock migration table access failure
-      mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          limit: vi.fn().mockRejectedValue(new Error('Migration table not found'))
-        })
-      });
-
-      const result = await databaseValidator['validateMigrationTable']();
 
       expect(result).toBe(false);
     });

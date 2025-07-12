@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import Game from './components/Game';
-import ToggleBar from './components/ui/ToggleBar';
+import Game from './ui/components/Game';
+import ToggleBar from './ui/components/ToggleBar';
 
 function App() {
   const [showGuide, setShowGuide] = useState(false);
-  const [showHighScores, setShowHighScores] = useState(false);
 
   return (
     <div className="min-h-screen bg-game-bg-primary text-game-text-primary p-4">
@@ -14,8 +13,6 @@ function App() {
           <ToggleBar
             showGuide={showGuide}
             setShowGuide={setShowGuide}
-            showHighScores={showHighScores}
-            setShowHighScores={setShowHighScores}
           />
         </header>
         
@@ -23,8 +20,6 @@ function App() {
           <Game
             showGuide={showGuide}
             setShowGuide={setShowGuide}
-            showHighScores={showHighScores}
-            setShowHighScores={setShowHighScores}
           />
         </main>
       </div>

@@ -1,14 +1,14 @@
 import React from 'react';
 import Board from './Board';
 import GameEndDialog from './GameEndDialog';
-import GameHeader from './ui/GameHeader';
-import MovingBall from './ui/MovingBall';
-import { COLOR_MAP, type BallColor } from '../utils/constants';
-import { CELL_SIZE, GAP } from '../utils/boardConstants';
-import { BALL_SIZE } from '../utils/constants';
-import { useGameState } from '../utils/gameState';
-import { formatTime } from '../utils/formatters';
-import { type Cell } from '../utils/gameLogic';
+import GameHeader from './GameHeader';
+import MovingBall from './MovingBall';
+import { COLOR_MAP, type BallColor } from '../../utils/constants';
+import { CELL_SIZE, GAP } from '../../utils/boardConstants';
+import { BALL_SIZE } from '../../utils/constants';
+import { useGameState } from '../../game/state';
+import { formatTime } from '../../utils/formatters';
+import type { Cell } from '../../game/types';
 
 const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
 
@@ -21,15 +21,12 @@ const getCellPosition = (x: number, y: number) => ({
 interface GameProps {
   showGuide: boolean;
   setShowGuide: (v: boolean) => void;
-  showHighScores: boolean;
-  setShowHighScores: (v: boolean) => void;
   initialBoard?: Cell[][];
   initialNextBalls?: BallColor[];
 }
 
 const Game: React.FC<GameProps> = ({ 
   showGuide, 
-  showHighScores, 
   initialBoard, 
   initialNextBalls 
 }) => {

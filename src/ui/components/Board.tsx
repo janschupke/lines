@@ -1,7 +1,7 @@
 import React from 'react';
-import { BALL_SIZE, COLOR_MAP, type BallColor } from '../utils/constants';
-import { CELL_SIZE, GAP } from '../utils/boardConstants';
-import type { Cell } from '../utils/gameLogic';
+import { BALL_SIZE, COLOR_MAP, type BallColor } from '../../utils/constants';
+import { CELL_SIZE, GAP } from '../../utils/boardConstants';
+import type { Cell } from '../../game/types';
 
 interface BoardProps {
   board: Cell[][];
@@ -9,7 +9,7 @@ interface BoardProps {
   children?: React.ReactNode;
   movingBall?: { color: BallColor; path: [number, number][] } | null;
   poppingBalls?: Set<string>;
-  hoveredCell?: { x: number, y: number } | null;
+  hoveredCell?: { x: number; y: number } | null;
   pathTrail?: [number, number][] | null;
   notReachable?: boolean;
   onCellHover?: (x: number, y: number) => void;
@@ -19,6 +19,10 @@ interface BoardProps {
 const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall, poppingBalls, hoveredCell, pathTrail, notReachable, onCellHover, onCellLeave }) => {
   // Convert pathTrail to a Set for fast lookup
   const pathSet = pathTrail ? new Set(pathTrail.map(([x, y]) => `${x},${y}`)) : new Set();
+  
+  // Calculate incoming ball size (50% of cell width)
+  const incomingBallSize = CELL_SIZE * 0.5;
+  
   return (
     <div
       className="relative grid bg-game-bg-board p-2 rounded-xl shadow-lg mx-auto"
@@ -91,7 +95,11 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`block w-6 h-6 rounded-full border border-game-border-preview shadow-sm opacity-80 bg-${COLOR_MAP[cell.incomingBall.color]}`}
+                className={`block rounded-full border border-game-border-preview shadow-sm opacity-80 bg-${COLOR_MAP[cell.incomingBall.color]}`}
+                style={{
+                  width: incomingBallSize,
+                  height: incomingBallSize,
+                }}
                 title={`Preview: ${cell.incomingBall.color}`}
               />
             )}

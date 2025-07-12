@@ -13,6 +13,7 @@ React app is up at [https://lines.schupke.io/](https://lines.schupke.io/).
 * Remembers current game state when closed
 * Extensive Game Guide available through the game menu
 * High score table with session-based tracking
+* Mobile-optimized: touch controls, responsive design, and mobile accessibility
 * ...and more!
 
 ---

@@ -7,23 +7,57 @@ interface BoardProps {
   children?: React.ReactNode;
   movingBall?: { color: string; path: [number, number][] } | null;
   poppingBalls?: Set<string>;
-  hoveredCell?: { x: number; y: number } | null;
+  hoveredCell?: { x: number, y: number } | null;
   pathTrail?: [number, number][] | null;
   notReachable?: boolean;
   onCellHover?: (x: number, y: number) => void;
   onCellLeave?: () => void;
 }
 
-const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall, poppingBalls, hoveredCell, pathTrail, notReachable, onCellHover, onCellLeave }) => {
+const Board: React.FC<BoardProps> = ({ 
+  board, 
+  onCellClick, 
+  children, 
+  movingBall, 
+  poppingBalls, 
+  hoveredCell, 
+  pathTrail, 
+  notReachable, 
+  onCellHover, 
+  onCellLeave 
+}) => {
   // Convert pathTrail to a Set for fast lookup
   const pathSet = pathTrail ? new Set(pathTrail.map(([x, y]) => `${x},${y}`)) : new Set();
   
   // Calculate incoming ball size (50% of cell width)
   const incomingBallSize = 'w-[28px] h-[28px]'; // 50% of 56px cell, use Tailwind arbitrary values
   
+  // Check if any animation is in progress
+  const isAnimationInProgress = movingBall || (poppingBalls && poppingBalls.size > 0);
+  
+  // Handle cell click with animation check
+  const handleCellClick = (x: number, y: number) => {
+    if (isAnimationInProgress) return;
+    onCellClick(x, y);
+  };
+  
+  // Handle cell hover with animation check
+  const handleCellHover = (x: number, y: number) => {
+    if (isAnimationInProgress) return;
+    onCellHover?.(x, y);
+  };
+  
+  // Handle cell leave with animation check
+  const handleCellLeave = () => {
+    if (isAnimationInProgress) return;
+    onCellLeave?.();
+  };
+  
   return (
     <div
-      className="relative grid bg-game-bg-board p-board-padding rounded-xl shadow-lg mx-auto w-fit h-fit box-content gap-gap"
+      className={`relative grid bg-game-bg-board p-board-padding rounded-xl shadow-lg mx-auto w-fit h-fit box-content gap-gap ${
+        isAnimationInProgress ? 'pointer-events-none' : ''
+      }`}
       style={{
         gridTemplateColumns: `repeat(${board[0].length}, minmax(0, 1fr))`,
         gridTemplateRows: `repeat(${board.length}, minmax(0, 1fr))`,
@@ -62,19 +96,26 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
           borderClass = 'border-game-border-error';
         }
         
+        // Disable hover effects during animations
+        const shouldShowHoverEffects = !isAnimationInProgress;
+        
         return (
           <div
             key={key}
-            className={`rounded-lg flex items-center justify-center cursor-pointer transition-colors duration-200 box-border relative border-2 ${cellBgClass} ${borderClass} w-cell h-cell`}
-            onClick={() => onCellClick(cell.x, cell.y)}
-            onMouseEnter={() => onCellHover && onCellHover(cell.x, cell.y)}
-            onMouseLeave={() => onCellLeave && onCellLeave()}
+            className={`rounded-lg flex items-center justify-center transition-colors duration-200 box-border relative border-2 ${
+              isAnimationInProgress ? 'cursor-default' : 'cursor-pointer'
+            } ${cellBgClass} ${borderClass} w-cell h-cell`}
+            onClick={() => handleCellClick(cell.x, cell.y)}
+            onMouseEnter={() => handleCellHover(cell.x, cell.y)}
+            onMouseLeave={handleCellLeave}
             role="button"
-            tabIndex={0}
+            tabIndex={isAnimationInProgress ? -1 : 0}
           >
             {cell.ball && !hideBall && (
               <span
-                className={`block rounded-full border-2 border-game-border-ball ${cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'} ${popping ? 'z-20 animate-pop-ball' : 'animate-move-ball'} bg-ball-${cell.ball.color} w-ball h-ball`}
+                className={`block rounded-full border-2 border-game-border-ball ${
+                  cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'
+                } ${popping ? 'z-20 animate-pop-ball' : 'animate-move-ball'} bg-ball-${cell.ball.color} w-ball h-ball`}
                 title={cell.ball.color}
               />
             )}
@@ -85,7 +126,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
               />
             )}
             {/* Not reachable cross */}
-            {showNotReachable && (
+            {showNotReachable && shouldShowHoverEffects && (
               <span
                 className="absolute left-2 top-2 flex items-center justify-center text-game-text-error text-2xl font-extrabold opacity-70 w-[40px] h-[40px] pointer-events-none"
               >×</span>

@@ -99,7 +99,7 @@ const Game: React.FC<GameProps> = ({
         {/* Current Score */}
         <div className="text-center">
           <div className="text-2xl font-bold text-game-text-accent">Score</div>
-          <div className="text-xl text-game-text-primary">{score}</div>
+          <div className="text-xl text-game-text-primary" data-testid="score-value">{score}</div>
         </div>
 
         {/* Incoming Balls Panel */}
@@ -119,7 +119,7 @@ const Game: React.FC<GameProps> = ({
         {/* High Score */}
         <div className="text-center">
           <div className="text-2xl font-bold text-game-text-accent">High Score</div>
-          <div className="text-xl text-game-text-primary">{currentHighScore}</div>
+          <div className="text-xl text-game-text-primary" data-testid="high-score-value">{currentHighScore}</div>
         </div>
       </div>
 

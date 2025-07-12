@@ -2,7 +2,6 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { 
   BALLS_PER_TURN, 
   ANIMATION_DURATIONS,
-  BOARD_SIZE,
   type BallColor
 } from '../../utils/constants';
 import { 
@@ -10,14 +9,11 @@ import {
   createEmptyBoard,
   placeRealBalls,
   placePreviewBalls,
-  recalculateIncomingPositions,
-  isBoardFull,
-  findLine,
-  findPath,
-  getRandomEmptyCells
+  findPath
 } from '../logic';
 import type { Cell, GameState, GameActions } from '../types';
 import HighScoreManager from '../../utils/highScoreManager';
+import { GamePhaseManager } from './gamePhaseManager';
 
 export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallColor[]): [GameState, GameActions] => {
   const [board, setBoard] = useState<Cell[][]>(() => {
@@ -27,7 +23,7 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     // Start with empty board, add 3 real balls, then add 3 incoming preview balls
     const board = createEmptyBoard();
     const initialBalls = getRandomNextBalls(BALLS_PER_TURN);
-    const boardWithRealBalls = placeRealBalls(board, initialBalls); // FIXED: Use placeRealBalls instead of placePreviewBalls
+    const boardWithRealBalls = placeRealBalls(board, initialBalls);
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
     return placePreviewBalls(boardWithRealBalls, initialNext);
   });
@@ -88,16 +84,38 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     return false;
   }, [timer]);
 
+  // Clear selection when animation starts
+  const clearSelection = useCallback(() => {
+    setSelected(null);
+    setBoard(prev => prev.map(row => row.map(cell => ({ ...cell, active: false }))));
+  }, []);
+
   // Handle cell click: select or move
   const handleCellClick = useCallback((x: number, y: number) => {
     if (gameOver || movingBall) return;
+    
     const cell = board[y][x];
+    
     if (cell.ball) {
+      // Select ball
       setSelected({ x, y });
-      setBoard(prev => prev.map((row, yy) => row.map((c, xx) => ({ ...c, active: xx === x && yy === y }))));
+      setBoard(prev => prev.map((row, yy) => row.map((c, xx) => ({ 
+        ...c, 
+        active: xx === x && yy === y 
+      }))));
     } else if (selected) {
+      // Validate move
+      if (!GamePhaseManager.validateMove(board, selected.x, selected.y, x, y)) {
+        return;
+      }
+      
+      // Attempt to move ball
       const path = findPath(board, selected, { x, y });
+      
       if (path && path.length > 1) {
+        // Clear selection immediately when animation starts
+        clearSelection();
+        
         // Start animation
         setMovingBall({ color: board[selected.y][selected.x].ball!.color, path });
         setMovingStep(0);
@@ -105,7 +123,7 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
         setNotReachable(false);
       }
     }
-  }, [board, gameOver, movingBall, selected]);
+  }, [board, gameOver, movingBall, selected, clearSelection]);
 
   // Handle cell hover for path preview
   const handleCellHover = useCallback((x: number, y: number) => {
@@ -138,117 +156,50 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
         // Animation complete, process the move
         const [fromX, fromY] = movingBall.path[0];
         const [toX, toY] = movingBall.path[movingBall.path.length - 1];
-        const newBoard = board.map(row => row.map(cell => ({ ...cell, active: false })));
-        newBoard[toY][toX].ball = board[fromY][fromX].ball;
-        newBoard[fromY][fromX].ball = null;
-        // Explicitly clear incomingBall for the destination cell
-        newBoard[toY][toX].incomingBall = null;
         
-        // If we moved to a position that had a preview ball, recalculate incoming positions
-        if (board[toY][toX].incomingBall) {
-          if (isBoardFull(newBoard)) {
-            // Board is full: clear all incoming balls, preserve the moved ball, and end game
-            const clearedBoard = newBoard.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
-            setBoard(clearedBoard);
-            setGameOver(true);
-            setShowGameEndDialog(true);
-          } else {
-            // Not full: recalculate incoming positions as usual
-            const recalculatedBoard = recalculateIncomingPositions(newBoard, nextBalls);
-            setBoard(recalculatedBoard);
-          }
-        } else {
-          setBoard(newBoard);
-        }
+        // Handle move completion using GamePhaseManager
+        const moveResult = GamePhaseManager.handleMoveCompletion(board, fromX, fromY, toX, toY, nextBalls);
+        setBoard(moveResult.newBoard);
         
-        setSelected(null);
-        setMovingBall(null);
-        setMovingStep(0);
         // Start timer after first move
         if (!timerActive && timer === 0) {
           setTimerActive(true);
         }
         
-        // Check for lines
-        const movedColor = newBoard[toY][toX].ball?.color;
-        const allLines: Set<string> = new Set();
-        const ballsToRemove: [number, number][] = [];
-        let lines: [number, number][][] = [];
+        // Check for lines and handle removal
+        const lineResult = GamePhaseManager.handleLineDetection(moveResult.newBoard, toX, toY);
         
-        if (movedColor) {
-          lines = findLine(newBoard, toX, toY, movedColor);
-          lines.forEach(line => {
-            line.forEach(([x, y]) => {
-              allLines.add(`${x},${y}`);
-              ballsToRemove.push([x, y]);
-            });
-          });
-        }
-        
-        if (ballsToRemove.length > 0) {
-          // Remove balls and update score
-          const boardAfterRemoval = newBoard.map(row => row.map(cell => ({ ...cell })));
-          ballsToRemove.forEach(([x, y]) => {
-            boardAfterRemoval[y][x].ball = null;
-          });
-          
-          const pointsEarned = ballsToRemove.length;
-          setScore(s => s + pointsEarned);
-          
-          // Set popping animation
-          setPoppingBalls(new Set(ballsToRemove.map(([x, y]) => `${x},${y}`)));
+        if (lineResult) {
+          // Lines were formed - handle ball removal
+          setScore(s => s + lineResult.pointsEarned!);
+          setPoppingBalls(new Set(lineResult.ballsRemoved!.map(([x, y]) => `${x},${y}`)));
           
           // Check for new high score
-          const newScore = score + pointsEarned;
+          const newScore = score + lineResult.pointsEarned!;
           checkForNewHighScore(newScore);
           
           // Clear popping balls after animation
           setTimeout(() => {
             setPoppingBalls(new Set());
             
-            // Check if board is full after removing balls
-            if (isBoardFull(boardAfterRemoval)) {
-              // Ensure the moved ball is present and all incomingBall are cleared
-              const clearedBoard = boardAfterRemoval.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
-              setBoard(clearedBoard);
-              setGameOver(true);
-              setShowGameEndDialog(true);
-            } else {
-              // Recalculate incoming positions after removing balls
-              const recalculatedBoard = recalculateIncomingPositions(boardAfterRemoval, nextBalls);
-              setBoard(recalculatedBoard);
-            }
+            // Keep incoming balls in their current positions - don't recalculate
+            setBoard(lineResult.newBoard);
           }, ANIMATION_DURATIONS.POP_BALL);
         } else {
-          // No lines formed - convert incoming balls to real balls and spawn new ones
-          // Only spawn as many balls as there are empty cells
-          const emptyCount = getRandomEmptyCells(newBoard, BOARD_SIZE * BOARD_SIZE).length;
-          if (emptyCount === 0) {
-            // Board is full after move: clear all incoming balls, do not convert them, and end game
-            const clearedBoard = newBoard.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
-            setBoard(clearedBoard);
-            setGameOver(true);
-            setShowGameEndDialog(true);
-            return;
-          }
-          // Only convert incoming balls if there is at least one empty cell
-          const ballsToAdd = Math.min(BALLS_PER_TURN, emptyCount);
-          const boardWithRealBalls = newBoard.map(row => row.map(cell => ({
-            ...cell,
-            ball: cell.incomingBall ? cell.incomingBall : cell.ball,
-            incomingBall: null
-          })));
-          // Generate next preview balls ONCE
-          const nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
-          // Add new preview balls for next turn, but only if there is space
-          const afterBalls = ballsToAdd > 0 ? placePreviewBalls(boardWithRealBalls, nextPreviewBalls.slice(0, ballsToAdd)) : boardWithRealBalls;
-          setBoard(afterBalls);
-          setNextBalls(nextPreviewBalls);
-          if (isBoardFull(afterBalls)) {
+          // No lines formed - convert incoming balls
+          const conversionResult = GamePhaseManager.handleIncomingBallConversion(moveResult.newBoard);
+          setBoard(conversionResult.newBoard);
+          setNextBalls(conversionResult.nextBalls);
+          
+          if (conversionResult.gameOver) {
             setGameOver(true);
             setShowGameEndDialog(true);
           }
         }
+        
+        // Reset animation state
+        setMovingBall(null);
+        setMovingStep(0);
       }
       return;
     }
@@ -267,11 +218,20 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     };
   }, [movingBall, movingStep, board, nextBalls, timerActive, timer, score, checkForNewHighScore]);
 
+  // Cleanup animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
   // Start new game
   const startNewGame = useCallback(() => {
     const board = createEmptyBoard();
     const initialBalls = getRandomNextBalls(BALLS_PER_TURN);
-    const boardWithRealBalls = placeRealBalls(board, initialBalls); // FIXED: Use placeRealBalls
+    const boardWithRealBalls = placeRealBalls(board, initialBalls);
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
     const finalBoard = placePreviewBalls(boardWithRealBalls, initialNext);
     

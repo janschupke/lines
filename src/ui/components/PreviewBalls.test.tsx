@@ -68,7 +68,7 @@ describe('Preview Balls Functionality', () => {
         expect(ball).toHaveClass('rounded-full');
         expect(ball).toHaveClass('border');
         expect(ball).toHaveClass('shadow-sm');
-        expect(ball).toHaveClass('opacity-80');
+        expect(ball).toHaveClass('opacity-50');
       });
 
       // Check that regular balls have the full size
@@ -150,7 +150,7 @@ describe('Preview Balls Functionality', () => {
         // Check for Tailwind classes instead of inline styles
         expect(ball).toHaveClass('w-[28px]', 'h-[28px]'); // 50% of 56px cell
         expect(ball).toHaveClass('rounded-full'); // border-radius: 50%
-        expect(ball).toHaveClass('opacity-80'); // opacity: 0.8
+        expect(ball).toHaveClass('opacity-50'); // opacity: 0.5
         expect(ball).toHaveClass('border'); // border
         expect(ball).toHaveClass('shadow-sm'); // shadow
       });
@@ -189,7 +189,7 @@ describe('Preview Balls Functionality', () => {
       );
 
       const previewBall = screen.getByTitle('Preview: cyan');
-      expect(previewBall).toHaveClass('opacity-80');
+      expect(previewBall).toHaveClass('opacity-50');
     });
   });
 

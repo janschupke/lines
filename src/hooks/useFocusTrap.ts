@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from "react";
 
 // Focus trap configuration
 export interface FocusTrapConfig {
@@ -16,19 +16,19 @@ export const useFocusTrap = (config: FocusTrapConfig) => {
   // Get all focusable elements within the container
   const getFocusableElements = useCallback(() => {
     if (!containerRef.current) return [];
-    
+
     const container = containerRef.current;
     const focusableSelectors = [
-      'button:not([disabled])',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      'a[href]',
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "a[href]",
       '[tabindex]:not([tabindex="-1"])',
-      '[contenteditable="true"]'
+      '[contenteditable="true"]',
     ];
-    
-    const elements = container.querySelectorAll(focusableSelectors.join(', '));
+
+    const elements = container.querySelectorAll(focusableSelectors.join(", "));
     return Array.from(elements) as HTMLElement[];
   }, []);
 
@@ -49,62 +49,74 @@ export const useFocusTrap = (config: FocusTrapConfig) => {
   }, [getFocusableElements]);
 
   // Handle keyboard navigation
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!config.active) return;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!config.active) return;
 
-    const focusableElements = getFocusableElements();
-    if (focusableElements.length === 0) return;
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) return;
 
-    const currentElement = document.activeElement as HTMLElement;
-    const currentIndex = focusableElements.indexOf(currentElement);
+      const currentElement = document.activeElement as HTMLElement;
+      const currentIndex = focusableElements.indexOf(currentElement);
 
-    switch (e.key) {
-      case 'Tab':
-        e.preventDefault();
-        
-        if (e.shiftKey) {
-          // Shift + Tab: move to previous element
-          if (currentIndex <= 0) {
-            focusableElements[focusableElements.length - 1].focus();
+      switch (e.key) {
+        case "Tab":
+          e.preventDefault();
+
+          if (e.shiftKey) {
+            // Shift + Tab: move to previous element
+            if (currentIndex <= 0) {
+              focusableElements[focusableElements.length - 1].focus();
+            } else {
+              focusableElements[currentIndex - 1].focus();
+            }
           } else {
-            focusableElements[currentIndex - 1].focus();
+            // Tab: move to next element
+            if (currentIndex >= focusableElements.length - 1) {
+              focusableElements[0].focus();
+            } else {
+              focusableElements[currentIndex + 1].focus();
+            }
           }
-        } else {
-          // Tab: move to next element
-          if (currentIndex >= focusableElements.length - 1) {
-            focusableElements[0].focus();
-          } else {
-            focusableElements[currentIndex + 1].focus();
+          break;
+
+        case "Escape":
+          if (config.onEscape) {
+            config.onEscape();
           }
-        }
-        break;
+          break;
 
-      case 'Escape':
-        if (config.onEscape) {
-          config.onEscape();
+        case "ArrowUp":
+        case "ArrowDown": {
+          e.preventDefault();
+          const direction = e.key === "ArrowUp" ? -1 : 1;
+          const nextIndex =
+            (currentIndex + direction + focusableElements.length) %
+            focusableElements.length;
+          focusableElements[nextIndex].focus();
+          break;
         }
-        break;
 
-      case 'ArrowUp':
-      case 'ArrowDown': {
-        e.preventDefault();
-        const direction = e.key === 'ArrowUp' ? -1 : 1;
-        const nextIndex = (currentIndex + direction + focusableElements.length) % focusableElements.length;
-        focusableElements[nextIndex].focus();
-        break;
+        case "Home":
+          e.preventDefault();
+          focusFirstElement();
+          break;
+
+        case "End":
+          e.preventDefault();
+          focusLastElement();
+          break;
       }
-
-      case 'Home':
-        e.preventDefault();
-        focusFirstElement();
-        break;
-
-      case 'End':
-        e.preventDefault();
-        focusLastElement();
-        break;
-    }
-  }, [config.active, config.onEscape, getFocusableElements, focusFirstElement, focusLastElement]);
+    },
+    [
+      config.active,
+      config.onEscape,
+      getFocusableElements,
+      focusFirstElement,
+      focusLastElement,
+      config,
+    ],
+  );
 
   // Set up focus trap
   useEffect(() => {
@@ -121,24 +133,30 @@ export const useFocusTrap = (config: FocusTrapConfig) => {
 
     // Add event listeners
     const container = containerRef.current;
-    container.addEventListener('keydown', handleKeyDown);
+    container.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      container.removeEventListener('keydown', handleKeyDown);
-      
+      container.removeEventListener("keydown", handleKeyDown);
+
       // Restore focus when trap is deactivated
       if (config.returnFocus && previousFocusRef.current) {
         previousFocusRef.current.focus();
       }
     };
-  }, [config.active, config.returnFocus, handleKeyDown, getFocusableElements]);
+  }, [
+    config.active,
+    config.returnFocus,
+    handleKeyDown,
+    getFocusableElements,
+    config,
+  ]);
 
   // Focus management utilities
   const focusNext = useCallback(() => {
     const focusableElements = getFocusableElements();
     const currentElement = document.activeElement as HTMLElement;
     const currentIndex = focusableElements.indexOf(currentElement);
-    
+
     if (currentIndex >= 0 && currentIndex < focusableElements.length - 1) {
       focusableElements[currentIndex + 1].focus();
     } else if (focusableElements.length > 0) {
@@ -150,7 +168,7 @@ export const useFocusTrap = (config: FocusTrapConfig) => {
     const focusableElements = getFocusableElements();
     const currentElement = document.activeElement as HTMLElement;
     const currentIndex = focusableElements.indexOf(currentElement);
-    
+
     if (currentIndex > 0) {
       focusableElements[currentIndex - 1].focus();
     } else if (focusableElements.length > 0) {
@@ -172,16 +190,19 @@ export const useFocusTrap = (config: FocusTrapConfig) => {
     focusPrevious,
     focusFirst,
     focusLast,
-    getFocusableElements
+    getFocusableElements,
   };
 };
 
 // Utility hook for simple focus trap
-export const useSimpleFocusTrap = (isActive: boolean, onEscape?: () => void) => {
+export const useSimpleFocusTrap = (
+  isActive: boolean,
+  onEscape?: () => void,
+) => {
   return useFocusTrap({
     active: isActive,
     returnFocus: true,
-    onEscape
+    onEscape,
   });
 };
 
@@ -190,6 +211,6 @@ export const useModalFocusTrap = (isOpen: boolean, onClose?: () => void) => {
   return useFocusTrap({
     active: isOpen,
     returnFocus: true,
-    onEscape: onClose
+    onEscape: onClose,
   });
-}; 
+};

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 interface PlayerNameInputProps {
   isOpen: boolean;
@@ -16,16 +16,30 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
   isOpen,
   onSubmit,
   onCancel,
-  className = ''
+  className = "",
 }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const handleSubmit = useCallback(() => {
+    const trimmedValue = inputValue.trim();
+    const valid = validatePlayerName(trimmedValue);
+    setIsValid(valid);
+    setHasSubmitted(true);
+
+    if (valid) {
+      onSubmit(trimmedValue);
+    } else {
+      // Convert to eggplant emoji if invalid
+      setInputValue("🍆");
+    }
+  }, [inputValue, onSubmit]);
+
   useEffect(() => {
     if (isOpen) {
-      setInputValue('');
+      setInputValue("");
       setIsValid(true);
       setHasSubmitted(false);
       // Focus the input after a short delay to ensure the modal is rendered
@@ -37,44 +51,30 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onCancel();
       }
     };
 
     const handleEnter = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
+      if (e.key === "Enter") {
         handleSubmit();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.addEventListener('keydown', handleEnter);
+      document.addEventListener("keydown", handleEscape);
+      document.addEventListener("keydown", handleEnter);
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('keydown', handleEnter);
+      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", handleEnter);
     };
-  }, [isOpen, onCancel, inputValue]);
-
-  const handleSubmit = () => {
-    const trimmedValue = inputValue.trim();
-    const valid = validatePlayerName(trimmedValue);
-    setIsValid(valid);
-    setHasSubmitted(true);
-
-    if (valid) {
-      onSubmit(trimmedValue);
-    } else {
-      // Convert to eggplant emoji if invalid
-      setInputValue('🍆');
-    }
-  };
+  }, [isOpen, onCancel, handleSubmit]);
 
   const handleCancel = () => {
-    setInputValue('');
+    setInputValue("");
     setIsValid(true);
     setHasSubmitted(false);
     onCancel();
@@ -83,7 +83,7 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    
+
     // Reset validation state when user starts typing again
     if (hasSubmitted) {
       setIsValid(true);
@@ -103,13 +103,16 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
     >
       <div className="bg-game-bg-tertiary border border-game-border-default p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
         <div className="text-center">
-          <h2 id="player-name-title" className="text-xl font-bold text-game-text-accent mb-4">
+          <h2
+            id="player-name-title"
+            className="text-xl font-bold text-game-text-accent mb-4"
+          >
             New High Score!
           </h2>
           <p className="text-game-text-secondary mb-4">
             Enter your name to save your achievement:
           </p>
-          
+
           <div className="mb-4">
             <input
               ref={inputRef}
@@ -119,9 +122,9 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 
                 focus:ring-game-button-accent focus:ring-offset-2 text-game-text-primary 
                 bg-game-bg-secondary ${
-                  !isValid && hasSubmitted 
-                    ? 'border-red-500 focus:ring-red-500' 
-                    : 'border-game-border-default'
+                  !isValid && hasSubmitted
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-game-border-default"
                 }`}
               placeholder="Enter your name..."
               maxLength={20}
@@ -133,7 +136,7 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
               </p>
             )}
           </div>
-          
+
           <div className="flex gap-3 justify-center">
             <button
               onClick={handleSubmit}
@@ -155,4 +158,4 @@ export const PlayerNameInput: React.FC<PlayerNameInputProps> = ({
       </div>
     </div>
   );
-}; 
+};

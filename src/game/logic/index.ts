@@ -1,5 +1,5 @@
-import { BOARD_SIZE, BALL_COLORS, type BallColor } from '../constants';
-import type { Cell, Direction } from '../types';
+import { BOARD_SIZE, BALL_COLORS, type BallColor } from "../constants";
+import type { Cell, Direction } from "../types";
 
 const DIRECTIONS: Direction[] = [
   [1, 0], // horizontal
@@ -25,11 +25,15 @@ export function createEmptyBoard(): Cell[][] {
       ball: null,
       incomingBall: null,
       active: false,
-    }))
+    })),
   );
 }
 
-export function getRandomEmptyCells(board: Cell[][], count: number, exclude: Set<string> = new Set()): [number, number][] {
+export function getRandomEmptyCells(
+  board: Cell[][],
+  count: number,
+  exclude: Set<string> = new Set(),
+): [number, number][] {
   const emptyCells: [number, number][] = [];
   for (let y = 0; y < BOARD_SIZE; y++) {
     for (let x = 0; x < BOARD_SIZE; x++) {
@@ -48,8 +52,12 @@ export function getRandomEmptyCells(board: Cell[][], count: number, exclude: Set
 }
 
 // NEW: Function to place real balls (not preview balls)
-export function placeRealBalls(board: Cell[][], colors: BallColor[], exclude: Set<string> = new Set()): Cell[][] {
-  const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+export function placeRealBalls(
+  board: Cell[][],
+  colors: BallColor[],
+  exclude: Set<string> = new Set(),
+): Cell[][] {
+  const newBoard = board.map((row) => row.map((cell) => ({ ...cell })));
   const positions = getRandomEmptyCells(newBoard, colors.length, exclude);
   positions.forEach(([x, y], i) => {
     newBoard[y][x].ball = { color: colors[i] };
@@ -57,8 +65,12 @@ export function placeRealBalls(board: Cell[][], colors: BallColor[], exclude: Se
   return newBoard;
 }
 
-export function placePreviewBalls(board: Cell[][], colors: BallColor[], exclude: Set<string> = new Set()): Cell[][] {
-  const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+export function placePreviewBalls(
+  board: Cell[][],
+  colors: BallColor[],
+  exclude: Set<string> = new Set(),
+): Cell[][] {
+  const newBoard = board.map((row) => row.map((cell) => ({ ...cell })));
   const positions = getRandomEmptyCells(newBoard, colors.length, exclude);
   positions.forEach(([x, y], i) => {
     newBoard[y][x].incomingBall = { color: colors[i] };
@@ -66,14 +78,19 @@ export function placePreviewBalls(board: Cell[][], colors: BallColor[], exclude:
   return newBoard;
 }
 
-export function recalculateIncomingPositions(board: Cell[][], colors: BallColor[]): Cell[][] {
-  const newBoard = board.map(row => row.map(cell => ({ ...cell })));
-  
+export function recalculateIncomingPositions(
+  board: Cell[][],
+  colors: BallColor[],
+): Cell[][] {
+  const newBoard = board.map((row) => row.map((cell) => ({ ...cell })));
+
   // Remove all incoming balls
-  newBoard.forEach(row => row.forEach(cell => {
-    cell.incomingBall = null;
-  }));
-  
+  newBoard.forEach((row) =>
+    row.forEach((cell) => {
+      cell.incomingBall = null;
+    }),
+  );
+
   // Place new incoming balls
   return placePreviewBalls(newBoard, colors);
 }
@@ -87,15 +104,23 @@ export function isBoardFull(board: Cell[][]): boolean {
   return true;
 }
 
-export function findLine(board: Cell[][], x: number, y: number, color: BallColor): [number, number][][] {
+export function findLine(
+  board: Cell[][],
+  x: number,
+  y: number,
+  color: BallColor,
+): [number, number][][] {
   const lines: [number, number][][] = [];
   for (const [dx, dy] of DIRECTIONS) {
     const line: [number, number][] = [[x, y]];
     // Forward
-    let nx = x + dx, ny = y + dy;
+    let nx = x + dx,
+      ny = y + dy;
     while (
-      nx >= 0 && nx < BOARD_SIZE &&
-      ny >= 0 && ny < BOARD_SIZE &&
+      nx >= 0 &&
+      nx < BOARD_SIZE &&
+      ny >= 0 &&
+      ny < BOARD_SIZE &&
       board[ny][nx].ball &&
       board[ny][nx].ball!.color === color
     ) {
@@ -107,8 +132,10 @@ export function findLine(board: Cell[][], x: number, y: number, color: BallColor
     nx = x - dx;
     ny = y - dy;
     while (
-      nx >= 0 && nx < BOARD_SIZE &&
-      ny >= 0 && ny < BOARD_SIZE &&
+      nx >= 0 &&
+      nx < BOARD_SIZE &&
+      ny >= 0 &&
+      ny < BOARD_SIZE &&
       board[ny][nx].ball &&
       board[ny][nx].ball!.color === color
     ) {
@@ -123,22 +150,37 @@ export function findLine(board: Cell[][], x: number, y: number, color: BallColor
   return lines;
 }
 
-export function findPath(board: Cell[][], from: {x: number, y: number}, to: {x: number, y: number}): [number, number][] | null {
+export function findPath(
+  board: Cell[][],
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): [number, number][] | null {
   if (from.x === to.x && from.y === to.y) return null;
-  const visited = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(false));
-  const prev: (null | [number, number])[][] = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
+  const visited = Array.from({ length: BOARD_SIZE }, () =>
+    Array(BOARD_SIZE).fill(false),
+  );
+  const prev: (null | [number, number])[][] = Array.from(
+    { length: BOARD_SIZE },
+    () => Array(BOARD_SIZE).fill(null),
+  );
   const queue: [number, number][] = [[from.x, from.y]];
   visited[from.y][from.x] = true;
   const directions = [
-    [0, 1], [1, 0], [0, -1], [-1, 0]
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
   ];
   while (queue.length > 0) {
     const [x, y] = queue.shift()!;
     for (const [dx, dy] of directions) {
-      const nx = x + dx, ny = y + dy;
+      const nx = x + dx,
+        ny = y + dy;
       if (
-        nx >= 0 && nx < BOARD_SIZE &&
-        ny >= 0 && ny < BOARD_SIZE &&
+        nx >= 0 &&
+        nx < BOARD_SIZE &&
+        ny >= 0 &&
+        ny < BOARD_SIZE &&
         !visited[ny][nx] &&
         !board[ny][nx].ball
       ) {
@@ -147,7 +189,8 @@ export function findPath(board: Cell[][], from: {x: number, y: number}, to: {x: 
         if (nx === to.x && ny === to.y) {
           // Reconstruct path
           const path: [number, number][] = [];
-          let cx = nx, cy = ny;
+          let cx = nx,
+            cy = ny;
           while (!(cx === from.x && cy === from.y)) {
             path.push([cx, cy]);
             [cx, cy] = prev[cy][cx]!;
@@ -161,4 +204,4 @@ export function findPath(board: Cell[][], from: {x: number, y: number}, to: {x: 
     }
   }
   return null;
-} 
+}

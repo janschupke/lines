@@ -4,9 +4,24 @@ export const INITIAL_BALLS = 3;
 export const BALLS_PER_TURN = 3;
 
 // Ball Colors - now using Tailwind theme colors
-export type BallColor = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'black';
+export type BallColor =
+  | "red"
+  | "green"
+  | "blue"
+  | "yellow"
+  | "purple"
+  | "cyan"
+  | "black";
 
-export const BALL_COLORS: BallColor[] = ['red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'black'];
+export const BALL_COLORS: BallColor[] = [
+  "red",
+  "green",
+  "blue",
+  "yellow",
+  "purple",
+  "cyan",
+  "black",
+];
 
 // Scoring System
 export const SCORING_TABLE: Record<number, number> = {
@@ -28,4 +43,4 @@ export const ANIMATION_DURATIONS = {
   TRANSITION: 200,
 } as const;
 
-export const TIMER_INTERVAL_MS = 1000; 
+export const TIMER_INTERVAL_MS = 1000;

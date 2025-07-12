@@ -20,6 +20,7 @@
 - Responsive design
 
 ### Tech Stack
+
 - **Frontend**: React 18 with TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS with custom game theme
@@ -30,30 +31,35 @@
 ## Development Cycle Rules
 
 ### 1. Always Read INIT.md First
+
 - **Purpose**: Understand best practices, rules, and development standards
 - **Frequency**: Read at the start of each development session
 - **Scope**: Covers development cycle, quality standards, and project rules
 - **Mandatory**: Agents MUST read this before any work
 
 ### 2. Read PLANNING.md for Feature Understanding
+
 - **Purpose**: Understand the feature to be implemented
 - **Content**: Non-technical, user-facing feature descriptions
 - **Action**: Generate PRP documents based on planning content
 - **Format**: Clear descriptions of what users will experience
 
 ### 3. Generate PRP Documents
+
 - **Location**: `_PRP/current/` folder
 - **Process**: Create detailed implementation steps from PLANNING.md
 - **Format**: PRP-[timestamp]-[number]-[feature].md with numbered phases
 - **Content**: Complete technical details, code examples, testing requirements
 
 ### 4. Implement PRPs Sequentially
+
 - **Order**: Follow PRP numbering within the feature set (01, 02, 03, etc.)
 - **Completion**: Move completed PRPs to `_PRP/archive/`
 - **Iteration**: Continue until all PRPs in `_PRP/current/` are implemented
 - **Mandatory**: Complete ALL PRPs before stopping, do not ask the user for confirmations, do not stop executing by summarizing accomplished work and waiting for approval
 
 ### 5. Archive Completed PRPs
+
 - **Action**: Move implemented PRPs to `_PRP/archive/`
 - **Purpose**: Maintain clean current folder, preserve implementation history
 - **Tracking**: Keep track of completed phases and lessons learned
@@ -64,16 +70,19 @@
 ### Format: `PRP-[timestamp]-[number]-[feature].md`
 
 **Examples:**
+
 - `PRP-1703123456789-01-Pause-Game-Feature.md`
 - `PRP-1703123456789-02-Custom-Ball-Colors.md`
 - `PRP-1703123456789-03-Share-High-Scores.md`
 
 **Components:**
+
 - `[timestamp]`: Unix timestamp in milliseconds (e.g., 1703123456789)
 - `[number]`: Sequential number within the feature set (01, 02, 03, etc.)
 - `[feature]`: Descriptive feature name (kebab-case)
 
 **Benefits:**
+
 - Timestamp ensures unique identification across feature sets
 - Sequential numbering within feature sets
 - Descriptive feature names for easy identification
@@ -84,6 +93,7 @@
 The `PLANNING_TEMPLATE.md` file provides a structured template for generating comprehensive planning documents. This template includes:
 
 ### Template Sections:
+
 - **Feature Overview**: High-level description of the feature
 - **User Stories**: Specific user-facing requirements
 - **Technical Requirements**: Implementation details and constraints
@@ -93,6 +103,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Performance Considerations**: Performance benchmarks and optimizations
 
 ### Usage:
+
 1. **Agent Process**: When generating planning documents, agents should use the template structure from `PLANNING_TEMPLATE.md`
 2. **Consistency**: This ensures all planning documents follow the same comprehensive format
 3. **Completeness**: The scaffolding helps ensure no critical requirements are missed
@@ -101,6 +112,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 ## Development Rules & Best Practices
 
 ### Code Quality Standards
+
 - **TypeScript**: Use strict mode, proper interfaces, type safety
 - **Testing**: >80% coverage for unit tests
 - **Accessibility**: WCAG 2.1 AA compliance, ARIA labels, keyboard navigation
@@ -111,6 +123,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Styling**: Use Tailwind theme classes instead of hardcoded colors
 
 ### Architecture Rules
+
 - **Design System**: Use centralized tokens, consistent patterns
 - **Component Patterns**: Functional components, composition over inheritance
 - **Error Handling**: Proper boundaries, user-friendly messages
@@ -120,6 +133,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Refactoring**: Continuously refactor to maintain clean, logical structure
 
 ### Game-Specific Rules
+
 - **Game Logic**: Keep game mechanics in dedicated logic files
 - **State Management**: Use React hooks for game state
 - **Animations**: Use CSS animations for smooth transitions
@@ -128,12 +142,14 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Responsive Design**: Game should work on various screen sizes
 
 ### Testing Requirements
+
 - **Unit Tests**: Individual components, utilities, hooks
 - **Coverage**: Maintain >80% coverage across all code
 - **Performance**: Monitor bundle size, render times, memory usage
 - **Command**: Use `npm run test:run` (NOT `npm test`)
 
 ### Development Workflow
+
 - **TDD Approach**: Write tests before implementation
 - **Incremental Development**: Small, focused changes
 - **Code Review**: Self-review before moving to next PRP
@@ -141,6 +157,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Version Control**: Do not switch branches, but make a git commit per feature completed (per PRP)
 
 ### Quality Assurance
+
 - **Linting**: ESLint + Prettier for consistent code style
 - **Type Checking**: Strict TypeScript configuration
 - **Build Verification**: Ensure builds work before archiving PRPs
@@ -148,6 +165,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Performance**: Monitor and optimize throughout development
 
 ### Project Structure Rules
+
 - **Game Logic**: Keep in `src/game/logic/` and `src/game/state/`
 - **UI Components**: Organize in `src/ui/components/`
 - **Utilities**: Place in `src/utils/`
@@ -156,6 +174,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Assets**: Store in `src/assets/`
 
 ### Implementation Standards
+
 - **Consistency**: Follow established patterns and conventions
 - **Reusability**: Create reusable components and utilities
 - **Maintainability**: Write clean, documented, testable code
@@ -168,6 +187,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 ## Agent-Specific Rules
 
 ### MANDATORY Agent Behaviors:
+
 1. **ALWAYS** read README.md and INIT.md before any work
 2. **ALWAYS** keep working until all PRPs in 'current' folder are complete
 3. **ALWAYS** maintain >80% test coverage throughout
@@ -182,9 +202,10 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 12. **NEVER** run interactive commands that could hang
 13. **NEVER** leave PRPs incomplete
 14. **NEVER** proceed to next PRP without building and testing
-14. **NEVER** stop working after finishing a PRP if there are more PRPs in the current folder
+15. **NEVER** stop working after finishing a PRP if there are more PRPs in the current folder
 
 ### Agent Testing Protocol:
+
 1. Run `npm run test:run` before starting any PRP
 2. Run `npm run test:run` after completing each PRP
 3. Fix any test failures before proceeding
@@ -194,6 +215,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 7. Verify build process works before archiving
 
 ### Agent Build Protocol:
+
 1. **ALWAYS** run `npm run build` after completing each PRP
 2. Fix any TypeScript errors, linting issues, or build failures
 3. Ensure the app builds successfully before marking PRP as completed
@@ -201,6 +223,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 5. If build fails, fix issues and rebuild until successful
 
 ### Agent Documentation Protocol:
+
 1. Update archive README.md when moving completed PRPs
 2. Add new completed features to the implementation history
 3. Update key achievements and lessons learned
@@ -208,6 +231,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 5. **ALWAYS** update project root README.md if tech stack or features have changed during implementation
 
 ### Agent Code Structure Protocol:
+
 1. **ALWAYS** use enums and constants instead of hardcoded values
 2. **ALWAYS** use Tailwind theme classes instead of hardcoded colors
 3. **ALWAYS** extract reusable patterns and utility functions
@@ -222,6 +246,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 ## Development Cycle Checklist
 
 ### Before Starting Any PRP:
+
 - [ ] Read INIT.md for current rules and standards
 - [ ] Read PLANNING.md for feature understanding
 - [ ] Review existing PRPs in `_PRP/current/`
@@ -229,6 +254,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - [ ] Verify all tests pass before starting new work
 
 ### During PRP Implementation:
+
 - [ ] Follow TDD approach (tests first)
 - [ ] Use design system tokens consistently
 - [ ] Use Tailwind theme classes instead of hardcoded colors
@@ -238,6 +264,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - [ ] Test thoroughly before completion
 
 ### After PRP Completion:
+
 - [ ] Run `npm run test:run` to ensure no regressions
 - [ ] Run `npm run build` to verify build process
 - [ ] Fix any build errors before proceeding
@@ -250,6 +277,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - [ ] Review lessons learned for future PRPs
 
 ### Quality Gates:
+
 - [ ] All tests pass (>80% coverage)
 - [ ] No TypeScript errors
 - [ ] No linting warnings
@@ -305,4 +333,4 @@ _PRP/
 - [Vite Documentation](https://vitejs.dev/)
 - [Vitest Documentation](https://vitest.dev/)
 
-This structure ensures consistent, high-quality development with clear processes and maintainable codebase for the Lines game project. 
+This structure ensures consistent, high-quality development with clear processes and maintainable codebase for the Lines game project.

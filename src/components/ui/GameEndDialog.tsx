@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface GameEndDialogProps {
   isOpen: boolean;
@@ -13,37 +13,40 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   score,
   isNewHighScore,
   onNewGame,
-  onClose
+  onClose,
 }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[1000]">
       <div className="bg-game-bg-secondary border-2 border-game-border-default rounded-xl p-6 max-w-md w-11/12 text-center shadow-2xl">
-        <h2 className={`m-0 mb-4 text-2xl font-bold ${isNewHighScore ? "text-game-text-accent" : "text-game-text-primary"}`}>
-          {isNewHighScore ? '🎉 New High Score! 🎉' : 'Game Over'}
+        <h2
+          className={`m-0 mb-4 text-2xl font-bold ${isNewHighScore ? "text-game-text-accent" : "text-game-text-primary"}`}
+        >
+          {isNewHighScore ? "🎉 New High Score! 🎉" : "Game Over"}
         </h2>
-        <div className="text-3xl font-bold text-game-text-accent my-4">Score: {score}</div>
+        <div className="text-3xl font-bold text-game-text-accent my-4">
+          Score: {score}
+        </div>
         {isNewHighScore && (
           <div className="bg-gradient-to-r from-game-button-accent to-game-button-accent-hover text-black py-2 px-4 rounded-full font-bold my-4 animate-bounce shadow-lg">
             🏆 NEW RECORD! 🏆
           </div>
         )}
         <p className="text-game-text-secondary my-4 text-base">
-          {isNewHighScore 
-            ? 'Congratulations! You\'ve set a new personal best!'
-            : 'Great game! Try again to beat your high score.'
-          }
+          {isNewHighScore
+            ? "Congratulations! You've set a new personal best!"
+            : "Great game! Try again to beat your high score."}
         </p>
         <div className="flex gap-3 justify-center mt-5">
-          <button 
-            className="py-2 px-5 rounded-md font-semibold cursor-pointer bg-game-button-accent text-black hover:bg-game-button-accent-hover transition-colors shadow-md" 
+          <button
+            className="py-2 px-5 rounded-md font-semibold cursor-pointer bg-game-button-accent text-black hover:bg-game-button-accent-hover transition-colors shadow-md"
             onClick={onNewGame}
           >
             New Game
           </button>
-          <button 
-            className="py-2 px-5 rounded-md font-semibold cursor-pointer bg-game-button-primary text-game-text-primary hover:bg-game-button-hover transition-colors shadow-md" 
+          <button
+            className="py-2 px-5 rounded-md font-semibold cursor-pointer bg-game-button-primary text-game-text-primary hover:bg-game-button-hover transition-colors shadow-md"
             onClick={onClose}
           >
             Close
@@ -54,4 +57,4 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   );
 };
 
-export default GameEndDialog; 
+export default GameEndDialog;

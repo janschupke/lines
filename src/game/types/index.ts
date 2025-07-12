@@ -1,4 +1,4 @@
-import { type BallColor as _BallColor } from '../constants';
+import { type BallColor as _BallColor } from "../constants";
 export type BallColor = _BallColor;
 
 export interface Ball {
@@ -14,6 +14,31 @@ export interface Cell {
 }
 
 export type Direction = [number, number];
+
+export interface LineScore {
+  length: number;
+  score: number;
+  turnNumber: number;
+  timestamp: number;
+}
+
+export interface GameStatistics {
+  turnsCount: number;
+  gameDuration: number;
+  ballsCleared: number;
+  linesPopped: number;
+  longestLinePopped: number;
+  individualBallsPopped: number;
+  totalScore: number;
+  scoreProgression: number[];
+  lineScores: LineScore[];
+  averageScorePerTurn: number;
+  ballsPerTurn: number;
+  linesPerTurn: number;
+  peakScore: number;
+  consecutiveHighScores: number;
+  strategicBonus: number;
+}
 
 export interface GameState {
   board: Cell[][];
@@ -32,6 +57,7 @@ export interface GameState {
   currentHighScore: number;
   isNewHighScore: boolean;
   showGameEndDialog: boolean;
+  statistics: GameStatistics;
 }
 
 export interface GameActions {
@@ -41,4 +67,4 @@ export interface GameActions {
   handleCellLeave: () => void;
   handleNewGameFromDialog: () => void;
   handleCloseDialog: () => void;
-} 
+}

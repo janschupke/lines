@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface MovingBallProps {
   color: string;
@@ -13,10 +13,10 @@ const MovingBall: React.FC<MovingBallProps> = ({ color, left, top }) => {
       style={{
         left,
         top,
-        pointerEvents: 'none',
+        pointerEvents: "none",
       }}
     />
   );
 };
 
-export default MovingBall; 
+export default MovingBall;

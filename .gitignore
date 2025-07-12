@@ -34,3 +34,6 @@ lerna-debug.log*
 
 # Windows
 Thumbs.db
+
+# Test coverage reports
+coverage/

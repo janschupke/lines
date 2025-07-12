@@ -337,25 +337,18 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
       // Use provided initial board and preview balls
       return placePreviewBalls(initialBoard, initialNextBalls);
     }
-    // For testing: fill all but 6 cells
-    const emptyCells = 6;
+    // Start with empty board, add 3 real balls, then add 3 incoming preview balls
     const board = createEmptyBoard();
-    const allPositions = [];
-    for (let y = 0; y < BOARD_SIZE; y++) for (let x = 0; x < BOARD_SIZE; x++) allPositions.push([x, y]);
-    for (let i = allPositions.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
-    }
-    const emptyPositions = new Set(allPositions.slice(0, emptyCells).map(([x, y]) => `${x},${y}`));
-    for (let y = 0; y < BOARD_SIZE; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) {
-        if (!emptyPositions.has(`${x},${y}`)) {
-          board[y][x].ball = { color: getRandomColor() };
-        }
-      }
-    }
+    const initialBalls = getRandomNextBalls(BALLS_PER_TURN);
+    // Place 3 real balls on the board
+    const positions = getRandomEmptyCells(board, BALLS_PER_TURN);
+    const boardWithRealBalls = board.map(row => row.map(cell => ({ ...cell })));
+    positions.forEach(([x, y], i) => {
+      boardWithRealBalls[y][x].ball = { color: initialBalls[i] };
+    });
+    // Add 3 incoming preview balls
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
-    return placePreviewBalls(board, initialNext);
+    return placePreviewBalls(boardWithRealBalls, initialNext);
   });
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<{x: number, y: number} | null>(null);
@@ -637,30 +630,19 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
     return () => { if (animationRef.current) clearTimeout(animationRef.current); };
   }, [movingBall, movingStep]);
 
-  // Start new game with random balls and preview
+  // Start new game with 3 real balls and 3 incoming preview balls
   const startNewGame = () => {
-    // For testing: fill all but 6 cells
-    const emptyCells = 6;
     const board = createEmptyBoard();
-    // Fill all but 6 random cells
-    const allPositions = [];
-    for (let y = 0; y < BOARD_SIZE; y++) for (let x = 0; x < BOARD_SIZE; x++) allPositions.push([x, y]);
-    // Shuffle and pick empty cells
-    for (let i = allPositions.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
-    }
-    const emptyPositions = new Set(allPositions.slice(0, emptyCells).map(([x, y]) => `${x},${y}`));
-    for (let y = 0; y < BOARD_SIZE; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) {
-        if (!emptyPositions.has(`${x},${y}`)) {
-          board[y][x].ball = { color: getRandomColor() };
-        }
-      }
-    }
-    // Place preview balls as usual
+    const initialBalls = getRandomNextBalls(BALLS_PER_TURN);
+    // Place 3 real balls on the board
+    const positions = getRandomEmptyCells(board, BALLS_PER_TURN);
+    const boardWithRealBalls = board.map(row => row.map(cell => ({ ...cell })));
+    positions.forEach(([x, y], i) => {
+      boardWithRealBalls[y][x].ball = { color: initialBalls[i] };
+    });
+    // Add 3 incoming preview balls
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
-    const boardWithPreview = placePreviewBalls(board, initialNext);
+    const boardWithPreview = placePreviewBalls(boardWithRealBalls, initialNext);
     setBoard(boardWithPreview);
     setScore(0);
     setSelected(null);

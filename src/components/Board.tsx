@@ -89,17 +89,17 @@ const popBall = keyframes`
   }
 `;
 
-const BallSpan = styled.span<{color: BallColor; active: boolean; popping?: boolean}>`
+const BallSpan = styled.span<{color: BallColor; $active: boolean; $popping?: boolean}>`
   display: block;
   width: ${BALL_SIZE}px;
   height: ${BALL_SIZE}px;
   border-radius: 50%;
   background: ${props => colorMap[props.color]};
   border: 2px solid #555;
-  box-shadow: ${props => props.active ? '0 0 8px 2px #ffe082' : '0 1px 4px #0003'};
+  box-shadow: ${props => props.$active ? '0 0 8px 2px #ffe082' : '0 1px 4px #0003'};
   animation: ${moveBall} 0.25s cubic-bezier(0.4, 0.2, 0.2, 1);
-  ${props => props.active && highlightGlow}
-  ${props => props.popping && css`
+  ${props => props.$active && highlightGlow}
+  ${props => props.$popping && css`
     animation: ${popBall} 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
     z-index: 2;
   `}
@@ -149,7 +149,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
             tabIndex={0}
           >
             {cell.ball && !hideBall && (
-              <BallSpan color={cell.ball.color} active={cell.active} popping={popping} title={cell.ball.color} />
+              <BallSpan color={cell.ball.color} $active={cell.active} $popping={popping} title={cell.ball.color} />
             )}
             {!cell.ball && cell.incomingBall && (
               <IncomingBallSpan color={cell.incomingBall.color} title={`Preview: ${cell.incomingBall.color}`} />

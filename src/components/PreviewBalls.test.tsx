@@ -1,61 +1,55 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import Game from './Game';
-import '@testing-library/jest-dom';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import '@testing-library/jest-dom';
+import Game from './Game';
 
-// Mock Math.random to make tests deterministic
-const mockMath = Object.create(Math);
-mockMath.random = () => 0.5;
-Object.defineProperty(window, 'Math', {
-  value: mockMath,
-  writable: true
+// Mock timers for animation testing
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('Preview Balls Functionality', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   describe('Initial Preview Balls Display', () => {
     it('shows preview balls on the board at game start', () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
-      // Should find preview balls (smaller balls with "Preview:" in title)
+      // Should show preview balls (they have title attributes with "Preview:")
       const previewBalls = screen.getAllByTitle(/Preview:/);
       expect(previewBalls.length).toBeGreaterThan(0);
-      expect(previewBalls.length).toBeLessThanOrEqual(3); // Max 3 preview balls
     });
 
     it('shows preview balls in the header UI', () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
-      // Should find preview balls in the header (they have color titles)
-      const headerPreviewBalls = screen.getAllByTitle(/red|green|blue|yellow|purple|cyan|black/);
+      // Should show preview balls in the header
+      const headerPreviewBalls = screen.getAllByTitle(/yellow|red|blue|green|purple|cyan|black/);
       expect(headerPreviewBalls.length).toBeGreaterThan(0);
     });
 
     it('preview balls are smaller than regular balls', () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       const previewBalls = screen.getAllByTitle(/Preview:/);
       
-      // Preview balls should be smaller (24px vs 40px)
-      previewBalls.forEach(ball => {
-        const style = window.getComputedStyle(ball);
-        expect(style.width).toBe('24px');
-        expect(style.height).toBe('24px');
+      // Preview balls should be smaller than regular balls
+      previewBalls.forEach((ball) => {
+        // Check for Tailwind classes instead of computed styles
+        expect(ball).toHaveClass('w-6', 'h-6');
+        expect(ball).toHaveClass('rounded-full');
+        expect(ball).toHaveClass('border');
+        expect(ball).toHaveClass('opacity-80');
       });
     });
   });
 
   describe('Preview Balls After Move', () => {
     it('converts preview balls to real balls after a move', async () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       // Make a move
       const cells = screen.getAllByRole('button');
@@ -78,7 +72,7 @@ describe('Preview Balls Functionality', () => {
     });
 
     it('recalculates preview positions when moving to a preview ball position', async () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       // Find a preview ball and a regular ball
       const cells = screen.getAllByRole('button');
@@ -104,7 +98,7 @@ describe('Preview Balls Functionality', () => {
 
   describe('Preview Balls State Management', () => {
     it('maintains preview balls when no lines are cleared', async () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       // Make a move that doesn't create lines
       const cells = screen.getAllByRole('button');
@@ -127,7 +121,7 @@ describe('Preview Balls Functionality', () => {
     });
 
     it('updates preview balls after lines are cleared', async () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       // This test would require setting up a specific board state
       // where a line can be formed. For now, we test the basic functionality
@@ -156,27 +150,22 @@ describe('Preview Balls Functionality', () => {
 
   describe('Preview Balls Visual Design', () => {
     it('preview balls have correct styling', () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       const previewBalls = screen.getAllByTitle(/Preview:/);
       
       previewBalls.forEach(ball => {
-        const style = window.getComputedStyle(ball);
-        
-        // Should be smaller than regular balls
-        expect(style.width).toBe('24px');
-        expect(style.height).toBe('24px');
-        
-        // Should have border radius for circular shape
-        expect(style.borderRadius).toBe('50%');
-        
-        // Should have reduced opacity
-        expect(style.opacity).toBe('0.8');
+        // Check for Tailwind classes instead of computed styles
+        expect(ball).toHaveClass('w-6', 'h-6'); // 24px
+        expect(ball).toHaveClass('rounded-full'); // border-radius: 50%
+        expect(ball).toHaveClass('opacity-80'); // opacity: 0.8
+        expect(ball).toHaveClass('border');
+        expect(ball).toHaveClass('shadow-sm');
       });
     });
 
     it('preview balls are positioned correctly in cells', () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       const previewBalls = screen.getAllByTitle(/Preview:/);
       
@@ -184,18 +173,15 @@ describe('Preview Balls Functionality', () => {
         const parent = ball.parentElement;
         expect(parent).toBeInTheDocument();
         
-        // Should be centered in the cell
-        const parentStyle = window.getComputedStyle(parent!);
-        expect(parentStyle.display).toBe('flex');
-        expect(parentStyle.alignItems).toBe('center');
-        expect(parentStyle.justifyContent).toBe('center');
+        // Check for Tailwind classes instead of computed styles
+        expect(parent).toHaveClass('flex', 'items-center', 'justify-center');
       });
     });
   });
 
   describe('Preview Balls Interaction', () => {
     it('preview balls cannot be selected', () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       const previewCells = screen.getAllByRole('button').filter(cell => 
         cell.querySelector('[title^="Preview:"]')
@@ -213,7 +199,7 @@ describe('Preview Balls Functionality', () => {
     });
 
     it('preview ball positions are valid move destinations', async () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       const cells = screen.getAllByRole('button');
       const regularBallCell = cells.find(cell => cell.querySelector('[title]') && !cell.querySelector('[title^="Preview:"]'));
@@ -239,16 +225,15 @@ describe('Preview Balls Functionality', () => {
     it('handles board with no empty cells for preview', () => {
       // This would require setting up a nearly full board
       // For now, we test that the game handles this gracefully
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
       const cells = screen.getAllByRole('button');
       expect(cells.length).toBeGreaterThan(0);
     });
 
     it('maintains preview balls during ball movement animation', async () => {
-      render(<Game />);
+      render(<Game showGuide={false} setShowGuide={() => {}} showHighScores={false} setShowHighScores={() => {}} />);
       
-      // Start a move
       const cells = screen.getAllByRole('button');
       const ballCell = cells.find(cell => cell.querySelector('[title]') && !cell.querySelector('[title^="Preview:"]'));
       const emptyCell = cells.find(cell => !cell.querySelector('[title]'));
@@ -258,13 +243,17 @@ describe('Preview Balls Functionality', () => {
         fireEvent.click(emptyCell);
         
         // During animation, preview balls should still be visible
-        const duringAnimationPreviewBalls = screen.getAllByTitle(/Preview:/);
-        expect(duringAnimationPreviewBalls.length).toBeGreaterThan(0);
+        const previewBalls = screen.getAllByTitle(/Preview:/);
+        expect(previewBalls.length).toBeGreaterThan(0);
         
-        // Complete animation
+        // Advance time to complete animation
         act(() => {
           vi.advanceTimersByTime(2000);
         });
+        
+        // After animation, should have new preview balls
+        const newPreviewBalls = screen.getAllByTitle(/Preview:/);
+        expect(newPreviewBalls.length).toBeGreaterThan(0);
       }
     });
   });

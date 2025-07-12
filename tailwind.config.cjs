@@ -41,6 +41,8 @@ module.exports = {
     'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)]',
     'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]',
     'z-game-dialog',
+    'animate-move-ball',
+    'animate-pop-ball',
   ],
   theme: {
     extend: {
@@ -48,11 +50,11 @@ module.exports = {
         // Game ball colors
         ball: {
           red: '#e74c3c',
-          green: '#27ae60',
+          green: '#2ecc71',      // More vibrant green
           blue: '#2980b9',
           yellow: '#f1c40f',
           purple: '#8e44ad',
-          cyan: '#1abc9c',
+          cyan: '#00bcd4',       // More distinct teal/cyan
           black: '#222',
         },
         // Game theme colors - structured for proper Tailwind access

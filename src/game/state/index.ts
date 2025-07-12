@@ -187,9 +187,9 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
         
         if (ballsToRemove.length > 0) {
           // Remove balls and update score
-          const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+          const boardAfterRemoval = newBoard.map(row => row.map(cell => ({ ...cell })));
           ballsToRemove.forEach(([x, y]) => {
-            newBoard[y][x].ball = null;
+            boardAfterRemoval[y][x].ball = null;
           });
           
           const pointsEarned = ballsToRemove.length;
@@ -207,15 +207,15 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
             setPoppingBalls(new Set());
             
             // Check if board is full after removing balls
-            if (isBoardFull(newBoard)) {
+            if (isBoardFull(boardAfterRemoval)) {
               // Ensure the moved ball is present and all incomingBall are cleared
-              const clearedBoard = newBoard.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
+              const clearedBoard = boardAfterRemoval.map(row => row.map(cell => ({ ...cell, incomingBall: null })));
               setBoard(clearedBoard);
               setGameOver(true);
               setShowGameEndDialog(true);
             } else {
               // Recalculate incoming positions after removing balls
-              const recalculatedBoard = recalculateIncomingPositions(newBoard, nextBalls);
+              const recalculatedBoard = recalculateIncomingPositions(boardAfterRemoval, nextBalls);
               setBoard(recalculatedBoard);
             }
           }, ANIMATION_DURATIONS.POP_BALL);

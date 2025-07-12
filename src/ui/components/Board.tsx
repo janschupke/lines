@@ -74,16 +74,13 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
           >
             {cell.ball && !hideBall && (
               <span
-                className={`block rounded-full border-2 border-game-border-ball ${cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'} ${popping ? 'z-20' : ''} bg-ball-${cell.ball.color} w-ball h-ball`}
-                style={{
-                  animation: popping ? 'pop-ball' : 'move-ball',
-                }}
+                className={`block rounded-full border-2 border-game-border-ball ${cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'} ${popping ? 'z-20 animate-pop-ball' : 'animate-move-ball'} bg-ball-${cell.ball.color} w-ball h-ball`}
                 title={cell.ball.color}
               />
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`block rounded-full border border-game-border-preview shadow-sm opacity-80 bg-ball-${cell.incomingBall.color} ${incomingBallSize}`}
+                className={`block rounded-full border border-game-border-preview shadow-sm opacity-50 bg-ball-${cell.incomingBall.color} ${incomingBallSize}`}
                 title={`Preview: ${cell.incomingBall.color}`}
               />
             )}

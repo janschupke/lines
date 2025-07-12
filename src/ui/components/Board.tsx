@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { useMobileOptimization } from '../../hooks/useMobileOptimization';
 import type { Cell } from '../../game/types';
 
 interface BoardProps {
@@ -26,32 +27,46 @@ const Board: React.FC<BoardProps> = ({
   onCellHover, 
   onCellLeave 
 }) => {
+  const { isMobile, handleTouchStart, handleTouchEnd, getMobileValues } = useMobileOptimization();
+  const mobileValues = getMobileValues();
+  
   // Convert pathTrail to a Set for fast lookup
   const pathSet = pathTrail ? new Set(pathTrail.map(([x, y]) => `${x},${y}`)) : new Set();
   
   // Calculate incoming ball size (50% of cell width)
-  const incomingBallSize = 'w-[28px] h-[28px]'; // 50% of 56px cell, use Tailwind arbitrary values
+  const incomingBallSize = isMobile ? 'w-[18px] h-[18px]' : 'w-[28px] h-[28px]'; // Smaller on mobile
   
   // Check if any animation is in progress
   const isAnimationInProgress = movingBall || (poppingBalls && poppingBalls.size > 0);
   
   // Handle cell click with animation check
-  const handleCellClick = (x: number, y: number) => {
+  const handleCellClick = useCallback((x: number, y: number) => {
     if (isAnimationInProgress) return;
     onCellClick(x, y);
-  };
+  }, [isAnimationInProgress, onCellClick]);
   
   // Handle cell hover with animation check
-  const handleCellHover = (x: number, y: number) => {
+  const handleCellHover = useCallback((x: number, y: number) => {
     if (isAnimationInProgress) return;
     onCellHover?.(x, y);
-  };
+  }, [isAnimationInProgress, onCellHover]);
   
   // Handle cell leave with animation check
-  const handleCellLeave = () => {
+  const handleCellLeave = useCallback(() => {
     if (isAnimationInProgress) return;
     onCellLeave?.();
-  };
+  }, [isAnimationInProgress, onCellLeave]);
+  
+  // Handle touch interactions
+  const handleCellTouchStart = useCallback((e: React.TouchEvent) => {
+    if (isAnimationInProgress) return;
+    handleTouchStart(e);
+  }, [isAnimationInProgress, handleTouchStart]);
+  
+  const handleCellTouchEnd = useCallback((e: React.TouchEvent, x: number, y: number) => {
+    if (isAnimationInProgress) return;
+    handleTouchEnd(e, x, y, handleCellClick);
+  }, [isAnimationInProgress, handleTouchEnd, handleCellClick]);
   
   return (
     <div
@@ -104,18 +119,24 @@ const Board: React.FC<BoardProps> = ({
             key={key}
             className={`rounded-lg flex items-center justify-center transition-colors duration-200 box-border relative border-2 ${
               isAnimationInProgress ? 'cursor-default' : 'cursor-pointer'
-            } ${cellBgClass} ${borderClass} w-cell h-cell`}
+            } ${cellBgClass} ${borderClass} ${isMobile ? 'w-12 h-12' : 'w-cell h-cell'}`}
             onClick={() => handleCellClick(cell.x, cell.y)}
             onMouseEnter={() => handleCellHover(cell.x, cell.y)}
             onMouseLeave={handleCellLeave}
+            onTouchStart={handleCellTouchStart}
+            onTouchEnd={(e) => handleCellTouchEnd(e, cell.x, cell.y)}
             role="button"
             tabIndex={isAnimationInProgress ? -1 : 0}
+            style={{
+              minHeight: isMobile ? `${mobileValues.touchTargetSize}px` : undefined,
+              minWidth: isMobile ? `${mobileValues.touchTargetSize}px` : undefined,
+            }}
           >
             {cell.ball && !hideBall && (
               <span
                 className={`block rounded-full border-2 border-game-border-ball ${
                   cell.active ? 'shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent' : 'shadow-[0_1px_4px_theme(colors.game.shadow.ball)]'
-                } ${popping ? 'z-20 animate-pop-ball' : 'animate-move-ball'} bg-ball-${cell.ball.color} w-ball h-ball`}
+                } ${popping ? 'z-20 animate-pop-ball' : 'animate-move-ball'} bg-ball-${cell.ball.color} ${isMobile ? 'w-9 h-9' : 'w-ball h-ball'}`}
                 title={cell.ball.color}
               />
             )}

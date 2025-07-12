@@ -1,4 +1,4 @@
-import { BALLS_PER_TURN, type BallColor } from '../../utils/constants';
+import { BALLS_PER_TURN, type BallColor } from '../constants';
 import { 
   getRandomNextBalls,
   isBoardFull,

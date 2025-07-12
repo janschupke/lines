@@ -8,4 +8,43 @@
   --gap-size: 8px;
   --ball-size: 40px;
   --board-padding: 8px;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  :root {
+    --cell-size: 48px;
+    --gap-size: 4px;
+    --ball-size: 36px;
+    --board-padding: 8px;
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --cell-size: 64px;
+    --gap-size: 6px;
+    --ball-size: 48px;
+    --board-padding: 12px;
+  }
+}
+
+/* Prevent zoom on input focus on mobile */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Touch-friendly styles */
+@media (hover: none) and (pointer: coarse) {
+  /* Disable hover effects on touch devices */
+  .hover\:bg-game-button-hover:hover {
+    background-color: inherit;
+  }
+  
+  .hover\:bg-game-button-accent-hover:hover {
+    background-color: inherit;
+  }
 } 

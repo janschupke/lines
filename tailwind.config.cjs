@@ -43,6 +43,19 @@ module.exports = {
     'z-game-dialog',
     'animate-move-ball',
     'animate-pop-ball',
+    // Mobile responsive classes
+    'w-12', 'h-12', 'w-9', 'h-9', 'w-4', 'h-4',
+    'text-lg', 'text-xl', 'text-xs', 'text-sm',
+    'px-2', 'px-3', 'py-2', 'py-3', 'py-4',
+    'gap-1', 'gap-2', 'space-y-4', 'space-x-3',
+    'max-w-full', 'px-4', 'py-4',
+    'min-h-[44px]', 'min-w-[44px]',
+    'touch-manipulation',
+    'active:bg-game-button-hover',
+    'active:bg-game-button-accent-hover',
+    'focus:ring-2', 'focus:ring-game-border-accent',
+    'shadow-lg', 'z-50',
+    'w-[18px]', 'h-[18px]', 'w-[28px]', 'h-[28px]',
   ],
   theme: {
     extend: {

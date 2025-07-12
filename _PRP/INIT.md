@@ -108,6 +108,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - **Documentation**: Clear comments, README updates, inline docs
 - **Code Structure**: Logical organization, avoid duplication, use enums and constants
 - **Abstraction**: Extract reusable patterns, avoid hardcoding business logic
+- **Styling**: Use Tailwind theme classes instead of hardcoded colors
 
 ### Architecture Rules
 - **Design System**: Use centralized tokens, consistent patterns
@@ -204,16 +205,19 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 2. Add new completed features to the implementation history
 3. Update key achievements and lessons learned
 4. Maintain comprehensive documentation of completed work
+5. **ALWAYS** update project root README.md if tech stack or features have changed during implementation
 
 ### Agent Code Structure Protocol:
 1. **ALWAYS** use enums and constants instead of hardcoded values
-2. **ALWAYS** extract reusable patterns and utility functions
-3. **ALWAYS** refactor code when new additions cause structural issues
-4. **ALWAYS** maintain logical file organization and component hierarchy
-5. **ALWAYS** avoid duplication of business logic across files
-6. **ALWAYS** use proper abstraction layers for complex operations
-7. **NEVER** leave hardcoded strings or magic numbers in code
-8. **NEVER** proceed without refactoring if code structure becomes unclear
+2. **ALWAYS** use Tailwind theme classes instead of hardcoded colors
+3. **ALWAYS** extract reusable patterns and utility functions
+4. **ALWAYS** refactor code when new additions cause structural issues
+5. **ALWAYS** maintain logical file organization and component hierarchy
+6. **ALWAYS** avoid duplication of business logic across files
+7. **ALWAYS** use proper abstraction layers for complex operations
+8. **NEVER** leave hardcoded strings or magic numbers in code
+9. **NEVER** use hardcoded color values in CSS or className
+10. **NEVER** proceed without refactoring if code structure becomes unclear
 
 ## Development Cycle Checklist
 
@@ -227,6 +231,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 ### During PRP Implementation:
 - [ ] Follow TDD approach (tests first)
 - [ ] Use design system tokens consistently
+- [ ] Use Tailwind theme classes instead of hardcoded colors
 - [ ] Implement comprehensive error handling
 - [ ] Add accessibility features
 - [ ] Write clear documentation
@@ -240,6 +245,7 @@ The `PLANNING_TEMPLATE.md` file provides a structured template for generating co
 - [ ] Update documentation as needed
 - [ ] Move PRP to `_PRP/archive/`
 - [ ] Update archive README.md with new completed features
+- [ ] Update project root README.md if tech stack or features have changed
 - [ ] Update project status tracking
 - [ ] Review lessons learned for future PRPs
 

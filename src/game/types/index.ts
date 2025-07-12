@@ -1,4 +1,5 @@
-import { type BallColor } from '../../utils/constants';
+import { type BallColor as _BallColor } from '../constants';
+export type BallColor = _BallColor;
 
 export interface Ball {
   color: BallColor;

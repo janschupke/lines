@@ -1,4 +1,4 @@
-import { BOARD_SIZE, BALL_COLORS, type BallColor } from '../../utils/constants';
+import { BOARD_SIZE, BALL_COLORS, type BallColor } from '../constants';
 import type { Cell, Direction } from '../types';
 
 const DIRECTIONS: Direction[] = [

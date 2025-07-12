@@ -8,25 +8,7 @@ This folder contains the project planning and implementation documentation for t
 
 ## Project Overview
 
-### Tech Stack
-- **Frontend**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS with custom game theme
-- **Testing**: Vitest with React Testing Library
-- **State Management**: Custom React hooks and game state management
-- **Animations**: CSS animations and transitions
-
-### Game Features
-- 9x9 game board with colored balls
-- Ball movement with pathfinding
-- Line detection (horizontal, vertical, diagonal)
-- Score system with Fibonacci-based scoring
-- High score tracking with local storage
-- Timer functionality
-- Next balls preview
-- Smooth animations and transitions
-- Accessibility features (keyboard navigation, ARIA labels)
-- Responsive design
+Refer to the README.md in the project root for the current tech stack and features.
 
 ## Folder Structure
 
@@ -98,10 +80,11 @@ _PRP/
 ### During Implementation:
 1. **MANDATORY**: Follow TDD approach (tests first)
 2. **MANDATORY**: Use design system tokens consistently
-3. **MANDATORY**: Implement comprehensive error handling
-4. **MANDATORY**: Add accessibility features
-5. **MANDATORY**: Write clear documentation
-6. **MANDATORY**: Test thoroughly before completion
+3. **MANDATORY**: Use Tailwind theme classes instead of hardcoded colors
+4. **MANDATORY**: Implement comprehensive error handling
+5. **MANDATORY**: Add accessibility features
+6. **MANDATORY**: Write clear documentation
+7. **MANDATORY**: Test thoroughly before completion
 
 ### Testing Requirements:
 1. **MANDATORY**: Run `npm run test:run` (NOT `npm test`)
@@ -123,6 +106,7 @@ _PRP/
 3. **MANDATORY**: Update documentation as needed
 4. **MANDATORY**: Verify no regressions in existing functionality
 5. **MANDATORY**: Continue until all PRPs in 'current' are complete
+6. **MANDATORY**: Update project root README.md if tech stack or features have changed
 
 ## How to Provide Prompts to Agent
 
@@ -142,7 +126,9 @@ Read README.md and INIT.md, then implement all PRPs in the current folder.
 Keep working until all PRPs are complete. Maintain >80% test coverage and ensure 
 all tests pass. Run tests with 'npm run test:run' only. Do not ask for confirmations 
 or run interactive commands. Move completed PRPs to archive when done and update 
-the archive README.md with new completed features.
+the archive README.md with new completed features. Update project root README.md 
+if tech stack or features have changed during implementation. Always use Tailwind 
+theme classes instead of hardcoded colors.
 ```
 
 ### For Feature Planning:
@@ -220,6 +206,8 @@ This scaffolding ensures consistent and comprehensive planning documentation acr
 - Run tests with `npm run test:run` only
 - Move completed PRPs to archive
 - Update archive README.md with new completed features
+- Update project root README.md if tech stack or features have changed
+- Use Tailwind theme classes instead of hardcoded colors
 - Maintain high test coverage
 - Follow all quality standards
 

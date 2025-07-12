@@ -122,7 +122,9 @@ describe('Game', () => {
   describe('New game button', () => {
     it('starts a new game properly', () => {
       renderGame();
-      const newGameButton = screen.getByText('New Game');
+      const newGameButtons = screen.getAllByText('New Game');
+      expect(newGameButtons.length).toBeGreaterThan(0);
+      const newGameButton = newGameButtons[0]; // Use the first one (main UI)
       expect(newGameButton).toBeInTheDocument();
       fireEvent.click(newGameButton);
       const scoreElement = screen.getByTestId('score-value');
@@ -193,9 +195,13 @@ describe('Game', () => {
       expect(previewBalls.length).toBeGreaterThan(0);
       expect(regularBalls.length).toBeGreaterThan(0);
       
-      // Check that preview balls have the correct size (50% of cell)
+      // Check that preview balls have the correct size (responsive)
       previewBalls.forEach(ball => {
-        expect(ball).toHaveClass('w-[28px]', 'h-[28px]');
+        // On mobile, preview balls are smaller (w-[18px] h-[18px])
+        // On desktop, they are larger (w-[28px] h-[28px])
+        const hasMobileSize = ball.classList.contains('w-[18px]') && ball.classList.contains('h-[18px]');
+        const hasDesktopSize = ball.classList.contains('w-[28px]') && ball.classList.contains('h-[28px]');
+        expect(hasMobileSize || hasDesktopSize).toBe(true);
       });
     });
   });
@@ -204,8 +210,11 @@ describe('Game', () => {
     it('shows guide when showGuide is true', () => {
       render(<Game showGuide={true} setShowGuide={() => {}} />);
       expect(screen.getByText('How to Play')).toBeInTheDocument();
-      // Use a function matcher for guide text
-      expect(screen.getByText((content) => content.includes('Click on a ball to select'))).toBeInTheDocument();
+      // Use a function matcher for guide text (can be "Click" or "Tap" depending on device)
+      expect(screen.getByText((content) => 
+        content.includes('Click on a ball to select') || 
+        content.includes('Tap on a ball to select')
+      )).toBeInTheDocument();
     });
 
     it('hides guide when showGuide is false', () => {

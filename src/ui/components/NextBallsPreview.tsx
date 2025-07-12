@@ -1,5 +1,5 @@
 import React from 'react';
-import type { BallColor } from '../../utils/constants';
+import type { BallColor } from '../../game/constants';
 
 interface NextBallsPreviewProps {
   nextBalls: BallColor[];

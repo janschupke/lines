@@ -1,6 +1,6 @@
 import React from 'react';
 import NextBallsPreview from './NextBallsPreview';
-import { type BallColor } from '../../utils/constants';
+import { type BallColor } from '../../game/constants';
 
 interface GameHeaderProps {
   score: number;

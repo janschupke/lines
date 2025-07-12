@@ -25,4 +25,6 @@ export const ANIMATION_DURATIONS = {
   MOVE_BALL: 80,
   POP_BALL: 300,
   TRANSITION: 200,
-} as const; 
+} as const;
+
+export const TIMER_INTERVAL_MS = 1000; 

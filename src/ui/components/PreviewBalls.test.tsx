@@ -62,18 +62,26 @@ describe('Preview Balls Functionality', () => {
       expect(regularBalls).toHaveLength(2);
       expect(previewBalls).toHaveLength(1);
 
-      // Check that preview balls have the correct inline style (50% of cell size)
+      // Check that preview balls have the correct size (responsive)
       previewBalls.forEach((ball) => {
-        expect(ball).toHaveClass('w-[28px]', 'h-[28px]'); // 50% of 56px cell
+        // On mobile, preview balls are smaller (w-[18px] h-[18px])
+        // On desktop, they are larger (w-[28px] h-[28px])
+        const hasMobileSize = ball.classList.contains('w-[18px]') && ball.classList.contains('h-[18px]');
+        const hasDesktopSize = ball.classList.contains('w-[28px]') && ball.classList.contains('h-[28px]');
+        expect(hasMobileSize || hasDesktopSize).toBe(true);
         expect(ball).toHaveClass('rounded-full');
         expect(ball).toHaveClass('border');
         expect(ball).toHaveClass('shadow-sm');
         expect(ball).toHaveClass('opacity-50');
       });
 
-      // Check that regular balls have the full size
+      // Check that regular balls have the full size (responsive)
       regularBalls.forEach((ball) => {
-        expect(ball).toHaveClass('w-ball', 'h-ball'); // Full ball size
+        // On mobile, balls are smaller (w-9 h-9)
+        // On desktop, they are larger (w-ball h-ball)
+        const hasMobileSize = ball.classList.contains('w-9') && ball.classList.contains('h-9');
+        const hasDesktopSize = ball.classList.contains('w-ball') && ball.classList.contains('h-ball');
+        expect(hasMobileSize || hasDesktopSize).toBe(true);
       });
     });
 
@@ -147,8 +155,10 @@ describe('Preview Balls Functionality', () => {
       expect(previewBalls).toHaveLength(2);
 
       previewBalls.forEach(ball => {
-        // Check for Tailwind classes instead of inline styles
-        expect(ball).toHaveClass('w-[28px]', 'h-[28px]'); // 50% of 56px cell
+        // Check for responsive Tailwind classes
+        const hasMobileSize = ball.classList.contains('w-[18px]') && ball.classList.contains('h-[18px]');
+        const hasDesktopSize = ball.classList.contains('w-[28px]') && ball.classList.contains('h-[28px]');
+        expect(hasMobileSize || hasDesktopSize).toBe(true);
         expect(ball).toHaveClass('rounded-full'); // border-radius: 50%
         expect(ball).toHaveClass('opacity-50'); // opacity: 0.5
         expect(ball).toHaveClass('border'); // border

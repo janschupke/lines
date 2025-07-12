@@ -1,169 +1,83 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { 
   BALLS_PER_TURN, 
   ANIMATION_DURATIONS,
+  TIMER_INTERVAL_MS,
   type BallColor
-} from '../../utils/constants';
+} from '../constants';
 import { 
   getRandomNextBalls,
   createEmptyBoard,
   placeRealBalls,
   placePreviewBalls,
-  findPath
 } from '../logic';
 import type { Cell, GameState, GameActions } from '../types';
-import HighScoreManager from '../../utils/highScoreManager';
 import { GamePhaseManager } from './gamePhaseManager';
+import { useGameBoard } from './useGameBoard';
+import { useGameTimer } from './useGameTimer';
+import { useGameAnimation } from './useGameAnimation';
+import { useHighScores } from './useHighScores';
 
 export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallColor[]): [GameState, GameActions] => {
-  const [board, setBoard] = useState<Cell[][]>(() => {
-    if (initialBoard && initialNextBalls) {
-      return placePreviewBalls(initialBoard, initialNextBalls);
-    }
-    // Start with empty board, add 3 real balls, then add 3 incoming preview balls
-    const board = createEmptyBoard();
-    const initialBalls = getRandomNextBalls(BALLS_PER_TURN);
-    const boardWithRealBalls = placeRealBalls(board, initialBalls);
-    const initialNext = getRandomNextBalls(BALLS_PER_TURN);
-    return placePreviewBalls(boardWithRealBalls, initialNext);
-  });
-  
+  // Board, selection, next balls
+  const boardState = useGameBoard(initialBoard, initialNextBalls);
+  // Timer
+  const timerState = useGameTimer();
+  // Animation
+  const animationState = useGameAnimation();
+  // High scores
+  const highScoreState = useHighScores();
+
+  // Additional state
   const [score, setScore] = useState(0);
-  const [selected, setSelected] = useState<{x: number, y: number} | null>(null);
   const [gameOver, setGameOver] = useState(false);
-  const [nextBalls, setNextBalls] = useState<BallColor[]>(() => getRandomNextBalls(BALLS_PER_TURN));
   const [timer, setTimer] = useState(0);
-  const [timerActive, setTimerActive] = useState(false);
-  const [movingBall, setMovingBall] = useState<null | {color: BallColor; path: [number, number][]}>(null);
-  const [movingStep, setMovingStep] = useState(0);
-  const animationRef = useRef<number | null>(null);
-  
-  // High score state
-  const [currentHighScore, setCurrentHighScore] = useState(0);
-  const [isNewHighScore, setIsNewHighScore] = useState(false);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
   
-  const [poppingBalls, setPoppingBalls] = useState<Set<string>>(new Set());
   const [hoveredCell, setHoveredCell] = useState<{x: number, y: number} | null>(null);
   const [pathTrail, setPathTrail] = useState<[number, number][] | null>(null);
   const [notReachable, setNotReachable] = useState<boolean>(false);
 
-  const highScoreManager = useRef(new HighScoreManager());
-
   // Timer effect
   useEffect(() => {
-    if (!timerActive) return;
-    const interval = setInterval(() => setTimer(t => t + 1), 1000);
+    if (!timerState.timerActive) return;
+    const interval = setInterval(() => setTimer(t => t + 1), TIMER_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [timerActive]);
+  }, [timerState.timerActive]);
 
   // Initialize high scores
   useEffect(() => {
     const loadHighScores = () => {
-      const currentHigh = highScoreManager.current.getCurrentHighScore();
-      setCurrentHighScore(currentHigh);
+      // setCurrentHighScore(currentHigh); // This line was removed as per the edit hint.
     };
     loadHighScores();
   }, []);
 
   // Stop timer on game over
   useEffect(() => {
-    if (gameOver) setTimerActive(false);
-  }, [gameOver]);
+    if (gameOver) timerState.setTimerActive(false);
+  }, [gameOver, timerState]);
 
   // Check for new high score
   const checkForNewHighScore = useCallback((currentScore: number): boolean => {
-    if (highScoreManager.current.isNewHighScore(currentScore)) {
-      const success = highScoreManager.current.addHighScore(currentScore, timer);
-      if (success) {
-        setCurrentHighScore(highScoreManager.current.getCurrentHighScore());
-        setIsNewHighScore(true);
-        return true;
-      }
-    }
-    return false;
-  }, [timer]);
-
-  // Clear selection when animation starts
-  const clearSelection = useCallback(() => {
-    setSelected(null);
-    setBoard(prev => prev.map(row => row.map(cell => ({ ...cell, active: false }))));
-  }, []);
-
-  // Handle cell click: select or move
-  const handleCellClick = useCallback((x: number, y: number) => {
-    if (gameOver || movingBall) return;
-    
-    const cell = board[y][x];
-    
-    if (cell.ball) {
-      // Select ball
-      setSelected({ x, y });
-      setBoard(prev => prev.map((row, yy) => row.map((c, xx) => ({ 
-        ...c, 
-        active: xx === x && yy === y 
-      }))));
-    } else if (selected) {
-      // Validate move
-      if (!GamePhaseManager.validateMove(board, selected.x, selected.y, x, y)) {
-        return;
-      }
-      
-      // Attempt to move ball
-      const path = findPath(board, selected, { x, y });
-      
-      if (path && path.length > 1) {
-        // Clear selection immediately when animation starts
-        clearSelection();
-        
-        // Start animation
-        setMovingBall({ color: board[selected.y][selected.x].ball!.color, path });
-        setMovingStep(0);
-        setPathTrail(null);
-        setNotReachable(false);
-      }
-    }
-  }, [board, gameOver, movingBall, selected, clearSelection]);
-
-  // Handle cell hover for path preview
-  const handleCellHover = useCallback((x: number, y: number) => {
-    if (gameOver || movingBall || !selected) return;
-    
-    const cell = board[y][x];
-    if (!cell.ball && selected) {
-      const path = findPath(board, selected, { x, y });
-      if (path && path.length > 1) {
-        setPathTrail(path);
-        setNotReachable(false);
-      } else {
-        setPathTrail(null);
-        setNotReachable(true);
-      }
-    }
-    setHoveredCell({ x, y });
-  }, [board, gameOver, movingBall, selected]);
-
-  const handleCellLeave = useCallback(() => {
-    setHoveredCell(null);
-    setPathTrail(null);
-    setNotReachable(false);
-  }, []);
+    return highScoreState.checkForNewHighScore(currentScore, timer);
+  }, [timer, highScoreState]);
 
   // Animation effect for moving ball
   useEffect(() => {
-    if (!movingBall || movingStep >= movingBall.path.length) {
-      if (movingBall) {
+    if (!animationState.movingBall || animationState.movingStep >= animationState.movingBall.path.length) {
+      if (animationState.movingBall) {
         // Animation complete, process the move
-        const [fromX, fromY] = movingBall.path[0];
-        const [toX, toY] = movingBall.path[movingBall.path.length - 1];
+        const [fromX, fromY] = animationState.movingBall.path[0];
+        const [toX, toY] = animationState.movingBall.path[animationState.movingBall.path.length - 1];
         
         // Handle move completion using GamePhaseManager
-        const moveResult = GamePhaseManager.handleMoveCompletion(board, fromX, fromY, toX, toY, nextBalls);
-        setBoard(moveResult.newBoard);
+        const moveResult = GamePhaseManager.handleMoveCompletion(boardState.board, fromX, fromY, toX, toY, boardState.nextBalls);
+        boardState.setBoard(moveResult.newBoard);
         
         // Start timer after first move
-        if (!timerActive && timer === 0) {
-          setTimerActive(true);
+        if (!timerState.timerActive && timer === 0) {
+          timerState.setTimerActive(true);
         }
         
         // Check for lines and handle removal
@@ -172,7 +86,7 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
         if (lineResult) {
           // Lines were formed - handle ball removal
           setScore(s => s + lineResult.pointsEarned!);
-          setPoppingBalls(new Set(lineResult.ballsRemoved!.map(([x, y]) => `${x},${y}`)));
+          animationState.setPoppingBalls(new Set(lineResult.ballsRemoved!.map(([x, y]) => `${x},${y}`)));
           
           // Check for new high score
           const newScore = score + lineResult.pointsEarned!;
@@ -180,16 +94,16 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
           
           // Clear popping balls after animation
           setTimeout(() => {
-            setPoppingBalls(new Set());
+            animationState.setPoppingBalls(new Set());
             
             // Keep incoming balls in their current positions - don't recalculate
-            setBoard(lineResult.newBoard);
+            boardState.setBoard(lineResult.newBoard);
           }, ANIMATION_DURATIONS.POP_BALL);
         } else {
           // No lines formed - convert incoming balls
           const conversionResult = GamePhaseManager.handleIncomingBallConversion(moveResult.newBoard);
-          setBoard(conversionResult.newBoard);
-          setNextBalls(conversionResult.nextBalls);
+          boardState.setBoard(conversionResult.newBoard);
+          boardState.setNextBalls(conversionResult.nextBalls);
           
           if (conversionResult.gameOver) {
             setGameOver(true);
@@ -198,34 +112,19 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
         }
         
         // Reset animation state
-        setMovingBall(null);
-        setMovingStep(0);
+        animationState.setMovingBall(null);
+        animationState.setMovingStep(0);
       }
       return;
     }
 
     // Continue animation
-    const animate = () => {
-      setMovingStep(prev => prev + 1);
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [movingBall, movingStep, board, nextBalls, timerActive, timer, score, checkForNewHighScore]);
+    animationState.setMovingStep(prev => prev + 1);
+    // No cleanup needed
+  }, [animationState.movingBall, animationState.movingStep, boardState.board, boardState.nextBalls, timerState.timerActive, timer, score, checkForNewHighScore]);
 
   // Cleanup animation on unmount
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
+  // (No cleanup needed for movingBall, as it's not a frame id)
 
   // Start new game
   const startNewGame = useCallback(() => {
@@ -235,22 +134,20 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     const initialNext = getRandomNextBalls(BALLS_PER_TURN);
     const finalBoard = placePreviewBalls(boardWithRealBalls, initialNext);
     
-    setBoard(finalBoard);
+    boardState.setBoard(finalBoard);
     setScore(0);
-    setSelected(null);
     setGameOver(false);
-    setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+    boardState.setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
     setTimer(0);
-    setTimerActive(false);
-    setMovingBall(null);
-    setMovingStep(0);
-    setPoppingBalls(new Set());
+    timerState.setTimerActive(false);
+    animationState.setMovingBall(null);
+    animationState.setMovingStep(0);
+    animationState.setPoppingBalls(new Set());
     setHoveredCell(null);
     setPathTrail(null);
     setNotReachable(false);
-    setIsNewHighScore(false);
     setShowGameEndDialog(false);
-  }, []);
+  }, [boardState, timerState, animationState]);
 
   const handleNewGameFromDialog = useCallback(() => {
     setShowGameEndDialog(false);
@@ -263,28 +160,28 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
 
   return [
     {
-      board,
+      board: boardState.board,
       score,
-      selected,
+      selected: boardState.selected,
       gameOver,
-      nextBalls,
-      timer,
-      timerActive,
-      movingBall,
-      movingStep,
-      poppingBalls,
+      nextBalls: boardState.nextBalls,
+      timer: timerState.timer,
+      timerActive: timerState.timerActive,
+      movingBall: animationState.movingBall,
+      movingStep: animationState.movingStep,
+      poppingBalls: animationState.poppingBalls,
       hoveredCell,
       pathTrail,
       notReachable,
-      currentHighScore,
-      isNewHighScore,
+      currentHighScore: highScoreState.currentHighScore,
+      isNewHighScore: highScoreState.isNewHighScore,
       showGameEndDialog,
     },
     {
       startNewGame,
-      handleCellClick,
-      handleCellHover,
-      handleCellLeave,
+      handleCellClick: boardState.handleCellClick,
+      handleCellHover: boardState.handleCellHover,
+      handleCellLeave: boardState.handleCellLeave,
       handleNewGameFromDialog,
       handleCloseDialog,
     }

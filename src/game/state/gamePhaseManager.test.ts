@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { GamePhaseManager } from './gamePhaseManager';
 import { createEmptyBoard, getRandomNextBalls } from '../logic';
 import type { Cell } from '../types';
-import type { BallColor } from '../../utils/constants';
+import type { BallColor } from '../constants';
 
 describe('GamePhaseManager', () => {
   let board: Cell[][];

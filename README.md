@@ -18,35 +18,75 @@ React app is up at [https://lines.schupke.io/](https://lines.schupke.io/).
 
 ---
 
-# React + TypeScript + Vite
+# Local Development Environment
 
-This project uses React, TypeScript, and Vite for a modern, fast development experience. ESLint is set up for code quality.
+## Database with Docker Compose
+
+This project uses Docker Compose **only for the database** (Supabase/Postgres). The React app is run directly on your host machine.
+
+**Why?**
+- Vite 5+ and Node.js 18+ in containers have a known incompatibility with the `crypto.hash` API, causing the dev server to fail in Docker. Running the app on the host avoids this issue and provides a smoother developer experience.
 
 ## Getting Started
 
-Install dependencies:
+1. **Start the database with Docker Compose:**
+
+```bash
+docker-compose up -d
+```
+
+2. **Install dependencies:**
 
 ```bash
 npm install
 ```
 
-Run the development server:
+3. **Run the development server:**
 
 ```bash
 npm run dev
 ```
 
-Build for production:
+4. **Build for production:**
 
 ```bash
 npm run build
 ```
 
-Run tests:
+5. **Run tests:**
 
 ```bash
-npm test
+npm run test:run
 ```
+
+## Environment Variables
+
+Create a `.env.development` file in the project root:
+
+```
+VITE_SUPABASE_URL=postgresql://postgres:postgres@localhost:5432/lines_game
+VITE_SUPABASE_ANON_KEY=local-dev-key
+VITE_ENVIRONMENT=development
+VITE_APP_ENV=development
+```
+
+## Troubleshooting
+
+### Docker Compose Orphan Container Warning
+
+If you see a warning like this:
+
+```
+WARN[0000] Found orphan containers ([lines-game-app]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+```
+
+Run:
+
+```bash
+docker-compose up -d --remove-orphans
+```
+
+This will remove any containers that are no longer defined in your `docker-compose.yml` (such as the old app container).
 
 ## ESLint Configuration
 

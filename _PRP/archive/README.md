@@ -2,6 +2,8 @@
 
 ## Completed PRPs
 
+- **PRP-1752335049000-01-Local-Development-Environment.md**: Modernized local development workflow. Docker Compose is now used only for the database (Supabase/Postgres), while the React/Vite app runs directly on the host for reliable hot reload and compatibility. README updated to explain this approach and the Vite/Node.js crypto.hash issue in containers. All tests and build pass.
+
 - **PRP-1752330986000-03-Game-Statistics-Tracking.md**: Implemented comprehensive real-time game statistics tracking, including turns, balls cleared, lines popped, longest line, score progression, efficiency metrics, and performance analytics. Integrated Fibonacci-based scoring and bonus logic. All statistics are updated in real-time and integrated with the high score system. All tests and build pass.
 
 - **PRP-1752330986000-02-Database-Integration.md**: Integrated Supabase for persistent high score storage, including secure database schema, connection status monitoring, retry logic, and robust error handling. High scores are now saved and loaded from the cloud, with user feedback for connection issues and graceful offline fallback. All tests and build pass.

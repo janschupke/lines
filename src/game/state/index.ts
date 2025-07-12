@@ -13,7 +13,7 @@ import {
   placePreviewBalls,
   findPath
 } from '../logic';
-import type { Cell, GameState, GameActions, GameStatistics } from '../types';
+import type { Cell, GameState, GameActions } from '../types';
 import { GamePhaseManager } from './gamePhaseManager';
 import { useGameBoard } from '../../hooks/useGameBoard';
 import { useGameTimer } from '../../hooks/useGameTimer';

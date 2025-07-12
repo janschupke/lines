@@ -1,0 +1,29 @@
+services:
+  supabase:
+    image: supabase/postgres:15.1.0.117
+    container_name: lines-game-db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lines_game
+      POSTGRES_USER: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - supabase_data:/var/lib/postgresql/data
+      - ./src/database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lines_game"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - lines-network
+
+volumes:
+  supabase_data:
+    driver: local
+
+networks:
+  lines-network:
+    driver: bridge 

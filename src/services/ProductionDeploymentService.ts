@@ -41,8 +41,8 @@ export class ProductionDeploymentService {
 
   private async validateEnvironmentVariables(): Promise<void> {
     const requiredVars = [
-      "VITE_SUPABASE_URL",
-      "VITE_SUPABASE_ANON_KEY",
+          "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
       "VITE_ENVIRONMENT",
     ];
     for (const varName of requiredVars) {
@@ -51,7 +51,7 @@ export class ProductionDeploymentService {
         throw new Error(`Missing required environment variable: ${varName}`);
       }
     }
-    const supabaseUrl = this.env.VITE_SUPABASE_URL;
+    const supabaseUrl = this.env.NEXT_PUBLIC_SUPABASE_URL;
     if (!supabaseUrl.startsWith("https://")) {
       throw new Error("Invalid Supabase URL format");
     }

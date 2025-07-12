@@ -4,8 +4,8 @@ import { EnvironmentConfigService } from "./EnvironmentConfigService";
 describe("EnvironmentConfigService", () => {
   it("should return config with correct values", () => {
     const env = {
-      VITE_SUPABASE_URL: "https://test.supabase.co",
-      VITE_SUPABASE_ANON_KEY: "a".repeat(60),
+      NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "a".repeat(60),
       VITE_ENVIRONMENT: "production",
       VITE_APP_VERSION: "2.0.0",
     };
@@ -18,7 +18,7 @@ describe("EnvironmentConfigService", () => {
   });
 
   it("should throw if env vars are missing", () => {
-    const env = { VITE_SUPABASE_URL: "", VITE_SUPABASE_ANON_KEY: "" };
+    const env = { NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_ANON_KEY: "" };
     expect(() => EnvironmentConfigService.getConfig(env)).toThrow(
       "Supabase environment variables not configured",
     );
@@ -26,8 +26,8 @@ describe("EnvironmentConfigService", () => {
 
   it("should validate production config", () => {
     const env = {
-      VITE_SUPABASE_URL: "https://test.supabase.co",
-      VITE_SUPABASE_ANON_KEY: "a".repeat(60),
+      NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "a".repeat(60),
       VITE_ENVIRONMENT: "production",
       VITE_APP_VERSION: "2.0.0",
     };
@@ -38,8 +38,8 @@ describe("EnvironmentConfigService", () => {
 
   it("should throw if not production", () => {
     const env = {
-      VITE_SUPABASE_URL: "https://test.supabase.co",
-      VITE_SUPABASE_ANON_KEY: "a".repeat(60),
+      NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "a".repeat(60),
       VITE_ENVIRONMENT: "development",
       VITE_APP_VERSION: "2.0.0",
     };
@@ -52,8 +52,8 @@ describe("EnvironmentConfigService", () => {
 
   it("should throw if Supabase URL is not HTTPS", () => {
     const env = {
-      VITE_SUPABASE_URL: "http://test.supabase.co",
-      VITE_SUPABASE_ANON_KEY: "a".repeat(60),
+      NEXT_PUBLIC_SUPABASE_URL: "http://test.supabase.co",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "a".repeat(60),
       VITE_ENVIRONMENT: "production",
       VITE_APP_VERSION: "2.0.0",
     };
@@ -64,8 +64,8 @@ describe("EnvironmentConfigService", () => {
 
   it("should throw if Supabase key is too short", () => {
     const env = {
-      VITE_SUPABASE_URL: "https://test.supabase.co",
-      VITE_SUPABASE_ANON_KEY: "short",
+      NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "short",
       VITE_ENVIRONMENT: "production",
       VITE_APP_VERSION: "2.0.0",
     };

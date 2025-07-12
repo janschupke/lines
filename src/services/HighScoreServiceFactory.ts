@@ -16,8 +16,8 @@ export interface HighScoreServiceInterface {
 
 export function createHighScoreService(): HighScoreServiceInterface {
   const environment = import.meta.env.VITE_ENVIRONMENT || "development";
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // Use local service for development if Supabase is not properly configured
   if (

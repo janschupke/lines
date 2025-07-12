@@ -25,8 +25,8 @@ const mockSupabase = {
 } as any;
 
 const mockEnv = {
-  VITE_SUPABASE_URL: "https://test.supabase.co",
-  VITE_SUPABASE_ANON_KEY: "anon",
+  NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon",
   VITE_ENVIRONMENT: "test",
 };
 
@@ -67,8 +67,8 @@ describe("ProductionDeploymentService", () => {
 
   it("should throw if required env vars are missing", async () => {
     const env = {
-      VITE_SUPABASE_URL: "",
-      VITE_SUPABASE_ANON_KEY: "",
+      NEXT_PUBLIC_SUPABASE_URL: "",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
       VITE_ENVIRONMENT: "",
     };
     const serviceWithEnv = new ProductionDeploymentService(
@@ -83,8 +83,8 @@ describe("ProductionDeploymentService", () => {
 
   it("should throw if Supabase URL is invalid", async () => {
     const env = {
-      VITE_SUPABASE_URL: "http://notsecure",
-      VITE_SUPABASE_ANON_KEY: "key",
+      NEXT_PUBLIC_SUPABASE_URL: "http://notsecure",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "key",
       VITE_ENVIRONMENT: "production",
     };
     const serviceWithEnv = new ProductionDeploymentService(

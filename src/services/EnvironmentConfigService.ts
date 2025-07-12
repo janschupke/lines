@@ -11,8 +11,8 @@ export class EnvironmentConfigService {
   static getConfig(
     env: Record<string, string> = import.meta.env,
   ): EnvironmentConfig {
-    const supabaseUrl = env.VITE_SUPABASE_URL;
-    const supabaseKey = env.VITE_SUPABASE_ANON_KEY;
+      const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const environment = env.VITE_ENVIRONMENT as
       | "development"
       | "production"

@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Board from './Board';
 import GameEndDialog from '../ui/GameEndDialog';
 import MovingBall from '../ui/MovingBall';
 import MobileControls from './MobileControls';
+import { HighScoreButton } from '../ui/HighScoreButton';
+import { HighScoreOverlay } from '../ui/HighScoreOverlay';
+import { PlayerNameInput } from '../ui/PlayerNameInput';
 import { useGameState } from '../../game/state';
 import { useMobileOptimization } from '../../hooks/useMobileOptimization';
 import { formatTime } from '../../utils/formatters';
 import { getGameSpacing } from '../../utils/helpers';
+import { HighScoreService } from '../../services/HighScoreService';
+import type { HighScore } from '../../services/HighScoreService';
+import { useConnectionStatus } from '../../services/useConnectionStatus';
 import type { Cell } from '../../game/types';
 import type { BallColor } from '../../game/constants';
 
@@ -29,6 +35,8 @@ interface GameProps {
   initialNextBalls?: BallColor[];
 }
 
+const highScoreService = new HighScoreService();
+
 const Game: React.FC<GameProps> = ({ 
   showGuide, 
   setShowGuide,
@@ -37,6 +45,22 @@ const Game: React.FC<GameProps> = ({
 }) => {
   const { isMobile } = useMobileOptimization();
   const [gameState, gameActions] = useGameState(initialBoard, initialNextBalls);
+  const [showHighScoreOverlay, setShowHighScoreOverlay] = useState(false);
+  const [showPlayerNameInput, setShowPlayerNameInput] = useState(false);
+  const [pendingHighScore, setPendingHighScore] = useState<{
+    score: number;
+    playerName?: string;
+    statistics?: {
+      turnsCount?: number;
+      ballsCleared?: number;
+      linesPopped?: number;
+      longestLinePopped?: number;
+      individualBallsPopped?: number;
+    };
+  } | null>(null);
+  const [topScores, setTopScores] = useState<HighScore[]>([]);
+  const [loadingScores, setLoadingScores] = useState(false);
+  const connection = useConnectionStatus(highScoreService);
   
   const {
     board,
@@ -63,6 +87,17 @@ const Game: React.FC<GameProps> = ({
     handleNewGameFromDialog,
     handleCloseDialog,
   } = gameActions;
+
+  // Fetch top scores when overlay is opened
+  useEffect(() => {
+    if (showHighScoreOverlay) {
+      setLoadingScores(true);
+      highScoreService.getTopScores(20).then(scores => {
+        setTopScores(scores);
+        setLoadingScores(false);
+      });
+    }
+  }, [showHighScoreOverlay]);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
@@ -97,6 +132,12 @@ const Game: React.FC<GameProps> = ({
         >
           {showGuide ? 'Hide Guide' : 'Show Guide'}
         </button>
+        
+        <HighScoreButton
+          onClick={() => setShowHighScoreOverlay(true)}
+          disabled={gameOver}
+          className={isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'}
+        />
       </div>
 
       {/* Game Info Row - Score, Incoming Balls, High Score */}
@@ -230,6 +271,43 @@ const Game: React.FC<GameProps> = ({
         onNewGame={startNewGame}
         showGuide={showGuide}
         onToggleGuide={() => setShowGuide(!showGuide)}
+      />
+      
+      {/* High Score Overlay */}
+      <HighScoreOverlay
+        isOpen={showHighScoreOverlay}
+        onClose={() => setShowHighScoreOverlay(false)}
+        highScores={topScores}
+        className={loadingScores ? 'opacity-50 pointer-events-none' : ''}
+      />
+      {/* Connection Status UI */}
+      {showHighScoreOverlay && (
+        <div className="fixed top-4 right-4 z-50">
+          {connection.status === 'connecting' && <div className="animate-spin">Connecting to database...</div>}
+          {connection.status === 'error' && (
+            <div>
+              <span className="text-red-500">Database connection failed.</span>
+              <button onClick={connection.retryConnection} className="ml-2 bg-game-button-accent px-2 py-1 rounded">Retry</button>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Player Name Input */}
+      <PlayerNameInput
+        isOpen={showPlayerNameInput}
+        onSubmit={(playerName) => {
+          if (pendingHighScore) {
+            // TODO: Handle high score submission with player name
+            console.log('Player name submitted:', playerName);
+            setShowPlayerNameInput(false);
+            setPendingHighScore(null);
+          }
+        }}
+        onCancel={() => {
+          setShowPlayerNameInput(false);
+          setPendingHighScore(null);
+        }}
       />
     </div>
   );

@@ -15,6 +15,15 @@ export interface Cell {
 
 export type Direction = [number, number];
 
+export interface GameStatistics {
+  turnsCount: number;
+  ballsCleared: number;
+  linesPopped: number;
+  longestLinePopped: number;
+  individualBallsPopped: number;
+  gameDuration: number;
+}
+
 export interface GameState {
   board: Cell[][];
   score: number;
@@ -32,6 +41,7 @@ export interface GameState {
   currentHighScore: number;
   isNewHighScore: boolean;
   showGameEndDialog: boolean;
+  statistics: GameStatistics;
 }
 
 export interface GameActions {

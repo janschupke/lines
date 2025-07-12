@@ -13,12 +13,13 @@ import {
   placePreviewBalls,
   findPath
 } from '../logic';
-import type { Cell, GameState, GameActions } from '../types';
+import type { Cell, GameState, GameActions, GameStatistics } from '../types';
 import { GamePhaseManager } from './gamePhaseManager';
 import { useGameBoard } from '../../hooks/useGameBoard';
 import { useGameTimer } from '../../hooks/useGameTimer';
 import { useGameAnimation } from '../../hooks/useGameAnimation';
 import { useHighScores } from '../../hooks/useHighScores';
+import { GameStatisticsTracker } from '../statisticsTracker';
 
 export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallColor[]): [GameState, GameActions] => {
   // Board, selection, next balls
@@ -36,6 +37,9 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
   const [gameOver, setGameOver] = useState(false);
   const [timer, setTimer] = useState(0);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
+  
+  // Game statistics tracker
+  const [statisticsTracker] = useState(() => new GameStatisticsTracker());
   
   const [hoveredCell, setHoveredCell] = useState<{x: number, y: number} | null>(null);
   const [pathTrail, setPathTrail] = useState<[number, number][] | null>(null);
@@ -101,9 +105,13 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
   // Timer effect
   useEffect(() => {
     if (!timerState.timerActive) return;
-    const interval = setInterval(() => setTimer(t => t + 1), TIMER_INTERVAL_MS);
+    const interval = setInterval(() => {
+      setTimer(t => t + 1);
+      // Update game duration in statistics
+      statisticsTracker.recordGameDuration();
+    }, TIMER_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [timerState.timerActive]);
+  }, [timerState.timerActive, statisticsTracker]);
 
   // Initialize high scores
   useEffect(() => {
@@ -135,6 +143,9 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
         const moveResult = GamePhaseManager.handleMoveCompletion(boardState.board, fromX, fromY, toX, toY, boardState.nextBalls);
         boardState.setBoard(moveResult.newBoard);
         
+        // Update statistics - increment turns count
+        statisticsTracker.recordTurn();
+        
         // Start timer after first move
         if (!timerState.timerActive && timer === 0) {
           timerState.setTimerActive(true);
@@ -147,6 +158,9 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
           // Lines were formed - handle ball removal
           setScore(s => s + lineResult.pointsEarned!);
           animationState.setPoppingBalls(new Set(lineResult.ballsRemoved!.map(([x, y]) => `${x},${y}`)));
+          
+          // Update statistics for line removal
+          statisticsTracker.recordLinePop(lineResult.ballsRemoved!.length, lineResult.pointsEarned!);
           
           // Check for new high score
           const newScore = score + lineResult.pointsEarned!;
@@ -184,7 +198,7 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     }, ANIMATION_DURATIONS.MOVE_BALL);
 
     return () => clearTimeout(animationTimer);
-  }, [animationState.movingBall, animationState.movingStep, boardState.board, boardState.nextBalls, timerState.timerActive, timer, score, checkForNewHighScore]);
+  }, [animationState.movingBall, animationState.movingStep, boardState.board, boardState.nextBalls, timerState.timerActive, timer, score, checkForNewHighScore, statisticsTracker]);
 
   // Cleanup animation on unmount
   // (No cleanup needed for movingBall, as it's not a frame id)
@@ -211,7 +225,10 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
     setPathTrail(null);
     setNotReachable(false);
     setShowGameEndDialog(false);
-  }, [boardState, timerState, animationState]);
+    
+    // Reset statistics
+    statisticsTracker.reset();
+  }, [boardState, timerState, animationState, statisticsTracker]);
 
   const handleNewGameFromDialog = useCallback(() => {
     setShowGameEndDialog(false);
@@ -240,6 +257,7 @@ export const useGameState = (initialBoard?: Cell[][], initialNextBalls?: BallCol
       currentHighScore: highScoreState.currentHighScore,
       isNewHighScore: highScoreState.isNewHighScore,
       showGameEndDialog,
+      statistics: statisticsTracker.getCurrentStatistics(),
     },
     {
       startNewGame,

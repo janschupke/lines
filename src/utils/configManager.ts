@@ -12,6 +12,12 @@ interface HighScore {
   score: number;
   date: Date;
   gameTime?: number;
+  playerName?: string;
+  turnsCount?: number;
+  ballsCleared?: number;
+  linesPopped?: number;
+  longestLinePopped?: number;
+  individualBallsPopped?: number;
 }
 
 const DEFAULT_CONFIG: GameConfig = {
@@ -106,7 +112,13 @@ class ConfigManager {
     return [...this.config.highScores].sort((a, b) => b.score - a.score);
   }
 
-  addHighScore(score: number, gameTime?: number): boolean {
+  addHighScore(score: number, gameTime?: number, playerName?: string, statistics?: {
+    turnsCount?: number;
+    ballsCleared?: number;
+    linesPopped?: number;
+    longestLinePopped?: number;
+    individualBallsPopped?: number;
+  }): boolean {
     const currentScores = this.getHighScores();
     const currentSessionScore = this.config.currentSessionScore || 0;
     
@@ -124,7 +136,9 @@ class ConfigManager {
         const sessionScore: HighScore = {
           score: currentSessionScore,
           date: new Date(this.config.currentSessionDate || new Date()),
-          gameTime: this.config.currentSessionGameTime
+          gameTime: this.config.currentSessionGameTime,
+          playerName: playerName || 'Anonymous',
+          ...statistics
         };
         
         const isSessionScoreHighEnough = currentScores.length < this.config.maxHighScores || 

@@ -5,6 +5,17 @@ import '@testing-library/jest-dom';
 import Game from './Game';
 import * as gameStateModule from '../../game/state';
 
+// Mock HighScoreService to avoid Supabase environment variable issues
+vi.mock('../../services/HighScoreService', () => ({
+  HighScoreService: vi.fn().mockImplementation(() => ({
+    saveHighScore: vi.fn().mockResolvedValue(true),
+    getTopScores: vi.fn().mockResolvedValue([]),
+    isConnected: vi.fn().mockResolvedValue(true),
+    retryConnection: vi.fn().mockResolvedValue(true),
+    getConnectionStatus: vi.fn().mockReturnValue('connected')
+  }))
+}));
+
 // Mock timers for animation testing
 beforeEach(() => {
   vi.useFakeTimers();
@@ -49,6 +60,14 @@ describe('Game', () => {
           currentHighScore: 0,
           isNewHighScore: false,
           showGameEndDialog: false,
+          statistics: {
+            turnsCount: 0,
+            ballsCleared: 0,
+            linesPopped: 0,
+            longestLinePopped: 0,
+            individualBallsPopped: 0,
+            gameDuration: 0
+          }
         },
         {
           startNewGame: vi.fn(),

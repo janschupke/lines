@@ -6,9 +6,20 @@ export const useHighScores = () => {
   const [isNewHighScore, setIsNewHighScore] = useState(false);
   const highScoreManager = useRef(new HighScoreManager());
 
-  const checkForNewHighScore = useCallback((score: number, time: number): boolean => {
+  const checkForNewHighScore = useCallback((
+    score: number, 
+    time: number, 
+    playerName?: string, 
+    statistics?: {
+      turnsCount?: number;
+      ballsCleared?: number;
+      linesPopped?: number;
+      longestLinePopped?: number;
+      individualBallsPopped?: number;
+    }
+  ): boolean => {
     if (highScoreManager.current.isNewHighScore(score)) {
-      const success = highScoreManager.current.addHighScore(score, time);
+      const success = highScoreManager.current.addHighScore(score, time, playerName, statistics);
       if (success) {
         setCurrentHighScore(highScoreManager.current.getCurrentHighScore());
         setIsNewHighScore(true);
@@ -22,5 +33,6 @@ export const useHighScores = () => {
     currentHighScore,
     isNewHighScore,
     checkForNewHighScore,
+    getHighScores: () => highScoreManager.current.getHighScores(),
   };
 }; 

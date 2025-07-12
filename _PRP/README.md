@@ -1,8 +1,32 @@
-# Development Workflow & Agent Instructions
+# Lines Game - Development Workflow & Agent Instructions
 
 ## Overview
 
-This folder contains the project planning and implementation documentation for the Lines project. The development workflow is designed to be repeatable and can be executed by both developers and AI agents.
+This folder contains the project planning and implementation documentation for the **Lines** game project. The development workflow is designed to be repeatable and can be executed by both developers and AI agents.
+
+**Lines** is a React-based puzzle game where players move colored balls to form lines of 5 or more balls. The game features score tracking, high scores, timer functionality, smooth animations, and accessibility features.
+
+## Project Overview
+
+### Tech Stack
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with custom game theme
+- **Testing**: Vitest with React Testing Library
+- **State Management**: Custom React hooks and game state management
+- **Animations**: CSS animations and transitions
+
+### Game Features
+- 9x9 game board with colored balls
+- Ball movement with pathfinding
+- Line detection (horizontal, vertical, diagonal)
+- Score system with Fibonacci-based scoring
+- High score tracking with local storage
+- Timer functionality
+- Next balls preview
+- Smooth animations and transitions
+- Accessibility features (keyboard navigation, ARIA labels)
+- Responsive design
 
 ## Folder Structure
 
@@ -10,8 +34,8 @@ This folder contains the project planning and implementation documentation for t
 _PRP/
 ├── README.md                    # This file - complete workflow instructions
 ├── INIT.md                      # Development cycle and rules (source of truth)
-├── PLANNING.md                  # Feature descriptions (input by developer/
-├── PLANNING_TEMPLATE.md                  # TODO
+├── PLANNING.md                  # Feature descriptions (input by developer/agent)
+├── PLANNING_TEMPLATE.md         # Markdown scaffolding template for planning
 ├── current/                     # Active PRPs to be implemented
 │   └── (empty - ready for new PRPs)
 └── archive/                     # Completed PRPs
@@ -26,7 +50,7 @@ _PRP/
 - **Content**: Non-technical, user-facing feature descriptions
 - **Format**: Clear, concise descriptions of what users will see/experience
 - **Scope**: Complete feature set to be implemented
-- **Examples**: "Users can open folders", "Users can edit files with syntax highlighting"
+- **Examples**: "Users can pause the game", "Users can customize ball colors", "Users can share high scores"
 
 ### Phase 2: PRP Generation (Agent Action)
 **Agent Instruction**: "Read README.md and INIT.md, then generate PRPs for the features in PLANNING.md"
@@ -35,7 +59,7 @@ _PRP/
 - Read README.md and INIT.md as source of truth
 - Analyze PLANNING.md for feature requirements
 - Generate detailed PRP documents in `_PRP/current/`
-- Follow PRP-[YYYY]-[MM]-[DD]-[number]-[feature].md naming convention
+- Follow PRP-[timestamp]-[number]-[feature].md naming convention
 - Include complete implementation details
 
 **PRP Content Requirements**:
@@ -109,7 +133,7 @@ Create detailed, well-researched PRP documents in the 'current' folder that cont
 complete information about the features to be implemented, including functional requirements, 
 non-functional requirements, user-facing descriptions, technical details, code examples, 
 testing requirements, potential risks, and accessibility considerations. Use the naming 
-convention PRP-[YYYY]-[MM]-[DD]-[number]-[feature].md with today's date.
+convention PRP-[timestamp]-[number]-[feature].md with a timestamp prefix.
 ```
 
 ### For Implementation:
@@ -127,30 +151,42 @@ Update PLANNING.md with the following user-facing feature descriptions:
 
 [describe features]. 
 
-Focus on what users will experience, not technical implementation details.
+Focus on what users will experience, not technical implementation details. Use `PLANNING_TEMPLATE.md` as a reference for the `PLANNING.md` file structure.
 ```
 
 ## PRP Naming Convention
 
-### Format: `PRP-[YYYY]-[MM]-[DD]-[number]-[feature].md`
+### Format: `PRP-[timestamp]-[number]-[feature].md`
 
 **Examples:**
-- `PRP-2024-01-15-01-Design-System-Testing-Foundation.md`
-- `PRP-2024-01-15-02-Setup.md`
-- `PRP-2024-01-15-03-UI-Skeleton.md`
+- `PRP-1703123456789-01-Pause-Game-Feature.md`
+- `PRP-1703123456789-02-Custom-Ball-Colors.md`
+- `PRP-1703123456789-03-Share-High-Scores.md`
 
 **Components:**
-- `[YYYY]`: Four-digit year
-- `[MM]`: Two-digit month (01-12)
-- `[DD]`: Two-digit day (01-31)
+- `[timestamp]`: Unix timestamp in milliseconds (e.g., 1703123456789)
 - `[number]`: Sequential number within the feature set (01, 02, 03, etc.)
 - `[feature]`: Descriptive feature name (kebab-case)
 
 **Benefits:**
-- Files sort chronologically in filesystem
-- Clear date tracking for feature sets
+- Timestamp ensures unique identification across feature sets
 - Sequential numbering within feature sets
 - Descriptive feature names for easy identification
+- Same timestamp for all PRPs in a feature set generated in one planning iteration
+
+## Markdown Scaffolding
+
+The `PLANNING_TEMPLATE.md` file contains a structured markdown template that agents can use when generating planning documents. This template includes:
+
+- **Feature Overview**: High-level description of the feature
+- **User Stories**: Specific user-facing requirements
+- **Technical Requirements**: Implementation details and constraints
+- **UI/UX Considerations**: Design and user experience requirements
+- **Testing Requirements**: Coverage and testing strategy
+- **Accessibility Requirements**: WCAG compliance and accessibility features
+- **Performance Considerations**: Performance benchmarks and optimizations
+
+This scaffolding ensures consistent and comprehensive planning documentation across all features.
 
 ## File Descriptions
 
@@ -158,6 +194,7 @@ Focus on what users will experience, not technical implementation details.
 - **README.md**: This file - complete workflow instructions
 - **INIT.md**: Development rules and cycle (source of truth)
 - **PLANNING.md**: Feature descriptions (input by developer/agent)
+- **PLANNING_TEMPLATE.md**: Markdown scaffolding template for consistent planning
 
 ### Implementation Folders
 - **current/**: Active PRPs to be implemented
@@ -196,4 +233,4 @@ Focus on what users will experience, not technical implementation details.
 - Forget to move completed PRPs to archive
 - Forget to update archive README.md
 
-This workflow ensures consistent, high-quality development with clear processes and automated completion of feature sets. 
+This workflow ensures consistent, high-quality development with clear processes and automated completion of feature sets for the Lines game project. 

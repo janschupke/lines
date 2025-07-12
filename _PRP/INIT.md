@@ -1,8 +1,31 @@
-# Development Cycle & Rules (Source of Truth)
+# Lines Game - Development Cycle & Rules (Source of Truth)
 
 ## IMPORTANT: Development Entry Point
 
-**This file (INIT.md) is the primary source of truth for development rules and cycle.**
+**This file (INIT.md) is the primary source of truth for development rules and cycle for the Lines game project.**
+
+## Project Overview
+
+**Lines** is a React-based puzzle game where players move colored balls to form lines of 5 or more balls. The game features:
+
+- 9x9 game board with colored balls
+- Ball movement with pathfinding algorithms
+- Line detection (horizontal, vertical, diagonal)
+- Score system with Fibonacci-based scoring
+- High score tracking with local storage
+- Timer functionality
+- Next balls preview
+- Smooth animations and transitions
+- Accessibility features (keyboard navigation, ARIA labels)
+- Responsive design
+
+### Tech Stack
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with custom game theme
+- **Testing**: Vitest with React Testing Library
+- **State Management**: Custom React hooks and game state management
+- **Animations**: CSS animations and transitions
 
 ## Development Cycle Rules
 
@@ -21,7 +44,7 @@
 ### 3. Generate PRP Documents
 - **Location**: `_PRP/current/` folder
 - **Process**: Create detailed implementation steps from PLANNING.md
-- **Format**: PRP-[YYYY]-[MM]-[DD]-[number]-[feature].md with numbered phases
+- **Format**: PRP-[timestamp]-[number]-[feature].md with numbered phases
 - **Content**: Complete technical details, code examples, testing requirements
 
 ### 4. Implement PRPs Sequentially
@@ -38,25 +61,42 @@
 
 ## PRP Naming Convention
 
-### Format: `PRP-[YYYY]-[MM]-[DD]-[number]-[feature].md`
+### Format: `PRP-[timestamp]-[number]-[feature].md`
 
 **Examples:**
-- `PRP-2024-01-15-01-Design-System-Testing-Foundation.md`
-- `PRP-2024-01-15-02-Setup.md`
-- `PRP-2024-01-15-03-UI-Skeleton.md`
+- `PRP-1703123456789-01-Pause-Game-Feature.md`
+- `PRP-1703123456789-02-Custom-Ball-Colors.md`
+- `PRP-1703123456789-03-Share-High-Scores.md`
 
 **Components:**
-- `[YYYY]`: Four-digit year
-- `[MM]`: Two-digit month (01-12)
-- `[DD]`: Two-digit day (01-31)
+- `[timestamp]`: Unix timestamp in milliseconds (e.g., 1703123456789)
 - `[number]`: Sequential number within the feature set (01, 02, 03, etc.)
 - `[feature]`: Descriptive feature name (kebab-case)
 
 **Benefits:**
-- Files sort chronologically in filesystem
-- Clear date tracking for feature sets
+- Timestamp ensures unique identification across feature sets
 - Sequential numbering within feature sets
 - Descriptive feature names for easy identification
+- Same timestamp for all PRPs in a feature set generated in one planning iteration
+
+## Markdown Scaffolding Process
+
+The `PLANNING_TEMPLATE.md` file provides a structured template for generating comprehensive planning documents. This template includes:
+
+### Template Sections:
+- **Feature Overview**: High-level description of the feature
+- **User Stories**: Specific user-facing requirements
+- **Technical Requirements**: Implementation details and constraints
+- **UI/UX Considerations**: Design and user experience requirements
+- **Testing Requirements**: Coverage and testing strategy
+- **Accessibility Requirements**: WCAG compliance and accessibility features
+- **Performance Considerations**: Performance benchmarks and optimizations
+
+### Usage:
+1. **Agent Process**: When generating planning documents, agents should use the template structure from `PLANNING_TEMPLATE.md`
+2. **Consistency**: This ensures all planning documents follow the same comprehensive format
+3. **Completeness**: The scaffolding helps ensure no critical requirements are missed
+4. **Standardization**: Provides a consistent framework for feature planning across the project
 
 ## Development Rules & Best Practices
 
@@ -77,6 +117,14 @@
 - **Code Abstraction**: Use enums, constants, and utility functions to avoid duplication
 - **Business Logic**: Extract reusable patterns, avoid hardcoding values
 - **Refactoring**: Continuously refactor to maintain clean, logical structure
+
+### Game-Specific Rules
+- **Game Logic**: Keep game mechanics in dedicated logic files
+- **State Management**: Use React hooks for game state
+- **Animations**: Use CSS animations for smooth transitions
+- **Performance**: Optimize for 60fps animations
+- **Accessibility**: Ensure keyboard navigation works for all game interactions
+- **Responsive Design**: Game should work on various screen sizes
 
 ### Testing Requirements
 - **Unit Tests**: Individual components, utilities, hooks
@@ -99,7 +147,12 @@
 - **Performance**: Monitor and optimize throughout development
 
 ### Project Structure Rules
-- TODO: update this section
+- **Game Logic**: Keep in `src/game/logic/` and `src/game/state/`
+- **UI Components**: Organize in `src/ui/components/`
+- **Utilities**: Place in `src/utils/`
+- **Types**: Define in `src/game/types/` and `src/utils/constants.ts`
+- **Tests**: Co-locate with source files
+- **Assets**: Store in `src/assets/`
 
 ### Implementation Standards
 - **Consistency**: Follow established patterns and conventions
@@ -135,12 +188,12 @@
 2. Run `npm run test:run` after completing each PRP
 3. Fix any test failures before proceeding
 4. Maintain >80% coverage throughout
-5. **ALWAYS** run `npm run tauri build` before marking PRP as completed
+5. **ALWAYS** run `npm run build` before marking PRP as completed
 6. Fix any build errors before proceeding to next PRP
 7. Verify build process works before archiving
 
 ### Agent Build Protocol:
-1. **ALWAYS** run `npm run tauri build` after completing each PRP
+1. **ALWAYS** run `npm run build` after completing each PRP
 2. Fix any TypeScript errors, linting issues, or build failures
 3. Ensure the app builds successfully before marking PRP as completed
 4. Never proceed to next PRP without successful build
@@ -181,7 +234,7 @@
 
 ### After PRP Completion:
 - [ ] Run `npm run test:run` to ensure no regressions
-- [ ] Run `npm run tauri build` to verify build process
+- [ ] Run `npm run build` to verify build process
 - [ ] Fix any build errors before proceeding
 - [ ] Refactor code if needed to maintain logical structure
 - [ ] Update documentation as needed
@@ -194,7 +247,7 @@
 - [ ] All tests pass (>80% coverage)
 - [ ] No TypeScript errors
 - [ ] No linting warnings
-- [ ] Build completes successfully (`npm run tauri build`)
+- [ ] Build completes successfully (`npm run build`)
 - [ ] Code structure is logical and well-organized
 - [ ] No hardcoded values or duplicated business logic
 - [ ] Accessibility requirements met
@@ -206,6 +259,7 @@
 _PRP/
 ├── INIT.md                    # Development cycle and rules (this file)
 ├── PLANNING.md                # Feature descriptions (user-facing)
+├── PLANNING_TEMPLATE.md       # Markdown scaffolding template
 ├── current/                   # Active PRPs to be implemented
 │   ├── PRP...md
 │   └── ...
@@ -242,5 +296,7 @@ _PRP/
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
+- [Vite Documentation](https://vitejs.dev/)
+- [Vitest Documentation](https://vitest.dev/)
 
-This structure ensures consistent, high-quality development with clear processes and maintainable codebase. 
+This structure ensures consistent, high-quality development with clear processes and maintainable codebase for the Lines game project. 

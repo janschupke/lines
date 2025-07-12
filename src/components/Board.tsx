@@ -1,12 +1,7 @@
 import React from 'react';
-import type { Cell, BallColor } from './Game';
-import { colorMap } from './colorMap';
-
-export const CELL_SIZE = 56;
-export const GAP = 4;
-export const PADDING = 8;
-export const BALL_SIZE = 40;
-export const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
+import { BALL_SIZE, COLOR_MAP, type BallColor } from '../utils/constants';
+import { CELL_SIZE, GAP } from '../utils/boardConstants';
+import type { Cell } from '../utils/gameLogic';
 
 interface BoardProps {
   board: Cell[][];
@@ -79,7 +74,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
                 style={{
                   width: BALL_SIZE,
                   height: BALL_SIZE,
-                  background: colorMap[cell.ball.color],
+                  background: COLOR_MAP[cell.ball.color],
                   boxShadow: cell.active ? '0 0 8px 2px #ffe082' : '0 1px 4px #0003',
                   animation: popping ? 'popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)' : 'moveBall 0.25s cubic-bezier(0.4, 0.2, 0.2, 1)',
                 }}
@@ -88,8 +83,8 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, children, movingBall,
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className="block w-5 h-5 rounded-full border border-[#666] shadow-sm opacity-80"
-                style={{ background: colorMap[cell.incomingBall.color] }}
+                className="block w-6 h-6 rounded-full border border-[#666] shadow-sm opacity-80"
+                style={{ background: COLOR_MAP[cell.incomingBall.color] }}
                 title={`Preview: ${cell.incomingBall.color}`}
               />
             )}

@@ -19,23 +19,20 @@ const colorMap: Record<BallColor, string> = {
 
 const InfoPanel: React.FC<InfoPanelProps> = ({ score, onNewGame, nextBalls }) => {
   return (
-    <div className="info-panel">
-      <span>Score: {score}</span>
-      <button onClick={onNewGame} style={{ marginLeft: 16 }}>New Game</button>
-      <span style={{ marginLeft: 24 }}>Next balls: </span>
+    <div className="flex items-center space-x-6 p-4 bg-[#23272f] rounded-lg shadow-lg border border-[#444]">
+      <span className="text-white font-semibold text-lg">Score: {score}</span>
+      <button 
+        onClick={onNewGame} 
+        className="px-4 py-2 rounded-lg bg-[#444] text-white hover:bg-[#555] font-semibold transition-colors shadow-md"
+      >
+        New Game
+      </button>
+      <span className="text-white font-medium">Next balls: </span>
       {nextBalls.map((color, i) => (
         <span
           key={i}
-          style={{
-            display: 'inline-block',
-            width: 20,
-            height: 20,
-            borderRadius: '50%',
-            background: colorMap[color],
-            margin: '0 4px',
-            border: '1px solid #888',
-            verticalAlign: 'middle',
-          }}
+          className="inline-block w-5 h-5 rounded-full border border-[#888] align-middle ml-1 shadow-sm"
+          style={{ background: colorMap[color] }}
           title={color}
         />
       ))}

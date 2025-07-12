@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import styled from 'styled-components';
 import Board, { CELL_SIZE, GAP } from './Board';
 import { colorMap } from './colorMap';
 import HighScoreManager from '../utils/highScoreManager';
@@ -160,108 +159,72 @@ const getCellPosition = (x: number, y: number) => ({
   top: y * (CELL_SIZE + GAP) + OFFSET,
 });
 
-const MovingBall = styled.div<{color: string; left: number; top: number}>`
-  position: absolute;
-  width: ${BALL_SIZE}px;
-  height: ${BALL_SIZE}px;
-  border-radius: 50%;
-  background: ${props => props.color};
-  border: 2px solid #555;
-  box-shadow: 0 0 8px 2px #ffe082;
-  z-index: 10;
-  left: ${props => props.left}px;
-  top: ${props => props.top}px;
-  transition: left 0.08s linear, top 0.08s linear;
-  pointer-events: none;
-`;
+const MovingBall: React.FC<{ color: string; left: number; top: number }> = ({ color, left, top }) => (
+  <div
+    className="absolute rounded-full border-2 border-[#555] z-10 pointer-events-none shadow-[0_0_8px_2px_#ffe082]"
+    style={{
+      width: 40,
+      height: 40,
+      background: color,
+      left,
+      top,
+      transition: 'left 0.08s linear, top 0.08s linear',
+    }}
+  />
+);
 
-const InfoContainer: React.FC<{ highScores: HighScore[]; isNewHighScore: boolean; currentScore?: number; currentSessionScore?: number; showGuide?: boolean }> = ({ 
-  highScores, 
-  isNewHighScore, 
+const InfoContainer: React.FC<{ highScores: HighScore[]; isNewHighScore: boolean; currentScore?: number; currentSessionScore?: number; showGuide?: boolean }> = ({
+  highScores,
+  isNewHighScore,
   currentScore,
   currentSessionScore,
   showGuide = false
 }) => (
-      <div
-      className="info-container"
-      style={{
-        margin: '32px auto 0 auto',
-        padding: 24,
-        border: '1px solid #222',
-        borderRadius: 12,
-        maxWidth: 600,
-        width: '100%',
-        background: '#23272f',
-        color: '#f5f7fa',
-        boxShadow: '0 2px 12px #0004',
-      }}
-    >
-      {showGuide ? (
-        <>
-          <h2 style={{ marginTop: 0 }}>About</h2>
-          <p>
-            Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
-          </p>
-          <p>
-            This is a React port of the original Java version.
-          </p>
-          <h2>Scoring</h2>
-          <p>Score points by forming lines of the same color:</p>
-          <ul>
-            <li>Line of 5 balls: 5 points</li>
-            <li>Line of 6 balls: 8 points</li>
-            <li>Line of 7 balls: 13 points</li>
-            <li>Line of 8 balls: 21 points</li>
-            <li>Line of 9 balls: 34 points</li>
-          </ul>
-          <h2>Guide</h2>
-          <ul>
-            <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
-            <li>Form lines of 5 or more balls of the same color (horizontally, vertically, or diagonally) to clear them and score points.</li>
-            <li>After each move, new balls (shown in the preview) will appear on the board.</li>
-            <li>The game ends when the board is full and no more moves are possible.</li>
-          </ul>
-        </>
-      ) : (
-        <>
-          {/* Add high score display */}
-          <div style={{ marginTop: 24 }}>
-            <HighScoreDisplay 
-              highScores={highScores.slice(0, 5)} 
-              currentScore={isNewHighScore ? currentScore : undefined}
-              isNewHighScore={isNewHighScore}
-              currentSessionScore={currentSessionScore}
-            />
-          </div>
-        </>
-      )}
-    </div>
+  <div
+    className="mx-auto mt-8 p-6 border border-[#222] rounded-xl max-w-xl w-full bg-[#23272f] text-[#f5f7fa] shadow-lg"
+  >
+    {showGuide ? (
+      <>
+        <h2 className="mt-0">About</h2>
+        <p>
+          Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
+        </p>
+        <p>
+          This is a React port of the original Java version.
+        </p>
+        <h2>Scoring</h2>
+        <p>Score points by forming lines of the same color:</p>
+        <ul>
+          <li>Line of 5 balls: 5 points</li>
+          <li>Line of 6 balls: 8 points</li>
+          <li>Line of 7 balls: 13 points</li>
+          <li>Line of 8 balls: 21 points</li>
+          <li>Line of 9 balls: 34 points</li>
+        </ul>
+        <h2>Guide</h2>
+        <ul>
+          <li>Click a ball to select it, then click an empty cell to move it (if a path exists).</li>
+          <li>Form lines of 5 or more balls of the same color (horizontally, vertically, or diagonally) to clear them and score points.</li>
+          <li>After each move, new balls (shown in the preview) will appear on the board.</li>
+          <li>The game ends when the board is full and no more moves are possible.</li>
+        </ul>
+      </>
+    ) : (
+      <HighScoreDisplay highScores={highScores} isNewHighScore={isNewHighScore} currentScore={currentScore} currentSessionScore={currentSessionScore} />
+    )}
+  </div>
 );
 
 const NextBallsPreview: React.FC<{ nextBalls: BallColor[] }> = ({ nextBalls }) => {
-  const colorMap: Record<BallColor, string> = {
-    red: '#e74c3c',
-    green: '#27ae60',
-    blue: '#2980b9',
-    yellow: '#f1c40f',
-    purple: '#8e44ad',
-    cyan: '#1abc9c',
-    black: '#222',
-  };
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12 }}>
+    <div className="flex justify-center items-center gap-3">
       {nextBalls.map((color, i) => (
         <span
           key={i}
+          className="block w-8 h-8 rounded-full border-2 border-[#888] text-center align-middle"
           style={{
-            display: 'block',
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
             background: colorMap[color],
-            border: '2px solid #888',
             margin: '0 4px',
-            verticalAlign: 'middle',
           }}
           title={color}
         />
@@ -290,36 +253,20 @@ export interface GameToggleProps {
 }
 
 export const ToggleBar: React.FC<GameToggleProps> = ({ showGuide, setShowGuide, showHighScores, setShowHighScores }) => (
-  <div style={{ display: 'flex', justifyContent: 'center', gap: 12, width: '100%', maxWidth: 600, margin: '0 auto' }}>
+  <div className="flex justify-center gap-3 w-full max-w-xl mx-auto">
     <button
       onClick={() => setShowGuide(!showGuide)}
-      style={{
-        fontWeight: 600,
-        fontSize: 16,
-        padding: '8px 16px',
-        borderRadius: 8,
-        border: 'none',
-        background: showGuide ? '#ffe082' : '#444',
-        color: showGuide ? '#000' : '#fff',
-        cursor: 'pointer',
-        minWidth: 120,
-      }}
+      className={`font-semibold text-base px-4 py-2 rounded-lg border-none cursor-pointer min-w-[120px] transition-colors ${
+        showGuide ? 'bg-[#ffe082] text-black' : 'bg-[#444] text-white hover:bg-[#555]'
+      }`}
     >
       {showGuide ? 'Hide Guide' : 'Show Guide'}
     </button>
     <button
       onClick={() => setShowHighScores(!showHighScores)}
-      style={{
-        fontWeight: 600,
-        fontSize: 16,
-        padding: '8px 16px',
-        borderRadius: 8,
-        border: 'none',
-        background: showHighScores ? '#ffe082' : '#444',
-        color: showHighScores ? '#000' : '#fff',
-        cursor: 'pointer',
-        minWidth: 120,
-      }}
+      className={`font-semibold text-base px-4 py-2 rounded-lg border-none cursor-pointer min-w-[120px] transition-colors ${
+        showHighScores ? 'bg-[#ffe082] text-black' : 'bg-[#444] text-white hover:bg-[#555]'
+      }`}
     >
       {showHighScores ? 'Hide Scores' : 'Show Scores'}
     </button>
@@ -684,19 +631,24 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
   const showOverlay = gameOver && !showGuide && !showHighScores;
 
   return (
-    <div className="game-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+    <div className="game-layout flex flex-col items-center gap-0">
       {/* ToggleBar is now rendered in App.tsx sticky header */}
-      <div style={{ maxWidth: 600, width: '100%', margin: '0 auto', marginBottom: 16 }}>
+      <div className="max-w-xl w-full mx-auto mb-4">
         {/* Game header - only show when not showing guide or scores */}
         {!showGuide && !showHighScores && (
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <button onClick={startNewGame} style={{ fontWeight: 600, fontSize: 18, padding: '8px 18px', borderRadius: 8, border: 'none', background: '#444', color: '#fff', cursor: 'pointer' }}>New Game</button>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="flex flex-row items-center justify-between">
+            <button 
+              onClick={startNewGame} 
+              className="font-semibold text-lg px-4 py-2 rounded-lg border-none bg-[#444] text-white cursor-pointer hover:bg-[#555] transition-colors"
+            >
+              New Game
+            </button>
+            <div className="flex-1 flex justify-center items-center">
               <NextBallsPreview nextBalls={nextBalls} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-              <span style={{ fontWeight: 700, fontSize: 22, color: '#ffe082' }}>Score: {score}</span>
-              <span style={{ fontSize: 14, color: '#ccc' }}>Best: {currentHighScore}</span>
+            <div className="flex flex-col items-end gap-1">
+              <span className="font-bold text-2xl text-[#ffe082]">Score: {score}</span>
+              <span className="text-sm text-[#ccc]">Best: {currentHighScore}</span>
             </div>
           </div>
         )}
@@ -705,8 +657,8 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
       {/* Game content - only show when not showing guide or scores */}
       {!showGuide && !showHighScores && (
         <>
-          <div style={{ height: 8 }} />
-          <div className="game-container" style={{ maxWidth: 600, width: '100%', margin: '0 auto', padding: 0, position: 'relative' }}>
+          <div className="h-2" />
+          <div className="game-container max-w-xl w-full mx-auto p-0 relative">
             <Board
               board={board}
               onCellClick={handleCellClick}
@@ -722,34 +674,21 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
             </Board>
             {/* End game overlay */}
             {showOverlay && (
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: 'rgba(30,30,40,0.72)',
-                zIndex: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                pointerEvents: 'auto',
-              }}>
-                <div style={{ fontSize: 44, fontWeight: 900, color: '#ffe082', textShadow: '0 2px 12px #000' }}>Much Balls...</div>
+              <div className="absolute inset-0 bg-[rgba(30,30,40,0.72)] flex flex-col items-center justify-center pointer-events-auto z-20">
+                <div className="text-5xl font-black text-[#ffe082] drop-shadow-lg">Much Balls...</div>
                 {isNewHighScore && (
-                  <div style={{ marginTop: 16, fontSize: 22, color: '#8bc34a', fontWeight: 700, textShadow: '0 2px 8px #000' }}>
+                  <div className="mt-4 text-2xl text-[#8bc34a] font-bold drop-shadow-lg">
                     New High Score!
                   </div>
                 )}
-                <div style={{ marginTop: 32, background: '#23272fdd', borderRadius: 12, padding: 24, color: '#fff', minWidth: 320, boxShadow: '0 2px 12px #0006' }}>
-                  <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Game Summary</div>
-                  <div style={{ fontSize: 16, marginBottom: 4 }}>Total time: <b>{formatTime(timer)}</b></div>
-                  <div style={{ fontSize: 16, marginBottom: 4 }}>Total moves: <b>{totalMoves}</b></div>
-                  <div style={{ fontSize: 16, margin: '12px 0 4px 0' }}>Scored lines:</div>
-                  <table style={{ width: '100%', color: '#fff', fontSize: 15, borderCollapse: 'collapse' }}>
+                <div className="mt-8 p-6 bg-[#23272f] bg-opacity-90 rounded-xl text-white min-w-[320px] shadow-2xl">
+                  <div className="text-xl font-bold mb-2">Game Summary</div>
+                  <div className="text-base mb-1">Total time: <b>{formatTime(timer)}</b></div>
+                  <div className="text-base mb-1">Total moves: <b>{totalMoves}</b></div>
+                  <div className="text-base mt-3 mb-1">Scored lines:</div>
+                  <table className="w-full text-white text-sm border-collapse">
                     <thead>
-                      <tr style={{ color: '#ffe082' }}>
+                      <tr className="text-[#ffe082]">
                         <th align="left">Line Length</th>
                         <th align="right">Count</th>
                         <th align="right">Points</th>
@@ -765,15 +704,15 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
                       ))}
                     </tbody>
                   </table>
-                  <div style={{ marginTop: 12, fontSize: 16, color: '#ffe082', fontWeight: 600 }}>
+                  <div className="mt-3 text-base text-[#ffe082] font-semibold">
                     Total points from lines: <b>{[5,6,7,8,9].reduce((sum, len) => sum + (lineStats[len]?.points || 0), 0)}</b>
                   </div>
-                  <button onClick={startNewGame} style={{ marginTop: 24, fontWeight: 600, fontSize: 18, padding: '8px 18px', borderRadius: 8, border: 'none', background: '#444', color: '#fff', cursor: 'pointer' }}>New Game</button>
+                  <button onClick={startNewGame} className="mt-6 font-semibold text-lg px-4 py-2 rounded-lg border-none bg-[#444] text-white cursor-pointer hover:bg-[#555]">New Game</button>
                 </div>
               </div>
             )}
           </div>
-          <div style={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16, fontSize: 18, color: '#ffe082', letterSpacing: 1 }}>
+          <div className="w-full max-w-xl flex justify-center items-center mt-4 text-lg text-[#ffe082] tracking-wide">
             Game time: {formatTime(timer)}
           </div>
         </>
@@ -781,7 +720,7 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
       
       {/* Guide content */}
       {showGuide && (
-        <div style={{ maxWidth: 600, width: '100%', margin: '0 auto' }}>
+        <div className="max-w-xl w-full mx-auto">
           <InfoContainer 
             highScores={highScores}
             isNewHighScore={isNewHighScore}
@@ -794,7 +733,7 @@ const Game: React.FC<GameProps> = ({ showGuide, showHighScores, initialBoard, in
       
       {/* High scores content */}
       {showHighScores && (
-        <div style={{ maxWidth: 600, width: '100%', margin: '0 auto' }}>
+        <div className="max-w-xl w-full mx-auto">
           <HighScoreDisplay 
             highScores={highScores}
             currentScore={isNewHighScore ? score : undefined}

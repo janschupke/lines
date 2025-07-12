@@ -7,10 +7,10 @@ function App() {
   const [showHighScores, setShowHighScores] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#1e1e2e] text-white p-4">
+    <div className="min-h-screen bg-game-bg-primary text-game-text-primary p-4">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-[#ffe082] mb-2 drop-shadow-lg">Lines</h1>
+          <h1 className="text-4xl font-bold text-game-text-accent mb-2 drop-shadow-lg">Lines</h1>
           <ToggleBar
             showGuide={showGuide}
             setShowGuide={setShowGuide}

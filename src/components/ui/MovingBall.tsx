@@ -9,7 +9,7 @@ interface MovingBallProps {
 
 const MovingBall: React.FC<MovingBallProps> = ({ color, left, top }) => (
   <div
-    className="absolute rounded-full border-2 border-[#555] z-10 pointer-events-none shadow-[0_0_8px_2px_#ffe082]"
+    className="absolute rounded-full border-2 border-game-border-ball z-10 pointer-events-none shadow-[0_0_8px_2px_theme(colors.game.shadow.glow)]"
     style={{
       width: BALL_SIZE,
       height: BALL_SIZE,

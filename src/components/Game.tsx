@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Board from './Board';
 import GameEndDialog from './GameEndDialog';
-import HighScoreDisplay from './HighScoreDisplay';
 import GameHeader from './ui/GameHeader';
 import MovingBall from './ui/MovingBall';
 import { 
   BOARD_SIZE, 
   BALLS_PER_TURN, 
   BALL_SIZE, 
-  calculateLineScore,
   ANIMATION_DURATIONS,
   COLOR_MAP,
   type BallColor
@@ -27,7 +25,7 @@ import {
 } from '../utils/gameLogic';
 import { formatTime } from '../utils/formatters';
 import HighScoreManager from '../utils/highScoreManager';
-import type { HighScore } from '../utils/configManager';
+
 
 const OFFSET = (CELL_SIZE - BALL_SIZE) / 2;
 
@@ -37,59 +35,7 @@ const getCellPosition = (x: number, y: number) => ({
   top: y * (CELL_SIZE + GAP) + OFFSET,
 });
 
-const InfoContainer: React.FC<{ 
-  highScores: HighScore[]; 
-  isNewHighScore: boolean; 
-  currentScore?: number; 
-  currentSessionScore?: number; 
-  showGuide?: boolean 
-}> = ({
-  highScores,
-  isNewHighScore,
-  currentScore,
-  currentSessionScore,
-  showGuide = false
-}) => (
-  <div className="mx-auto mt-8 p-6 border border-[#222] rounded-xl max-w-xl w-full bg-[#23272f] text-[#f5f7fa] shadow-lg">
-    {showGuide ? (
-      <>
-        <h2 className="mt-0">About</h2>
-        <p>
-          Lines is a puzzle game where you move colored balls on a grid to form lines of five or more of the same color. Each turn, new balls appear on the board. Try to keep the board from filling up and score as many points as possible!
-        </p>
-        <p>
-          This is a React port of the original Java version.
-        </p>
-        <h2>Scoring</h2>
-        <p>Score points by forming lines of the same color:</p>
-        <ul>
-          <li>Line of 5 balls: 5 points</li>
-          <li>Line of 6 balls: 8 points</li>
-          <li>Line of 7 balls: 13 points</li>
-          <li>Line of 8 balls: 21 points</li>
-          <li>Line of 9 balls: 34 points</li>
-        </ul>
-        <h2>How to Play</h2>
-        <p>
-          Click on a ball to select it, then click on an empty cell to move it there. 
-          The ball will follow the shortest path to its destination. 
-          After each move, new balls appear on the board.
-        </p>
-        <p>
-          Form lines of 5 or more balls of the same color to score points and remove them from the board.
-          The game ends when the board is full.
-        </p>
-      </>
-    ) : (
-      <HighScoreDisplay 
-        highScores={highScores} 
-        currentScore={isNewHighScore ? currentScore : undefined}
-        isNewHighScore={isNewHighScore}
-        currentSessionScore={currentSessionScore}
-      />
-    )}
-  </div>
-);
+
 
 interface GameProps {
   showGuide: boolean;
@@ -129,18 +75,14 @@ const Game: React.FC<GameProps> = ({
   const animationRef = useRef<number | null>(null);
   
   // High score state
-  const [highScores, setHighScores] = useState<HighScore[]>([]);
   const [currentHighScore, setCurrentHighScore] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
-  const [currentSessionScore, setCurrentSessionScore] = useState(0);
   
   const [poppingBalls, setPoppingBalls] = useState<Set<string>>(new Set());
   const [hoveredCell, setHoveredCell] = useState<{x: number, y: number} | null>(null);
   const [pathTrail, setPathTrail] = useState<[number, number][] | null>(null);
   const [notReachable, setNotReachable] = useState<boolean>(false);
-  const [totalMoves, setTotalMoves] = useState(0);
-  const [lineStats, setLineStats] = useState<{ [length: number]: { count: number, points: number } }>({});
 
   const highScoreManager = useMemo(() => new HighScoreManager(), []);
 
@@ -153,12 +95,8 @@ const Game: React.FC<GameProps> = ({
   // Initialize high scores
   useEffect(() => {
     const loadHighScores = () => {
-      const scores = highScoreManager.getHighScores();
       const currentHigh = highScoreManager.getCurrentHighScore();
-      const config = highScoreManager.getConfig();
-      setHighScores(scores);
       setCurrentHighScore(currentHigh);
-      setCurrentSessionScore(config.currentSessionScore || 0);
     };
 
     loadHighScores();
@@ -174,9 +112,7 @@ const Game: React.FC<GameProps> = ({
     if (highScoreManager.isNewHighScore(currentScore)) {
       const success = highScoreManager.addHighScore(currentScore, timer);
       if (success) {
-        setHighScores(highScoreManager.getHighScores());
         setCurrentHighScore(highScoreManager.getCurrentHighScore());
-        setCurrentSessionScore(highScoreManager.getConfig().currentSessionScore || 0);
         setIsNewHighScore(true);
         return true;
       }
@@ -199,7 +135,7 @@ const Game: React.FC<GameProps> = ({
         setMovingStep(0);
         setPathTrail(null);
         setNotReachable(false);
-        setTotalMoves(m => m + 1);
+
       }
     }
   };
@@ -285,18 +221,7 @@ const Game: React.FC<GameProps> = ({
       
       if (ballsToRemove.length > 0) {
         // Update line stats
-        setLineStats(prev => {
-          const newStats = { ...prev };
-          lines.forEach(line => {
-            const length = line.length;
-            if (!newStats[length]) {
-              newStats[length] = { count: 0, points: 0 };
-            }
-            newStats[length].count++;
-            newStats[length].points += calculateLineScore(length);
-          });
-          return newStats;
-        });
+
         
         // Remove balls and update score
         const newBoard = board.map(row => row.map(cell => ({ ...cell })));
@@ -377,8 +302,7 @@ const Game: React.FC<GameProps> = ({
     setNextBalls(initialNext);
     setTimer(0);
     setTimerActive(false);
-    setTotalMoves(0);
-    setLineStats({});
+
   };
 
   // Game end dialog handlers
@@ -401,121 +325,96 @@ const Game: React.FC<GameProps> = ({
     );
   }
 
-  // Overlay for end game
-  const showOverlay = gameOver && !showGuide && !showHighScores;
+
 
   return (
-    <div className="game-layout flex flex-col items-center gap-0">
-      {/* ToggleBar is now rendered in App.tsx sticky header */}
-      <div className="max-w-xl w-full mx-auto mb-4">
-        {/* Game header - only show when not showing guide or scores */}
-        {!showGuide && !showHighScores && (
-          <GameHeader
-            score={score}
-            currentHighScore={currentHighScore}
-            nextBalls={nextBalls}
-            onNewGame={startNewGame}
-          />
-        )}
+    <div className="mx-auto mt-8 p-6 border border-game-border-default rounded-xl max-w-xl w-full bg-game-bg-secondary text-game-text-primary shadow-lg">
+      <GameHeader
+        score={score}
+        currentHighScore={currentHighScore}
+        nextBalls={nextBalls}
+        onNewGame={startNewGame}
+      />
+      
+      <div className="mt-6">
+        <Board
+          board={board}
+          onCellClick={handleCellClick}
+          movingBall={movingBall}
+          poppingBalls={poppingBalls}
+          hoveredCell={hoveredCell}
+          pathTrail={pathTrail}
+          notReachable={notReachable}
+          onCellHover={handleCellHover}
+          onCellLeave={handleCellLeave}
+        >
+          {movingBallEl}
+        </Board>
       </div>
       
-      {/* Game content - only show when not showing guide or scores */}
-      {!showGuide && !showHighScores && (
-        <>
-          <div className="h-2" />
-          <div className="game-container max-w-xl w-full mx-auto p-0 relative">
-            <Board
-              board={board}
-              onCellClick={handleCellClick}
-              movingBall={movingBall}
-              poppingBalls={poppingBalls}
-              hoveredCell={hoveredCell}
-              pathTrail={pathTrail}
-              notReachable={notReachable}
-              onCellHover={handleCellHover}
-              onCellLeave={handleCellLeave}
-            >
-              {movingBallEl}
-            </Board>
-            {/* End game overlay */}
-            {showOverlay && (
-              <div className="absolute inset-0 bg-[rgba(30,30,40,0.72)] flex flex-col items-center justify-center pointer-events-auto z-20">
-                <div className="text-5xl font-black text-[#ffe082] drop-shadow-lg">Much Balls...</div>
-                {isNewHighScore && (
-                  <div className="mt-4 text-2xl text-[#8bc34a] font-bold drop-shadow-lg">
-                    New High Score!
-                  </div>
-                )}
-                <div className="mt-8 p-6 bg-[#23272f] bg-opacity-90 rounded-xl text-white min-w-[320px] shadow-2xl">
-                  <div className="text-xl font-bold mb-2">Game Summary</div>
-                  <div className="text-base mb-1">Total time: <b>{formatTime(timer)}</b></div>
-                  <div className="text-base mb-1">Total moves: <b>{totalMoves}</b></div>
-                  <div className="text-base mt-3 mb-1">Scored lines:</div>
-                  <table className="w-full text-white text-sm border-collapse">
-                    <thead>
-                      <tr className="text-[#ffe082]">
-                        <th align="left">Line Length</th>
-                        <th align="right">Count</th>
-                        <th align="right">Points</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[5,6,7,8,9].map(len => (
-                        <tr key={len}>
-                          <td>Line of {len}</td>
-                          <td align="right">{lineStats[len]?.count || 0}</td>
-                          <td align="right">{lineStats[len]?.points || 0}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="mt-3 text-base text-[#ffe082] font-semibold">
-                    Total points from lines: <b>{[5,6,7,8,9].reduce((sum, len) => sum + (lineStats[len]?.points || 0), 0)}</b>
-                  </div>
-                  <button onClick={startNewGame} className="mt-6 font-semibold text-lg px-4 py-2 rounded-lg border-none bg-[#444] text-white cursor-pointer hover:bg-[#555]">New Game</button>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="w-full max-w-xl flex justify-center items-center mt-4 text-lg text-[#ffe082] tracking-wide">
-            Game time: {formatTime(timer)}
-          </div>
-        </>
-      )}
+      <div className="mt-6 text-center">
+        <div className="text-5xl font-black text-game-text-accent drop-shadow-lg">Much Balls...</div>
+        <div className="mt-4 text-2xl text-game-text-success font-bold drop-shadow-lg">
+          {formatTime(timer)}
+        </div>
+      </div>
       
-      {/* Guide content */}
       {showGuide && (
-        <div className="max-w-xl w-full mx-auto">
-          <InfoContainer 
-            highScores={highScores}
-            isNewHighScore={isNewHighScore}
-            currentScore={score}
-            currentSessionScore={currentSessionScore}
-            showGuide={true}
-          />
+        <div className="mt-8 p-6 bg-game-bg-secondary bg-opacity-90 rounded-xl text-game-text-primary min-w-[320px] shadow-2xl">
+          <h3 className="text-xl font-bold mb-4 text-game-text-accent">How to Play</h3>
+          <div className="text-sm space-y-2">
+            <p>• Click on a ball to select it</p>
+            <p>• Click on an empty cell to move the ball</p>
+            <p>• Form lines of 5+ balls to clear them</p>
+            <p>• Longer lines = more points!</p>
+            <p>• Game ends when board is full</p>
+          </div>
+          <div className="mt-4">
+            <h4 className="font-bold text-game-text-accent mb-2">Scoring:</h4>
+            <table className="w-full text-xs">
+              <tbody>
+                <tr className="text-game-text-accent">
+                  <td>5 balls:</td>
+                  <td>5 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>6 balls:</td>
+                  <td>8 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>7 balls:</td>
+                  <td>13 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>8 balls:</td>
+                  <td>21 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>9 balls:</td>
+                  <td>34 points</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-3 text-base text-game-text-accent font-semibold">
+            Good luck!
+          </div>
         </div>
       )}
       
-      {/* High scores content */}
-      {showHighScores && (
-        <div className="max-w-xl w-full mx-auto">
-          <HighScoreDisplay 
-            highScores={highScores}
-            currentScore={isNewHighScore ? score : undefined}
-            isNewHighScore={isNewHighScore}
-            currentSessionScore={currentSessionScore}
-          />
-        </div>
+      {gameOver && (
+        <GameEndDialog
+          isOpen={showGameEndDialog}
+          score={score}
+          isNewHighScore={isNewHighScore}
+          onNewGame={handleNewGameFromDialog}
+          onClose={handleCloseDialog}
+        />
       )}
       
-      {/* Add game end dialog */}
-      <GameEndDialog
-        isOpen={showGameEndDialog}
-        score={score}
-        isNewHighScore={isNewHighScore}
-        onNewGame={handleNewGameFromDialog}
-        onClose={handleCloseDialog}
-      />
+      <div className="w-full max-w-xl flex justify-center items-center mt-4 text-lg text-game-text-accent tracking-wide">
+        <span>Lines Game</span>
+      </div>
     </div>
   );
 };

@@ -17,7 +17,7 @@ const ToggleBar: React.FC<ToggleBarProps> = ({
     <button
       onClick={() => setShowGuide(!showGuide)}
       className={`font-semibold text-base px-4 py-2 rounded-lg border-none cursor-pointer min-w-[120px] transition-colors ${
-        showGuide ? 'bg-[#ffe082] text-black' : 'bg-[#444] text-white hover:bg-[#555]'
+        showGuide ? 'bg-game-button-accent text-black' : 'bg-game-button-primary text-game-text-primary hover:bg-game-button-hover'
       }`}
     >
       {showGuide ? 'Hide Guide' : 'Show Guide'}
@@ -25,7 +25,7 @@ const ToggleBar: React.FC<ToggleBarProps> = ({
     <button
       onClick={() => setShowHighScores(!showHighScores)}
       className={`font-semibold text-base px-4 py-2 rounded-lg border-none cursor-pointer min-w-[120px] transition-colors ${
-        showHighScores ? 'bg-[#ffe082] text-black' : 'bg-[#444] text-white hover:bg-[#555]'
+        showHighScores ? 'bg-game-button-accent text-black' : 'bg-game-button-primary text-game-text-primary hover:bg-game-button-hover'
       }`}
     >
       {showHighScores ? 'Hide Scores' : 'Show Scores'}

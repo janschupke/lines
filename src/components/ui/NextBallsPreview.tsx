@@ -11,11 +11,7 @@ const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({ nextBalls }) => {
       {nextBalls.map((color, i) => (
         <span
           key={i}
-          className="block w-8 h-8 rounded-full border-2 border-[#888] text-center align-middle"
-          style={{
-            background: COLOR_MAP[color],
-            margin: '0 4px',
-          }}
+          className={`block w-8 h-8 rounded-full border-2 border-game-border-default text-center align-middle bg-${COLOR_MAP[color]}`}
           title={color}
         />
       ))}

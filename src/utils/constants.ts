@@ -4,19 +4,20 @@ export const BALLS_PER_TURN = 3;
 export const BALL_SIZE = 40;
 export const PADDING = 8;
 
-// Ball Colors
+// Ball Colors - now using Tailwind theme colors
 export type BallColor = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'black';
 
 export const BALL_COLORS: BallColor[] = ['red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'black'];
 
+// Color mapping using Tailwind theme classes instead of hex values
 export const COLOR_MAP: Record<BallColor, string> = {
-  red: '#e74c3c',
-  green: '#27ae60',
-  blue: '#2980b9',
-  yellow: '#f1c40f',
-  purple: '#8e44ad',
-  cyan: '#1abc9c',
-  black: '#222',
+  red: 'ball-red',
+  green: 'ball-green',
+  blue: 'ball-blue',
+  yellow: 'ball-yellow',
+  purple: 'ball-purple',
+  cyan: 'ball-cyan',
+  black: 'ball-black',
 };
 
 // Scoring System
@@ -39,21 +40,36 @@ export const ANIMATION_DURATIONS = {
   TRANSITION: 200,
 } as const;
 
-// UI Colors
-export const UI_COLORS = {
-  BACKGROUND: '#23272f',
-  CELL_EMPTY: '#eee',
-  CELL_ACTIVE: '#ffe082',
-  CELL_HOVER: '#bbb',
-  CELL_PATH: '#b3d1ff',
-  BORDER_DEFAULT: '#888',
-  BORDER_PATH: '#1976d2',
-  BORDER_ERROR: '#e74c3c',
-  TEXT_PRIMARY: '#fff',
-  TEXT_SECONDARY: '#ccc',
-  TEXT_ACCENT: '#ffe082',
-  BUTTON_PRIMARY: '#444',
-  BUTTON_HOVER: '#555',
-  BUTTON_ACCENT: '#ffe082',
-  BUTTON_ACCENT_HOVER: '#ffb300',
+// Theme color classes for easy reference
+export const THEME_COLORS = {
+  // Backgrounds
+  BG_PRIMARY: 'game-bg-primary',
+  BG_SECONDARY: 'game-bg-secondary',
+  BG_TERTIARY: 'game-bg-tertiary',
+  BG_BOARD: 'game-bg-board',
+  BG_CELL_EMPTY: 'game-bg-cell-empty',
+  BG_CELL_HOVER: 'game-bg-cell-hover',
+  BG_CELL_ACTIVE: 'game-bg-cell-active',
+  BG_CELL_PATH: 'game-bg-cell-path',
+  
+  // Text colors
+  TEXT_PRIMARY: 'game-text-primary',
+  TEXT_SECONDARY: 'game-text-secondary',
+  TEXT_ACCENT: 'game-text-accent',
+  TEXT_SUCCESS: 'game-text-success',
+  TEXT_ERROR: 'game-text-error',
+  
+  // Border colors
+  BORDER_DEFAULT: 'game-border-default',
+  BORDER_PATH: 'game-border-path',
+  BORDER_ERROR: 'game-border-error',
+  BORDER_ACCENT: 'game-border-accent',
+  BORDER_BALL: 'game-border-ball',
+  BORDER_PREVIEW: 'game-border-preview',
+  
+  // Button colors
+  BUTTON_PRIMARY: 'game-button-primary',
+  BUTTON_HOVER: 'game-button-hover',
+  BUTTON_ACCENT: 'game-button-accent',
+  BUTTON_ACCENT_HOVER: 'game-button-accent-hover',
 } as const; 

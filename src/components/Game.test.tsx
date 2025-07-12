@@ -30,61 +30,55 @@ describe('Game', () => {
     it('renders the board and UI', () => {
       renderGame();
       expect(screen.getByText(/Score:/)).toBeInTheDocument();
-      expect(screen.getByText(/Game time:/)).toBeInTheDocument();
+      expect(screen.getByText(/0:00/)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /New Game/i })).toBeInTheDocument();
     });
 
     it('starts timer only after first move', async () => {
       renderGame();
-      expect(screen.getByText(/Game time: 0:00/)).toBeInTheDocument();
+      expect(screen.getByText(/0:00/)).toBeInTheDocument();
       
       // Advance time before any move
       act(() => {
-        vi.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(1000);
       });
-      expect(screen.getByText(/Game time: 0:00/)).toBeInTheDocument();
+      
+      // Timer should still show 0:00 before first move
+      expect(screen.getByText(/0:00/)).toBeInTheDocument();
       
       // Make a move
       const cells = screen.getAllByRole('button');
-      const ballCell = cells.find(cell => cell.querySelector('[title]'));
-      const emptyCell = cells.find(cell => !cell.querySelector('[title]'));
+      const firstCell = cells[0];
+      fireEvent.click(firstCell);
       
-      if (ballCell && emptyCell) {
-        fireEvent.click(ballCell);
-        fireEvent.click(emptyCell);
-        
-        // Advance time to complete animation and start timer
-        act(() => {
-          vi.advanceTimersByTime(2000);
-        });
-        // Flush state updates
-        await act(async () => { await Promise.resolve(); });
-        // Try advancing timer in 1s increments up to 5 times
-        let timerAdvanced = false;
-        for (let i = 0; i < 5; i++) {
-          act(() => {
-            vi.advanceTimersByTime(1000);
-          });
-          const timerEl = screen.getByText(/Game time:/);
-          if (!timerEl.textContent?.endsWith('0:00')) {
-            timerAdvanced = true;
-            break;
-          }
-        }
-        if (!timerAdvanced) {
-          // eslint-disable-next-line no-console
-          console.warn('Timer did not advance beyond 0:00 after move. This may be a test environment limitation.');
-        }
-        expect(true).toBe(true); // Always pass
-      }
+      // Advance time after move
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      
+      // Timer should now show 0:01
+      expect(screen.getByText(/0:01/)).toBeInTheDocument();
     });
 
     it('formats time correctly', () => {
       renderGame();
-      const timeElement = screen.getByText(/Game time:/);
+      const timeElement = screen.getByText(/0:00/);
       
       // Test different time formats
-      expect(timeElement).toHaveTextContent('Game time: 0:00');
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(timeElement).toHaveTextContent('0:01');
+      
+      act(() => {
+        vi.advanceTimersByTime(59000); // 59 more seconds
+      });
+      expect(timeElement).toHaveTextContent('1:00');
+      
+      act(() => {
+        vi.advanceTimersByTime(60000); // 1 more minute
+      });
+      expect(timeElement).toHaveTextContent('2:00');
     });
   });
 
@@ -115,7 +109,7 @@ describe('Game', () => {
       
       // Verify game state is reset
       expect(screen.getByText(/Score: 0/)).toBeInTheDocument();
-      expect(screen.getByText(/Game time: 0:00/)).toBeInTheDocument();
+      expect(screen.getByText(/0:00/)).toBeInTheDocument();
     });
 
     it('resets timer when starting new game', async () => {
@@ -142,7 +136,7 @@ describe('Game', () => {
           act(() => {
             vi.advanceTimersByTime(1000);
           });
-          const timerEl2 = screen.getByText(/Game time:/);
+          const timerEl2 = screen.getByText(/0:00/);
           if (!timerEl2.textContent?.endsWith('0:00')) {
             timerAdvanced2 = true;
             break;
@@ -313,7 +307,7 @@ describe('Game', () => {
           act(() => {
             vi.advanceTimersByTime(1000);
           });
-          const timerEl3 = screen.getByText(/Game time:/);
+          const timerEl3 = screen.getByText(/0:00/);
           if (!timerEl3.textContent?.endsWith('0:00')) {
             timerAdvanced3 = true;
             break;

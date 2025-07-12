@@ -19,7 +19,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
     <div className="flex flex-row items-center justify-between">
       <button 
         onClick={onNewGame} 
-        className="font-semibold text-lg px-4 py-2 rounded-lg border-none bg-[#444] text-white cursor-pointer hover:bg-[#555] transition-colors"
+        className="font-semibold text-lg px-4 py-2 rounded-lg border-none bg-game-button-primary text-game-text-primary cursor-pointer hover:bg-game-button-hover transition-colors"
       >
         New Game
       </button>
@@ -27,8 +27,8 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         <NextBallsPreview nextBalls={nextBalls} />
       </div>
       <div className="flex flex-col items-end gap-1">
-        <span className="font-bold text-2xl text-[#ffe082]">Score: {score}</span>
-        <span className="text-sm text-[#ccc]">Best: {currentHighScore}</span>
+        <span className="font-bold text-2xl text-game-text-accent">Score: {score}</span>
+        <span className="text-sm text-game-text-secondary">Best: {currentHighScore}</span>
       </div>
     </div>
   );

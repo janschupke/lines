@@ -41,8 +41,8 @@ export class ProductionDeploymentService {
 
   private async validateEnvironmentVariables(): Promise<void> {
     const requiredVars = [
-          "NEXT_PUBLIC_SUPABASE_URL",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
       "VITE_ENVIRONMENT",
     ];
     for (const varName of requiredVars) {

@@ -1,25 +1,3 @@
 {
-  "migrations": [
-    {
-      "version": 1,
-      "name": "Create high_scores table",
-      "upFile": "migrations/001_create_high_scores_table.sql",
-      "downFile": "migrations/001_create_high_scores_table_down.sql",
-      "description": "Creates the high_scores table with indexes and RLS policies"
-    },
-    {
-      "version": 2,
-      "name": "Create execute_sql function",
-      "upFile": "migrations/002_create_execute_sql_function.sql",
-      "downFile": "migrations/002_create_execute_sql_function_down.sql",
-      "description": "Creates the execute_sql SECURITY DEFINER function for running arbitrary SQL via RPC. Grants execute to anon."
-    },
-    {
-      "version": 3,
-      "name": "Create get_table_indexes function",
-      "upFile": "migrations/003_create_get_table_indexes_function.sql",
-      "downFile": "migrations/003_create_get_table_indexes_function_down.sql",
-      "description": "Creates the get_table_indexes SECURITY DEFINER function for dynamic index validation. Grants execute to anon."
-    }
-  ]
+  "migrations": []
 }

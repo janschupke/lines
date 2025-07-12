@@ -18,7 +18,10 @@ describe("EnvironmentConfigService", () => {
   });
 
   it("should throw if env vars are missing", () => {
-    const env = { NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_ANON_KEY: "" };
+    const env = {
+      NEXT_PUBLIC_SUPABASE_URL: "",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+    };
     expect(() => EnvironmentConfigService.getConfig(env)).toThrow(
       "Supabase environment variables not configured",
     );

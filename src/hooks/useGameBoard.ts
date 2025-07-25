@@ -12,6 +12,9 @@ export const useGameBoard = (
   initialBoard?: Cell[][],
   initialNextBalls?: BallColor[],
 ) => {
+  const [nextBalls, setNextBalls] = useState<BallColor[]>(() =>
+    initialNextBalls ? initialNextBalls : getRandomNextBalls(BALLS_PER_TURN),
+  );
   const [board, setBoard] = useState<Cell[][]>(() => {
     if (initialBoard && initialNextBalls) {
       return placePreviewBalls(initialBoard, initialNextBalls);
@@ -19,17 +22,25 @@ export const useGameBoard = (
     const board = createEmptyBoard();
     const initialBalls = getRandomNextBalls(INITIAL_BALLS);
     const boardWithRealBalls = placeRealBalls(board, initialBalls);
-    const initialNext = getRandomNextBalls(BALLS_PER_TURN);
-    return placePreviewBalls(boardWithRealBalls, initialNext);
+    return placePreviewBalls(boardWithRealBalls, nextBalls);
   });
-  const [nextBalls, setNextBalls] = useState<BallColor[]>(() =>
-    getRandomNextBalls(BALLS_PER_TURN),
-  );
+
+  // Update nextBalls and board - preserves existing incoming balls when stepping on one
+  const setNextBallsAndBoard = (newNextBalls: BallColor[], baseBoard?: Cell[][]) => {
+    setNextBalls(newNextBalls);
+    // If baseBoard is provided, use it directly (preserves existing incoming balls)
+    // Otherwise, apply placePreviewBalls to replace all incoming balls
+    if (baseBoard) {
+      setBoard(baseBoard);
+    } else {
+      setBoard(prev => placePreviewBalls(prev, newNextBalls));
+    }
+  };
 
   return {
     board,
-    setBoard,
     nextBalls,
-    setNextBalls,
+    setNextBalls: setNextBallsAndBoard,
+    setBoard, // Only for initial setup or real balls, not for incoming balls
   };
 };

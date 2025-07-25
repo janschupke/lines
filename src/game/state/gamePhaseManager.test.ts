@@ -1,16 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { GamePhaseManager } from "./gamePhaseManager";
-import { createEmptyBoard, getRandomNextBalls } from "../logic";
+import { createEmptyBoard } from "../logic";
 import type { Cell } from "../types";
 import type { BallColor } from "../constants";
 
 describe("GamePhaseManager", () => {
   let board: Cell[][];
-  let nextBalls: BallColor[];
 
   beforeEach(() => {
     board = createEmptyBoard();
-    nextBalls = getRandomNextBalls(3);
   });
 
   describe("validateMove", () => {
@@ -71,7 +69,6 @@ describe("GamePhaseManager", () => {
         0,
         1,
         1,
-        nextBalls,
       );
 
       expect(result.newBoard[0][0].ball).toBeNull();
@@ -92,7 +89,6 @@ describe("GamePhaseManager", () => {
         0,
         1,
         1,
-        nextBalls,
       );
 
       expect(result.newBoard[1][1].incomingBall).toBeNull();
@@ -111,12 +107,129 @@ describe("GamePhaseManager", () => {
         0,
         1,
         1,
-        nextBalls,
       );
 
       // Should recalculate incoming positions
       expect(result.newBoard[1][1].ball?.color).toBe("red");
       expect(result.newBoard[1][1].incomingBall).toBeNull();
+    });
+
+    it("preserves other incoming balls when stepping on one", () => {
+      const boardWithBalls = board.map((row) =>
+        row.map((cell) => ({ ...cell })),
+      );
+      // Place a ball to move
+      boardWithBalls[0][0].ball = { color: "red" as BallColor };
+      // Place incoming balls at specific positions
+      boardWithBalls[1][1].incomingBall = { color: "blue" as BallColor };
+      boardWithBalls[2][2].incomingBall = { color: "green" as BallColor };
+      boardWithBalls[3][3].incomingBall = { color: "yellow" as BallColor };
+
+      const result = GamePhaseManager.handleMoveCompletion(
+        boardWithBalls,
+        0,
+        0,
+        1,
+        1, // Move to cell with blue incoming ball
+      );
+
+      // The moved ball should be in the destination
+      expect(result.newBoard[1][1].ball?.color).toBe("red");
+      expect(result.newBoard[1][1].incomingBall).toBeNull();
+
+      // All existing incoming balls should be cleared and replaced with 3 new ones
+      expect(result.newBoard[2][2].incomingBall).toBeNull();
+      expect(result.newBoard[3][3].incomingBall).toBeNull();
+
+      // Should have exactly 3 new incoming balls
+      let incomingBallCount = 0;
+      let hasBlueIncomingBall = false;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].incomingBall) {
+            incomingBallCount++;
+            if (result.newBoard[y][x].incomingBall?.color === "blue") {
+              hasBlueIncomingBall = true;
+            }
+          }
+        }
+      }
+      // Should have exactly 3 incoming balls
+      expect(incomingBallCount).toBe(3);
+      // The blue color should be preserved and placed somewhere else
+      expect(hasBlueIncomingBall).toBe(true);
+    });
+
+    it("includes stepped-on color in new incoming balls", () => {
+      const boardWithBalls = board.map((row) =>
+        row.map((cell) => ({ ...cell })),
+      );
+      // Place a ball to move
+      boardWithBalls[0][0].ball = { color: "red" as BallColor };
+      // Place incoming balls at specific positions
+      boardWithBalls[1][1].incomingBall = { color: "blue" as BallColor };
+      boardWithBalls[2][2].incomingBall = { color: "green" as BallColor };
+
+      const result = GamePhaseManager.handleMoveCompletion(
+        boardWithBalls,
+        0,
+        0,
+        1,
+        1, // Move to cell with blue incoming ball
+      );
+
+      // The moved ball should be in the destination
+      expect(result.newBoard[1][1].ball?.color).toBe("red");
+      expect(result.newBoard[1][1].incomingBall).toBeNull();
+
+      // Should have new incoming balls placed, including the blue color that was stepped on
+      let incomingBallCount = 0;
+      let hasBlueIncomingBall = false;
+      let hasGreenIncomingBall = false;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].incomingBall) {
+            incomingBallCount++;
+            if (result.newBoard[y][x].incomingBall?.color === "blue") {
+              hasBlueIncomingBall = true;
+            }
+            if (result.newBoard[y][x].incomingBall?.color === "green") {
+              hasGreenIncomingBall = true;
+            }
+          }
+        }
+      }
+      // Should have exactly 2 incoming balls (green preserved + blue recalculated)
+      expect(incomingBallCount).toBe(2);
+      // The blue color should be preserved and placed somewhere else
+      expect(hasBlueIncomingBall).toBe(true);
+      // The green color should be preserved
+      expect(hasGreenIncomingBall).toBe(true);
+    });
+
+    it("updates next balls when stepping on incoming ball", () => {
+      const boardWithBalls = board.map((row) =>
+        row.map((cell) => ({ ...cell })),
+      );
+      // Place a ball to move
+      boardWithBalls[0][0].ball = { color: "red" as BallColor };
+      // Place incoming balls at specific positions
+      boardWithBalls[1][1].incomingBall = { color: "blue" as BallColor };
+      boardWithBalls[2][2].incomingBall = { color: "green" as BallColor };
+
+      const result = GamePhaseManager.handleMoveCompletion(
+        boardWithBalls,
+        0,
+        0,
+        1,
+        1, // Move to cell with blue incoming ball
+      );
+
+      // Should return updated next balls that include the stepped-on color
+      expect(result.nextBalls).toBeDefined();
+      expect(result.nextBalls).toHaveLength(2); // green preserved + blue recalculated
+      expect(result.nextBalls).toContain("blue"); // stepped-on color should be included
+      expect(result.nextBalls).toContain("green"); // existing color should be preserved
     });
   });
 

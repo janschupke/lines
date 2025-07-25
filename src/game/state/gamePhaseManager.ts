@@ -3,8 +3,7 @@ import {
   getRandomNextBalls,
   isBoardFull,
   findLine,
-  recalculateIncomingPositions,
-  getRandomEmptyCells,
+  placePreviewBalls,
 } from "../logic";
 import type { Cell } from "../types";
 
@@ -18,6 +17,7 @@ export interface MoveResult {
   linesFormed: boolean;
   ballsRemoved?: [number, number][];
   pointsEarned?: number;
+  nextBalls?: BallColor[];
 }
 
 export interface ConversionResult {
@@ -36,7 +36,6 @@ export class GamePhaseManager {
     fromY: number,
     toX: number,
     toY: number,
-    nextBalls: BallColor[],
   ): MoveResult {
     const newBoard = board.map((row) =>
       row.map((cell) => ({ ...cell, active: false })),
@@ -45,31 +44,7 @@ export class GamePhaseManager {
     // Move the ball
     newBoard[toY][toX].ball = board[fromY][fromX].ball;
     newBoard[fromY][fromX].ball = null;
-    newBoard[toY][toX].incomingBall = null;
-
-    // Handle incoming ball recalculation if moved to a cell with incoming ball
-    if (board[toY][toX].incomingBall) {
-      if (isBoardFull(newBoard)) {
-        // Board is full: clear all incoming balls and end game
-        const clearedBoard = newBoard.map((row) =>
-          row.map((cell) => ({ ...cell, incomingBall: null })),
-        );
-        return {
-          newBoard: clearedBoard,
-          linesFormed: false,
-        };
-      } else {
-        // Recalculate incoming positions
-        const recalculatedBoard = recalculateIncomingPositions(
-          newBoard,
-          nextBalls,
-        );
-        return {
-          newBoard: recalculatedBoard,
-          linesFormed: false,
-        };
-      }
-    }
+    newBoard[toY][toX].incomingBall = null; // Clear incoming ball at destination
 
     return {
       newBoard,
@@ -88,11 +63,11 @@ export class GamePhaseManager {
     const movedColor = board[toY][toX].ball?.color;
     if (!movedColor) return null;
 
-    const lines = findLine(board, toX, toY, movedColor);
+    const lines: [number, number][][] = findLine(board, toX, toY, movedColor);
     const ballsToRemoveSet = new Set<string>();
 
-    lines.forEach((line) => {
-      line.forEach(([x, y]) => {
+    lines.forEach((line: [number, number][]) => {
+      line.forEach(([x, y]: [number, number]) => {
         ballsToRemoveSet.add(`${x},${y}`);
       });
     });
@@ -126,7 +101,10 @@ export class GamePhaseManager {
   /**
    * Handles incoming ball conversion and new ball placement
    */
-  static handleIncomingBallConversion(board: Cell[][]): ConversionResult {
+  static handleIncomingBallConversion(
+    board: Cell[][], 
+    steppedOnIncomingBall?: BallColor
+  ): ConversionResult {
     // Convert incoming balls to real balls
     const boardWithRealBalls = board.map((row) =>
       row.map((cell) => ({
@@ -146,32 +124,26 @@ export class GamePhaseManager {
     }
 
     // Generate next preview balls
-    const nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
-    const afterBalls = this.placePreviewBalls(
-      boardWithRealBalls,
-      nextPreviewBalls,
-    );
+    let nextPreviewBalls: BallColor[];
+    let afterBalls: Cell[][];
+
+    if (steppedOnIncomingBall) {
+      // When stepping on an incoming ball, all incoming balls get converted to real balls
+      // Then we spawn 3 new incoming balls, with one being the recalculated stepped-on color
+      nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN - 1); // Get 2 random colors
+      nextPreviewBalls.push(steppedOnIncomingBall); // Add the recalculated color
+      afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
+    } else {
+      // Normal case: generate 3 new balls
+      nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
+      afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
+    }
 
     return {
       newBoard: afterBalls,
       nextBalls: nextPreviewBalls,
       gameOver: isBoardFull(afterBalls),
     };
-  }
-
-  /**
-   * Places preview balls on the board
-   */
-  private static placePreviewBalls(
-    board: Cell[][],
-    colors: BallColor[],
-  ): Cell[][] {
-    const newBoard = board.map((row) => row.map((cell) => ({ ...cell })));
-    const positions = getRandomEmptyCells(newBoard, colors.length);
-    positions.forEach(([x, y], i) => {
-      newBoard[y][x].incomingBall = { color: colors[i] };
-    });
-    return newBoard;
   }
 
   /**

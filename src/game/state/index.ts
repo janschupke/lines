@@ -168,9 +168,15 @@ export const useGameState = (
           fromY,
           toX,
           toY,
-          boardState.nextBalls,
         );
-        boardState.setBoard(moveResult.newBoard);
+        // Update nextBalls and board - handleMoveCompletion returns the complete board
+        if (moveResult.nextBalls) {
+          // When stepping on an incoming ball, handleMoveCompletion already generated 3 new balls
+          boardState.setNextBalls(moveResult.nextBalls);
+          boardState.setBoard(moveResult.newBoard);
+        } else {
+          boardState.setBoard(moveResult.newBoard);
+        }
 
         // Update statistics - increment turns count
         statisticsTracker.recordTurn();
@@ -219,17 +225,22 @@ export const useGameState = (
           }, ANIMATION_DURATIONS.POP_BALL);
         } else {
           // No lines formed - convert incoming balls
-          const conversionResult =
-            GamePhaseManager.handleIncomingBallConversion(moveResult.newBoard);
-          boardState.setBoard(conversionResult.newBoard);
-          boardState.setNextBalls(conversionResult.nextBalls);
+          // Skip conversion if we already handled incoming balls in handleMoveCompletion
+          if (!moveResult.nextBalls) {
+            // Check if we stepped on an incoming ball
+            const steppedOnIncomingBall = boardState.board[toY][toX].incomingBall?.color;
+            
+            const conversionResult =
+              GamePhaseManager.handleIncomingBallConversion(moveResult.newBoard, steppedOnIncomingBall);
+            boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
 
-          if (conversionResult.gameOver) {
-            // Finalize statistics when game ends
-            const finalStats = statisticsTracker.endGame();
-            setFinalStatistics(finalStats);
-            setGameOver(true);
-            setShowGameEndDialog(true);
+            if (conversionResult.gameOver) {
+              // Finalize statistics when game ends
+              const finalStats = statisticsTracker.endGame();
+              setFinalStatistics(finalStats);
+              setGameOver(true);
+              setShowGameEndDialog(true);
+            }
           }
         }
 
@@ -274,7 +285,7 @@ export const useGameState = (
     boardState.setBoard(finalBoard);
     setScore(0);
     setGameOver(false);
-    boardState.setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
+    boardState.setNextBalls(getRandomNextBalls(BALLS_PER_TURN), finalBoard);
     setTimer(0);
     timerState.setTimerActive(false);
     timerState.resetTimer();

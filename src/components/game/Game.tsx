@@ -38,7 +38,7 @@ const Game: React.FC<GameProps> = ({
 }) => {
 
   const [gameState, gameActions] = useGameState(initialBoard, initialNextBalls);
-  const { highScore, isNewHighScore, checkAndUpdateHighScore, resetNewHighScoreFlag } = useHighScore();
+  const { highScore, currentGameBeatHighScore, checkAndUpdateHighScore, resetNewHighScoreFlag, resetCurrentGameHighScoreFlag } = useHighScore();
 
   const {
     board,
@@ -64,19 +64,20 @@ const Game: React.FC<GameProps> = ({
     handleCloseDialog,
   } = gameActions;
 
-  // Check for new high score when game ends
+  // Check for new high score after every score increase
   React.useEffect(() => {
-    if (gameOver) {
+    if (score > 0) {
       checkAndUpdateHighScore(score);
     }
-  }, [gameOver, score, checkAndUpdateHighScore]);
+  }, [score, checkAndUpdateHighScore]);
 
-  // Reset new high score flag when starting new game
+  // Reset high score flags when starting new game
   React.useEffect(() => {
     if (!gameOver) {
       resetNewHighScoreFlag();
+      resetCurrentGameHighScoreFlag();
     }
-  }, [gameOver, resetNewHighScoreFlag]);
+  }, [gameOver, resetNewHighScoreFlag, resetCurrentGameHighScoreFlag]);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
@@ -177,7 +178,11 @@ const Game: React.FC<GameProps> = ({
 
       {/* Timer */}
       <div className="text-center mt-4" style={{ maxWidth: "600px" }}>
-        <div className="font-bold text-game-text-success text-2xl">
+        <div className={`font-bold text-2xl ${
+          gameState.timerActive 
+            ? "text-green-500" 
+            : "text-gray-500"
+        }`}>
           {formatTime(timer)}
         </div>
       </div>
@@ -244,7 +249,7 @@ const Game: React.FC<GameProps> = ({
         <GameEndDialog
           isOpen={showGameEndDialog}
           score={score}
-          isNewHighScore={isNewHighScore}
+          currentGameBeatHighScore={currentGameBeatHighScore}
           statistics={gameState.statistics}
           onNewGame={handleNewGameFromDialog}
           onClose={handleCloseDialog}

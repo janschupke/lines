@@ -4,7 +4,7 @@ import type { GameStatistics } from "../../game/types";
 interface GameEndDialogProps {
   isOpen: boolean;
   score: number;
-  isNewHighScore: boolean;
+  currentGameBeatHighScore: boolean;
   statistics: GameStatistics;
   onNewGame: () => void;
   onClose: () => void;
@@ -13,7 +13,7 @@ interface GameEndDialogProps {
 const GameEndDialog: React.FC<GameEndDialogProps> = ({
   isOpen,
   score,
-  isNewHighScore,
+  currentGameBeatHighScore,
   statistics,
   onNewGame,
   onClose,
@@ -24,14 +24,14 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[1000]">
       <div className="bg-game-bg-secondary border-2 border-game-border-default rounded-xl p-6 max-w-md w-11/12 text-center shadow-2xl">
         <h2
-          className={`m-0 mb-4 text-2xl font-bold ${isNewHighScore ? "text-game-text-accent" : "text-game-text-primary"}`}
+          className={`m-0 mb-4 text-2xl font-bold ${currentGameBeatHighScore ? "text-game-text-accent" : "text-game-text-primary"}`}
         >
-          {isNewHighScore ? "🎉 New High Score! 🎉" : "Game Over"}
+          {currentGameBeatHighScore ? "🎉 New High Score! 🎉" : "Game Over"}
         </h2>
         <div className="text-3xl font-bold text-game-text-accent my-4">
           Score: {score}
         </div>
-        {isNewHighScore && (
+        {currentGameBeatHighScore && (
           <div className="bg-gradient-to-r from-game-button-accent to-game-button-accent-hover text-black py-2 px-4 rounded-full font-bold my-4 animate-bounce shadow-lg">
             🏆 NEW RECORD! 🏆
           </div>
@@ -75,7 +75,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
         </div>
         
         <p className="text-game-text-secondary my-4 text-base">
-          {isNewHighScore
+          {currentGameBeatHighScore
             ? "Congratulations! You've set a new personal best!"
             : "Great game! Try again to beat your high score."}
         </p>

@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { useMobileOptimization } from "../../hooks/useMobileOptimization";
 import type { Cell } from "../../game/types";
 
 interface BoardProps {
@@ -27,8 +26,7 @@ const Board: React.FC<BoardProps> = ({
   onCellHover,
   onCellLeave,
 }) => {
-  const { handleTouchStart, handleTouchEnd } =
-    useMobileOptimization();
+
 
   // Convert pathTrail to a Set for fast lookup
   const pathSet = pathTrail
@@ -66,22 +64,7 @@ const Board: React.FC<BoardProps> = ({
     onCellLeave?.();
   }, [isAnimationInProgress, onCellLeave]);
 
-  // Handle touch interactions
-  const handleCellTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (isAnimationInProgress) return;
-      handleTouchStart(e);
-    },
-    [isAnimationInProgress, handleTouchStart],
-  );
 
-  const handleCellTouchEnd = useCallback(
-    (e: React.TouchEvent, x: number, y: number) => {
-      if (isAnimationInProgress) return;
-      handleTouchEnd(e, x, y, handleCellClick);
-    },
-    [isAnimationInProgress, handleTouchEnd, handleCellClick],
-  );
 
   return (
     <div
@@ -142,8 +125,6 @@ const Board: React.FC<BoardProps> = ({
             onClick={() => handleCellClick(cell.x, cell.y)}
             onMouseEnter={() => handleCellHover(cell.x, cell.y)}
             onMouseLeave={handleCellLeave}
-            onTouchStart={handleCellTouchStart}
-            onTouchEnd={(e) => handleCellTouchEnd(e, cell.x, cell.y)}
             role="button"
             tabIndex={isAnimationInProgress ? -1 : 0}
           >

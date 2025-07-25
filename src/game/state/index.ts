@@ -175,6 +175,9 @@ export const useGameState = (
         // Update statistics - increment turns count
         statisticsTracker.recordTurn();
 
+        // Signal activity to timer
+        timerState.onActivity();
+
         // Start timer after first move
         if (!timerState.timerActive && timer === 0) {
           timerState.setTimerActive(true);
@@ -189,7 +192,14 @@ export const useGameState = (
 
         if (lineResult) {
           // Lines were formed - handle ball removal
-          setScore((s) => s + lineResult.pointsEarned!);
+          setScore((s) => {
+            const newScore = s + lineResult.pointsEarned!;
+            // Check for high score update after every score increase
+            if (newScore > s) {
+              // We'll trigger high score check in the Game component
+            }
+            return newScore;
+          });
           animationState.setPoppingBalls(
             new Set(lineResult.ballsRemoved!.map(([x, y]) => `${x},${y}`)),
           );
@@ -267,6 +277,7 @@ export const useGameState = (
     boardState.setNextBalls(getRandomNextBalls(BALLS_PER_TURN));
     setTimer(0);
     timerState.setTimerActive(false);
+    timerState.resetTimer();
     animationState.setMovingBall(null);
     animationState.setMovingStep(0);
     animationState.setPoppingBalls(new Set());

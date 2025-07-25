@@ -5,6 +5,7 @@ const HIGH_SCORE_KEY = "lines-game-high-score";
 export const useHighScore = () => {
   const [highScore, setHighScore] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [currentGameBeatHighScore, setCurrentGameBeatHighScore] = useState(false);
 
   // Load high score from localStorage on mount
   useEffect(() => {
@@ -26,6 +27,7 @@ export const useHighScore = () => {
     if (currentScore > highScore) {
       setHighScore(currentScore);
       setIsNewHighScore(true);
+      setCurrentGameBeatHighScore(true);
       
       // Save to localStorage
       try {
@@ -35,6 +37,9 @@ export const useHighScore = () => {
       }
       
       return true;
+    } else if (currentScore === highScore && currentScore > 0) {
+      // If score equals current high score, don't set new high score flag
+      setIsNewHighScore(false);
     }
     return false;
   }, [highScore]);
@@ -44,10 +49,17 @@ export const useHighScore = () => {
     setIsNewHighScore(false);
   }, []);
 
+  // Reset current game high score flag
+  const resetCurrentGameHighScoreFlag = useCallback(() => {
+    setCurrentGameBeatHighScore(false);
+  }, []);
+
   return {
     highScore,
     isNewHighScore,
+    currentGameBeatHighScore,
     checkAndUpdateHighScore,
     resetNewHighScoreFlag,
+    resetCurrentGameHighScoreFlag,
   };
 }; 

@@ -54,8 +54,6 @@ export interface GameState {
   hoveredCell: { x: number; y: number } | null;
   pathTrail: [number, number][] | null;
   notReachable: boolean;
-  currentHighScore: number;
-  isNewHighScore: boolean;
   showGameEndDialog: boolean;
   statistics: GameStatistics;
 }

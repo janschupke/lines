@@ -18,7 +18,6 @@ import { GamePhaseManager } from "./gamePhaseManager";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { useGameAnimation } from "../../hooks/useGameAnimation";
-import { useHighScores } from "../../hooks/useHighScores";
 import { GameStatisticsTracker } from "../statisticsTracker";
 
 export const useGameState = (
@@ -31,8 +30,6 @@ export const useGameState = (
   const timerState = useGameTimer();
   // Animation
   const animationState = useGameAnimation();
-  // High scores
-  const highScoreState = useHighScores();
 
   // Additional state
   const [score, setScore] = useState(0);
@@ -144,26 +141,10 @@ export const useGameState = (
     return () => clearInterval(interval);
   }, [timerState.timerActive, statisticsTracker]);
 
-  // Initialize high scores
-  useEffect(() => {
-    const loadHighScores = () => {
-      // setCurrentHighScore(currentHigh); // This line was removed as per the edit hint.
-    };
-    loadHighScores();
-  }, []);
-
   // Stop timer on game over
   useEffect(() => {
     if (gameOver) timerState.setTimerActive(false);
   }, [gameOver, timerState]);
-
-  // Check for new high score
-  const checkForNewHighScore = useCallback(
-    (currentScore: number): boolean => {
-      return highScoreState.checkForNewHighScore(currentScore, timer);
-    },
-    [timer, highScoreState],
-  );
 
   // Animation effect for moving ball
   useEffect(() => {
@@ -218,10 +199,6 @@ export const useGameState = (
             lineResult.pointsEarned!,
           );
 
-          // Check for new high score
-          const newScore = score + lineResult.pointsEarned!;
-          checkForNewHighScore(newScore);
-
           // Clear popping balls after animation
           setTimeout(() => {
             animationState.setPoppingBalls(new Set());
@@ -263,7 +240,6 @@ export const useGameState = (
     timerState.timerActive,
     timer,
     score,
-    checkForNewHighScore,
     statisticsTracker,
     animationState,
     boardState,
@@ -324,8 +300,6 @@ export const useGameState = (
       hoveredCell,
       pathTrail,
       notReachable,
-      currentHighScore: highScoreState.currentHighScore,
-      isNewHighScore: highScoreState.isNewHighScore,
       showGameEndDialog,
       statistics: statisticsTracker.getCurrentStatistics(),
     },

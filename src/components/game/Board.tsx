@@ -27,9 +27,8 @@ const Board: React.FC<BoardProps> = ({
   onCellHover,
   onCellLeave,
 }) => {
-  const { isMobile, handleTouchStart, handleTouchEnd, getMobileValues } =
+  const { handleTouchStart, handleTouchEnd } =
     useMobileOptimization();
-  const mobileValues = getMobileValues();
 
   // Convert pathTrail to a Set for fast lookup
   const pathSet = pathTrail
@@ -37,7 +36,7 @@ const Board: React.FC<BoardProps> = ({
     : new Set();
 
   // Calculate incoming ball size (50% of cell width)
-  const incomingBallSize = isMobile ? "w-[18px] h-[18px]" : "w-[28px] h-[28px]"; // Smaller on mobile
+  const incomingBallSize = "w-[28px] h-[28px]";
 
   // Check if any animation is in progress
   const isAnimationInProgress =
@@ -139,7 +138,7 @@ const Board: React.FC<BoardProps> = ({
             key={key}
             className={`rounded-lg flex items-center justify-center transition-colors duration-200 box-border relative border-2 ${
               isAnimationInProgress ? "cursor-default" : "cursor-pointer"
-            } ${cellBgClass} ${borderClass} ${isMobile ? "w-12 h-12" : "w-cell h-cell"}`}
+            } ${cellBgClass} ${borderClass} w-cell h-cell`}
             onClick={() => handleCellClick(cell.x, cell.y)}
             onMouseEnter={() => handleCellHover(cell.x, cell.y)}
             onMouseLeave={handleCellLeave}
@@ -147,14 +146,6 @@ const Board: React.FC<BoardProps> = ({
             onTouchEnd={(e) => handleCellTouchEnd(e, cell.x, cell.y)}
             role="button"
             tabIndex={isAnimationInProgress ? -1 : 0}
-            style={{
-              minHeight: isMobile
-                ? `${mobileValues.touchTargetSize}px`
-                : undefined,
-              minWidth: isMobile
-                ? `${mobileValues.touchTargetSize}px`
-                : undefined,
-            }}
           >
             {cell.ball && !hideBall && (
               <span
@@ -162,7 +153,7 @@ const Board: React.FC<BoardProps> = ({
                   cell.active
                     ? "shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent"
                     : "shadow-[0_1px_4px_theme(colors.game.shadow.ball)]"
-                } ${popping ? "z-20 animate-pop-ball" : "animate-move-ball"} bg-ball-${cell.ball.color} ${isMobile ? "w-9 h-9" : "w-ball h-ball"}`}
+                } ${popping ? "z-20 animate-pop-ball" : "animate-move-ball"} bg-ball-${cell.ball.color} w-ball h-ball`}
                 title={cell.ball.color}
               />
             )}

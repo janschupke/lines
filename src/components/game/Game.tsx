@@ -2,9 +2,9 @@ import React from "react";
 import Board from "./Board";
 import GameEndDialog from "../ui/GameEndDialog";
 import MovingBall from "../ui/MovingBall";
-import MobileControls from "./MobileControls";
+
 import { useGameState } from "../../game/state";
-import { useMobileOptimization } from "../../hooks/useMobileOptimization";
+
 import { useHighScore } from "../../hooks/useHighScore";
 import { formatTime } from "../../utils/formatters";
 import { getGameSpacing } from "../../utils/helpers";
@@ -36,7 +36,7 @@ const Game: React.FC<GameProps> = ({
   initialBoard,
   initialNextBalls,
 }) => {
-  const { isMobile } = useMobileOptimization();
+
   const [gameState, gameActions] = useGameState(initialBoard, initialNextBalls);
   const { highScore, isNewHighScore, checkAndUpdateHighScore, resetNewHighScoreFlag } = useHighScore();
 
@@ -89,92 +89,76 @@ const Game: React.FC<GameProps> = ({
   }
 
   return (
-    <div
-      className={`flex flex-col items-center ${isMobile ? "space-y-4 px-2" : "space-y-6"}`}
-    >
-      {/* Top Controls */}
-      <div className={`flex ${isMobile ? "gap-2" : "gap-4"} items-center`}>
-        <button
-          onClick={startNewGame}
-          className={`bg-game-button-primary hover:bg-game-button-hover text-game-text-primary font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors ${
-            isMobile ? "px-3 py-2 text-sm" : "px-4 py-2"
-          }`}
-        >
-          New Game
-        </button>
-
-        <button
-          onClick={() => setShowGuide(!showGuide)}
-          className={`font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors ${
-            showGuide
-              ? "bg-game-button-accent text-black hover:bg-game-button-accent-hover"
-              : "bg-game-button-primary text-game-text-primary hover:bg-game-button-hover"
-          } ${isMobile ? "px-3 py-2 text-sm" : "px-4 py-2 text-base"}`}
-        >
-          {showGuide ? "Hide Guide" : "Show Guide"}
-        </button>
-      </div>
-
-      {/* Game Info Row - Score, Incoming Balls, High Score */}
-      <div
-        className={`flex items-center justify-between w-full ${isMobile ? "max-w-full px-2" : "max-w-2xl"}`}
-      >
-        {/* Current Score */}
-        <div className="text-center">
-          <div
-            className={`font-bold text-game-text-accent ${isMobile ? "text-lg" : "text-2xl"}`}
+    <div className="flex flex-col items-center">
+      {/* Single-line Top Panel */}
+      <div className="flex items-center w-full relative mb-6" style={{ maxWidth: "600px" }}>
+        <div className="flex gap-2 flex-1">
+          <button
+            onClick={startNewGame}
+            className="bg-game-button-primary hover:bg-game-button-hover text-game-text-primary font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors px-4 py-2"
           >
-            Score
-          </div>
-          <div
-            className={`text-game-text-primary ${isMobile ? "text-lg" : "text-xl"}`}
-            data-testid="score-value"
+            New
+          </button>
+
+          <button
+            onClick={() => setShowGuide(!showGuide)}
+            className={`font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors px-4 py-2 ${
+              showGuide
+                ? "bg-game-button-accent text-black hover:bg-game-button-accent-hover"
+                : "bg-game-button-primary text-game-text-primary hover:bg-game-button-hover"
+            }`}
           >
-            {score}
-          </div>
+            Guide
+          </button>
         </div>
 
-        {/* Incoming Balls Panel */}
-        <div className="flex flex-col items-center">
-          <div
-            className={`text-game-text-secondary font-semibold mb-2 ${isMobile ? "text-xs" : "text-sm"}`}
-          >
+        {/* Center: Next Balls - absolutely centered */}
+        <div className="flex flex-col items-center absolute left-1/2 transform -translate-x-1/2">
+          <div className="text-game-text-secondary font-semibold mb-2 text-sm">
             Next Balls
           </div>
-          <div className={`flex ${isMobile ? "gap-1" : "gap-2"}`}>
+          <div className="flex gap-2">
             {nextBalls.map((color, index) => (
               <div
                 key={index}
-                className={`rounded-full bg-ball-${color} border-2 border-game-border-ball shadow-sm ${
-                  isMobile ? "w-4 h-4" : "w-6 h-6"
-                }`}
+                className={`rounded-full bg-ball-${color} border-2 border-game-border-ball shadow-sm w-6 h-6`}
                 title={color}
               />
             ))}
           </div>
         </div>
 
-        {/* High Score */}
-        <div className="text-center">
-          <div
-            className={`font-bold text-game-text-accent ${isMobile ? "text-lg" : "text-2xl"}`}
-          >
-            High Score
+        {/* Right: Score and High Score stacked */}
+        <div className="flex flex-col items-end flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-game-text-accent text-base">
+              Score:
+            </span>
+            <span
+              className="text-game-text-primary font-bold text-xl"
+              data-testid="score-value"
+            >
+              {score}
+            </span>
           </div>
-          <div
-            className={`text-game-text-primary ${isMobile ? "text-lg" : "text-xl"}`}
-            data-testid="high-score-value"
-          >
-            {highScore}
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-game-text-accent text-base">
+              High Score:
+            </span>
+            <span
+              className="text-game-text-primary font-bold text-xl"
+              data-testid="high-score-value"
+            >
+              {highScore}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Game Board */}
       <div
-        className={`bg-game-bg-board border border-game-border-default rounded-xl shadow-lg ${
-          isMobile ? "p-2" : "p-4"
-        }`}
+        className="bg-game-bg-board border border-game-border-default rounded-xl shadow-lg p-4"
+        style={{ maxWidth: "600px" }}
       >
         <Board
           board={board}
@@ -192,12 +176,8 @@ const Game: React.FC<GameProps> = ({
       </div>
 
       {/* Timer */}
-      <div className="text-center">
-        <div
-          className={`font-bold text-game-text-success ${
-            isMobile ? "text-xl" : "text-2xl"
-          }`}
-        >
+      <div className="text-center mt-4" style={{ maxWidth: "600px" }}>
+        <div className="font-bold text-game-text-success text-2xl">
           {formatTime(timer)}
         </div>
       </div>
@@ -205,25 +185,16 @@ const Game: React.FC<GameProps> = ({
       {/* Guide Panel */}
       {showGuide && (
         <div
-          className={`w-full bg-game-bg-secondary border border-game-border-default rounded-xl shadow-lg ${
-            isMobile ? "max-w-full px-4 py-4" : "max-w-2xl p-6"
-          }`}
+          className="w-full bg-game-bg-secondary border border-game-border-default rounded-xl shadow-lg p-6"
+          style={{ maxWidth: "600px" }}
         >
-          <h3
-            className={`font-bold mb-4 text-game-text-accent text-center ${
-              isMobile ? "text-lg" : "text-xl"
-            }`}
-          >
+          <h3 className="font-bold mb-4 text-game-text-accent text-center text-xl">
             How to Play
           </h3>
-          <div
-            className={`space-y-2 text-game-text-secondary ${
-              isMobile ? "text-xs" : "text-sm"
-            }`}
-          >
-            <p>• {isMobile ? "Tap" : "Click"} on a ball to select it</p>
+          <div className="space-y-2 text-game-text-secondary text-sm">
+            <p>• Click on a ball to select it</p>
             <p>
-              • {isMobile ? "Tap" : "Click"} on an empty cell to move the ball
+              • Click on an empty cell to move the ball
             </p>
             <p>• Form lines of 5+ balls to clear them</p>
             <p>
@@ -235,14 +206,10 @@ const Game: React.FC<GameProps> = ({
             <p>• Game ends when board is full</p>
           </div>
           <div className="mt-4">
-            <h4
-              className={`font-bold text-game-text-accent mb-2 ${
-                isMobile ? "text-xs" : "text-sm"
-              }`}
-            >
+            <h4 className="font-bold text-game-text-accent mb-2 text-sm">
               Scoring:
             </h4>
-            <table className={`w-full ${isMobile ? "text-xs" : "text-xs"}`}>
+            <table className="w-full text-xs">
               <tbody>
                 <tr className="text-game-text-accent">
                   <td>5 balls:</td>
@@ -267,11 +234,7 @@ const Game: React.FC<GameProps> = ({
               </tbody>
             </table>
           </div>
-          <div
-            className={`mt-3 text-game-text-accent font-semibold text-center ${
-              isMobile ? "text-xs" : "text-sm"
-            }`}
-          >
+          <div className="mt-3 text-game-text-accent font-semibold text-center text-sm">
             Good luck!
           </div>
         </div>
@@ -288,11 +251,7 @@ const Game: React.FC<GameProps> = ({
         />
       )}
 
-      <MobileControls
-        onNewGame={startNewGame}
-        showGuide={showGuide}
-        onToggleGuide={() => setShowGuide(!showGuide)}
-      />
+
     </div>
   );
 };

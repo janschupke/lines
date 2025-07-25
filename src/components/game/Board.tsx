@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import type { Cell } from "../../game/types";
+import { getBallColor } from "../../utils/helpers";
 
 interface BoardProps {
   board: Cell[][];
@@ -68,7 +69,7 @@ const Board: React.FC<BoardProps> = ({
 
   return (
     <div
-      className={`relative grid bg-game-bg-board p-board-padding rounded-xl shadow-lg mx-auto w-fit h-fit box-content gap-gap ${
+      className={`game-board grid p-board-padding mx-auto w-fit h-fit box-content gap-gap ${
         isAnimationInProgress ? "pointer-events-none" : ""
       }`}
       style={{
@@ -119,7 +120,7 @@ const Board: React.FC<BoardProps> = ({
         return (
           <div
             key={key}
-            className={`rounded-lg flex items-center justify-center transition-colors duration-200 box-border relative border-2 ${
+            className={`game-cell ${
               isAnimationInProgress ? "cursor-default" : "cursor-pointer"
             } ${cellBgClass} ${borderClass} w-cell h-cell`}
             onClick={() => handleCellClick(cell.x, cell.y)}
@@ -130,17 +131,19 @@ const Board: React.FC<BoardProps> = ({
           >
             {cell.ball && !hideBall && (
               <span
-                className={`block rounded-full border-2 border-game-border-ball ${
+                className={`game-ball ${
                   cell.active
-                    ? "shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent"
-                    : "shadow-[0_1px_4px_theme(colors.game.shadow.ball)]"
-                } ${popping ? "z-20 animate-pop-ball" : "animate-move-ball"} bg-ball-${cell.ball.color} w-ball h-ball`}
+                    ? "game-ball-active"
+                    : ""
+                } ${popping ? "z-20 animate-pop-ball" : "animate-move-ball"} w-ball h-ball`}
+                style={{ backgroundColor: getBallColor(cell.ball.color) }}
                 title={cell.ball.color}
               />
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`block rounded-full border border-game-border-preview shadow-sm opacity-50 bg-ball-${cell.incomingBall.color} ${incomingBallSize}`}
+                className={`game-ball border border-game-border-preview shadow-sm opacity-50 ${incomingBallSize}`}
+                style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
                 title={`Preview: ${cell.incomingBall.color}`}
               />
             )}

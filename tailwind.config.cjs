@@ -90,54 +90,64 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Game ball colors
+        // Game ball colors - enhanced with better contrast
         ball: {
-          red: "#e74c3c",
-          green: "#2ecc71", // More vibrant green
-          blue: "#2980b9",
-          yellow: "#f1c40f",
-          purple: "#8e44ad",
-          cyan: "#00bcd4", // More distinct teal/cyan
-          black: "#222",
+          red: "#ef4444", // More vibrant red
+          green: "#10b981", // More vibrant green
+          blue: "#3b82f6", // More vibrant blue
+          yellow: "#f59e0b", // More vibrant yellow
+          purple: "#8b5cf6", // More vibrant purple
+          cyan: "#06b6d4", // More vibrant cyan
+          black: "#1f2937", // Darker, more sophisticated black
         },
-        // Game theme colors - structured for proper Tailwind access
+        // Game theme colors - enhanced with gradients and better contrast
         game: {
           bg: {
-            primary: "#1a1a1a", // Dark grey background
-            secondary: "#2d2d2d", // Dark card backgrounds
-            tertiary: "#3a3a3a", // Dark grey backgrounds
-            board: "#ffffff", // Keep game board white
+            primary: "#0f172a", // Darker, more sophisticated background
+            secondary: "#1e293b", // Enhanced card backgrounds
+            tertiary: "#334155", // Enhanced tertiary backgrounds
+            board: "#f8fafc", // Subtle off-white for board
             cell: {
               empty: "#ffffff",
-              hover: "#f8f9fa",
-              active: "#fff3cd",
-              path: "#d1ecf1",
+              hover: "#f1f5f9", // Subtle hover state
+              active: "#fef3c7", // Warm active state
+              path: "#dbeafe", // Subtle blue path
             },
           },
           text: {
-            primary: "#ffffff", // White text on dark backgrounds
-            secondary: "#cccccc", // Light grey text
-            accent: "#ffd700", // Gold accent text
-            success: "#4ade80", // Green success text
-            error: "#f87171", // Red error text
+            primary: "#f8fafc", // Brighter white text
+            secondary: "#cbd5e1", // Enhanced light grey text
+            accent: "#fbbf24", // Warmer gold accent
+            success: "#34d399", // Enhanced green success
+            error: "#f87171", // Enhanced red error
           },
           border: {
-            default: "#404040", // Dark grey borders
-            path: "#3b82f6", // Blue path borders
-            error: "#f87171", // Red error borders
-            accent: "#ffd700", // Gold accent borders
-            ball: "#6c757d",
-            preview: "#adb5bd",
+            default: "#475569", // Enhanced dark grey borders
+            path: "#3b82f6", // Enhanced blue path borders
+            error: "#f87171", // Enhanced red error borders
+            accent: "#fbbf24", // Enhanced gold accent borders
+            ball: "#64748b", // Enhanced ball borders
+            preview: "#94a3b8", // Enhanced preview borders
           },
           button: {
-            primary: "#404040", // Dark grey buttons
-            hover: "#525252", // Lighter grey on hover
-            accent: "#ffd700", // Gold accent buttons
-            "accent-hover": "#fbbf24", // Darker gold on hover
+            primary: "#475569", // Enhanced dark grey buttons
+            hover: "#64748b", // Enhanced lighter grey on hover
+            accent: "#fbbf24", // Enhanced gold accent buttons
+            "accent-hover": "#f59e0b", // Enhanced darker gold on hover
           },
           shadow: {
-            glow: "#ffd700",
-            ball: "#00000033",
+            glow: "#fbbf24", // Enhanced glow color
+            ball: "#00000040", // Enhanced ball shadow
+          },
+          // New gradient definitions
+          gradient: {
+            primary: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+            secondary: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+            board: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+            button: "linear-gradient(135deg, #475569 0%, #64748b 100%)",
+            buttonHover: "linear-gradient(135deg, #64748b 0%, #94a3b8 100%)",
+            accent: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+            accentHover: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
           },
         },
       },
@@ -157,6 +167,8 @@ module.exports = {
       animation: {
         "move-ball": "moveBall 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)", // Slowed from 0.25s to 0.4s
         "pop-ball": "popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)",
+        "pulse-glow": "pulseGlow 2s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
       },
       keyframes: {
         moveBall: {
@@ -168,6 +180,29 @@ module.exports = {
           "80%": { transform: "scale(1.3)", opacity: "1" },
           "100%": { transform: "scale(0.5)", opacity: "0" },
         },
+        pulseGlow: {
+          "0%, 100%": { 
+            boxShadow: "0 0 16px 4px theme(colors.game.shadow.glow), 0 0 0 4px theme(colors.game.shadow.glow)",
+            opacity: "1"
+          },
+          "50%": { 
+            boxShadow: "0 0 24px 6px theme(colors.game.shadow.glow), 0 0 0 6px theme(colors.game.shadow.glow)",
+            opacity: "0.8"
+          },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-4px)" },
+        },
+      },
+      backgroundImage: {
+        "game-gradient-primary": "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        "game-gradient-secondary": "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+        "game-gradient-board": "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+        "game-gradient-button": "linear-gradient(135deg, #475569 0%, #64748b 100%)",
+        "game-gradient-button-hover": "linear-gradient(135deg, #64748b 0%, #94a3b8 100%)",
+        "game-gradient-accent": "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+        "game-gradient-accent-hover": "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
       },
     },
   },

@@ -13,7 +13,7 @@ import {
   placePreviewBalls,
   findPath,
 } from "../logic";
-import type { Cell, GameState, GameActions } from "../types";
+import type { Cell, GameState, GameActions, GameStatistics } from "../types";
 import { GamePhaseManager } from "./gamePhaseManager";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameTimer } from "../../hooks/useGameTimer";
@@ -39,6 +39,7 @@ export const useGameState = (
   const [gameOver, setGameOver] = useState(false);
   const [timer, setTimer] = useState(0);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
+  const [finalStatistics, setFinalStatistics] = useState<GameStatistics | null>(null);
 
   // Game statistics tracker
   const [statisticsTracker] = useState(() => new GameStatisticsTracker());
@@ -214,6 +215,9 @@ export const useGameState = (
           boardState.setNextBalls(conversionResult.nextBalls);
 
           if (conversionResult.gameOver) {
+            // Finalize statistics when game ends
+            const finalStats = statisticsTracker.endGame();
+            setFinalStatistics(finalStats);
             setGameOver(true);
             setShowGameEndDialog(true);
           }
@@ -274,6 +278,7 @@ export const useGameState = (
 
     // Reset statistics
     statisticsTracker.reset();
+    setFinalStatistics(null);
   }, [boardState, timerState, animationState, statisticsTracker]);
 
   const handleNewGameFromDialog = useCallback(() => {
@@ -301,7 +306,7 @@ export const useGameState = (
       pathTrail,
       notReachable,
       showGameEndDialog,
-      statistics: statisticsTracker.getCurrentStatistics(),
+      statistics: finalStatistics || statisticsTracker.getCurrentStatistics(),
     },
     {
       startNewGame,

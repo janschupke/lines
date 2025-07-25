@@ -282,6 +282,7 @@ const Game: React.FC<GameProps> = ({
           isOpen={showGameEndDialog}
           score={score}
           isNewHighScore={isNewHighScore}
+          statistics={gameState.statistics}
           onNewGame={handleNewGameFromDialog}
           onClose={handleCloseDialog}
         />

@@ -1,9 +1,11 @@
 import React from "react";
+import type { GameStatistics } from "../../game/types";
 
 interface GameEndDialogProps {
   isOpen: boolean;
   score: number;
   isNewHighScore: boolean;
+  statistics: GameStatistics;
   onNewGame: () => void;
   onClose: () => void;
 }
@@ -12,6 +14,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   isOpen,
   score,
   isNewHighScore,
+  statistics,
   onNewGame,
   onClose,
 }) => {
@@ -33,6 +36,44 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
             🏆 NEW RECORD! 🏆
           </div>
         )}
+        
+        {/* Game Statistics */}
+        <div className="bg-game-bg-primary border border-game-border-default rounded-lg p-4 my-4">
+          <h3 className="text-lg font-semibold text-game-text-accent mb-3 text-center">
+            Game Statistics
+          </h3>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="text-game-text-secondary">
+              <span className="font-medium">Turns:</span> {statistics.turnsCount}
+            </div>
+            <div className="text-game-text-secondary">
+              <span className="font-medium">Duration:</span> {Math.floor(statistics.gameDuration / 60)}:{(statistics.gameDuration % 60).toString().padStart(2, '0')}
+            </div>
+            <div className="text-game-text-secondary">
+              <span className="font-medium">Lines Popped:</span> {statistics.linesPopped}
+            </div>
+            <div className="text-game-text-secondary">
+              <span className="font-medium">Balls Cleared:</span> {statistics.individualBallsPopped}
+            </div>
+            <div className="text-game-text-secondary">
+              <span className="font-medium">Longest Line:</span> {statistics.longestLinePopped}
+            </div>
+            <div className="text-game-text-secondary">
+              <span className="font-medium">Avg Score/Turn:</span> {Math.round(statistics.averageScorePerTurn)}
+            </div>
+            {statistics.linesPopped > 0 && (
+              <>
+                <div className="text-game-text-secondary">
+                  <span className="font-medium">Lines/Turn:</span> {(statistics.linesPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
+                </div>
+                <div className="text-game-text-secondary">
+                  <span className="font-medium">Balls/Turn:</span> {(statistics.individualBallsPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        
         <p className="text-game-text-secondary my-4 text-base">
           {isNewHighScore
             ? "Congratulations! You've set a new personal best!"

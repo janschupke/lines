@@ -40,6 +40,8 @@ module.exports = {
     "z-game-dialog",
     "animate-move-ball",
     "animate-pop-ball",
+    "animate-bounce-ball",
+    "animate-pulse-glow",
     // Mobile responsive classes
     "w-12",
     "h-12",
@@ -169,6 +171,7 @@ module.exports = {
         "pop-ball": "popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)",
         "pulse-glow": "pulseGlow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
+        "bounce-ball": "bounceBall 1s ease-in-out infinite",
       },
       keyframes: {
         moveBall: {
@@ -193,6 +196,10 @@ module.exports = {
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-4px)" },
+        },
+        bounceBall: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
         },
       },
       backgroundImage: {

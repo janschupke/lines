@@ -101,8 +101,8 @@ const Board: React.FC<BoardProps> = ({
         let borderClass = "border-game-border-default";
 
         if (cell.active) {
-          cellBgClass = "bg-game-bg-cell-active";
-          borderClass = "border-game-border-accent";
+          cellBgClass = "bg-game-bg-cell-hover";
+          borderClass = "border-game-border-default";
         } else if (inPath) {
           cellBgClass = "bg-game-bg-cell-path";
           borderClass = "border-game-border-path";
@@ -134,8 +134,8 @@ const Board: React.FC<BoardProps> = ({
                 className={`game-ball ${
                   cell.active
                     ? "game-ball-active"
-                    : ""
-                } ${popping ? "z-20 animate-pop-ball" : "animate-move-ball"} w-ball h-ball`}
+                    : "animate-move-ball"
+                } ${popping ? "z-20 animate-pop-ball" : ""} w-ball h-ball`}
                 style={{ backgroundColor: getBallColor(cell.ball.color) }}
                 title={cell.ball.color}
               />

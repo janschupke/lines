@@ -15,9 +15,9 @@ import type { BallColor } from "../../game/constants";
 const getCellPosition = (x: number, y: number) => {
   // Get dynamic values from CSS custom properties
   const { cellSize, gapSize, ballSize, boardPadding } = getGameSpacing();
-  
-  // Calculate the offset to center the ball in the cell
-  const OFFSET = (cellSize - ballSize) / 2;
+  // Account for ball border (border-2 = 2px on each side = 4px total)
+  const actualBallSize = ballSize + 4;
+  const OFFSET = (cellSize - actualBallSize) / 2;
 
   return {
     left: boardPadding + x * (cellSize + gapSize) + OFFSET,

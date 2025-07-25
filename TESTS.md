@@ -24,6 +24,11 @@ end game UI
 
 Game board
 
+- can only select cell with a ball
+- path is showing
+- unreachable cells indicate X
+- cells are unselected after a move
+
 turn
 
 - each turn spawns 3 new balls

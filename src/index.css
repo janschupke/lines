@@ -58,7 +58,7 @@
   }
 
   .game-ball-active {
-    @apply shadow-[0_0_20px_6px_theme(colors.game.shadow.glow),0_0_0_6px_theme(colors.game.shadow.glow)] border-game-border-accent animate-pulse-glow;
+    @apply border-game-border-accent animate-bounce-ball shadow-lg;
   }
 
   .game-button {

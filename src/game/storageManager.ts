@@ -10,6 +10,7 @@ export interface PersistedGameState {
   score: number;
   nextBalls: BallColor[];
   timer: number;
+  timerActive: boolean;
   gameOver: boolean;
   statistics: {
     turnsCount: number;
@@ -38,6 +39,7 @@ export class StorageManager {
         score: gameState.score,
         nextBalls: gameState.nextBalls,
         timer: gameState.timer,
+        timerActive: gameState.timerActive,
         gameOver: gameState.gameOver,
         statistics: gameState.statistics,
       };
@@ -72,7 +74,12 @@ export class StorageManager {
         parsed.statistics &&
         typeof parsed.statistics === "object"
       ) {
-        return parsed as PersistedGameState;
+        // Handle legacy saved states that don't have timerActive
+        const result = parsed as PersistedGameState;
+        if (typeof result.timerActive !== "boolean") {
+          result.timerActive = false; // Default to false for legacy states
+        }
+        return result;
       }
       
       console.warn("Invalid game state structure in localStorage");

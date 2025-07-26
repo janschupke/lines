@@ -34,6 +34,8 @@ export async function processMove(
   nextBalls: BallColor[],
   statisticsTracker: StatisticsTracker,
   actions: MoveProcessorActions,
+  currentTimer: number,
+  currentTimerActive: boolean,
 ): Promise<void> {
   // Handle move completion
   const moveResult = handleMoveCompletion(board, fromX, fromY, toX, toY);
@@ -47,13 +49,10 @@ export async function processMove(
   const lineResult = handleLineDetection(moveResult.newBoard, toX, toY);
 
   if (lineResult) {
-    await handleLineRemoval(lineResult, currentScore, statisticsTracker, actions);
+    await handleLineRemoval(lineResult, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, nextBalls);
   } else {
-    await handleBallConversion(moveResult.newBoard, toX, toY, currentScore, statisticsTracker, actions);
+    await handleBallConversion(moveResult.newBoard, toX, toY, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive);
   }
-
-  // Persist game state
-  persistGameState(moveResult.newBoard, nextBalls, currentScore, currentGameOver, statisticsTracker);
 }
 
 async function handleLineRemoval(
@@ -61,6 +60,9 @@ async function handleLineRemoval(
   currentScore: number,
   statisticsTracker: StatisticsTracker,
   actions: MoveProcessorActions,
+  currentTimer: number,
+  currentTimerActive: boolean,
+  nextBalls: BallColor[],
 ): Promise<void> {
   // Update score
   const newScore = currentScore + (lineResult.pointsEarned || 0);
@@ -77,10 +79,12 @@ async function handleLineRemoval(
     lineResult.pointsEarned || 0,
   );
 
-  // Clear popping balls after animation
+  // Clear popping balls after animation and persist final state
   setTimeout(() => {
     actions.setPoppingBalls(new Set());
     actions.setBoard(lineResult.newBoard);
+    // Persist the final state after line removal animation completes
+    persistGameState(lineResult.newBoard, nextBalls, newScore, false, statisticsTracker, currentTimer, currentTimerActive);
   }, ANIMATION_DURATIONS.POP_BALL);
 }
 
@@ -91,6 +95,8 @@ async function handleBallConversion(
   currentScore: number,
   statisticsTracker: StatisticsTracker,
   actions: MoveProcessorActions,
+  currentTimer: number,
+  currentTimerActive: boolean,
 ): Promise<void> {
   // Check if we stepped on an incoming ball
   const steppedOnIncomingBall = board[toY][toX].incomingBall?.color;
@@ -114,10 +120,14 @@ async function handleBallConversion(
     setTimeout(() => {
       actions.setPoppingBalls(new Set());
       actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+      // Persist the final state after ball conversion animation completes
+      persistGameState(conversionResult.newBoard, conversionResult.nextBalls, newScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive);
     }, ANIMATION_DURATIONS.POP_BALL);
   } else {
     // No lines formed by spawning
     actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+    // Persist the final state immediately since no animation is needed
+    persistGameState(conversionResult.newBoard, conversionResult.nextBalls, currentScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive);
   }
 
   if (conversionResult.gameOver) {
@@ -134,6 +144,8 @@ function persistGameState(
   score: number,
   gameOver: boolean,
   statisticsTracker: StatisticsTracker,
+  timer: number,
+  timerActive: boolean,
 ): void {
   const gameState = {
     board,
@@ -141,8 +153,8 @@ function persistGameState(
     selected: null,
     gameOver,
     nextBalls,
-    timer: 0, // Will be updated by timer hook
-    timerActive: false, // Will be updated by timer hook
+    timer,
+    timerActive,
     movingBall: null,
     movingStep: 0,
     poppingBalls: new Set<string>(),

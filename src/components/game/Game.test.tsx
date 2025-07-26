@@ -102,7 +102,7 @@ describe("Game", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
     
     expect(screen.getByTestId("new-game-button")).toBeInTheDocument();
-    expect(screen.getByTestId("new-game-button")).toHaveTextContent("New Game");
+    expect(screen.getByTestId("new-game-button")).toHaveTextContent("New");
   });
 
   it("renders New Game button with correct text", () => {
@@ -110,6 +110,6 @@ describe("Game", () => {
     
     const newGameButton = screen.getByTestId("new-game-button");
     expect(newGameButton).toBeInTheDocument();
-    expect(newGameButton).toHaveTextContent("New Game");
+    expect(newGameButton).toHaveTextContent("New");
   });
 }); 

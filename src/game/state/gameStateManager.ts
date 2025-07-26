@@ -32,11 +32,17 @@ export const useGameStateManager = (
   const timerState = useGameTimer(savedState?.timer || 0);
   const animationState = useGameAnimation();
 
+  // Restore timer active state if loading from saved state
+  useEffect(() => {
+    if (savedState?.timerActive !== undefined) {
+      timerState.setTimerActive(savedState.timerActive);
+    }
+  }, [savedState?.timerActive, timerState]);
+
   // Game state
   const [score, setScore] = useState(savedState?.score || 0);
   const [selected, setSelected] = useState<{ x: number; y: number } | null>(null);
   const [gameOver, setGameOver] = useState(savedState?.gameOver || false);
-  const [timer, setTimer] = useState(savedState?.timer || 0);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
   const [finalStatistics, setFinalStatistics] = useState<GameStatistics | null>(null);
 
@@ -96,11 +102,11 @@ export const useGameStateManager = (
     },
   );
 
-  // Timer effect
+  // Timer effect - synchronize timer state with timer hook
   useEffect(() => {
     if (!timerState.timerActive) return;
     const interval = setInterval(() => {
-      setTimer((t) => t + 1);
+      // No need to update local timer state since we're using timerState.timer directly
     }, TIMER_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [timerState.timerActive]);
@@ -136,10 +142,12 @@ export const useGameStateManager = (
           boardState.nextBalls,
           statisticsTracker,
           moveProcessorActions,
+          timerState.timer,
+          timerState.timerActive,
         );
 
         // Start timer after first move
-        if (!timerState.timerActive && timer === 0) {
+        if (!timerState.timerActive && timerState.timer === 0) {
           timerState.setTimerActive(true);
         }
 
@@ -162,7 +170,7 @@ export const useGameStateManager = (
     boardState.board,
     boardState.nextBalls,
     timerState.timerActive,
-    timer,
+    timerState.timer,
     score,
     statisticsTracker,
     animationState,
@@ -183,7 +191,6 @@ export const useGameStateManager = (
     setScore(0);
     setGameOver(false);
     boardState.setNextBalls(initialNext, finalBoard);
-    setTimer(0);
     timerState.setTimerActive(false);
     timerState.resetTimer();
     animationState.setMovingBall(null);

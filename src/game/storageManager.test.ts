@@ -69,6 +69,7 @@ describe("StorageManager", () => {
           score: mockGameState.score,
           nextBalls: mockGameState.nextBalls,
           timer: mockGameState.timer,
+          timerActive: mockGameState.timerActive,
           gameOver: mockGameState.gameOver,
           statistics: mockGameState.statistics,
         })
@@ -186,6 +187,136 @@ describe("StorageManager", () => {
       expect(savedData.timer).toBe(180);
     });
 
+    it("should persist game state after line removal animation completes", () => {
+      // This test verifies that the game state is persisted after line removal
+      // which was the core issue of the "last turn lost" bug
+      
+      // Create a board with a line that will be removed
+      const boardWithLine = Array(9).fill(null).map((_, y) =>
+        Array(9).fill(null).map((_, x) => ({
+          x,
+          y,
+          ball: (x >= 3 && x <= 7 && y === 4) ? { color: "red" as BallColor } : null,
+          incomingBall: null,
+          active: false,
+        }))
+      );
+
+      const mockGameState = {
+        board: boardWithLine,
+        score: 100,
+        selected: null,
+        gameOver: false,
+        nextBalls: ["blue", "green", "yellow"] as BallColor[],
+        timer: 30,
+        timerActive: true,
+        movingBall: null,
+        movingStep: 0,
+        poppingBalls: new Set<string>(),
+        hoveredCell: null,
+        pathTrail: null,
+        notReachable: false,
+        showGameEndDialog: false,
+        statistics: {
+          turnsCount: 3,
+          gameDuration: 30,
+          linesPopped: 1,
+          individualBallsPopped: 5,
+          longestLinePopped: 5,
+          averageScorePerTurn: 33.33,
+          totalScore: 100,
+          scoreProgression: [50],
+          lineScores: [50],
+          peakScore: 50,
+          consecutiveHighScores: 0,
+          ballsCleared: 5,
+        },
+      };
+
+      // Save the game state
+      StorageManager.saveGameState(mockGameState);
+
+      // Verify the state was saved correctly
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      expect(savedData.board[4][4].ball).toEqual({ color: "red" });
+      expect(savedData.score).toBe(100);
+      expect(savedData.timer).toBe(30);
+      expect(savedData.timerActive).toBe(true);
+      expect(savedData.nextBalls).toEqual(["blue", "green", "yellow"]);
+
+      // Mock the localStorage to return the saved data
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(savedData));
+
+      // Load the game state
+      const loadedState = StorageManager.loadGameState();
+
+      // Verify the state was loaded correctly
+      expect(loadedState?.board[4][4].ball).toEqual({ color: "red" });
+      expect(loadedState?.score).toBe(100);
+      expect(loadedState?.timer).toBe(30);
+      expect(loadedState?.timerActive).toBe(true);
+      expect(loadedState?.nextBalls).toEqual(["blue", "green", "yellow"]);
+    });
+
+    it("should save and load timer state correctly", () => {
+      const mockGameState = {
+        board: Array(9).fill(null).map((_, y) =>
+          Array(9).fill(null).map((_, x) => ({
+            x,
+            y,
+            ball: null,
+            incomingBall: null,
+            active: false,
+          }))
+        ),
+        score: 100,
+        selected: null,
+        gameOver: false,
+        nextBalls: ["red", "blue", "green"] as BallColor[],
+        timer: 45,
+        timerActive: true,
+        movingBall: null,
+        movingStep: 0,
+        poppingBalls: new Set<string>(),
+        hoveredCell: null,
+        pathTrail: null,
+        notReachable: false,
+        showGameEndDialog: false,
+        statistics: {
+          turnsCount: 5,
+          gameDuration: 45,
+          linesPopped: 2,
+          individualBallsPopped: 10,
+          longestLinePopped: 6,
+          averageScorePerTurn: 20,
+          totalScore: 100,
+          scoreProgression: [50, 50],
+          lineScores: [50, 50],
+          peakScore: 50,
+          consecutiveHighScores: 1,
+          ballsCleared: 10,
+        },
+      };
+
+      // Save the game state
+      StorageManager.saveGameState(mockGameState);
+
+      // Verify the timer and timerActive were saved
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      expect(savedData.timer).toBe(45);
+      expect(savedData.timerActive).toBe(true);
+
+      // Mock the localStorage to return the saved data
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(savedData));
+
+      // Load the game state
+      const loadedState = StorageManager.loadGameState();
+
+      // Verify the timer and timerActive were loaded correctly
+      expect(loadedState?.timer).toBe(45);
+      expect(loadedState?.timerActive).toBe(true);
+    });
+
     it("should handle localStorage errors gracefully", () => {
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error("Storage quota exceeded");
@@ -242,6 +373,7 @@ describe("StorageManager", () => {
         score: 150,
         nextBalls: ["red", "blue", "green"] as BallColor[],
         timer: 120,
+        timerActive: true,
         gameOver: false,
         statistics: {
           turnsCount: 8,
@@ -284,6 +416,7 @@ describe("StorageManager", () => {
         score: 200,
         nextBalls: ["green", "yellow", "purple"] as BallColor[],
         timer: 180,
+        timerActive: false,
         gameOver: false,
         statistics: {
           turnsCount: 10,

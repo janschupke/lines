@@ -170,7 +170,7 @@ module.exports = {
         "move-ball": "moveBall 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)", // Slowed from 0.25s to 0.4s
         "pop-ball": "popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)",
         "pulse-glow": "pulseGlow 2s ease-in-out infinite",
-        "float": "float 3s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
         "bounce-ball": "pulseBall 1.5s ease-in-out infinite",
         "float-score": "floatScore 1s ease-out forwards",
       },
@@ -185,13 +185,15 @@ module.exports = {
           "100%": { transform: "scale(0.5)", opacity: "0" },
         },
         pulseGlow: {
-          "0%, 100%": { 
-            boxShadow: "0 0 16px 4px theme(colors.game.shadow.glow), 0 0 0 4px theme(colors.game.shadow.glow)",
-            opacity: "1"
+          "0%, 100%": {
+            boxShadow:
+              "0 0 16px 4px theme(colors.game.shadow.glow), 0 0 0 4px theme(colors.game.shadow.glow)",
+            opacity: "1",
           },
-          "50%": { 
-            boxShadow: "0 0 24px 6px theme(colors.game.shadow.glow), 0 0 0 6px theme(colors.game.shadow.glow)",
-            opacity: "0.8"
+          "50%": {
+            boxShadow:
+              "0 0 24px 6px theme(colors.game.shadow.glow), 0 0 0 6px theme(colors.game.shadow.glow)",
+            opacity: "0.8",
           },
         },
         float: {
@@ -199,38 +201,45 @@ module.exports = {
           "50%": { transform: "translateY(-4px)" },
         },
         pulseBall: {
-          "0%, 100%": { 
+          "0%, 100%": {
             transform: "scale(1)",
-            opacity: "1"
+            opacity: "1",
           },
-          "50%": { 
+          "50%": {
             transform: "scale(1.1)",
-            opacity: "0.8"
+            opacity: "0.8",
           },
         },
         floatScore: {
-          "0%": { 
+          "0%": {
             transform: "translate(-50%, -50%) scale(0.8)",
-            opacity: "0"
+            opacity: "0",
           },
-          "20%": { 
+          "20%": {
             transform: "translate(-50%, -50%) scale(1.2)",
-            opacity: "1"
+            opacity: "1",
           },
-          "100%": { 
+          "100%": {
             transform: "translate(-50%, -80px) scale(1)",
-            opacity: "0"
+            opacity: "0",
           },
         },
       },
       backgroundImage: {
-        "game-gradient-primary": "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-        "game-gradient-secondary": "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-        "game-gradient-board": "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-        "game-gradient-button": "linear-gradient(135deg, #475569 0%, #64748b 100%)",
-        "game-gradient-button-hover": "linear-gradient(135deg, #64748b 0%, #94a3b8 100%)",
-        "game-gradient-accent": "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
-        "game-gradient-accent-hover": "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+        "game-gradient-primary":
+          "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        "game-gradient-secondary":
+          "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+        "game-gradient-board":
+          "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+        "game-gradient-button":
+          "linear-gradient(135deg, #475569 0%, #64748b 100%)",
+        "game-gradient-button-hover":
+          "linear-gradient(135deg, #64748b 0%, #94a3b8 100%)",
+        "game-gradient-accent":
+          "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+        "game-gradient-accent-hover":
+          "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
       },
     },
   },

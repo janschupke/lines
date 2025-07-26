@@ -3,7 +3,7 @@ import Board from "./Board";
 import Guide from "../ui/Guide";
 import GameEndDialog from "../ui/GameEndDialog";
 import MovingBall from "../ui/MovingBall";
-import FloatingScore from "../ui/FloatingScore";
+import FloatingScoreComponent from "../ui/FloatingScore";
 import { useGameState } from "../../game/state";
 import { useKeyboard } from "../../hooks/useKeyboard";
 import { getGameSizing, getBallColor } from "../../utils/helpers";
@@ -141,7 +141,10 @@ const Game: React.FC<GameProps> = ({
   return (
     <div className="flex flex-col items-center">
       {/* Single-line Top Panel */}
-      <div className="flex items-center w-full relative mb-4" style={{ maxWidth: "600px" }}>
+      <div
+        className="flex items-center w-full relative mb-4"
+        style={{ maxWidth: "600px" }}
+      >
         <div className="flex gap-2 flex-1">
           <button
             onClick={startNewGame}
@@ -168,9 +171,7 @@ const Game: React.FC<GameProps> = ({
           <button
             onClick={() => setShowGuide(!showGuide)}
             className={`game-button p-3 rounded-lg hover:bg-opacity-80 transition-colors ${
-              showGuide
-                ? "game-button-accent"
-                : "game-button-primary"
+              showGuide ? "game-button-accent" : "game-button-primary"
             }`}
             title="Game Guide"
           >
@@ -210,22 +211,18 @@ const Game: React.FC<GameProps> = ({
         {/* Right: Score and High Score stacked */}
         <div className="flex flex-col items-end flex-1">
           <div className="flex items-center gap-2">
-            <span className="game-score text-base">
-              High Score:
-            </span>
+            <span className="game-score text-base">High Score:</span>
             <span
-              className={`text-game-text-primary font-bold text-xl ${highScoreFlash ? 'score-flash' : ''}`}
+              className={`text-game-text-primary font-bold text-xl ${highScoreFlash ? "score-flash" : ""}`}
               data-testid="high-score-value"
             >
               {highScore}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="game-score text-base">
-              Current Score:
-            </span>
+            <span className="game-score text-base">Current Score:</span>
             <span
-              className={`text-game-text-primary font-bold text-xl ${scoreFlash ? 'score-flash' : ''}`}
+              className={`text-game-text-primary font-bold text-xl ${scoreFlash ? "score-flash" : ""}`}
               data-testid="score-value"
             >
               {score}
@@ -256,9 +253,11 @@ const Game: React.FC<GameProps> = ({
 
             {/* Guide Overlay - exactly same size as board */}
             {(showGuide || isGuideClosing) && (
-              <div 
+              <div
                 className={`absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide ${
-                  isGuideClosing ? 'animate-in fade-out duration-300' : 'animate-in fade-in duration-300'
+                  isGuideClosing
+                    ? "animate-in fade-out duration-300"
+                    : "animate-in fade-in duration-300"
                 }`}
               >
                 <Guide onClose={handleGuideClose} />
@@ -279,7 +278,7 @@ const Game: React.FC<GameProps> = ({
 
             {/* Floating Score Animations */}
             {floatingScores?.map((floatingScore) => (
-              <FloatingScore
+              <FloatingScoreComponent
                 key={floatingScore.id}
                 floatingScore={floatingScore}
               />
@@ -290,34 +289,39 @@ const Game: React.FC<GameProps> = ({
 
       {/* Timer */}
       {/* Single-line Top Panel */}
-      <div className="flex justify-between w-full relative mt-4" style={{ maxWidth: "600px" }}>
+      <div
+        className="flex justify-between w-full relative mt-4"
+        style={{ maxWidth: "600px" }}
+      >
         <div>
-        <a
-          href="https://github.com/janschupke/lines"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-game-text-secondary hover:text-game-text-primary transition-colors duration-300"
-          title="View on GitHub"
-        >
-          <svg
-            className="w-8 h-8"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
+          <a
+            href="https://github.com/janschupke/lines"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-game-text-secondary hover:text-game-text-primary transition-colors duration-300"
+            title="View on GitHub"
           >
-            <path
-              fillRule="evenodd"
-              d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </a>
+            <svg
+              className="w-8 h-8"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </a>
         </div>
-        <div className={`font-bold text-2xl ${
-          gameState.timerActive 
-            ? "text-game-text-success" 
-            : "text-game-text-secondary"
-        }`}>
+        <div
+          className={`font-bold text-2xl ${
+            gameState.timerActive
+              ? "text-game-text-success"
+              : "text-game-text-secondary"
+          }`}
+        >
           {formatTime(timer)}
         </div>
       </div>

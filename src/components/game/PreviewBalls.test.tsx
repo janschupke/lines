@@ -73,19 +73,21 @@ describe("Preview Balls Functionality", () => {
       expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
 
       // Get all ball elements by their classes instead of tooltips
-      const regularBalls = screen.getAllByRole("button").filter(button => 
-        button.querySelector('.game-ball:not(.opacity-50)')
-      );
-      const previewBalls = screen.getAllByRole("button").filter(button => 
-        button.querySelector('.game-ball.opacity-50')
-      );
+      const regularBalls = screen
+        .getAllByRole("button")
+        .filter((button) =>
+          button.querySelector(".game-ball:not(.opacity-50)"),
+        );
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
 
       expect(regularBalls).toHaveLength(2);
       expect(previewBalls).toHaveLength(1);
 
       // Check that preview balls have the correct size (responsive)
       previewBalls.forEach((cell) => {
-        const ball = cell.querySelector('.game-ball');
+        const ball = cell.querySelector(".game-ball");
         if (ball) {
           // On mobile, preview balls are smaller (w-[18px] h-[18px])
           // On desktop, they are larger (w-[28px] h-[28px])
@@ -105,7 +107,7 @@ describe("Preview Balls Functionality", () => {
 
       // Check that regular balls have the full size (responsive)
       regularBalls.forEach((cell) => {
-        const ball = cell.querySelector('.game-ball');
+        const ball = cell.querySelector(".game-ball");
         if (ball) {
           // On mobile, balls are smaller (w-9 h-9)
           // On desktop, they are larger (w-ball h-ball)
@@ -152,13 +154,15 @@ describe("Preview Balls Functionality", () => {
       expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
 
       // Get preview balls by their classes instead of tooltips
-      const previewBalls = screen.getAllByRole("button").filter(button => 
-        button.querySelector('.game-ball.opacity-50')
-      );
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
       expect(previewBalls).toHaveLength(3);
 
       // Check that each preview ball has the correct color via inline style
-      const balls = previewBalls.map(cell => cell.querySelector('.game-ball')).filter(Boolean);
+      const balls = previewBalls
+        .map((cell) => cell.querySelector(".game-ball"))
+        .filter(Boolean);
       expect(balls[0]).toHaveStyle({ backgroundColor: "#ef4444" }); // red
       expect(balls[1]).toHaveStyle({ backgroundColor: "#3b82f6" }); // blue
       expect(balls[2]).toHaveStyle({ backgroundColor: "#10b981" }); // green
@@ -198,12 +202,14 @@ describe("Preview Balls Functionality", () => {
       expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
 
       // Get balls by their classes instead of tooltips
-      const regularBalls = screen.getAllByRole("button").filter(button => 
-        button.querySelector('.game-ball:not(.opacity-50)')
-      );
-      const previewBalls = screen.getAllByRole("button").filter(button => 
-        button.querySelector('.game-ball.opacity-50')
-      );
+      const regularBalls = screen
+        .getAllByRole("button")
+        .filter((button) =>
+          button.querySelector(".game-ball:not(.opacity-50)"),
+        );
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
 
       expect(regularBalls).toHaveLength(1);
       expect(previewBalls).toHaveLength(2);
@@ -237,13 +243,13 @@ describe("Preview Balls Functionality", () => {
       expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
 
       // Get preview balls by their classes instead of tooltips
-      const previewBalls = screen.getAllByRole("button").filter(button => 
-        button.querySelector('.game-ball.opacity-50')
-      );
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
       expect(previewBalls).toHaveLength(2);
 
       previewBalls.forEach((cell) => {
-        const ball = cell.querySelector('.game-ball');
+        const ball = cell.querySelector(".game-ball");
         if (ball) {
           // Check for responsive Tailwind classes
           const hasMobileSize =
@@ -280,12 +286,12 @@ describe("Preview Balls Functionality", () => {
       expect(screen.queryByTitle("Preview: purple")).not.toBeInTheDocument();
 
       // Get preview ball by its class instead of tooltip
-      const previewBall = screen.getAllByRole("button").find(button => 
-        button.querySelector('.game-ball.opacity-50')
-      );
+      const previewBall = screen
+        .getAllByRole("button")
+        .find((button) => button.querySelector(".game-ball.opacity-50"));
       expect(previewBall).toBeDefined();
-      
-      const ball = previewBall?.querySelector('.game-ball');
+
+      const ball = previewBall?.querySelector(".game-ball");
       expect(ball).toHaveClass("border-game-border-preview");
     });
 
@@ -308,12 +314,12 @@ describe("Preview Balls Functionality", () => {
       expect(screen.queryByTitle("Preview: purple")).not.toBeInTheDocument();
 
       // Get preview ball by its class instead of tooltip
-      const previewBall = screen.getAllByRole("button").find(button => 
-        button.querySelector('.game-ball.opacity-50')
-      );
+      const previewBall = screen
+        .getAllByRole("button")
+        .find((button) => button.querySelector(".game-ball.opacity-50"));
       expect(previewBall).toBeDefined();
-      
-      const ball = previewBall?.querySelector('.game-ball');
+
+      const ball = previewBall?.querySelector(".game-ball");
       expect(ball).toHaveClass("opacity-50");
     });
   });

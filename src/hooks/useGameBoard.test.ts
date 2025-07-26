@@ -20,7 +20,9 @@ describe("useGameBoard", () => {
       const customBoard = createEmptyBoard();
       const customNextBalls = ["yellow", "purple"] as BallColor[];
 
-      const { result } = renderHook(() => useGameBoard(customBoard, customNextBalls));
+      const { result } = renderHook(() =>
+        useGameBoard(customBoard, customNextBalls),
+      );
 
       expect(result.current.board).toBeDefined();
       expect(result.current.nextBalls).toEqual(customNextBalls);
@@ -74,7 +76,7 @@ describe("useGameBoard", () => {
     it("preserves existing incoming balls when baseBoard provided", () => {
       const { result } = renderHook(() => useGameBoard());
       const newNextBalls = ["pink", "black"] as BallColor[];
-      
+
       // Create a board with existing incoming balls
       const boardWithIncoming = createEmptyBoard();
       boardWithIncoming[0][0].incomingBall = { color: "red" as BallColor };
@@ -126,4 +128,4 @@ describe("useGameBoard", () => {
       expect(result.current.board[0][0].ball?.color).toBe("red");
     });
   });
-}); 
+});

@@ -1,6 +1,6 @@
 /**
  * Game Configuration
- * 
+ *
  * This file contains all the configurable values that define the game's behavior.
  * Centralizing these values makes it easy to adjust game balance and behavior.
  */
@@ -20,7 +20,7 @@ export const BALL_COLORS = [
   "black",
 ] as const;
 
-export type BallColor = typeof BALL_COLORS[number];
+export type BallColor = (typeof BALL_COLORS)[number];
 
 // ============================================================================
 // BOARD CONFIGURATION
@@ -84,16 +84,16 @@ export const SCORING_TABLE: Record<number, number> = {
 export const ANIMATION_DURATIONS = {
   /** Duration of ball movement animation */
   MOVE_BALL: 50,
-  
+
   /** Duration of ball popping animation */
   POP_BALL: 300,
-  
+
   /** Duration of ball spawning animation */
   SPAWN_BALL: 600,
-  
+
   /** Duration of transition animations */
   TRANSITION: 200,
-  
+
   /** Duration of fade in/out animations */
   FADE: 300,
 } as const;
@@ -129,16 +129,16 @@ export const OVERLAY_OPACITY = 95;
 export const Z_INDEX = {
   /** Game board base layer */
   BOARD: 0,
-  
+
   /** Moving ball animation layer */
   MOVING_BALL: 10,
-  
+
   /** UI elements layer */
   UI: 20,
-  
+
   /** Overlay layer */
   OVERLAY: 50,
-  
+
   /** Dialog layer */
   DIALOG: 1000,
 } as const;
@@ -148,4 +148,4 @@ export const Z_INDEX = {
 // ============================================================================
 
 /** Local storage key for high score */
-export const HIGH_SCORE_STORAGE_KEY = "lines-game-high-score"; 
+export const HIGH_SCORE_STORAGE_KEY = "lines-game-high-score";

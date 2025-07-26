@@ -28,4 +28,4 @@ export function handleMoveCompletion(
     linesFormed: false,
     steppedOnIncomingBall, // Pass this information to the spawning logic
   };
-} 
+}

@@ -87,7 +87,7 @@ describe("GamePhaseManager", () => {
     it("transitions with phase data", () => {
       const phaseData = { moveData: { fromX: 0, fromY: 0, toX: 1, toY: 1 } };
       gamePhaseManager.transitionTo("moving", phaseData);
-      
+
       expect(gamePhaseManager.getCurrentPhase()).toBe("moving");
       expect(gamePhaseManager.getPhaseData()).toEqual(phaseData);
     });
@@ -95,10 +95,10 @@ describe("GamePhaseManager", () => {
     it("overwrites phase data on transition", () => {
       const initialData = { moveData: { fromX: 0, fromY: 0, toX: 1, toY: 1 } };
       const newData = { poppingBalls: ["0,0", "1,1"] };
-      
+
       gamePhaseManager.transitionTo("moving", initialData);
       gamePhaseManager.transitionTo("popping", newData);
-      
+
       expect(gamePhaseManager.getCurrentPhase()).toBe("popping");
       expect(gamePhaseManager.getPhaseData()).toEqual(newData);
     });
@@ -117,7 +117,7 @@ describe("GamePhaseManager", () => {
       const phaseData = { moveData: { fromX: 0, fromY: 0, toX: 1, toY: 1 } };
       gamePhaseManager.transitionTo("moving", phaseData);
       gamePhaseManager.reset();
-      
+
       expect(gamePhaseManager.getPhaseData()).toEqual({});
     });
   });
@@ -156,10 +156,10 @@ describe("GamePhaseManager", () => {
   describe("spawning states", () => {
     it("identifies spawning phase correctly", () => {
       expect(gamePhaseManager.isSpawning()).toBe(false);
-      
+
       gamePhaseManager.transitionTo("spawning");
       expect(gamePhaseManager.isSpawning()).toBe(true);
-      
+
       gamePhaseManager.transitionTo("idle");
       expect(gamePhaseManager.isSpawning()).toBe(false);
     });
@@ -168,10 +168,10 @@ describe("GamePhaseManager", () => {
   describe("converting states", () => {
     it("identifies converting phase correctly", () => {
       expect(gamePhaseManager.isConverting()).toBe(false);
-      
+
       gamePhaseManager.transitionTo("converting");
       expect(gamePhaseManager.isConverting()).toBe(true);
-      
+
       gamePhaseManager.transitionTo("idle");
       expect(gamePhaseManager.isConverting()).toBe(false);
     });
@@ -215,7 +215,9 @@ describe("GamePhaseManager", () => {
       expect(gamePhaseManager.getPhaseDescription()).toBe("Balls are spawning");
 
       gamePhaseManager.transitionTo("converting");
-      expect(gamePhaseManager.getPhaseDescription()).toBe("Converting preview balls");
+      expect(gamePhaseManager.getPhaseDescription()).toBe(
+        "Converting preview balls",
+      );
 
       gamePhaseManager.transitionTo("gameOver");
       expect(gamePhaseManager.getPhaseDescription()).toBe("Game over");
@@ -229,18 +231,24 @@ describe("GamePhaseManager", () => {
       expect(gamePhaseManager.canMakeMove()).toBe(true);
 
       // Move phase
-      gamePhaseManager.transitionTo("moving", { moveData: { fromX: 0, fromY: 0, toX: 1, toY: 1 } });
+      gamePhaseManager.transitionTo("moving", {
+        moveData: { fromX: 0, fromY: 0, toX: 1, toY: 1 },
+      });
       expect(gamePhaseManager.getCurrentPhase()).toBe("moving");
       expect(gamePhaseManager.isAnimating()).toBe(true);
       expect(gamePhaseManager.canMakeMove()).toBe(false);
 
       // Popping phase (if lines formed)
-      gamePhaseManager.transitionTo("popping", { poppingBalls: ["0,0", "1,1"] });
+      gamePhaseManager.transitionTo("popping", {
+        poppingBalls: ["0,0", "1,1"],
+      });
       expect(gamePhaseManager.getCurrentPhase()).toBe("popping");
       expect(gamePhaseManager.isAnimating()).toBe(true);
 
       // Spawning phase
-      gamePhaseManager.transitionTo("spawning", { spawningBalls: [{ x: 2, y: 2, color: "red", isTransitioning: true }] });
+      gamePhaseManager.transitionTo("spawning", {
+        spawningBalls: [{ x: 2, y: 2, color: "red", isTransitioning: true }],
+      });
       expect(gamePhaseManager.getCurrentPhase()).toBe("spawning");
       expect(gamePhaseManager.isAnimating()).toBe(true);
       expect(gamePhaseManager.isSpawning()).toBe(true);
@@ -260,16 +268,16 @@ describe("GamePhaseManager", () => {
 
     it("handles game over from any phase", () => {
       const phases = ["moving", "popping", "spawning", "converting"] as const;
-      
-      phases.forEach(phase => {
+
+      phases.forEach((phase) => {
         gamePhaseManager.transitionTo(phase);
         gamePhaseManager.transitionTo("gameOver");
-        
+
         expect(gamePhaseManager.getCurrentPhase()).toBe("gameOver");
         expect(gamePhaseManager.isGameOver()).toBe(true);
         expect(gamePhaseManager.canMakeMove()).toBe(false);
         expect(gamePhaseManager.isAnimating()).toBe(false);
-        
+
         gamePhaseManager.reset();
       });
     });

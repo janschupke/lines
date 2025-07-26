@@ -32,7 +32,7 @@ describe("Enhanced Board Management", () => {
 
       // Should generate new preview balls
       expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
-      
+
       // Should have new preview balls on the board
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
@@ -62,8 +62,11 @@ describe("Enhanced Board Management", () => {
       let blueBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].ball?.color === "blue" && 
-              (x !== 1 || y !== 1)) { // Not the original position
+          if (
+            result.newBoard[y][x].ball?.color === "blue" &&
+            (x !== 1 || y !== 1)
+          ) {
+            // Not the original position
             blueBallFound = true;
             break;
           }
@@ -74,7 +77,7 @@ describe("Enhanced Board Management", () => {
 
       // Should generate new preview balls (NOT including the stepped-on color)
       expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
-      
+
       // Should have new preview balls on the board
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
@@ -105,8 +108,11 @@ describe("Enhanced Board Management", () => {
       let blueBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].ball?.color === "blue" && 
-              (x !== 1 || y !== 1)) { // Not the original position
+          if (
+            result.newBoard[y][x].ball?.color === "blue" &&
+            (x !== 1 || y !== 1)
+          ) {
+            // Not the original position
             blueBallFound = true;
             break;
           }
@@ -117,7 +123,7 @@ describe("Enhanced Board Management", () => {
 
       // Should generate new preview balls
       expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
-      
+
       // Should have new preview balls on the board
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
@@ -154,7 +160,11 @@ describe("Enhanced Board Management", () => {
       );
       almostFullBoard[0][0].incomingBall = { color: "blue" as BallColor };
 
-      const result = handleIncomingBallConversion(almostFullBoard, "blue", false);
+      const result = handleIncomingBallConversion(
+        almostFullBoard,
+        "blue",
+        false,
+      );
 
       // Should place only 1 preview ball due to limited space (stepped-on ball takes one spot)
       let incomingBallCount = 0;
@@ -177,12 +187,12 @@ describe("Enhanced Board Management", () => {
       board[1][2].ball = { color: "red" };
       board[1][3].ball = { color: "red" };
       board[1][4].ball = { color: "red" };
-      
+
       // Place incoming ball that will complete the line when converted
       board[1][0].incomingBall = { color: "red" };
-      
+
       const result = handleIncomingBallConversion(board);
-      
+
       expect(result.linesFormed).toBe(true);
       expect(result.ballsRemoved).toHaveLength(5);
       expect(result.pointsEarned).toBe(5);
@@ -195,20 +205,23 @@ describe("Enhanced Board Management", () => {
       board[1][1].ball = { color: "green" };
       board[1][2].ball = { color: "green" };
       board[1][3].ball = { color: "green" };
-      
+
       // Place incoming ball that will be stepped on
       board[2][2].incomingBall = { color: "green" };
-      
+
       const result = handleIncomingBallConversion(board, "green", false);
-      
+
       // The stepped-on ball should spawn somewhere and potentially complete a line
       // Note: This test may or may not form a line depending on where the ball is placed
       // The important thing is that the ball is spawned correctly
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].ball?.color === "green" && 
-              (x !== 2 || y !== 2)) { // Not the original position
+          if (
+            result.newBoard[y][x].ball?.color === "green" &&
+            (x !== 2 || y !== 2)
+          ) {
+            // Not the original position
             greenBallFound = true;
             break;
           }
@@ -223,14 +236,14 @@ describe("Enhanced Board Management", () => {
       // Place isolated balls
       board[1][1].ball = { color: "red" };
       board[2][2].ball = { color: "blue" };
-      
+
       // Place incoming balls that won't form lines
       board[0][0].incomingBall = { color: "green" };
       board[3][3].incomingBall = { color: "yellow" };
       board[4][4].incomingBall = { color: "pink" };
-      
+
       const result = handleIncomingBallConversion(board);
-      
+
       expect(result.linesFormed).toBeUndefined();
       expect(result.ballsRemoved).toBeUndefined();
       expect(result.pointsEarned).toBeUndefined();
@@ -256,8 +269,11 @@ describe("Enhanced Board Management", () => {
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].ball?.color === "green" && 
-              (x !== 2 || y !== 2)) { // Not the original position
+          if (
+            result.newBoard[y][x].ball?.color === "green" &&
+            (x !== 2 || y !== 2)
+          ) {
+            // Not the original position
             greenBallFound = true;
             break;
           }
@@ -296,8 +312,11 @@ describe("Enhanced Board Management", () => {
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].ball?.color === "green" && 
-              (x !== 2 || y !== 2)) { // Not the original position
+          if (
+            result.newBoard[y][x].ball?.color === "green" &&
+            (x !== 2 || y !== 2)
+          ) {
+            // Not the original position
             greenBallFound = true;
             break;
           }
@@ -318,4 +337,4 @@ describe("Enhanced Board Management", () => {
       expect(incomingBallCount).toBe(BALLS_PER_TURN);
     });
   });
-}); 
+});

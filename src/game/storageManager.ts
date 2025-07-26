@@ -36,8 +36,10 @@ export class StorageManager {
   static saveGameState(gameState: GameState): void {
     try {
       // Update high score if current score is higher
-      const updatedHighScore = gameState.isNewHighScore ? gameState.score : gameState.highScore;
-      
+      const updatedHighScore = gameState.isNewHighScore
+        ? gameState.score
+        : gameState.highScore;
+
       const persistedState: PersistedGameState = {
         board: gameState.board,
         score: gameState.score,
@@ -49,7 +51,10 @@ export class StorageManager {
         statistics: gameState.statistics,
       };
 
-      localStorage.setItem(GAME_STATE_STORAGE_KEY, JSON.stringify(persistedState));
+      localStorage.setItem(
+        GAME_STATE_STORAGE_KEY,
+        JSON.stringify(persistedState),
+      );
     } catch (error) {
       console.warn("Failed to save game state to localStorage:", error);
     }
@@ -66,7 +71,7 @@ export class StorageManager {
       }
 
       const parsed = JSON.parse(stored);
-      
+
       // Validate the structure
       if (
         parsed &&
@@ -90,7 +95,7 @@ export class StorageManager {
         }
         return result;
       }
-      
+
       console.warn("Invalid game state structure in localStorage");
       return null;
     } catch (error) {
@@ -150,4 +155,4 @@ export class StorageManager {
     }
     return 0;
   }
-} 
+}

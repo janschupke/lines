@@ -175,14 +175,20 @@ describe("useKeyboard", () => {
 
       const { unmount } = renderHook(() => useKeyboard(mockHandlers));
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        "keydown",
+        expect.any(Function),
+      );
 
       unmount();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "keydown",
+        expect.any(Function),
+      );
 
       addEventListenerSpy.mockRestore();
       removeEventListenerSpy.mockRestore();
     });
   });
-}); 
+});

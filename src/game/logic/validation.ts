@@ -20,4 +20,4 @@ export function validateMove(
   if (fromX === toX && fromY === toY) return false;
 
   return true;
-} 
+}

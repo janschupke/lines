@@ -83,9 +83,7 @@ export class StatisticsTracker {
   }
 
   getGameDuration(): number {
-    return Math.floor(
-      (Date.now() - this.gameStartTime) / 1000,
-    );
+    return Math.floor((Date.now() - this.gameStartTime) / 1000);
   }
 
   reset() {
@@ -109,6 +107,6 @@ export class StatisticsTracker {
   loadStatistics(statistics: GameStatistics) {
     this.statistics = { ...statistics };
     // Adjust game start time based on saved duration
-    this.gameStartTime = Date.now() - (statistics.gameDuration * 1000);
+    this.gameStartTime = Date.now() - statistics.gameDuration * 1000;
   }
 }

@@ -4,7 +4,7 @@ import {
   placePreviewBalls,
   recalculateIncomingPositions,
   getRandomEmptyCells,
-  isBoardFull
+  isBoardFull,
 } from "./boardManagement";
 import { handleMoveCompletion } from "./moveHandler";
 import { createEmptyBoard } from "./boardManagement";
@@ -82,8 +82,11 @@ describe("Preview Balls Functionality", () => {
             incomingBallCount++;
           }
           // Check if blue ball is spawned as a REAL BALL (not preview)
-          if (result.newBoard[y][x].ball?.color === "blue" && 
-              (x !== 1 || y !== 1)) { // Not the original position
+          if (
+            result.newBoard[y][x].ball?.color === "blue" &&
+            (x !== 1 || y !== 1)
+          ) {
+            // Not the original position
             blueBallFound = true;
           }
         }
@@ -242,9 +245,9 @@ describe("Preview Balls Functionality", () => {
       // Check that old colors are gone and new colors are present
       const oldColors = ["red", "blue", "green"];
       const newColors = ["yellow", "purple", "pink"];
-      
+
       // Verify old colors are not present
-      oldColors.forEach(color => {
+      oldColors.forEach((color) => {
         let found = false;
         for (let y = 0; y < 9; y++) {
           for (let x = 0; x < 9; x++) {
@@ -257,9 +260,9 @@ describe("Preview Balls Functionality", () => {
         }
         expect(found).toBe(false);
       });
-      
+
       // Verify new colors are present
-      newColors.forEach(color => {
+      newColors.forEach((color) => {
         let found = false;
         for (let y = 0; y < 9; y++) {
           for (let x = 0; x < 9; x++) {
@@ -329,9 +332,7 @@ describe("Preview Balls Functionality", () => {
     });
 
     it("returns false for partially filled board", () => {
-      const partialBoard = board.map((row) =>
-        row.map((cell) => ({ ...cell })),
-      );
+      const partialBoard = board.map((row) => row.map((cell) => ({ ...cell })));
       partialBoard[0][0].ball = { color: "red" as BallColor };
       expect(isBoardFull(partialBoard)).toBe(false);
     });
@@ -351,8 +352,10 @@ describe("Preview Balls Functionality", () => {
       // 2. Simulate move completion (stepping on green preview ball)
       const moveResult = handleMoveCompletion(
         boardWithIncoming,
-        0, 0, // from
-        2, 2  // to (stepping on green preview ball)
+        0,
+        0, // from
+        2,
+        2, // to (stepping on green preview ball)
       );
 
       // 3. Verify move completion preserves other incoming balls
@@ -363,7 +366,7 @@ describe("Preview Balls Functionality", () => {
       // 4. Simulate incoming ball conversion
       const conversionResult = handleIncomingBallConversion(
         moveResult.newBoard,
-        "green" // stepped-on color
+        "green", // stepped-on color
       );
 
       // 5. Verify that all existing incoming balls are converted to real balls
@@ -376,8 +379,11 @@ describe("Preview Balls Functionality", () => {
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].ball?.color === "green" && 
-              (x !== 2 || y !== 2)) { // Not the original position
+          if (
+            conversionResult.newBoard[y][x].ball?.color === "green" &&
+            (x !== 2 || y !== 2)
+          ) {
+            // Not the original position
             greenBallFound = true;
             break;
           }
@@ -414,22 +420,27 @@ describe("Preview Balls Functionality", () => {
       // 2. Simulate move completion (stepping on green preview ball)
       const moveResult = handleMoveCompletion(
         boardWithIncoming,
-        0, 0, // from
-        2, 2  // to (stepping on green preview ball)
+        0,
+        0, // from
+        2,
+        2, // to (stepping on green preview ball)
       );
 
       // 3. Simulate incoming ball conversion
       const conversionResult = handleIncomingBallConversion(
         moveResult.newBoard,
-        "green" // stepped-on color
+        "green", // stepped-on color
       );
 
       // 4. Verify that the stepped-on ball (green) is spawned as a REAL BALL at a new position
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].ball?.color === "green" && 
-              (x !== 2 || y !== 2)) { // Not the original position
+          if (
+            conversionResult.newBoard[y][x].ball?.color === "green" &&
+            (x !== 2 || y !== 2)
+          ) {
+            // Not the original position
             greenBallFound = true;
             break;
           }
@@ -467,14 +478,16 @@ describe("Preview Balls Functionality", () => {
       // Simulate move completion
       const moveResult = handleMoveCompletion(
         almostFullBoard,
-        0, 0, // from
-        8, 8  // to (stepping on green preview ball)
+        0,
+        0, // from
+        8,
+        8, // to (stepping on green preview ball)
       );
 
       // Simulate conversion
       const conversionResult = handleIncomingBallConversion(
         moveResult.newBoard,
-        "green"
+        "green",
       );
 
       // Should place 0 preview balls due to limited space (stepped-on ball takes the only spot)
@@ -502,8 +515,10 @@ describe("Preview Balls Functionality", () => {
       // 2. Simulate move completion (stepping on empty cell)
       const moveResult = handleMoveCompletion(
         boardWithIncoming,
-        0, 0, // from
-        1, 1  // to (empty cell)
+        0,
+        0, // from
+        1,
+        1, // to (empty cell)
       );
 
       // 3. Verify move completion preserves incoming balls
@@ -512,7 +527,7 @@ describe("Preview Balls Functionality", () => {
 
       // 4. Simulate incoming ball conversion
       const conversionResult = handleIncomingBallConversion(
-        moveResult.newBoard
+        moveResult.newBoard,
         // No stepped-on ball
       );
 
@@ -550,14 +565,16 @@ describe("Preview Balls Functionality", () => {
       // 2. Simulate move completion (stepping on green preview ball)
       const moveResult = handleMoveCompletion(
         boardWithIncoming,
-        0, 0, // from
-        2, 2  // to (stepping on green preview ball)
+        0,
+        0, // from
+        2,
+        2, // to (stepping on green preview ball)
       );
 
       // 3. Simulate incoming ball conversion
       const conversionResult = handleIncomingBallConversion(
         moveResult.newBoard,
-        "green" // stepped-on color
+        "green", // stepped-on color
       );
 
       // 4. Verify that all existing incoming balls are converted to real balls
@@ -568,8 +585,11 @@ describe("Preview Balls Functionality", () => {
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].ball?.color === "green" && 
-              (x !== 2 || y !== 2)) { // Not the original position
+          if (
+            conversionResult.newBoard[y][x].ball?.color === "green" &&
+            (x !== 2 || y !== 2)
+          ) {
+            // Not the original position
             greenBallFound = true;
             break;
           }
@@ -594,7 +614,8 @@ describe("Preview Balls Functionality", () => {
       // Fill the board completely except for one cell with incoming ball
       const almostFullBoard = board.map((row, y) =>
         row.map((cell, x) => {
-          if (x === 8 && y === 8) return { ...cell, incomingBall: { color: "green" as BallColor } };
+          if (x === 8 && y === 8)
+            return { ...cell, incomingBall: { color: "green" as BallColor } };
           return { ...cell, ball: { color: "red" as BallColor } };
         }),
       );
@@ -603,14 +624,16 @@ describe("Preview Balls Functionality", () => {
       // Simulate move completion
       const moveResult = handleMoveCompletion(
         almostFullBoard,
-        0, 0, // from
-        8, 8  // to (stepping on green preview ball)
+        0,
+        0, // from
+        8,
+        8, // to (stepping on green preview ball)
       );
 
       // Simulate conversion
       const conversionResult = handleIncomingBallConversion(
         moveResult.newBoard,
-        "green"
+        "green",
       );
 
       // Should result in game over
@@ -618,45 +641,43 @@ describe("Preview Balls Functionality", () => {
       expect(conversionResult.nextBalls).toHaveLength(BALLS_PER_TURN);
     });
   });
-}); 
+});
 
 describe("Spawning Ball Line Detection", () => {
   it("triggers line detection when spawned balls form lines", () => {
     const board = createEmptyBoard();
-    
+
     // Create a setup where spawning balls will form lines
     board[1][1].ball = { color: "red" };
     board[1][2].ball = { color: "red" };
     board[1][3].ball = { color: "red" };
     board[1][4].ball = { color: "red" };
-    
+
     // Place incoming balls that will complete the line when converted
     board[1][0].incomingBall = { color: "red" };
-    
+
     const result = handleIncomingBallConversion(board);
-    
+
     expect(result.linesFormed).toBe(true);
     expect(result.ballsRemoved).toHaveLength(5);
     expect(result.pointsEarned).toBe(5);
     expect(result.gameOver).toBe(false);
   });
 
-
-
   it("handles stepped-on ball spawning that triggers lines", () => {
     const board = createEmptyBoard();
-    
+
     // Create a line setup (4 balls, need 1 more for 5)
     board[1][0].ball = { color: "green" };
     board[1][1].ball = { color: "green" };
     board[1][2].ball = { color: "green" };
     board[1][3].ball = { color: "green" };
-    
+
     // Place incoming ball that will be stepped on
     board[2][2].incomingBall = { color: "green" };
-    
+
     const result = handleIncomingBallConversion(board, "green");
-    
+
     // The stepped-on ball should spawn somewhere and potentially complete a line
     // Since the ball placement is random, we can't guarantee it completes a line
     // So we just check that the function works correctly
@@ -666,18 +687,18 @@ describe("Spawning Ball Line Detection", () => {
 
   it("handles no lines formed by spawned balls", () => {
     const board = createEmptyBoard();
-    
+
     // Place isolated balls
     board[1][1].ball = { color: "red" };
     board[2][2].ball = { color: "blue" };
-    
+
     // Place incoming balls that won't form lines
     board[0][0].incomingBall = { color: "green" };
     board[3][3].incomingBall = { color: "yellow" };
     board[4][4].incomingBall = { color: "pink" };
-    
+
     const result = handleIncomingBallConversion(board);
-    
+
     expect(result.linesFormed).toBeUndefined();
     expect(result.ballsRemoved).toBeUndefined();
     expect(result.pointsEarned).toBeUndefined();
@@ -686,18 +707,18 @@ describe("Spawning Ball Line Detection", () => {
 
   it("handles diagonal lines formed by spawned balls", () => {
     const board = createEmptyBoard();
-    
+
     // Create diagonal line setup
     board[0][0].ball = { color: "yellow" };
     board[1][1].ball = { color: "yellow" };
     board[2][2].ball = { color: "yellow" };
     board[3][3].ball = { color: "yellow" };
-    
+
     // Place incoming ball that will complete the diagonal
     board[4][4].incomingBall = { color: "yellow" };
-    
+
     const result = handleIncomingBallConversion(board);
-    
+
     expect(result.linesFormed).toBe(true);
     expect(result.ballsRemoved).toHaveLength(5);
     expect(result.pointsEarned).toBe(5);
@@ -705,18 +726,18 @@ describe("Spawning Ball Line Detection", () => {
 
   it("handles edge case with board boundaries", () => {
     const board = createEmptyBoard();
-    
+
     // Create line at board edge
     board[0][0].ball = { color: "pink" };
     board[0][1].ball = { color: "pink" };
     board[0][2].ball = { color: "pink" };
     board[0][3].ball = { color: "pink" };
-    
+
     // Place incoming ball that will complete the edge line
     board[0][4].incomingBall = { color: "pink" };
-    
+
     const result = handleIncomingBallConversion(board);
-    
+
     expect(result.linesFormed).toBe(true);
     expect(result.ballsRemoved).toHaveLength(5);
     expect(result.pointsEarned).toBe(5);
@@ -724,21 +745,22 @@ describe("Spawning Ball Line Detection", () => {
 
   it("handles game over when board is full after line removal", () => {
     const board = createEmptyBoard();
-    
+
     // Fill the entire board except one spot
     for (let y = 0; y < 9; y++) {
       for (let x = 0; x < 9; x++) {
-        if (!(y === 8 && x === 0)) { // Leave one spot empty
+        if (!(y === 8 && x === 0)) {
+          // Leave one spot empty
           board[y][x].ball = { color: "red" };
         }
       }
     }
-    
+
     // Place incoming ball in the last empty spot
     board[8][0].incomingBall = { color: "blue" };
-    
+
     const result = handleIncomingBallConversion(board);
-    
+
     // Should not trigger lines (no 5-in-a-row), but board becomes full
     expect(result.linesFormed).toBeUndefined();
     expect(result.gameOver).toBe(true);
@@ -746,30 +768,30 @@ describe("Spawning Ball Line Detection", () => {
 
   it("handles complex scenario with multiple spawned balls and lines", () => {
     const board = createEmptyBoard();
-    
+
     // Create multiple line setups
     // Horizontal line 1
     board[1][0].ball = { color: "red" };
     board[1][1].ball = { color: "red" };
     board[1][2].ball = { color: "red" };
     board[1][3].ball = { color: "red" };
-    
+
     // Horizontal line 2
     board[3][0].ball = { color: "blue" };
     board[3][1].ball = { color: "blue" };
     board[3][2].ball = { color: "blue" };
     board[3][3].ball = { color: "blue" };
-    
+
     // Place incoming balls that will complete both lines
     board[1][4].incomingBall = { color: "red" };
     board[3][4].incomingBall = { color: "blue" };
     board[5][5].incomingBall = { color: "green" }; // Isolated ball
-    
+
     const result = handleIncomingBallConversion(board);
-    
+
     expect(result.linesFormed).toBe(true);
     expect(result.ballsRemoved).toHaveLength(10); // 5 red + 5 blue
     expect(result.pointsEarned).toBe(55);
     expect(result.gameOver).toBe(false);
   });
-}); 
+});

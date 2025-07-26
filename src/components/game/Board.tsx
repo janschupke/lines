@@ -42,7 +42,9 @@ const Board: React.FC<BoardProps> = ({
 
   // Check if any animation is in progress
   const isAnimationInProgress =
-    movingBall || (poppingBalls && poppingBalls.size > 0) || (growingBalls && growingBalls.length > 0);
+    movingBall ||
+    (poppingBalls && poppingBalls.size > 0) ||
+    (growingBalls && growingBalls.length > 0);
 
   // Handle cell click with animation check
   const handleCellClick = useCallback(
@@ -67,8 +69,6 @@ const Board: React.FC<BoardProps> = ({
     if (isAnimationInProgress) return;
     onCellLeave?.();
   }, [isAnimationInProgress, onCellLeave]);
-
-
 
   return (
     <div
@@ -98,7 +98,8 @@ const Board: React.FC<BoardProps> = ({
         );
         const inPath = !!pathSet.has(key);
         const showNotReachable = isHovered && !!notReachable && !cell.ball;
-        const isSelected = selected && selected.x === cell.x && selected.y === cell.y;
+        const isSelected =
+          selected && selected.x === cell.x && selected.y === cell.y;
 
         // Determine cell background and border classes
         let cellBgClass = "bg-game-bg-cell-empty";
@@ -125,8 +126,11 @@ const Board: React.FC<BoardProps> = ({
           <div
             key={key}
             className={`game-cell ${
-              isAnimationInProgress ? "cursor-default" : 
-              !cell.ball && !selected ? "cursor-default" : "cursor-pointer"
+              isAnimationInProgress
+                ? "cursor-default"
+                : !cell.ball && !selected
+                  ? "cursor-default"
+                  : "cursor-pointer"
             } ${cellBgClass} ${borderClass} ${sizing.cellSizeClass}`}
             onClick={() => handleCellClick(cell.x, cell.y)}
             onMouseEnter={() => handleCellHover(cell.x, cell.y)}
@@ -140,11 +144,14 @@ const Board: React.FC<BoardProps> = ({
                     ? "game-ball-active"
                     : "animate-move-ball"
                 } ${
-                  growingBalls.find(gb => gb.x === cell.x && gb.y === cell.y && gb.isTransitioning)
+                  growingBalls.find(
+                    (gb) =>
+                      gb.x === cell.x && gb.y === cell.y && gb.isTransitioning,
+                  )
                     ? "grow-ball-transition"
                     : popping
-                    ? "z-20 animate-pop-ball"
-                    : ""
+                      ? "z-20 animate-pop-ball"
+                      : ""
                 } ${sizing.ballSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.ball.color) }}
               />
@@ -152,11 +159,16 @@ const Board: React.FC<BoardProps> = ({
             {!cell.ball && cell.incomingBall && (
               <span
                 className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
-                  growingBalls.find(gb => gb.x === cell.x && gb.y === cell.y && !gb.isTransitioning)
+                  growingBalls.find(
+                    (gb) =>
+                      gb.x === cell.x && gb.y === cell.y && !gb.isTransitioning,
+                  )
                     ? "grow-ball-new"
                     : ""
                 } ${sizing.incomingBallSizeClass}`}
-                style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
+                style={{
+                  backgroundColor: getBallColor(cell.incomingBall.color),
+                }}
               />
             )}
             {/* Not reachable cross */}

@@ -35,7 +35,7 @@ export const useCellInteraction = (
     (x: number, y: number) => {
       if (gameOver || isAnimating) return;
       const cell = board[y][x];
-      
+
       if (cell.ball) {
         // Clicked on a ball - select it
         actions.setSelected({ x, y });
@@ -93,4 +93,4 @@ export const useCellInteraction = (
     handleCellHover,
     handleCellLeave,
   };
-}; 
+};

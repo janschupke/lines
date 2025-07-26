@@ -57,9 +57,9 @@ describe("Board", () => {
         active: false,
       })),
     );
-    
+
     render(<Board board={boardWithBalls} onCellClick={() => {}} />);
-    
+
     // Verify that no balls have tooltips
     expect(screen.queryByTitle("blue")).not.toBeInTheDocument();
     expect(screen.queryByTitle("red")).not.toBeInTheDocument();
@@ -76,9 +76,9 @@ describe("Board", () => {
         active: false,
       })),
     );
-    
+
     render(<Board board={boardWithPreviewBalls} onCellClick={() => {}} />);
-    
+
     // Verify that no preview balls have tooltips
     expect(screen.queryByTitle("Preview: green")).not.toBeInTheDocument();
     expect(screen.queryByTitle("green")).not.toBeInTheDocument();
@@ -94,9 +94,9 @@ describe("Board", () => {
         active: false,
       })),
     );
-    
+
     render(<Board board={boardWithMixedBalls} onCellClick={() => {}} />);
-    
+
     // Verify that no balls have tooltips
     expect(screen.queryByTitle("red")).not.toBeInTheDocument();
     expect(screen.queryByTitle("blue")).not.toBeInTheDocument();

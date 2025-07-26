@@ -11,8 +11,8 @@ describe("ballGeneration", () => {
 
     it("generates valid ball colors", () => {
       const balls = getRandomNextBalls(5);
-      
-      balls.forEach(ball => {
+
+      balls.forEach((ball) => {
         expect(BALL_COLORS).toContain(ball);
       });
     });
@@ -20,7 +20,7 @@ describe("ballGeneration", () => {
     it("generates different balls on each call", () => {
       const balls1 = getRandomNextBalls(3);
       const balls2 = getRandomNextBalls(3);
-      
+
       // Note: This test might occasionally fail due to randomness
       // In a real scenario, we might want to mock Math.random for deterministic tests
       expect(balls1).not.toEqual(balls2);
@@ -34,19 +34,19 @@ describe("ballGeneration", () => {
     it("handles large count", () => {
       const balls = getRandomNextBalls(10);
       expect(balls).toHaveLength(10);
-      
-      balls.forEach(ball => {
+
+      balls.forEach((ball) => {
         expect(BALL_COLORS).toContain(ball);
       });
     });
 
     it("generates balls within valid color range", () => {
       const balls = getRandomNextBalls(20);
-      
-      balls.forEach(ball => {
+
+      balls.forEach((ball) => {
         expect(typeof ball).toBe("string");
         expect(BALL_COLORS.includes(ball as any)).toBe(true);
       });
     });
   });
-}); 
+});

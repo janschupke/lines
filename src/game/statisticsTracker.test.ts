@@ -64,16 +64,16 @@ describe("StatisticsTracker", () => {
   it("records and calculates game duration", () => {
     const mockStartTime = 1000000;
     const mockEndTime = mockStartTime + 5000;
-    
+
     // Mock Date.now to control timing
     const originalNow = Date.now;
     Date.now = vi.fn(() => mockStartTime);
-    
+
     const tracker2 = new StatisticsTracker();
     Date.now = vi.fn(() => mockEndTime);
-    
+
     expect(tracker2.getGameDuration()).toBe(5);
-    
+
     // Restore original Date.now
     Date.now = originalNow;
   });
@@ -84,9 +84,9 @@ describe("StatisticsTracker", () => {
     tracker.recordLinePop(5, 100);
     tracker.updateScore(100);
     tracker.recordBallClear();
-    
+
     tracker.reset();
-    
+
     const stats = tracker.getCurrentStatistics();
     expect(stats.turnsCount).toBe(0);
     expect(stats.linesPopped).toBe(0);

@@ -1,7 +1,7 @@
 import { BALL_COLORS } from "../config";
 import type { FloatingScore, GrowingBall } from "../../hooks/useGameAnimation";
 
-export type BallColor = typeof BALL_COLORS[number];
+export type BallColor = (typeof BALL_COLORS)[number];
 
 export interface Ball {
   color: BallColor;
@@ -111,7 +111,9 @@ export interface AnimationState {
   movingBall: { color: BallColor; path: [number, number][] } | null;
   movingStep: number;
   poppingBalls: Set<string>;
-  setMovingBall: (ball: { color: BallColor; path: [number, number][] } | null) => void;
+  setMovingBall: (
+    ball: { color: BallColor; path: [number, number][] } | null,
+  ) => void;
   setMovingStep: (step: number) => void;
   setPoppingBalls: (balls: Set<string>) => void;
 }
@@ -122,7 +124,12 @@ export interface AnimationPhase {
   data?: {
     movingBall?: { color: BallColor; path: [number, number][] };
     poppingBalls?: Set<string>;
-    spawningBalls?: Array<{ x: number; y: number; color: BallColor; isTransitioning: boolean }>;
+    spawningBalls?: Array<{
+      x: number;
+      y: number;
+      color: BallColor;
+      isTransitioning: boolean;
+    }>;
   };
 }
 

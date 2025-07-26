@@ -123,12 +123,18 @@ export function handleMultiPositionLineDetection(
     const lines = findLine(board, x, y, ball.color);
     lines.forEach((line) => {
       // Check if this line is already covered by previous positions
-      const lineKey = line.map(([lx, ly]) => `${lx},${ly}`).sort().join('|');
+      const lineKey = line
+        .map(([lx, ly]) => `${lx},${ly}`)
+        .sort()
+        .join("|");
       const existingLine = allLines.find((existingLine) => {
-        const existingKey = existingLine.map(([lx, ly]) => `${lx},${ly}`).sort().join('|');
+        const existingKey = existingLine
+          .map(([lx, ly]) => `${lx},${ly}`)
+          .sort()
+          .join("|");
         return existingKey === lineKey;
       });
-      
+
       if (!existingLine) {
         allLines.push(line);
         line.forEach(([lx, ly]) => {
@@ -162,19 +168,22 @@ export function handleMultiPositionLineDetection(
     ballsRemoved: ballsToRemove,
     pointsEarned: calculateLineScore(ballsToRemove.length),
   };
-} 
+}
 
 /**
  * Calculate the center position of a line
  */
-export function calculateLineCenter(line: [number, number][]): { x: number; y: number } {
+export function calculateLineCenter(line: [number, number][]): {
+  x: number;
+  y: number;
+} {
   if (line.length === 0) return { x: 0, y: 0 };
-  
+
   const sumX = line.reduce((sum, [x]) => sum + x, 0);
   const sumY = line.reduce((sum, [, y]) => sum + y, 0);
-  
+
   return {
     x: Math.round(sumX / line.length),
     y: Math.round(sumY / line.length),
   };
-} 
+}

@@ -1,6 +1,10 @@
-
-
-export type GamePhaseType = "idle" | "moving" | "popping" | "converting" | "spawning" | "gameOver";
+export type GamePhaseType =
+  | "idle"
+  | "moving"
+  | "popping"
+  | "converting"
+  | "spawning"
+  | "gameOver";
 
 export class GamePhaseManager {
   private currentPhase: GamePhaseType = "idle";
@@ -39,7 +43,11 @@ export class GamePhaseManager {
    * Check if the current phase allows animations
    */
   isAnimating(): boolean {
-    return this.currentPhase === "moving" || this.currentPhase === "popping" || this.currentPhase === "spawning";
+    return (
+      this.currentPhase === "moving" ||
+      this.currentPhase === "popping" ||
+      this.currentPhase === "spawning"
+    );
   }
 
   /**

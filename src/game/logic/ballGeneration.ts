@@ -13,4 +13,4 @@ export function getRandomBallColor(): BallColor {
  */
 export function getRandomNextBalls(count: number): BallColor[] {
   return Array.from({ length: count }, () => getRandomBallColor());
-} 
+}

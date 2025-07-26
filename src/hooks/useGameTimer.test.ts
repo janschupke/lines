@@ -179,4 +179,4 @@ describe("useGameTimer", () => {
       expect(result.current.timerActive).toBe(false);
     });
   });
-}); 
+});

@@ -9,7 +9,7 @@ interface MovingBallProps {
 
 const MovingBall: React.FC<MovingBallProps> = ({ color, left, top }) => {
   const sizing = getGameSizing();
-  
+
   return (
     <div
       className={`absolute game-ball ${sizing.ballSizeClass} z-game-dialog animate-float`}
@@ -17,7 +17,7 @@ const MovingBall: React.FC<MovingBallProps> = ({ color, left, top }) => {
         left,
         top,
         pointerEvents: "none",
-        backgroundColor: getBallColor(color)
+        backgroundColor: getBallColor(color),
       }}
     />
   );

@@ -23,7 +23,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -31,7 +31,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
       className="absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-6 overflow-auto scrollbar-hide animate-in fade-in duration-300"
       onClick={onClose}
     >
-      <div 
+      <div
         className="h-full flex flex-col text-game-text-primary"
         onClick={(e) => e.stopPropagation()}
       >
@@ -54,12 +54,8 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
         <div className="flex-1 overflow-auto scrollbar-hide">
           {/* Main Score Display */}
           <div className="text-center mb-8">
-            <div className="game-score text-6xl font-bold mb-2">
-              {score}
-            </div>
-            <div className="text-xl text-game-text-secondary">
-              Final Score
-            </div>
+            <div className="game-score text-6xl font-bold mb-2">{score}</div>
+            <div className="text-xl text-game-text-secondary">Final Score</div>
           </div>
 
           {/* High Score Celebration */}
@@ -77,17 +73,13 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
                 <div className="text-3xl font-bold text-game-text-primary">
                   {statistics.turnsCount}
                 </div>
-                <div className="text-sm text-game-text-secondary">
-                  Turns
-                </div>
+                <div className="text-sm text-game-text-secondary">Turns</div>
               </div>
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
                   {formatDuration(statistics.gameDuration)}
                 </div>
-                <div className="text-sm text-game-text-secondary">
-                  Duration
-                </div>
+                <div className="text-sm text-game-text-secondary">Duration</div>
               </div>
             </div>
 
@@ -138,7 +130,10 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                   <div className="text-3xl font-bold text-game-text-primary">
-                    {(statistics.linesPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
+                    {(
+                      statistics.linesPopped /
+                      Math.max(statistics.turnsCount, 1)
+                    ).toFixed(1)}
                   </div>
                   <div className="text-sm text-game-text-secondary">
                     Lines/Turn
@@ -146,7 +141,10 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
                 </div>
                 <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                   <div className="text-3xl font-bold text-game-text-primary">
-                    {(statistics.individualBallsPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
+                    {(
+                      statistics.individualBallsPopped /
+                      Math.max(statistics.turnsCount, 1)
+                    ).toFixed(1)}
                   </div>
                   <div className="text-sm text-game-text-secondary">
                     Balls/Turn
@@ -155,7 +153,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               </div>
             )}
           </div>
-          
+
           {/* Message */}
           <div className="text-center mb-8">
             <p className="text-xl text-game-text-secondary">

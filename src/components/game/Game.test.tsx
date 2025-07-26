@@ -7,15 +7,19 @@ import Game from "./Game";
 vi.mock("../../game/state", () => ({
   useGameState: () => [
     {
-      board: Array(9).fill(null).map((_, y) => 
-        Array(9).fill(null).map((_, x) => ({
-          x,
-          y,
-          ball: null,
-          incomingBall: null,
-          active: false,
-        }))
-      ),
+      board: Array(9)
+        .fill(null)
+        .map((_, y) =>
+          Array(9)
+            .fill(null)
+            .map((_, x) => ({
+              x,
+              y,
+              ball: null,
+              incomingBall: null,
+              active: false,
+            })),
+        ),
       score: 100,
       highScore: 500,
       isNewHighScore: false,
@@ -72,29 +76,27 @@ describe("Game", () => {
 
   it("renders the game board", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
-    
+
     // Check that the game board container is rendered
     expect(screen.getByText("Next Balls")).toBeInTheDocument();
   });
 
   it("displays score and high score", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
-    
+
     expect(screen.getByTestId("score-value")).toHaveTextContent("100");
     expect(screen.getByTestId("high-score-value")).toHaveTextContent("500");
   });
 
   it("displays next balls preview", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
-    
+
     expect(screen.getByText("Next Balls")).toBeInTheDocument();
   });
 
-
-
   it("renders New Game button", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
-    
+
     const newGameButton = screen.getByTestId("new-game-button");
     expect(newGameButton).toBeInTheDocument();
     // Check that the button has the refresh icon (SVG)
@@ -103,7 +105,7 @@ describe("Game", () => {
 
   it("renders New Game button with correct icon", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
-    
+
     const newGameButton = screen.getByTestId("new-game-button");
     expect(newGameButton).toBeInTheDocument();
     // Check that the button has the refresh icon (SVG)
@@ -111,4 +113,4 @@ describe("Game", () => {
     // Check that the button has the correct title
     expect(newGameButton).toHaveAttribute("title", "New Game");
   });
-}); 
+});

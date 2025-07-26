@@ -1,5 +1,11 @@
-import { useState, useCallback, useEffect } from "react";
-import type { Cell, BallColor, GameState, GameActions, GameStatistics, SpawnedBall } from "../types";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import type {
+  Cell,
+  BallColor,
+  GameState,
+  GameActions,
+  GameStatistics,
+} from "../types";
 import { TIMER_INTERVAL_MS, INITIAL_BALLS, BALLS_PER_TURN } from "../config";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameTimer } from "../../hooks/useGameTimer";
@@ -49,28 +55,36 @@ export const useGameStateManager = (
     // Fallback to separate storage for legacy states
     return StorageManager.loadHighScore();
   });
-  const [selected, setSelected] = useState<{ x: number; y: number } | null>(null);
+  const [selected, setSelected] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [gameOver, setGameOver] = useState(savedState?.gameOver || false);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
-  const [finalStatistics, setFinalStatistics] = useState<GameStatistics | null>(null);
+  const [finalStatistics, setFinalStatistics] = useState<GameStatistics | null>(
+    null,
+  );
 
   // High score management
   const [isNewHighScore, setIsNewHighScore] = useState(false);
-  const [currentGameBeatHighScore, setCurrentGameBeatHighScore] = useState(false);
+  const [currentGameBeatHighScore, setCurrentGameBeatHighScore] =
+    useState(false);
 
   // Check and update high score
-  const checkAndUpdateHighScore = useCallback((currentScore: number) => {
-    if (currentScore > highScore) {
-      setHighScore(currentScore);
-      setIsNewHighScore(true);
-      setCurrentGameBeatHighScore(true);
-      return true;
-    } else if (currentScore === highScore && currentScore > 0) {
-      // If score equals current high score, don't set new high score flag
-      setIsNewHighScore(false);
-    }
-    return false;
-  }, [highScore]);
+  const checkAndUpdateHighScore = useCallback(
+    (currentScore: number) => {
+      if (currentScore > highScore) {
+        setHighScore(currentScore);
+        setIsNewHighScore(true);
+        setCurrentGameBeatHighScore(true);
+        return true;
+      } else if (currentScore === highScore && currentScore > 0) {
+        // If score equals current high score, don't set new high score flag
+        setIsNewHighScore(false);
+      }
+      return false;
+    },
+    [highScore],
+  );
 
   // Reset high score flags
   const resetNewHighScoreFlag = useCallback(() => {
@@ -82,7 +96,10 @@ export const useGameStateManager = (
   }, []);
 
   // UI state
-  const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [pathTrail, setPathTrail] = useState<[number, number][] | null>(null);
   const [notReachable, setNotReachable] = useState<boolean>(false);
 
@@ -108,25 +125,46 @@ export const useGameStateManager = (
   };
 
   // Move processor actions
-  const moveProcessorActions = {
-    setScore,
-    setHighScore,
-    setGameOver,
-    setShowGameEndDialog,
-    setFinalStatistics,
-    setPoppingBalls: animationState.setPoppingBalls,
-    setBoard: boardState.setBoard,
-    setNextBalls: boardState.setNextBalls,
-    onActivity: timerState.onActivity,
-    setTimerActive: timerState.setTimerActive,
-    addFloatingScore: animationState.addFloatingScore,
-    addGrowingBall: animationState.addGrowingBall,
-    addSpawningBalls: animationState.addSpawningBalls,
-    startPoppingAnimation: animationState.startPoppingAnimation,
-    stopPoppingAnimation: animationState.stopPoppingAnimation,
-    startSpawningAnimation: animationState.startSpawningAnimation,
-    stopSpawningAnimation: animationState.stopSpawningAnimation,
-  };
+  const moveProcessorActions = useMemo(
+    () => ({
+      setScore,
+      setHighScore,
+      setGameOver,
+      setShowGameEndDialog,
+      setFinalStatistics,
+      setPoppingBalls: animationState.setPoppingBalls,
+      setBoard: boardState.setBoard,
+      setNextBalls: boardState.setNextBalls,
+      onActivity: timerState.onActivity,
+      setTimerActive: timerState.setTimerActive,
+      addFloatingScore: animationState.addFloatingScore,
+      addGrowingBall: animationState.addGrowingBall,
+      addSpawningBalls: animationState.addSpawningBalls,
+      startPoppingAnimation: animationState.startPoppingAnimation,
+      stopPoppingAnimation: animationState.stopPoppingAnimation,
+      startSpawningAnimation: animationState.startSpawningAnimation,
+      stopSpawningAnimation: animationState.stopSpawningAnimation,
+    }),
+    [
+      setScore,
+      setHighScore,
+      setGameOver,
+      setShowGameEndDialog,
+      setFinalStatistics,
+      animationState.setPoppingBalls,
+      boardState.setBoard,
+      boardState.setNextBalls,
+      timerState.onActivity,
+      timerState.setTimerActive,
+      animationState.addFloatingScore,
+      animationState.addGrowingBall,
+      animationState.addSpawningBalls,
+      animationState.startPoppingAnimation,
+      animationState.stopPoppingAnimation,
+      animationState.startSpawningAnimation,
+      animationState.stopSpawningAnimation,
+    ],
+  );
 
   // Cell interaction handlers
   const cellHandlers = useCellInteraction(
@@ -181,7 +219,6 @@ export const useGameStateManager = (
           toX,
           toY,
           score,
-          boardState.nextBalls,
           statisticsTracker,
           moveProcessorActions,
           timerState.timer,
@@ -217,6 +254,9 @@ export const useGameStateManager = (
     boardState,
     timerState,
     moveProcessorActions,
+    currentGameBeatHighScore,
+    highScore,
+    isNewHighScore,
   ]);
 
   // Start new game
@@ -284,7 +324,7 @@ export const useGameStateManager = (
       statistics: statisticsTracker.getCurrentStatistics(),
     };
     StorageManager.saveGameState(newGameState);
-  }, [boardState, timerState, animationState, statisticsTracker]);
+  }, [boardState, timerState, animationState, statisticsTracker, highScore]);
 
   const handleNewGameFromDialog = useCallback(() => {
     setShowGameEndDialog(false);
@@ -330,4 +370,4 @@ export const useGameStateManager = (
       resetCurrentGameHighScoreFlag,
     },
   ];
-}; 
+};

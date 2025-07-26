@@ -37,15 +37,17 @@ export const useGameAnimation = () => {
   const [floatingScores, setFloatingScores] = useState<FloatingScore[]>([]);
   const [growingBalls, setGrowingBalls] = useState<GrowingBall[]>([]);
   const [spawningBalls, setSpawningBalls] = useState<SpawnedBall[]>([]);
-  const [currentPhase, setCurrentPhase] = useState<AnimationPhase>({ type: "idle" });
+  const [currentPhase, setCurrentPhase] = useState<AnimationPhase>({
+    type: "idle",
+  });
 
   const startMoveAnimation = useCallback(
     (ball: BallColor, path: [number, number][]) => {
       setMovingBall({ color: ball, path });
       setMovingStep(0);
-      setCurrentPhase({ 
-        type: "moving", 
-        data: { movingBall: { color: ball, path } } 
+      setCurrentPhase({
+        type: "moving",
+        data: { movingBall: { color: ball, path } },
       });
     },
     [],
@@ -59,9 +61,9 @@ export const useGameAnimation = () => {
 
   const startPoppingAnimation = useCallback((balls: Set<string>) => {
     setPoppingBalls(balls);
-    setCurrentPhase({ 
-      type: "popping", 
-      data: { poppingBalls: balls } 
+    setCurrentPhase({
+      type: "popping",
+      data: { poppingBalls: balls },
     });
   }, []);
 
@@ -72,9 +74,9 @@ export const useGameAnimation = () => {
 
   const startSpawningAnimation = useCallback((balls: SpawnedBall[]) => {
     setSpawningBalls(balls);
-    setCurrentPhase({ 
-      type: "spawning", 
-      data: { spawningBalls: balls } 
+    setCurrentPhase({
+      type: "spawning",
+      data: { spawningBalls: balls },
     });
   }, []);
 
@@ -83,51 +85,63 @@ export const useGameAnimation = () => {
     setCurrentPhase({ type: "idle" });
   }, []);
 
-  const addFloatingScore = useCallback((score: number, x: number, y: number) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    const newFloatingScore: FloatingScore = {
-      id,
-      score,
-      x,
-      y,
-      timestamp: Date.now(),
-    };
-    
-    setFloatingScores(prev => [...prev, newFloatingScore]);
-    
-    // Remove the floating score after animation completes
-    setTimeout(() => {
-      setFloatingScores(prev => prev.filter(fs => fs.id !== id));
-    }, 1000);
-  }, []);
+  const addFloatingScore = useCallback(
+    (score: number, x: number, y: number) => {
+      const id = `${Date.now()}-${Math.random()}`;
+      const newFloatingScore: FloatingScore = {
+        id,
+        score,
+        x,
+        y,
+        timestamp: Date.now(),
+      };
 
-  const addGrowingBall = useCallback((x: number, y: number, color: BallColor, isTransitioning: boolean) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    const newGrowingBall: GrowingBall = {
-      id,
-      x,
-      y,
-      color,
-      isTransitioning,
-      timestamp: Date.now(),
-    };
-    
-    setGrowingBalls(prev => [...prev, newGrowingBall]);
-    
-    // Remove the growing ball after animation completes
-    setTimeout(() => {
-      setGrowingBalls(prev => prev.filter(gb => gb.id !== id));
-    }, 600); // Match the CSS animation duration
-  }, []);
+      setFloatingScores((prev) => [...prev, newFloatingScore]);
+
+      // Remove the floating score after animation completes
+      setTimeout(() => {
+        setFloatingScores((prev) => prev.filter((fs) => fs.id !== id));
+      }, 1000);
+    },
+    [],
+  );
+
+  const addGrowingBall = useCallback(
+    (x: number, y: number, color: BallColor, isTransitioning: boolean) => {
+      const id = `${Date.now()}-${Math.random()}`;
+      const newGrowingBall: GrowingBall = {
+        id,
+        x,
+        y,
+        color,
+        isTransitioning,
+        timestamp: Date.now(),
+      };
+
+      setGrowingBalls((prev) => [...prev, newGrowingBall]);
+
+      // Remove the growing ball after animation completes
+      setTimeout(() => {
+        setGrowingBalls((prev) => prev.filter((gb) => gb.id !== id));
+      }, 600); // Match the CSS animation duration
+    },
+    [],
+  );
 
   const addSpawningBalls = useCallback((balls: SpawnedBall[]) => {
-    setSpawningBalls(prev => [...prev, ...balls]);
-    
+    setSpawningBalls((prev) => [...prev, ...balls]);
+
     // Remove the spawning balls after animation completes
     setTimeout(() => {
-      setSpawningBalls(prev => prev.filter(sb => 
-        !balls.some(ball => ball.x === sb.x && ball.y === sb.y && ball.color === sb.color)
-      ));
+      setSpawningBalls((prev) =>
+        prev.filter(
+          (sb) =>
+            !balls.some(
+              (ball) =>
+                ball.x === sb.x && ball.y === sb.y && ball.color === sb.color,
+            ),
+        ),
+      );
     }, 600);
   }, []);
 

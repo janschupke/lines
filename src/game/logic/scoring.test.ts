@@ -68,23 +68,31 @@ describe("calculateLineScore", () => {
     expect(calculateLineScore(7)).toBe(13);
     expect(calculateLineScore(8)).toBe(21);
     expect(calculateLineScore(9)).toBe(34);
-    
+
     // Verify that each number is the sum of the previous two (Fibonacci property)
     // Starting from 5, the sequence is: 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, ...
-    expect(calculateLineScore(7)).toBe(calculateLineScore(6) + calculateLineScore(5)); // 13 = 8 + 5
-    expect(calculateLineScore(8)).toBe(calculateLineScore(7) + calculateLineScore(6)); // 21 = 13 + 8
-    expect(calculateLineScore(9)).toBe(calculateLineScore(8) + calculateLineScore(7)); // 34 = 21 + 13
-    expect(calculateLineScore(10)).toBe(calculateLineScore(9) + calculateLineScore(8)); // 55 = 34 + 21
+    expect(calculateLineScore(7)).toBe(
+      calculateLineScore(6) + calculateLineScore(5),
+    ); // 13 = 8 + 5
+    expect(calculateLineScore(8)).toBe(
+      calculateLineScore(7) + calculateLineScore(6),
+    ); // 21 = 13 + 8
+    expect(calculateLineScore(9)).toBe(
+      calculateLineScore(8) + calculateLineScore(7),
+    ); // 34 = 21 + 13
+    expect(calculateLineScore(10)).toBe(
+      calculateLineScore(9) + calculateLineScore(8),
+    ); // 55 = 34 + 21
   });
 
   it("provides the correct scoring for the game requirements", () => {
     // According to the user requirements, scoring should be 5,8,13,21,34 for longer lines respectively
-    expect(calculateLineScore(5)).toBe(5);   // 5 balls = 5 points
-    expect(calculateLineScore(6)).toBe(8);   // 6 balls = 8 points  
-    expect(calculateLineScore(7)).toBe(13);  // 7 balls = 13 points
-    expect(calculateLineScore(8)).toBe(21);  // 8 balls = 21 points
-    expect(calculateLineScore(9)).toBe(34);  // 9 balls = 34 points
-    
+    expect(calculateLineScore(5)).toBe(5); // 5 balls = 5 points
+    expect(calculateLineScore(6)).toBe(8); // 6 balls = 8 points
+    expect(calculateLineScore(7)).toBe(13); // 7 balls = 13 points
+    expect(calculateLineScore(8)).toBe(21); // 8 balls = 21 points
+    expect(calculateLineScore(9)).toBe(34); // 9 balls = 34 points
+
     // Additional Fibonacci sequence values
     expect(calculateLineScore(10)).toBe(55); // 10 balls = 55 points
     expect(calculateLineScore(11)).toBe(89); // 11 balls = 89 points
@@ -96,11 +104,11 @@ describe("calculateLineScore", () => {
     const score5 = calculateLineScore(5);
     const score10 = calculateLineScore(10);
     const score15 = calculateLineScore(15);
-    
+
     // Each step should provide substantial score increases
     expect(score10).toBeGreaterThan(score5 * 10); // 55 > 5 * 10 = 50
     expect(score15).toBeGreaterThan(score10 * 10); // 610 > 55 * 10 = 550
-    
+
     // Verify the exponential nature
     expect(score15 / score5).toBeGreaterThan(100); // 610 / 5 = 122
   });

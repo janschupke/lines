@@ -30,7 +30,7 @@ export const useKeyboard = (handlers: KeyboardHandlers) => {
           break;
       }
     },
-    [handlers]
+    [handlers],
   );
 
   useEffect(() => {
@@ -39,4 +39,4 @@ export const useKeyboard = (handlers: KeyboardHandlers) => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
-}; 
+};

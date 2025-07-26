@@ -5,4 +5,4 @@ export * from "./pathfinding";
 export * from "./lineDetection";
 export * from "./scoring";
 export * from "./validation";
-export * from "./moveHandler"; 
+export * from "./moveHandler";

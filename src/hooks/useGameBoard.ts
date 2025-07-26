@@ -30,7 +30,10 @@ export const useGameBoard = (
   const [isLoadedFromSavedState] = useState(() => !!initialBoard);
 
   // Update nextBalls and board - preserves existing incoming balls when stepping on one
-  const setNextBallsAndBoard = (newNextBalls: BallColor[], baseBoard?: Cell[][]) => {
+  const setNextBallsAndBoard = (
+    newNextBalls: BallColor[],
+    baseBoard?: Cell[][],
+  ) => {
     setNextBalls(newNextBalls);
     // If baseBoard is provided, use it directly (preserves existing incoming balls)
     // Otherwise, apply placePreviewBalls to replace all incoming balls
@@ -38,7 +41,7 @@ export const useGameBoard = (
       setBoard(baseBoard);
     } else if (!isLoadedFromSavedState) {
       // Only re-place preview balls if we're not loading from a saved state
-      setBoard(prev => placePreviewBalls(prev, newNextBalls));
+      setBoard((prev) => placePreviewBalls(prev, newNextBalls));
     }
     // If we're loading from a saved state and no baseBoard is provided, don't update the board
   };

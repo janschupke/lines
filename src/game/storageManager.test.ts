@@ -22,15 +22,19 @@ describe("StorageManager", () => {
   describe("saveGameState", () => {
     it("should save game state to localStorage", () => {
       const mockGameState = {
-        board: Array(9).fill(null).map((_, y) =>
-          Array(9).fill(null).map((_, x) => ({
-            x,
-            y,
-            ball: null,
-            incomingBall: null,
-            active: false,
-          }))
-        ),
+        board: Array(9)
+          .fill(null)
+          .map((_, y) =>
+            Array(9)
+              .fill(null)
+              .map((_, x) => ({
+                x,
+                y,
+                ball: null,
+                incomingBall: null,
+                active: false,
+              })),
+          ),
         score: 100,
         selected: null,
         gameOver: false,
@@ -72,21 +76,26 @@ describe("StorageManager", () => {
           timerActive: mockGameState.timerActive,
           gameOver: mockGameState.gameOver,
           statistics: mockGameState.statistics,
-        })
+        }),
       );
     });
 
     it("should save board state with preview balls correctly", () => {
       // Create a board with real balls and preview balls
-      const boardWithPreviewBalls = Array(9).fill(null).map((_, y) =>
-        Array(9).fill(null).map((_, x) => ({
-          x,
-          y,
-          ball: x === 4 && y === 4 ? { color: "red" as BallColor } : null,
-          incomingBall: x === 3 && y === 3 ? { color: "blue" as BallColor } : null,
-          active: false,
-        }))
-      );
+      const boardWithPreviewBalls = Array(9)
+        .fill(null)
+        .map((_, y) =>
+          Array(9)
+            .fill(null)
+            .map((_, x) => ({
+              x,
+              y,
+              ball: x === 4 && y === 4 ? { color: "red" as BallColor } : null,
+              incomingBall:
+                x === 3 && y === 3 ? { color: "blue" as BallColor } : null,
+              active: false,
+            })),
+        );
 
       const mockGameState = {
         board: boardWithPreviewBalls,
@@ -122,7 +131,7 @@ describe("StorageManager", () => {
       StorageManager.saveGameState(mockGameState);
 
       const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
-      
+
       // Verify that the board with preview balls is saved correctly
       expect(savedData.board[4][4].ball).toEqual({ color: "red" });
       expect(savedData.board[3][3].incomingBall).toEqual({ color: "blue" });
@@ -132,17 +141,22 @@ describe("StorageManager", () => {
     it("should save final board state after all updates", () => {
       // This test verifies that the persistence captures the final board state
       // after line removal, ball conversion, and preview ball placement
-      
+
       // Simulate a board after a move that triggered line removal and ball conversion
-      const finalBoardState = Array(9).fill(null).map((_, y) =>
-        Array(9).fill(null).map((_, x) => ({
-          x,
-          y,
-          ball: x === 5 && y === 5 ? { color: "red" as BallColor } : null,
-          incomingBall: x === 2 && y === 2 ? { color: "orange" as BallColor } : null,
-          active: false,
-        }))
-      );
+      const finalBoardState = Array(9)
+        .fill(null)
+        .map((_, y) =>
+          Array(9)
+            .fill(null)
+            .map((_, x) => ({
+              x,
+              y,
+              ball: x === 5 && y === 5 ? { color: "red" as BallColor } : null,
+              incomingBall:
+                x === 2 && y === 2 ? { color: "orange" as BallColor } : null,
+              active: false,
+            })),
+        );
 
       const mockGameState = {
         board: finalBoardState,
@@ -178,7 +192,7 @@ describe("StorageManager", () => {
       StorageManager.saveGameState(mockGameState);
 
       const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
-      
+
       // Verify that the final board state is saved correctly
       expect(savedData.board[5][5].ball).toEqual({ color: "red" });
       expect(savedData.board[2][2].incomingBall).toEqual({ color: "orange" });
@@ -190,17 +204,24 @@ describe("StorageManager", () => {
     it("should persist game state after line removal animation completes", () => {
       // This test verifies that the game state is persisted after line removal
       // which was the core issue of the "last turn lost" bug
-      
+
       // Create a board with a line that will be removed
-      const boardWithLine = Array(9).fill(null).map((_, y) =>
-        Array(9).fill(null).map((_, x) => ({
-          x,
-          y,
-          ball: (x >= 3 && x <= 7 && y === 4) ? { color: "red" as BallColor } : null,
-          incomingBall: null,
-          active: false,
-        }))
-      );
+      const boardWithLine = Array(9)
+        .fill(null)
+        .map((_, y) =>
+          Array(9)
+            .fill(null)
+            .map((_, x) => ({
+              x,
+              y,
+              ball:
+                x >= 3 && x <= 7 && y === 4
+                  ? { color: "red" as BallColor }
+                  : null,
+              incomingBall: null,
+              active: false,
+            })),
+        );
 
       const mockGameState = {
         board: boardWithLine,
@@ -260,15 +281,19 @@ describe("StorageManager", () => {
 
     it("should save and load timer state correctly", () => {
       const mockGameState = {
-        board: Array(9).fill(null).map((_, y) =>
-          Array(9).fill(null).map((_, x) => ({
-            x,
-            y,
-            ball: null,
-            incomingBall: null,
-            active: false,
-          }))
-        ),
+        board: Array(9)
+          .fill(null)
+          .map((_, y) =>
+            Array(9)
+              .fill(null)
+              .map((_, x) => ({
+                x,
+                y,
+                ball: null,
+                incomingBall: null,
+                active: false,
+              })),
+          ),
         score: 100,
         selected: null,
         gameOver: false,
@@ -361,15 +386,19 @@ describe("StorageManager", () => {
   describe("loadGameState", () => {
     it("should load valid game state from localStorage", () => {
       const mockPersistedState: PersistedGameState = {
-        board: Array(9).fill(null).map((_, y) =>
-          Array(9).fill(null).map((_, x) => ({
-            x,
-            y,
-            ball: null,
-            incomingBall: null,
-            active: false,
-          }))
-        ),
+        board: Array(9)
+          .fill(null)
+          .map((_, y) =>
+            Array(9)
+              .fill(null)
+              .map((_, x) => ({
+                x,
+                y,
+                ball: null,
+                incomingBall: null,
+                active: false,
+              })),
+          ),
         score: 150,
         highScore: 200,
         nextBalls: ["red", "blue", "green"] as BallColor[],
@@ -392,7 +421,9 @@ describe("StorageManager", () => {
         },
       };
 
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(mockPersistedState));
+      localStorageMock.getItem.mockReturnValue(
+        JSON.stringify(mockPersistedState),
+      );
 
       const result = StorageManager.loadGameState();
 
@@ -402,15 +433,20 @@ describe("StorageManager", () => {
 
     it("should load board state with preview balls correctly", () => {
       // Create a board with real balls and preview balls
-      const boardWithPreviewBalls = Array(9).fill(null).map((_, y) =>
-        Array(9).fill(null).map((_, x) => ({
-          x,
-          y,
-          ball: x === 4 && y === 4 ? { color: "red" as BallColor } : null,
-          incomingBall: x === 3 && y === 3 ? { color: "blue" as BallColor } : null,
-          active: false,
-        }))
-      );
+      const boardWithPreviewBalls = Array(9)
+        .fill(null)
+        .map((_, y) =>
+          Array(9)
+            .fill(null)
+            .map((_, x) => ({
+              x,
+              y,
+              ball: x === 4 && y === 4 ? { color: "red" as BallColor } : null,
+              incomingBall:
+                x === 3 && y === 3 ? { color: "blue" as BallColor } : null,
+              active: false,
+            })),
+        );
 
       const mockPersistedState: PersistedGameState = {
         board: boardWithPreviewBalls,
@@ -436,7 +472,9 @@ describe("StorageManager", () => {
         },
       };
 
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(mockPersistedState));
+      localStorageMock.getItem.mockReturnValue(
+        JSON.stringify(mockPersistedState),
+      );
 
       const result = StorageManager.loadGameState();
 
@@ -490,7 +528,9 @@ describe("StorageManager", () => {
     it("should remove game state from localStorage", () => {
       StorageManager.clearGameState();
 
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("lines-game-state");
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        "lines-game-state",
+      );
     });
 
     it("should handle localStorage errors gracefully", () => {
@@ -538,7 +578,7 @@ describe("StorageManager", () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "lines-game-high-score",
-        "1000"
+        "1000",
       );
     });
 
@@ -559,7 +599,9 @@ describe("StorageManager", () => {
       const result = StorageManager.loadHighScore();
 
       expect(result).toBe(1500);
-      expect(localStorageMock.getItem).toHaveBeenCalledWith("lines-game-high-score");
+      expect(localStorageMock.getItem).toHaveBeenCalledWith(
+        "lines-game-high-score",
+      );
     });
 
     it("should return 0 when no high score exists", () => {
@@ -593,15 +635,19 @@ describe("StorageManager", () => {
     it("should not overwrite high score with lower score on page refresh", () => {
       // Simulate a game state with a high score of 500 and current score of 100
       const gameStateWithHighScore = {
-        board: Array(9).fill(null).map((_, y) =>
-          Array(9).fill(null).map((_, x) => ({
-            x,
-            y,
-            ball: null,
-            incomingBall: null,
-            active: false,
-          }))
-        ),
+        board: Array(9)
+          .fill(null)
+          .map((_, y) =>
+            Array(9)
+              .fill(null)
+              .map((_, x) => ({
+                x,
+                y,
+                ball: null,
+                incomingBall: null,
+                active: false,
+              })),
+          ),
         score: 100,
         highScore: 500,
         isNewHighScore: false,
@@ -654,15 +700,19 @@ describe("StorageManager", () => {
     it("should update high score when current score is higher", () => {
       // Start with a game state where current score is higher than high score
       const gameStateWithNewHighScore = {
-        board: Array(9).fill(null).map((_, y) =>
-          Array(9).fill(null).map((_, x) => ({
-            x,
-            y,
-            ball: null,
-            incomingBall: null,
-            active: false,
-          }))
-        ),
+        board: Array(9)
+          .fill(null)
+          .map((_, y) =>
+            Array(9)
+              .fill(null)
+              .map((_, x) => ({
+                x,
+                y,
+                ball: null,
+                incomingBall: null,
+                active: false,
+              })),
+          ),
         score: 600,
         highScore: 500,
         isNewHighScore: true,
@@ -704,4 +754,4 @@ describe("StorageManager", () => {
       expect(savedData.score).toBe(600);
     });
   });
-}); 
+});

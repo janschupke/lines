@@ -121,9 +121,9 @@ export function checkGameOver(board: Cell[][]): boolean {
  * - If ball steps on preview cell AND gets popped: DON'T recalculate, spawn in original position
  */
 export function handleIncomingBallConversion(
-  board: Cell[][], 
+  board: Cell[][],
   steppedOnIncomingBall?: BallColor,
-  wasSteppedOnBallPopped: boolean = false
+  wasSteppedOnBallPopped: boolean = false,
 ): ConversionResult {
   // Convert incoming balls to real balls
   const boardWithRealBalls = board.map((row) =>
@@ -151,14 +151,19 @@ export function handleIncomingBallConversion(
   if (steppedOnIncomingBall && !wasSteppedOnBallPopped) {
     // Case 1: Ball stepped on preview cell but didn't get popped
     // Recalculate the stepped-on ball to a new position as a REAL BALL
-    const boardWithSteppedOnBall = placeRealBalls(boardWithRealBalls, [steppedOnIncomingBall]);
-    
+    const boardWithSteppedOnBall = placeRealBalls(boardWithRealBalls, [
+      steppedOnIncomingBall,
+    ]);
+
     // Track the position where the stepped-on ball was placed
-    const steppedOnPosition = findBallPosition(boardWithSteppedOnBall, steppedOnIncomingBall);
+    const steppedOnPosition = findBallPosition(
+      boardWithSteppedOnBall,
+      steppedOnIncomingBall,
+    );
     if (steppedOnPosition) {
       spawnedPositions.push(steppedOnPosition);
     }
-    
+
     // Generate 3 new preview balls for the next turn
     nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
     afterBalls = placePreviewBalls(boardWithSteppedOnBall, nextPreviewBalls);
@@ -167,18 +172,23 @@ export function handleIncomingBallConversion(
     // DON'T recalculate - the preview ball should spawn in its original position
     // But since the ball was moved there and then popped, we need to place the stepped-on ball
     // in a new position as a REAL BALL
-    
+
     // Find where the stepped-on ball originally was (before the move)
     // Since the move handler cleared the incoming ball at the destination,
     // we need to place it as a real ball in a new position
-    const boardWithSteppedOnBall = placeRealBalls(boardWithRealBalls, [steppedOnIncomingBall]);
-    
+    const boardWithSteppedOnBall = placeRealBalls(boardWithRealBalls, [
+      steppedOnIncomingBall,
+    ]);
+
     // Track the position where the stepped-on ball was placed
-    const steppedOnPosition = findBallPosition(boardWithSteppedOnBall, steppedOnIncomingBall);
+    const steppedOnPosition = findBallPosition(
+      boardWithSteppedOnBall,
+      steppedOnIncomingBall,
+    );
     if (steppedOnPosition) {
       spawnedPositions.push(steppedOnPosition);
     }
-    
+
     // Generate 3 new preview balls for the next turn
     nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
     afterBalls = placePreviewBalls(boardWithSteppedOnBall, nextPreviewBalls);
@@ -187,7 +197,7 @@ export function handleIncomingBallConversion(
     // Generate 3 new preview balls
     nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
     afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
-    
+
     // Track positions of all spawned balls (converted from incoming balls)
     for (let y = 0; y < BOARD_SIZE; y++) {
       for (let x = 0; x < BOARD_SIZE; x++) {
@@ -197,7 +207,7 @@ export function handleIncomingBallConversion(
       }
     }
   }
-  
+
   // Also track positions of incoming balls that were converted to real balls
   for (let y = 0; y < BOARD_SIZE; y++) {
     for (let x = 0; x < BOARD_SIZE; x++) {
@@ -208,8 +218,11 @@ export function handleIncomingBallConversion(
   }
 
   // Check for lines formed by spawned balls
-  const lineResult = handleMultiPositionLineDetection(afterBalls, spawnedPositions);
-  
+  const lineResult = handleMultiPositionLineDetection(
+    afterBalls,
+    spawnedPositions,
+  );
+
   if (lineResult) {
     // Lines were formed by spawning - return the board after line removal
     return {
@@ -227,12 +240,15 @@ export function handleIncomingBallConversion(
     nextBalls: nextPreviewBalls,
     gameOver: isBoardFull(afterBalls),
   };
-} 
+}
 
 /**
  * Helper function to find the position of a ball with a specific color
  */
-function findBallPosition(board: Cell[][], color: BallColor): [number, number] | null {
+function findBallPosition(
+  board: Cell[][],
+  color: BallColor,
+): [number, number] | null {
   for (let y = 0; y < BOARD_SIZE; y++) {
     for (let x = 0; x < BOARD_SIZE; x++) {
       if (board[y][x].ball?.color === color) {
@@ -241,4 +257,4 @@ function findBallPosition(board: Cell[][], color: BallColor): [number, number] |
     }
   }
   return null;
-} 
+}

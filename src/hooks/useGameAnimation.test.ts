@@ -36,7 +36,11 @@ describe("useGameAnimation", () => {
     it("sets moving ball with color and path", () => {
       const { result } = renderHook(() => useGameAnimation());
       const ballColor = "red" as BallColor;
-      const path: [number, number][] = [[0, 0], [1, 1], [2, 2]];
+      const path: [number, number][] = [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+      ];
 
       act(() => {
         result.current.setMovingBall({ color: ballColor, path });
@@ -58,7 +62,10 @@ describe("useGameAnimation", () => {
     it("starts move animation with startMoveAnimation", () => {
       const { result } = renderHook(() => useGameAnimation());
       const ballColor = "blue" as BallColor;
-      const path: [number, number][] = [[0, 0], [1, 1]];
+      const path: [number, number][] = [
+        [0, 0],
+        [1, 1],
+      ];
 
       act(() => {
         result.current.startMoveAnimation(ballColor, path);
@@ -68,14 +75,17 @@ describe("useGameAnimation", () => {
       expect(result.current.movingStep).toBe(0);
       expect(result.current.currentPhase).toEqual({
         type: "moving",
-        data: { movingBall: { color: ballColor, path } }
+        data: { movingBall: { color: ballColor, path } },
       });
     });
 
     it("stops move animation with stopMoveAnimation", () => {
       const { result } = renderHook(() => useGameAnimation());
       const ballColor = "green" as BallColor;
-      const path: [number, number][] = [[0, 0], [1, 1]];
+      const path: [number, number][] = [
+        [0, 0],
+        [1, 1],
+      ];
 
       act(() => {
         result.current.startMoveAnimation(ballColor, path);
@@ -141,7 +151,7 @@ describe("useGameAnimation", () => {
       expect(result.current.poppingBalls).toBe(poppingBalls);
       expect(result.current.currentPhase).toEqual({
         type: "popping",
-        data: { poppingBalls }
+        data: { poppingBalls },
       });
     });
 
@@ -170,7 +180,7 @@ describe("useGameAnimation", () => {
       const { result } = renderHook(() => useGameAnimation());
       const spawningBalls: SpawnedBall[] = [
         { x: 0, y: 0, color: "red" as BallColor, isTransitioning: true },
-        { x: 1, y: 1, color: "blue" as BallColor, isTransitioning: false }
+        { x: 1, y: 1, color: "blue" as BallColor, isTransitioning: false },
       ];
 
       act(() => {
@@ -180,14 +190,14 @@ describe("useGameAnimation", () => {
       expect(result.current.spawningBalls).toEqual(spawningBalls);
       expect(result.current.currentPhase).toEqual({
         type: "spawning",
-        data: { spawningBalls }
+        data: { spawningBalls },
       });
     });
 
     it("stops spawning animation with stopSpawningAnimation", () => {
       const { result } = renderHook(() => useGameAnimation());
       const spawningBalls: SpawnedBall[] = [
-        { x: 0, y: 0, color: "red" as BallColor, isTransitioning: true }
+        { x: 0, y: 0, color: "red" as BallColor, isTransitioning: true },
       ];
 
       act(() => {
@@ -203,7 +213,7 @@ describe("useGameAnimation", () => {
       const { result } = renderHook(() => useGameAnimation());
       const spawningBalls: SpawnedBall[] = [
         { x: 0, y: 0, color: "red" as BallColor, isTransitioning: true },
-        { x: 1, y: 1, color: "blue" as BallColor, isTransitioning: false }
+        { x: 1, y: 1, color: "blue" as BallColor, isTransitioning: false },
       ];
 
       act(() => {
@@ -216,7 +226,7 @@ describe("useGameAnimation", () => {
     it("removes spawning balls after animation duration", async () => {
       const { result } = renderHook(() => useGameAnimation());
       const spawningBalls: SpawnedBall[] = [
-        { x: 0, y: 0, color: "red" as BallColor, isTransitioning: true }
+        { x: 0, y: 0, color: "red" as BallColor, isTransitioning: true },
       ];
 
       act(() => {
@@ -226,7 +236,7 @@ describe("useGameAnimation", () => {
       expect(result.current.spawningBalls).toEqual(spawningBalls);
 
       // Wait for the animation to complete
-      await new Promise(resolve => setTimeout(resolve, 700));
+      await new Promise((resolve) => setTimeout(resolve, 700));
 
       expect(result.current.spawningBalls).toEqual([]);
     });
@@ -236,10 +246,13 @@ describe("useGameAnimation", () => {
     it("maintains separate states for moving, popping, and spawning", () => {
       const { result } = renderHook(() => useGameAnimation());
       const ballColor = "yellow" as BallColor;
-      const path: [number, number][] = [[0, 0], [1, 1]];
+      const path: [number, number][] = [
+        [0, 0],
+        [1, 1],
+      ];
       const poppingBalls = new Set(["3,3", "4,4"]);
       const spawningBalls: SpawnedBall[] = [
-        { x: 5, y: 5, color: "purple" as BallColor, isTransitioning: true }
+        { x: 5, y: 5, color: "purple" as BallColor, isTransitioning: true },
       ];
 
       act(() => {
@@ -258,7 +271,10 @@ describe("useGameAnimation", () => {
     it("allows simultaneous moving and popping animations", () => {
       const { result } = renderHook(() => useGameAnimation());
       const ballColor = "purple" as BallColor;
-      const path: [number, number][] = [[0, 0], [1, 1]];
+      const path: [number, number][] = [
+        [0, 0],
+        [1, 1],
+      ];
       const poppingBalls = new Set(["5,5"]);
 
       act(() => {
@@ -277,7 +293,11 @@ describe("useGameAnimation", () => {
     it("completes full animation cycle", () => {
       const { result } = renderHook(() => useGameAnimation());
       const ballColor = "pink" as BallColor;
-      const path: [number, number][] = [[0, 0], [1, 1], [2, 2]];
+      const path: [number, number][] = [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+      ];
 
       // Start animation
       act(() => {
@@ -354,7 +374,7 @@ describe("useGameAnimation", () => {
         result.current.addFloatingScore(3, 2, 2);
       });
 
-      const ids = result.current.floatingScores.map(fs => fs.id);
+      const ids = result.current.floatingScores.map((fs) => fs.id);
       expect(ids[0]).not.toBe(ids[1]);
     });
 
@@ -368,7 +388,7 @@ describe("useGameAnimation", () => {
       expect(result.current.floatingScores).toHaveLength(1);
 
       // Wait for the animation to complete
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       expect(result.current.floatingScores).toHaveLength(0);
     });
@@ -425,7 +445,7 @@ describe("useGameAnimation", () => {
       expect(result.current.growingBalls).toHaveLength(1);
 
       // Wait for the animation to complete
-      await new Promise(resolve => setTimeout(resolve, 700));
+      await new Promise((resolve) => setTimeout(resolve, 700));
 
       expect(result.current.growingBalls).toHaveLength(0);
     });
@@ -437,10 +457,15 @@ describe("useGameAnimation", () => {
 
       // Set up various animation states
       act(() => {
-        result.current.startMoveAnimation("red" as BallColor, [[0, 0], [1, 1]]);
+        result.current.startMoveAnimation("red" as BallColor, [
+          [0, 0],
+          [1, 1],
+        ]);
         result.current.setMovingStep(1);
         result.current.startPoppingAnimation(new Set(["0,0"]));
-        result.current.startSpawningAnimation([{ x: 0, y: 0, color: "blue" as BallColor, isTransitioning: true }]);
+        result.current.startSpawningAnimation([
+          { x: 0, y: 0, color: "blue" as BallColor, isTransitioning: true },
+        ]);
         result.current.addFloatingScore(5, 1, 1);
         result.current.addGrowingBall(2, 2, "green" as BallColor, false);
       });
@@ -468,4 +493,4 @@ describe("useGameAnimation", () => {
       expect(result.current.currentPhase).toEqual({ type: "idle" });
     });
   });
-}); 
+});

@@ -6,10 +6,15 @@ interface FloatingScoreProps {
   floatingScore: FloatingScore;
 }
 
-const FloatingScore: React.FC<FloatingScoreProps> = ({ floatingScore }) => {
+const FloatingScoreComponent: React.FC<FloatingScoreProps> = ({
+  floatingScore,
+}) => {
   const sizing = getGameSizing();
-  const { left, top } = sizing.getCellPosition(floatingScore.x, floatingScore.y);
-  
+  const { left, top } = sizing.getCellPosition(
+    floatingScore.x,
+    floatingScore.y,
+  );
+
   return (
     <div
       className="absolute pointer-events-none z-50 animate-float-score"
@@ -26,4 +31,4 @@ const FloatingScore: React.FC<FloatingScoreProps> = ({ floatingScore }) => {
   );
 };
 
-export default FloatingScore; 
+export default FloatingScoreComponent;

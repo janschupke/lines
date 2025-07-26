@@ -1,0 +1,5 @@
+- move
+- pop formed line
+- spawn balls
+- pop new lines
+- generate new preview balls

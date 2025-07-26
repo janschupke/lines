@@ -28,6 +28,12 @@ const Game: React.FC<GameProps> = ({
   // State for fade animations
   const [isGuideClosing, setIsGuideClosing] = useState(false);
 
+  // State for score flash animations
+  const [scoreFlash, setScoreFlash] = useState(false);
+  const [highScoreFlash, setHighScoreFlash] = useState(false);
+  const [prevScore, setPrevScore] = useState(0);
+  const [prevHighScore, setPrevHighScore] = useState(0);
+
   const {
     board,
     score,
@@ -102,6 +108,24 @@ const Game: React.FC<GameProps> = ({
       resetCurrentGameHighScoreFlag();
     }
   }, [gameOver, resetNewHighScoreFlag, resetCurrentGameHighScoreFlag]);
+
+  // Track score changes and trigger flash animation
+  React.useEffect(() => {
+    if (score !== prevScore && score > prevScore) {
+      setScoreFlash(true);
+      setTimeout(() => setScoreFlash(false), 1000);
+      setPrevScore(score);
+    }
+  }, [score, prevScore]);
+
+  // Track high score changes and trigger flash animation
+  React.useEffect(() => {
+    if (highScore !== prevHighScore && highScore > prevHighScore) {
+      setHighScoreFlash(true);
+      setTimeout(() => setHighScoreFlash(false), 1000);
+      setPrevHighScore(highScore);
+    }
+  }, [highScore, prevHighScore]);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
@@ -189,7 +213,7 @@ const Game: React.FC<GameProps> = ({
               High Score:
             </span>
             <span
-              className="text-game-text-primary font-bold text-xl"
+              className={`text-game-text-primary font-bold text-xl ${highScoreFlash ? 'score-flash' : ''}`}
               data-testid="high-score-value"
             >
               {highScore}
@@ -200,7 +224,7 @@ const Game: React.FC<GameProps> = ({
               Current Score:
             </span>
             <span
-              className="text-game-text-primary font-bold text-xl"
+              className={`text-game-text-primary font-bold text-xl ${scoreFlash ? 'score-flash' : ''}`}
               data-testid="score-value"
             >
               {score}

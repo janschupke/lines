@@ -173,6 +173,11 @@ button:focus-visible {
     animation-name: fadeOut;
   }
 
+  /* Score flash animation */
+  .score-flash {
+    animation: scoreFlash 1s ease-out forwards;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -188,6 +193,18 @@ button:focus-visible {
     }
     to {
       opacity: 0;
+    }
+  }
+
+  @keyframes scoreFlash {
+    0% {
+      color: theme("colors.game.text.primary");
+    }
+    20% {
+      color: theme("colors.game.text.success");
+    }
+    100% {
+      color: theme("colors.game.text.primary");
     }
   }
 }

@@ -204,9 +204,9 @@ describe("boardManagement", () => {
       });
     });
 
-    it("automatic ball placement does not trigger line removal", () => {
+    it("automatic ball placement triggers line removal", () => {
       // This test verifies that when incoming balls are automatically converted to real balls
-      // and form a valid line, the line is NOT removed (only user moves trigger line removal)
+      // and form a valid line, the line IS removed (spawning balls trigger line detection)
 
       // Create a board with a line that would be formed by automatic placement
       const testBoard = createEmptyBoard();
@@ -222,17 +222,18 @@ describe("boardManagement", () => {
       // Simulate automatic ball conversion (what happens after a user move)
       const conversionResult = handleIncomingBallConversion(testBoard);
 
-      // The line should NOT be removed because automatic placement doesn't trigger line detection
-      // We verify this by checking that the ball is still there
-      expect(conversionResult.newBoard[0][4].ball?.color).toBe("red");
+      // The line SHOULD be removed because spawning balls trigger line detection
+      expect(conversionResult.linesFormed).toBe(true);
+      expect(conversionResult.ballsRemoved).toHaveLength(5);
+      expect(conversionResult.pointsEarned).toBe(5);
 
-      // The line should remain intact (5 balls in a row)
+      // The line should be removed (no balls in a row)
       for (let i = 0; i < 5; i++) {
-        expect(conversionResult.newBoard[0][i].ball?.color).toBe("red");
+        expect(conversionResult.newBoard[0][i].ball).toBeNull();
       }
 
-      // No scoring should occur from automatic placement
-      // This is verified by the fact that line detection is not called during conversion
+      // Scoring should occur from automatic placement
+      // This is verified by the fact that line detection IS called during conversion
     });
   });
 }); 

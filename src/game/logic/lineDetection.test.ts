@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { handleLineDetection } from "./lineDetection";
+import { handleLineDetection, handleMultiPositionLineDetection } from "./lineDetection";
 import { createEmptyBoard } from "./boardManagement";
 import type { Cell, BallColor } from "../types";
 
@@ -213,4 +213,164 @@ describe("handleLineDetection", () => {
       expect(result?.pointsEarned).toBeGreaterThanOrEqual(5);
     });
   });
-}); 
+});
+
+describe("handleMultiPositionLineDetection", () => {
+
+  it("handles multiple positions with overlapping lines", () => {
+    // Create a board with balls that will form lines when new balls are added
+    const board = createEmptyBoard();
+    
+    // Place balls to create potential lines (4 balls each, need 1 more for 5)
+    board[1][1].ball = { color: "red" };
+    board[1][2].ball = { color: "red" };
+    board[1][3].ball = { color: "red" };
+    board[1][4].ball = { color: "red" };
+    board[2][1].ball = { color: "blue" };
+    board[2][2].ball = { color: "blue" };
+    board[2][3].ball = { color: "blue" };
+    board[2][4].ball = { color: "blue" };
+    
+    // Add balls at positions that will complete lines
+    board[1][0].ball = { color: "red" };
+    board[2][0].ball = { color: "blue" };
+    
+    const positions: [number, number][] = [[0, 1], [0, 2]];
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).not.toBeNull();
+    expect(result!.linesFormed).toBe(true);
+    expect(result!.ballsRemoved).toHaveLength(10); // 5 red + 5 blue
+    expect(result!.pointsEarned).toBe(10);
+  });
+
+  it("handles multiple positions with no lines", () => {
+    const board = createEmptyBoard();
+    
+    // Place isolated balls
+    board[1][1].ball = { color: "red" };
+    board[2][2].ball = { color: "blue" };
+    
+    const positions: [number, number][] = [[1, 1], [2, 2]];
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).toBeNull();
+  });
+
+  it("handles diagonal lines correctly", () => {
+    const board = createEmptyBoard();
+    
+    // Create diagonal line (4 balls, need 1 more for 5)
+    board[0][0].ball = { color: "green" };
+    board[1][1].ball = { color: "green" };
+    board[2][2].ball = { color: "green" };
+    board[3][3].ball = { color: "green" };
+    
+    // Add ball that completes diagonal
+    board[4][4].ball = { color: "green" };
+    
+    const positions: [number, number][] = [[4, 4]];
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).not.toBeNull();
+    expect(result!.linesFormed).toBe(true);
+    expect(result!.ballsRemoved).toHaveLength(5);
+    expect(result!.pointsEarned).toBe(5);
+  });
+
+
+
+  it("handles edge cases with board boundaries", () => {
+    const board = createEmptyBoard();
+    
+    // Create line at board edge (4 balls, need 1 more for 5)
+    board[0][0].ball = { color: "yellow" };
+    board[0][1].ball = { color: "yellow" };
+    board[0][2].ball = { color: "yellow" };
+    board[0][3].ball = { color: "yellow" };
+    
+    // Add ball that completes edge line
+    board[0][4].ball = { color: "yellow" };
+    
+    const positions: [number, number][] = [[4, 0]];
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).not.toBeNull();
+    expect(result!.linesFormed).toBe(true);
+    expect(result!.ballsRemoved).toHaveLength(5);
+    expect(result!.pointsEarned).toBe(5);
+  });
+
+  it("handles positions with no balls", () => {
+    const board = createEmptyBoard();
+    
+    // Place some balls
+    board[1][1].ball = { color: "red" };
+    board[1][2].ball = { color: "red" };
+    board[1][3].ball = { color: "red" };
+    
+    // Include position with no ball
+    const positions: [number, number][] = [[1, 1], [5, 5]]; // [5,5] has no ball
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).toBeNull(); // No line formed because [5,5] has no ball
+  });
+
+  it("prevents duplicate line detection", () => {
+    const board = createEmptyBoard();
+    
+    // Create a line (4 balls, need 1 more for 5)
+    board[1][0].ball = { color: "green" };
+    board[1][1].ball = { color: "green" };
+    board[1][2].ball = { color: "green" };
+    board[1][3].ball = { color: "green" };
+    board[1][4].ball = { color: "green" };
+    
+    // Check both ends of the same line
+    const positions: [number, number][] = [[0, 1], [4, 1]];
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).not.toBeNull();
+    expect(result!.linesFormed).toBe(true);
+    expect(result!.ballsRemoved).toHaveLength(5); // Should not count balls twice
+    expect(result!.pointsEarned).toBe(5);
+  });
+
+  it("debug: test single line detection", () => {
+    const board = createEmptyBoard();
+    
+    // Create horizontal line (4 balls, need 1 more for 5)
+    board[2][0].ball = { color: "red" };
+    board[2][1].ball = { color: "red" };
+    board[2][2].ball = { color: "red" };
+    board[2][3].ball = { color: "red" };
+    board[2][4].ball = { color: "red" };
+    
+    const positions: [number, number][] = [[2, 2]];
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).not.toBeNull();
+    expect(result!.linesFormed).toBe(true);
+    expect(result!.ballsRemoved).toHaveLength(5);
+    expect(result!.pointsEarned).toBe(5);
+  });
+
+  it("debug: test vertical line detection", () => {
+    const board = createEmptyBoard();
+    
+    // Create vertical line (4 balls, need 1 more for 5)
+    board[0][2].ball = { color: "blue" };
+    board[1][2].ball = { color: "blue" };
+    board[2][2].ball = { color: "blue" };
+    board[3][2].ball = { color: "blue" };
+    board[4][2].ball = { color: "blue" };
+    
+    const positions: [number, number][] = [[2, 2]];
+    const result = handleMultiPositionLineDetection(board, positions);
+    
+    expect(result).not.toBeNull();
+    expect(result!.linesFormed).toBe(true);
+    expect(result!.ballsRemoved).toHaveLength(5);
+    expect(result!.pointsEarned).toBe(5);
+  });
+});

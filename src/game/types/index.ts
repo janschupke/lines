@@ -83,6 +83,9 @@ export interface ConversionResult {
   newBoard: Cell[][];
   nextBalls: BallColor[];
   gameOver: boolean;
+  linesFormed?: boolean;
+  ballsRemoved?: [number, number][];
+  pointsEarned?: number;
 }
 
 // Board State Types

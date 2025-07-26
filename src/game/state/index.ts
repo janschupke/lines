@@ -230,7 +230,33 @@ export const useGameState = (
           
           const conversionResult =
             handleIncomingBallConversion(moveResult.newBoard, steppedOnIncomingBall);
-          boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+          
+          // Handle line detection from spawned balls
+          if (conversionResult.linesFormed) {
+            // Lines were formed by spawning balls
+            setScore((s) => {
+              const newScore = s + conversionResult.pointsEarned!;
+              return newScore;
+            });
+            animationState.setPoppingBalls(
+              new Set(conversionResult.ballsRemoved!.map(([x, y]) => `${x},${y}`)),
+            );
+
+            // Update statistics for line removal
+            statisticsTracker.recordLinePop(
+              conversionResult.ballsRemoved!.length,
+              conversionResult.pointsEarned!,
+            );
+
+            // Clear popping balls after animation
+            setTimeout(() => {
+              animationState.setPoppingBalls(new Set());
+              boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+            }, ANIMATION_DURATIONS.POP_BALL);
+          } else {
+            // No lines formed by spawning
+            boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+          }
 
           if (conversionResult.gameOver) {
             // Finalize statistics when game ends
@@ -241,12 +267,8 @@ export const useGameState = (
           }
         }
 
-        // Place new incoming balls if we have them (from stepping on incoming ball)
-        // Only do this if no lines were formed
-        if (!lineResult && moveResult.nextBalls) {
-          const boardWithNewIncoming = placePreviewBalls(moveResult.newBoard, moveResult.nextBalls);
-          boardState.setBoard(boardWithNewIncoming);
-        }
+        // Note: handleIncomingBallConversion already places the recalculated preview balls on the board
+        // when stepping on an incoming ball, so we don't need to place them again here
 
         // Reset animation state
         animationState.setMovingBall(null);

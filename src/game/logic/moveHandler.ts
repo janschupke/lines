@@ -26,12 +26,6 @@ export function handleMoveCompletion(
   newBoard[fromY][fromX].ball = null;
   newBoard[toY][toX].incomingBall = null; // Clear incoming ball at destination
   
-  // Debug: Check if red ball is being moved correctly
-  if (board[fromY][fromX].ball?.color === 'red') {
-    console.log("Moving red ball from", fromX, fromY, "to", toX, toY);
-    console.log("New board state at destination:", newBoard[toY][toX]);
-  }
-
   // If we stepped on an incoming ball, handle the conversion here
   if (steppedOnIncomingBall) {
     // Preserve other incoming balls, only convert the stepped-on one

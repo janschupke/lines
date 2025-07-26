@@ -101,4 +101,64 @@ export function handleLineDetection(
     ballsRemoved: ballsToRemove,
     pointsEarned: ballsToRemove.length,
   };
+}
+
+/**
+ * Checks for lines and handles ball removal for multiple positions
+ * Used when spawning balls that might trigger multiple lines simultaneously
+ */
+export function handleMultiPositionLineDetection(
+  board: Cell[][],
+  positions: [number, number][],
+): MoveResult | null {
+  const allLines: [number, number][][] = [];
+  const ballsToRemoveSet = new Set<string>();
+
+  // Check for lines at each position
+  for (const [x, y] of positions) {
+    const ball = board[y][x].ball;
+    if (!ball) continue;
+
+    const lines = findLine(board, x, y, ball.color);
+    lines.forEach((line) => {
+      // Check if this line is already covered by previous positions
+      const lineKey = line.map(([lx, ly]) => `${lx},${ly}`).sort().join('|');
+      const existingLine = allLines.find((existingLine) => {
+        const existingKey = existingLine.map(([lx, ly]) => `${lx},${ly}`).sort().join('|');
+        return existingKey === lineKey;
+      });
+      
+      if (!existingLine) {
+        allLines.push(line);
+        line.forEach(([lx, ly]) => {
+          ballsToRemoveSet.add(`${lx},${ly}`);
+        });
+      }
+    });
+  }
+
+  if (ballsToRemoveSet.size === 0) return null;
+
+  // Convert set back to array
+  const ballsToRemove: [number, number][] = Array.from(ballsToRemoveSet).map(
+    (key) => {
+      const [x, y] = key.split(",").map(Number);
+      return [x, y];
+    },
+  );
+
+  // Remove balls
+  const boardAfterRemoval = board.map((row) =>
+    row.map((cell) => ({ ...cell })),
+  );
+  ballsToRemove.forEach(([x, y]) => {
+    boardAfterRemoval[y][x].ball = null;
+  });
+
+  return {
+    newBoard: boardAfterRemoval,
+    linesFormed: true,
+    ballsRemoved: ballsToRemove,
+    pointsEarned: ballsToRemove.length,
+  };
 } 

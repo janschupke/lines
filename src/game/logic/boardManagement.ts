@@ -1,6 +1,7 @@
 import { BOARD_SIZE, BALLS_PER_TURN } from "../config";
 import type { Cell, BallColor, ConversionResult } from "../types";
 import { getRandomNextBalls } from "./ballGeneration";
+import { handleMultiPositionLineDetection } from "./lineDetection";
 
 /**
  * Create an empty game board
@@ -141,17 +142,63 @@ export function handleIncomingBallConversion(
   // Generate next preview balls
   let nextPreviewBalls: BallColor[];
   let afterBalls: Cell[][];
+  const spawnedPositions: [number, number][] = [];
 
   if (steppedOnIncomingBall) {
-    // When stepping on an incoming ball, all incoming balls get converted to real balls
-    // Then we spawn 3 new incoming balls, with one being the recalculated stepped-on color
-    nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN - 1); // Get 2 random colors
-    nextPreviewBalls.push(steppedOnIncomingBall); // Add the recalculated color
-    afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
+    // When stepping on an incoming ball:
+    // 1. RECALCULATE the stepped-on ball to a NEW position as a REAL BALL
+    // 2. Convert all existing incoming balls to real balls
+    // 3. THEN generate 3 new preview balls for the next turn
+    
+    // STEP 1: RECALCULATE the stepped-on ball to a new position as a REAL BALL
+    const boardWithSteppedOnBall = placeRealBalls(boardWithRealBalls, [steppedOnIncomingBall]);
+    
+    // Track the position where the stepped-on ball was placed
+    const steppedOnPosition = findBallPosition(boardWithSteppedOnBall, steppedOnIncomingBall);
+    if (steppedOnPosition) {
+      spawnedPositions.push(steppedOnPosition);
+    }
+    
+    // STEP 2: Generate 3 new preview balls for the next turn
+    nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
+    afterBalls = placePreviewBalls(boardWithSteppedOnBall, nextPreviewBalls);
   } else {
     // Normal case: generate 3 new balls
     nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
     afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
+    
+    // Track positions of all spawned balls (converted from incoming balls)
+    for (let y = 0; y < BOARD_SIZE; y++) {
+      for (let x = 0; x < BOARD_SIZE; x++) {
+        if (afterBalls[y][x].ball && !board[y][x].ball) {
+          spawnedPositions.push([x, y]);
+        }
+      }
+    }
+  }
+  
+  // Also track positions of incoming balls that were converted to real balls
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      if (board[y][x].incomingBall && afterBalls[y][x].ball) {
+        spawnedPositions.push([x, y]);
+      }
+    }
+  }
+
+  // Check for lines formed by spawned balls
+  const lineResult = handleMultiPositionLineDetection(afterBalls, spawnedPositions);
+  
+  if (lineResult) {
+    // Lines were formed by spawning - return the board after line removal
+    return {
+      newBoard: lineResult.newBoard,
+      nextBalls: nextPreviewBalls,
+      gameOver: isBoardFull(lineResult.newBoard),
+      linesFormed: true,
+      ballsRemoved: lineResult.ballsRemoved,
+      pointsEarned: lineResult.pointsEarned,
+    };
   }
 
   return {
@@ -159,4 +206,18 @@ export function handleIncomingBallConversion(
     nextBalls: nextPreviewBalls,
     gameOver: isBoardFull(afterBalls),
   };
+} 
+
+/**
+ * Helper function to find the position of a ball with a specific color
+ */
+function findBallPosition(board: Cell[][], color: BallColor): [number, number] | null {
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      if (board[y][x].ball?.color === color) {
+        return [x, y];
+      }
+    }
+  }
+  return null;
 } 

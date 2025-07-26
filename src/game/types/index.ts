@@ -41,6 +41,9 @@ export interface GameStatistics {
 export interface GameState {
   board: Cell[][];
   score: number;
+  highScore: number;
+  isNewHighScore: boolean;
+  currentGameBeatHighScore: boolean;
   selected: { x: number; y: number } | null;
   gameOver: boolean;
   nextBalls: BallColor[];
@@ -63,6 +66,9 @@ export interface GameActions {
   handleCellLeave: () => void;
   handleNewGameFromDialog: () => void;
   handleCloseDialog: () => void;
+  checkAndUpdateHighScore: (score: number) => boolean;
+  resetNewHighScoreFlag: () => void;
+  resetCurrentGameHighScoreFlag: () => void;
 }
 
 // Game Phase Management Types

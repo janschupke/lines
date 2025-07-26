@@ -41,10 +41,45 @@ export const useGameStateManager = (
 
   // Game state
   const [score, setScore] = useState(savedState?.score || 0);
+  const [highScore, setHighScore] = useState(() => {
+    // Load high score from saved state or from separate storage
+    if (savedState?.highScore !== undefined) {
+      return savedState.highScore;
+    }
+    // Fallback to separate storage for legacy states
+    return StorageManager.loadHighScore();
+  });
   const [selected, setSelected] = useState<{ x: number; y: number } | null>(null);
   const [gameOver, setGameOver] = useState(savedState?.gameOver || false);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
   const [finalStatistics, setFinalStatistics] = useState<GameStatistics | null>(null);
+
+  // High score management
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [currentGameBeatHighScore, setCurrentGameBeatHighScore] = useState(false);
+
+  // Check and update high score
+  const checkAndUpdateHighScore = useCallback((currentScore: number) => {
+    if (currentScore > highScore) {
+      setHighScore(currentScore);
+      setIsNewHighScore(true);
+      setCurrentGameBeatHighScore(true);
+      return true;
+    } else if (currentScore === highScore && currentScore > 0) {
+      // If score equals current high score, don't set new high score flag
+      setIsNewHighScore(false);
+    }
+    return false;
+  }, [highScore]);
+
+  // Reset high score flags
+  const resetNewHighScoreFlag = useCallback(() => {
+    setIsNewHighScore(false);
+  }, []);
+
+  const resetCurrentGameHighScoreFlag = useCallback(() => {
+    setCurrentGameBeatHighScore(false);
+  }, []);
 
   // UI state
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
@@ -75,6 +110,7 @@ export const useGameStateManager = (
   // Move processor actions
   const moveProcessorActions = {
     setScore,
+    setHighScore,
     setGameOver,
     setShowGameEndDialog,
     setFinalStatistics,
@@ -138,12 +174,14 @@ export const useGameStateManager = (
           toX,
           toY,
           score,
-          gameOver,
           boardState.nextBalls,
           statisticsTracker,
           moveProcessorActions,
           timerState.timer,
           timerState.timerActive,
+          highScore,
+          isNewHighScore,
+          currentGameBeatHighScore,
         );
 
         // Start timer after first move
@@ -211,6 +249,9 @@ export const useGameStateManager = (
     const newGameState: GameState = {
       board: finalBoard,
       score: 0,
+      highScore,
+      isNewHighScore: false,
+      currentGameBeatHighScore: false,
       selected: null,
       gameOver: false,
       nextBalls: initialNext,
@@ -241,6 +282,9 @@ export const useGameStateManager = (
     {
       board: boardState.board,
       score,
+      highScore,
+      isNewHighScore,
+      currentGameBeatHighScore,
       selected,
       gameOver,
       nextBalls: boardState.nextBalls,
@@ -262,6 +306,9 @@ export const useGameStateManager = (
       handleCellLeave: cellHandlers.handleCellLeave,
       handleNewGameFromDialog,
       handleCloseDialog,
+      checkAndUpdateHighScore,
+      resetNewHighScoreFlag,
+      resetCurrentGameHighScoreFlag,
     },
   ];
 }; 

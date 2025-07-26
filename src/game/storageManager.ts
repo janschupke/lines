@@ -8,6 +8,7 @@ const GAME_STATE_STORAGE_KEY = "lines-game-state";
 export interface PersistedGameState {
   board: Cell[][];
   score: number;
+  highScore: number;
   nextBalls: BallColor[];
   timer: number;
   timerActive: boolean;
@@ -37,6 +38,7 @@ export class StorageManager {
       const persistedState: PersistedGameState = {
         board: gameState.board,
         score: gameState.score,
+        highScore: gameState.highScore,
         nextBalls: gameState.nextBalls,
         timer: gameState.timer,
         timerActive: gameState.timerActive,
@@ -74,10 +76,14 @@ export class StorageManager {
         parsed.statistics &&
         typeof parsed.statistics === "object"
       ) {
-        // Handle legacy saved states that don't have timerActive
+        // Handle legacy saved states that don't have timerActive or highScore
         const result = parsed as PersistedGameState;
         if (typeof result.timerActive !== "boolean") {
           result.timerActive = false; // Default to false for legacy states
+        }
+        if (typeof result.highScore !== "number") {
+          // For legacy states without highScore, try to load from separate storage
+          result.highScore = this.loadHighScore();
         }
         return result;
       }

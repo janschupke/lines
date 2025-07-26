@@ -371,6 +371,7 @@ describe("StorageManager", () => {
           }))
         ),
         score: 150,
+        highScore: 200,
         nextBalls: ["red", "blue", "green"] as BallColor[],
         timer: 120,
         timerActive: true,
@@ -414,6 +415,7 @@ describe("StorageManager", () => {
       const mockPersistedState: PersistedGameState = {
         board: boardWithPreviewBalls,
         score: 200,
+        highScore: 250,
         nextBalls: ["green", "yellow", "purple"] as BallColor[],
         timer: 180,
         timerActive: false,
@@ -584,6 +586,122 @@ describe("StorageManager", () => {
       const result = StorageManager.loadHighScore();
 
       expect(result).toBe(0);
+    });
+  });
+
+  describe("unified persistence", () => {
+    it("should not overwrite high score with lower score on page refresh", () => {
+      // Simulate a game state with a high score of 500 and current score of 100
+      const gameStateWithHighScore = {
+        board: Array(9).fill(null).map((_, y) =>
+          Array(9).fill(null).map((_, x) => ({
+            x,
+            y,
+            ball: null,
+            incomingBall: null,
+            active: false,
+          }))
+        ),
+        score: 100,
+        highScore: 500,
+        isNewHighScore: false,
+        currentGameBeatHighScore: false,
+        selected: null,
+        gameOver: false,
+        nextBalls: ["red", "blue", "green"] as BallColor[],
+        timer: 60,
+        timerActive: true,
+        movingBall: null,
+        movingStep: 0,
+        poppingBalls: new Set<string>(),
+        hoveredCell: null,
+        pathTrail: null,
+        notReachable: false,
+        showGameEndDialog: false,
+        statistics: {
+          turnsCount: 5,
+          gameDuration: 60,
+          linesPopped: 1,
+          individualBallsPopped: 5,
+          longestLinePopped: 5,
+          averageScorePerTurn: 20,
+          totalScore: 100,
+          scoreProgression: [100],
+          lineScores: [100],
+          peakScore: 100,
+          consecutiveHighScores: 0,
+          ballsCleared: 5,
+        },
+      };
+
+      // Save the game state
+      StorageManager.saveGameState(gameStateWithHighScore);
+
+      // Verify the saved data includes the high score
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      expect(savedData.highScore).toBe(500);
+      expect(savedData.score).toBe(100);
+
+      // Simulate page refresh by loading the game state
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(savedData));
+      const loadedState = StorageManager.loadGameState();
+
+      // Verify that the high score is preserved and not overwritten by the lower current score
+      expect(loadedState?.highScore).toBe(500);
+      expect(loadedState?.score).toBe(100);
+    });
+
+    it("should update high score when current score is higher", () => {
+      // Start with a game state where current score is higher than high score
+      const gameStateWithNewHighScore = {
+        board: Array(9).fill(null).map((_, y) =>
+          Array(9).fill(null).map((_, x) => ({
+            x,
+            y,
+            ball: null,
+            incomingBall: null,
+            active: false,
+          }))
+        ),
+        score: 600,
+        highScore: 500,
+        isNewHighScore: true,
+        currentGameBeatHighScore: true,
+        selected: null,
+        gameOver: false,
+        nextBalls: ["red", "blue", "green"] as BallColor[],
+        timer: 60,
+        timerActive: true,
+        movingBall: null,
+        movingStep: 0,
+        poppingBalls: new Set<string>(),
+        hoveredCell: null,
+        pathTrail: null,
+        notReachable: false,
+        showGameEndDialog: false,
+        statistics: {
+          turnsCount: 5,
+          gameDuration: 60,
+          linesPopped: 1,
+          individualBallsPopped: 5,
+          longestLinePopped: 5,
+          averageScorePerTurn: 120,
+          totalScore: 600,
+          scoreProgression: [600],
+          lineScores: [600],
+          peakScore: 600,
+          consecutiveHighScores: 1,
+          ballsCleared: 5,
+        },
+      };
+
+      // Save the game state
+      StorageManager.saveGameState(gameStateWithNewHighScore);
+
+      // Verify the saved data includes the updated high score
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      expect(savedData.highScore).toBe(600);
+      expect(savedData.score).toBe(600);
     });
   });
 }); 

@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import Board from "./Board";
-import GameEndDialog from "../ui/GameEndDialog";
 import Guide from "../ui/Guide";
+import GameEndDialog from "../ui/GameEndDialog";
 import MovingBall from "../ui/MovingBall";
-
 import { useGameState } from "../../game/state";
-import { useHighScore } from "../../hooks/useHighScore";
 import { useKeyboard } from "../../hooks/useKeyboard";
-import { formatTime } from "../../utils/formatters";
 import { getGameSizing, getBallColor } from "../../utils/helpers";
+import { formatTime } from "../../utils/formatters";
 import type { Cell, BallColor } from "../../game/types";
 
 interface GameProps {
@@ -25,7 +23,6 @@ const Game: React.FC<GameProps> = ({
   initialNextBalls,
 }) => {
   const [gameState, gameActions] = useGameState(initialBoard, initialNextBalls);
-  const { highScore, currentGameBeatHighScore, checkAndUpdateHighScore, resetNewHighScoreFlag, resetCurrentGameHighScoreFlag } = useHighScore();
 
   // State for fade animations
   const [isGuideClosing, setIsGuideClosing] = useState(false);
@@ -33,6 +30,8 @@ const Game: React.FC<GameProps> = ({
   const {
     board,
     score,
+    highScore,
+    currentGameBeatHighScore,
     selected,
     gameOver,
     nextBalls,
@@ -53,6 +52,9 @@ const Game: React.FC<GameProps> = ({
     handleCellLeave,
     handleNewGameFromDialog,
     handleCloseDialog,
+    checkAndUpdateHighScore,
+    resetNewHighScoreFlag,
+    resetCurrentGameHighScoreFlag,
   } = gameActions;
 
   // Handle guide close with fade out animation

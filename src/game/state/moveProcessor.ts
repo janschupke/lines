@@ -30,12 +30,14 @@ export async function processMove(
   toX: number,
   toY: number,
   currentScore: number,
-  currentGameOver: boolean,
   nextBalls: BallColor[],
   statisticsTracker: StatisticsTracker,
   actions: MoveProcessorActions,
   currentTimer: number,
   currentTimerActive: boolean,
+  highScore: number,
+  isNewHighScore: boolean,
+  currentGameBeatHighScore: boolean,
 ): Promise<void> {
   // Handle move completion
   const moveResult = handleMoveCompletion(board, fromX, fromY, toX, toY);
@@ -49,9 +51,9 @@ export async function processMove(
   const lineResult = handleLineDetection(moveResult.newBoard, toX, toY);
 
   if (lineResult) {
-    await handleLineRemoval(lineResult, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, nextBalls);
+    await handleLineRemoval(lineResult, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, nextBalls, highScore, isNewHighScore, currentGameBeatHighScore);
   } else {
-    await handleBallConversion(moveResult.newBoard, toX, toY, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive);
+    await handleBallConversion(moveResult.newBoard, toX, toY, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
   }
 }
 
@@ -63,6 +65,9 @@ async function handleLineRemoval(
   currentTimer: number,
   currentTimerActive: boolean,
   nextBalls: BallColor[],
+  highScore: number,
+  isNewHighScore: boolean,
+  currentGameBeatHighScore: boolean,
 ): Promise<void> {
   // Update score
   const newScore = currentScore + (lineResult.pointsEarned || 0);
@@ -84,7 +89,7 @@ async function handleLineRemoval(
     actions.setPoppingBalls(new Set());
     actions.setBoard(lineResult.newBoard);
     // Persist the final state after line removal animation completes
-    persistGameState(lineResult.newBoard, nextBalls, newScore, false, statisticsTracker, currentTimer, currentTimerActive);
+    persistGameState(lineResult.newBoard, nextBalls, newScore, false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
   }, ANIMATION_DURATIONS.POP_BALL);
 }
 
@@ -97,6 +102,9 @@ async function handleBallConversion(
   actions: MoveProcessorActions,
   currentTimer: number,
   currentTimerActive: boolean,
+  highScore: number,
+  isNewHighScore: boolean,
+  currentGameBeatHighScore: boolean,
 ): Promise<void> {
   // Check if we stepped on an incoming ball
   const steppedOnIncomingBall = board[toY][toX].incomingBall?.color;
@@ -121,13 +129,13 @@ async function handleBallConversion(
       actions.setPoppingBalls(new Set());
       actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
       // Persist the final state after ball conversion animation completes
-      persistGameState(conversionResult.newBoard, conversionResult.nextBalls, newScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive);
+      persistGameState(conversionResult.newBoard, conversionResult.nextBalls, newScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
     }, ANIMATION_DURATIONS.POP_BALL);
   } else {
     // No lines formed by spawning
     actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
     // Persist the final state immediately since no animation is needed
-    persistGameState(conversionResult.newBoard, conversionResult.nextBalls, currentScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive);
+    persistGameState(conversionResult.newBoard, conversionResult.nextBalls, currentScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
   }
 
   if (conversionResult.gameOver) {
@@ -146,10 +154,16 @@ function persistGameState(
   statisticsTracker: StatisticsTracker,
   timer: number,
   timerActive: boolean,
+  highScore: number,
+  isNewHighScore: boolean,
+  currentGameBeatHighScore: boolean,
 ): void {
   const gameState = {
     board,
     score,
+    highScore,
+    isNewHighScore,
+    currentGameBeatHighScore,
     selected: null,
     gameOver,
     nextBalls,

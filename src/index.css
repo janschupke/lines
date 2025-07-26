@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remove focus outlines globally */
+button:focus {
+  outline: none !important;
+}
+
+button:focus-visible {
+  outline: none !important;
+}
+
 /* Game-specific styles */
 @layer components {
   .game-board {
@@ -214,7 +223,15 @@
 
 /* Enhanced focus styles */
 .game-button:focus {
-  @apply outline-none ring-2 ring-game-border-accent ring-offset-2 ring-offset-game-bg-primary;
+  @apply outline-none ring-0;
+}
+
+.game-button:focus-visible {
+  @apply outline-none ring-0;
+}
+
+.game-button:focus-within {
+  @apply outline-none ring-0;
 }
 
 .game-cell:focus {

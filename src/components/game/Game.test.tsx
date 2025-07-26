@@ -17,6 +17,9 @@ vi.mock("../../game/state", () => ({
         }))
       ),
       score: 100,
+      highScore: 500,
+      isNewHighScore: false,
+      currentGameBeatHighScore: false,
       gameOver: false,
       nextBalls: ["red", "blue", "green"],
       timer: 60,
@@ -50,20 +53,11 @@ vi.mock("../../game/state", () => ({
       handleCellLeave: vi.fn(),
       handleNewGameFromDialog: vi.fn(),
       handleCloseDialog: vi.fn(),
+      checkAndUpdateHighScore: vi.fn(),
+      resetNewHighScoreFlag: vi.fn(),
+      resetCurrentGameHighScoreFlag: vi.fn(),
     },
   ],
-}));
-
-// Mock the high score hook
-vi.mock("../../hooks/useHighScore", () => ({
-  useHighScore: () => ({
-    highScore: 500,
-    isNewHighScore: false,
-    currentGameBeatHighScore: false,
-    checkAndUpdateHighScore: vi.fn(),
-    resetNewHighScoreFlag: vi.fn(),
-    resetCurrentGameHighScoreFlag: vi.fn(),
-  }),
 }));
 
 // Mock the keyboard hook
@@ -101,15 +95,20 @@ describe("Game", () => {
   it("renders New Game button", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
     
-    expect(screen.getByTestId("new-game-button")).toBeInTheDocument();
-    expect(screen.getByTestId("new-game-button")).toHaveTextContent("New");
+    const newGameButton = screen.getByTestId("new-game-button");
+    expect(newGameButton).toBeInTheDocument();
+    // Check that the button has the refresh icon (SVG)
+    expect(newGameButton.querySelector("svg")).toBeInTheDocument();
   });
 
-  it("renders New Game button with correct text", () => {
+  it("renders New Game button with correct icon", () => {
     render(<Game showGuide={false} setShowGuide={vi.fn()} />);
     
     const newGameButton = screen.getByTestId("new-game-button");
     expect(newGameButton).toBeInTheDocument();
-    expect(newGameButton).toHaveTextContent("New");
+    // Check that the button has the refresh icon (SVG)
+    expect(newGameButton.querySelector("svg")).toBeInTheDocument();
+    // Check that the button has the correct title
+    expect(newGameButton).toHaveAttribute("title", "New Game");
   });
 }); 

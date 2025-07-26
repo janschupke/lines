@@ -105,4 +105,10 @@ export class StatisticsTracker {
       ballsCleared: 0,
     };
   }
+
+  loadStatistics(statistics: GameStatistics) {
+    this.statistics = { ...statistics };
+    // Adjust game start time based on saved duration
+    this.gameStartTime = Date.now() - (statistics.gameDuration * 1000);
+  }
 }

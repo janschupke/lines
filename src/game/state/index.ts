@@ -21,30 +21,45 @@ import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { useGameAnimation } from "../../hooks/useGameAnimation";
 import { StatisticsTracker } from "../statisticsTracker";
+import { StorageManager, type PersistedGameState } from "../storageManager";
 
 export const useGameState = (
   initialBoard?: Cell[][],
   initialNextBalls?: BallColor[],
 ): [GameState, GameActions] => {
+  // Load saved game state on initialization
+  const [savedState] = useState<PersistedGameState | null>(() => {
+    return StorageManager.loadGameState();
+  });
+
   // Board, selection, next balls
-  const boardState = useGameBoard(initialBoard, initialNextBalls);
+  const boardState = useGameBoard(
+    savedState?.board || initialBoard,
+    savedState?.nextBalls || initialNextBalls,
+  );
   // Timer
-  const timerState = useGameTimer();
+  const timerState = useGameTimer(savedState?.timer || 0);
   // Animation
   const animationState = useGameAnimation();
 
   // Additional state
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(savedState?.score || 0);
   const [selected, setSelected] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [gameOver, setGameOver] = useState(false);
-  const [timer, setTimer] = useState(0);
+  const [gameOver, setGameOver] = useState(savedState?.gameOver || false);
+  const [timer, setTimer] = useState(savedState?.timer || 0);
   const [showGameEndDialog, setShowGameEndDialog] = useState(false);
   const [finalStatistics, setFinalStatistics] = useState<GameStatistics | null>(null);
 
   // Game statistics tracker
-  const [statisticsTracker] = useState(() => new StatisticsTracker());
+  const [statisticsTracker] = useState(() => {
+    const tracker = new StatisticsTracker();
+    if (savedState?.statistics) {
+      tracker.loadStatistics(savedState.statistics);
+    }
+    return tracker;
+  });
 
   const [hoveredCell, setHoveredCell] = useState<{
     x: number;
@@ -189,6 +204,28 @@ export const useGameState = (
           timerState.setTimerActive(true);
         }
 
+        // Helper function to persist game state with current board
+        const persistGameState = (finalBoard: Cell[][], finalNextBalls: BallColor[], finalScore: number, finalGameOver: boolean) => {
+          const currentGameState: GameState = {
+            board: finalBoard,
+            score: finalScore,
+            selected: null,
+            gameOver: finalGameOver,
+            nextBalls: finalNextBalls,
+            timer: timerState.timer,
+            timerActive: timerState.timerActive,
+            movingBall: null,
+            movingStep: 0,
+            poppingBalls: new Set(),
+            hoveredCell: null,
+            pathTrail: null,
+            notReachable: false,
+            showGameEndDialog: false,
+            statistics: statisticsTracker.getCurrentStatistics(),
+          };
+          StorageManager.saveGameState(currentGameState);
+        };
+
         // Check for lines and handle removal
         const lineResult = handleLineDetection(
           moveResult.newBoard,
@@ -222,6 +259,9 @@ export const useGameState = (
 
             // Keep incoming balls in their current positions - don't recalculate
             boardState.setBoard(lineResult.newBoard);
+            
+            // Persist game state after line removal is complete
+            persistGameState(lineResult.newBoard, boardState.nextBalls, score + lineResult.pointsEarned!, gameOver);
           }, ANIMATION_DURATIONS.POP_BALL);
         } else {
           // No lines formed - convert incoming balls
@@ -252,10 +292,16 @@ export const useGameState = (
             setTimeout(() => {
               animationState.setPoppingBalls(new Set());
               boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+              
+                          // Persist game state after ball conversion and line removal is complete
+            persistGameState(conversionResult.newBoard, conversionResult.nextBalls, score + conversionResult.pointsEarned!, gameOver);
             }, ANIMATION_DURATIONS.POP_BALL);
           } else {
             // No lines formed by spawning
             boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+            
+            // Persist game state after ball conversion is complete
+            persistGameState(conversionResult.newBoard, conversionResult.nextBalls, score, gameOver);
           }
 
           if (conversionResult.gameOver) {
@@ -265,6 +311,11 @@ export const useGameState = (
             setGameOver(true);
             setShowGameEndDialog(true);
           }
+        }
+
+        // If no lines were formed and no ball conversion happened, persist the simple move
+        if (!lineResult) {
+          persistGameState(moveResult.newBoard, boardState.nextBalls, score, gameOver);
         }
 
         // Note: handleIncomingBallConversion already places the recalculated preview balls on the board
@@ -311,7 +362,7 @@ export const useGameState = (
     boardState.setBoard(finalBoard);
     setScore(0);
     setGameOver(false);
-    boardState.setNextBalls(getRandomNextBalls(BALLS_PER_TURN), finalBoard);
+    boardState.setNextBalls(initialNext, finalBoard);
     setTimer(0);
     timerState.setTimerActive(false);
     timerState.resetTimer();
@@ -327,6 +378,27 @@ export const useGameState = (
     // Reset statistics
     statisticsTracker.reset();
     setFinalStatistics(null);
+
+    // Clear saved game state and persist new game
+    StorageManager.clearGameState();
+    const newGameState: GameState = {
+      board: finalBoard,
+      score: 0,
+      selected: null,
+      gameOver: false,
+      nextBalls: initialNext,
+      timer: 0,
+      timerActive: false,
+      movingBall: null,
+      movingStep: 0,
+      poppingBalls: new Set(),
+      hoveredCell: null,
+      pathTrail: null,
+      notReachable: false,
+      showGameEndDialog: false,
+      statistics: statisticsTracker.getCurrentStatistics(),
+    };
+    StorageManager.saveGameState(newGameState);
   }, [boardState, timerState, animationState, statisticsTracker]);
 
   const handleNewGameFromDialog = useCallback(() => {

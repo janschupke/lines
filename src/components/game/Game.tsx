@@ -188,6 +188,13 @@ const Game: React.FC<GameProps> = ({
               {highScore}
             </span>
           </div>
+          <button
+            onClick={startNewGame}
+            className="mt-2 px-4 py-2 bg-game-button-primary text-game-text-primary font-semibold rounded-lg hover:bg-game-button-hover transition-colors duration-200"
+            data-testid="new-game-button"
+          >
+            New Game
+          </button>
         </div>
       </div>
 

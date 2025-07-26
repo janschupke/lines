@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { TIMER_INTERVAL_MS, INACTIVITY_TIMEOUT_MS } from "../game/config";
 
-export const useGameTimer = () => {
-  const [timer, setTimer] = useState(0);
+export const useGameTimer = (initialTimer: number = 0) => {
+  const [timer, setTimer] = useState(initialTimer);
   const [timerActive, setTimerActive] = useState(false);
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 

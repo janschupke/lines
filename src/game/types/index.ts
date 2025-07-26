@@ -1,5 +1,5 @@
 import { BALL_COLORS } from "../config";
-import type { FloatingScore } from "../../hooks/useGameAnimation";
+import type { FloatingScore, GrowingBall } from "../../hooks/useGameAnimation";
 
 export type BallColor = typeof BALL_COLORS[number];
 
@@ -59,6 +59,7 @@ export interface GameState {
   showGameEndDialog: boolean;
   statistics: GameStatistics;
   floatingScores: FloatingScore[];
+  growingBalls: GrowingBall[];
 }
 
 export interface GameActions {

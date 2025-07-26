@@ -1,24 +1,24 @@
-import type { Cell, BallColor, GameStatistics, MoveResult as GameMoveResult } from "../types";
 import { ANIMATION_DURATIONS } from "../config";
-import {
-  handleMoveCompletion,
-  handleLineDetection,
-  handleIncomingBallConversion,
-} from "../logic";
-import { StatisticsTracker } from "../statisticsTracker";
+import type { Cell, BallColor, GameState, GameStatistics, MoveResult } from "../types";
+import type { StatisticsTracker } from "../statisticsTracker";
+import { handleIncomingBallConversion } from "../logic/boardManagement";
+import { handleMoveCompletion } from "../logic/moveHandler";
+import { handleLineDetection } from "../logic/lineDetection";
 import { StorageManager } from "../storageManager";
 
 export interface MoveProcessorActions {
   setScore: (score: number) => void;
+  setHighScore: (highScore: number) => void;
   setGameOver: (gameOver: boolean) => void;
   setShowGameEndDialog: (show: boolean) => void;
   setFinalStatistics: (stats: GameStatistics | null) => void;
-  setPoppingBalls: (poppingBalls: Set<string>) => void;
+  setPoppingBalls: (balls: Set<string>) => void;
   setBoard: (board: Cell[][]) => void;
   setNextBalls: (nextBalls: BallColor[], board?: Cell[][]) => void;
   onActivity: () => void;
   setTimerActive: (active: boolean) => void;
   addFloatingScore: (score: number, x: number, y: number) => void;
+  addGrowingBall: (x: number, y: number, color: BallColor, isTransitioning: boolean) => void;
 }
 
 /**
@@ -41,7 +41,7 @@ export async function processMove(
   currentGameBeatHighScore: boolean,
 ): Promise<void> {
   // Handle move completion
-  const moveResult = handleMoveCompletion(board, fromX, fromY, toX, toY);
+  const moveResult: MoveResult = handleMoveCompletion(board, fromX, fromY, toX, toY);
   actions.setBoard(moveResult.newBoard);
 
   // Update statistics and timer
@@ -121,6 +121,33 @@ async function handleBallConversion(
   
   const conversionResult = handleIncomingBallConversion(board, steppedOnIncomingBall);
   
+  // Update board state first
+  actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+  
+  // Trigger growing ball animations for converted balls (now on the updated board)
+  for (let y = 0; y < conversionResult.newBoard.length; y++) {
+    for (let x = 0; x < conversionResult.newBoard[y].length; x++) {
+      const newCell = conversionResult.newBoard[y][x];
+      const oldCell = board[y][x];
+      if (oldCell.incomingBall && newCell.ball) {
+        // This is a ball transitioning from preview to real
+        actions.addGrowingBall(x, y, oldCell.incomingBall.color, true);
+      }
+    }
+  }
+  
+  // Trigger growing ball animations for new preview balls
+  for (let y = 0; y < conversionResult.newBoard.length; y++) {
+    for (let x = 0; x < conversionResult.newBoard[y].length; x++) {
+      const newCell = conversionResult.newBoard[y][x];
+      const oldCell = board[y][x];
+      if (newCell.incomingBall && !oldCell.incomingBall) {
+        // This is a new preview ball being placed
+        actions.addGrowingBall(x, y, newCell.incomingBall.color, false);
+      }
+    }
+  }
+  
   if (conversionResult.linesFormed) {
     // Lines were formed by spawning balls
     const newScore = currentScore + (conversionResult.pointsEarned || 0);
@@ -133,8 +160,8 @@ async function handleBallConversion(
     // Add floating score animation
     if (conversionResult.ballsRemoved && conversionResult.ballsRemoved.length > 0) {
       // Calculate center of the popped line
-      const centerX = conversionResult.ballsRemoved.reduce((sum, [x]) => sum + x, 0) / conversionResult.ballsRemoved.length;
-      const centerY = conversionResult.ballsRemoved.reduce((sum, [, y]) => sum + y, 0) / conversionResult.ballsRemoved.length;
+      const centerX = conversionResult.ballsRemoved.reduce((sum: number, [x]: [number, number]) => sum + x, 0) / conversionResult.ballsRemoved.length;
+      const centerY = conversionResult.ballsRemoved.reduce((sum: number, [, y]: [number, number]) => sum + y, 0) / conversionResult.ballsRemoved.length;
       
       actions.addFloatingScore(conversionResult.pointsEarned || 0, Math.round(centerX), Math.round(centerY));
     }
@@ -146,14 +173,11 @@ async function handleBallConversion(
 
     setTimeout(() => {
       actions.setPoppingBalls(new Set());
-      actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
       // Persist the final state after ball conversion animation completes
       persistGameState(conversionResult.newBoard, conversionResult.nextBalls, newScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
     }, ANIMATION_DURATIONS.POP_BALL);
   } else {
-    // No lines formed by spawning
-    actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
-    // Persist the final state immediately since no animation is needed
+    // No lines formed by spawning - persist the final state immediately
     persistGameState(conversionResult.newBoard, conversionResult.nextBalls, currentScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
   }
 
@@ -177,7 +201,7 @@ function persistGameState(
   isNewHighScore: boolean,
   currentGameBeatHighScore: boolean,
 ): void {
-  const gameState = {
+  const gameState: GameState = {
     board,
     score,
     highScore,
@@ -190,11 +214,13 @@ function persistGameState(
     timerActive,
     movingBall: null,
     movingStep: 0,
-    poppingBalls: new Set<string>(),
+    poppingBalls: new Set(),
     hoveredCell: null,
     pathTrail: null,
     notReachable: false,
     showGameEndDialog: false,
+    floatingScores: [],
+    growingBalls: [],
     statistics: statisticsTracker.getCurrentStatistics(),
   };
   StorageManager.saveGameState(gameState);

@@ -120,6 +120,7 @@ export const useGameStateManager = (
     onActivity: timerState.onActivity,
     setTimerActive: timerState.setTimerActive,
     addFloatingScore: animationState.addFloatingScore,
+    addGrowingBall: animationState.addGrowingBall,
   };
 
   // Cell interaction handlers
@@ -266,6 +267,7 @@ export const useGameStateManager = (
       notReachable: false,
       showGameEndDialog: false,
       floatingScores: [],
+      growingBalls: [],
       statistics: statisticsTracker.getCurrentStatistics(),
     };
     StorageManager.saveGameState(newGameState);
@@ -300,6 +302,7 @@ export const useGameStateManager = (
       notReachable,
       showGameEndDialog,
       floatingScores: animationState.floatingScores,
+      growingBalls: animationState.growingBalls,
       statistics: finalStatistics || statisticsTracker.getCurrentStatistics(),
     },
     {

@@ -9,6 +9,15 @@ export interface FloatingScore {
   timestamp: number;
 }
 
+export interface GrowingBall {
+  id: string;
+  x: number;
+  y: number;
+  color: BallColor;
+  isTransitioning: boolean; // true if transitioning from preview to real, false if new preview
+  timestamp: number;
+}
+
 export const useGameAnimation = () => {
   const [movingBall, setMovingBall] = useState<null | {
     color: BallColor;
@@ -17,6 +26,7 @@ export const useGameAnimation = () => {
   const [movingStep, setMovingStep] = useState(0);
   const [poppingBalls, setPoppingBalls] = useState<Set<string>>(new Set());
   const [floatingScores, setFloatingScores] = useState<FloatingScore[]>([]);
+  const [growingBalls, setGrowingBalls] = useState<GrowingBall[]>([]);
 
   const startMoveAnimation = useCallback(
     (ball: BallColor, path: [number, number][]) => {
@@ -49,6 +59,25 @@ export const useGameAnimation = () => {
     }, 1000);
   }, []);
 
+  const addGrowingBall = useCallback((x: number, y: number, color: BallColor, isTransitioning: boolean) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    const newGrowingBall: GrowingBall = {
+      id,
+      x,
+      y,
+      color,
+      isTransitioning,
+      timestamp: Date.now(),
+    };
+    
+    setGrowingBalls(prev => [...prev, newGrowingBall]);
+    
+    // Remove the growing ball after animation completes
+    setTimeout(() => {
+      setGrowingBalls(prev => prev.filter(gb => gb.id !== id));
+    }, 600); // Match the CSS animation duration
+  }, []);
+
   return {
     movingBall,
     setMovingBall,
@@ -57,7 +86,9 @@ export const useGameAnimation = () => {
     poppingBalls,
     setPoppingBalls,
     floatingScores,
+    growingBalls,
     addFloatingScore,
+    addGrowingBall,
     startMoveAnimation,
     stopMoveAnimation,
   };

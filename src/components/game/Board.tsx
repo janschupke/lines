@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import type { Cell } from "../../game/types";
+import type { GrowingBall } from "../../hooks/useGameAnimation";
 import { getBallColor, getGameSizing } from "../../utils/helpers";
 
 interface BoardProps {
@@ -14,6 +15,7 @@ interface BoardProps {
   onCellHover?: (x: number, y: number) => void;
   onCellLeave?: () => void;
   selected?: { x: number; y: number } | null;
+  growingBalls?: GrowingBall[];
 }
 
 const Board: React.FC<BoardProps> = ({
@@ -28,6 +30,7 @@ const Board: React.FC<BoardProps> = ({
   onCellHover,
   onCellLeave,
   selected,
+  growingBalls = [],
 }) => {
   // Get unified sizing
   const sizing = getGameSizing();
@@ -136,13 +139,23 @@ const Board: React.FC<BoardProps> = ({
                   cell.active || isSelected
                     ? "game-ball-active"
                     : "animate-move-ball"
-                } ${popping ? "z-20 animate-pop-ball" : ""} ${sizing.ballSizeClass}`}
+                } ${
+                  growingBalls.find(gb => gb.x === cell.x && gb.y === cell.y && gb.isTransitioning)
+                    ? "grow-ball-transition"
+                    : popping
+                    ? "z-20 animate-pop-ball"
+                    : ""
+                } ${sizing.ballSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.ball.color) }}
               />
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${sizing.incomingBallSizeClass}`}
+                className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
+                  growingBalls.find(gb => gb.x === cell.x && gb.y === cell.y && !gb.isTransitioning)
+                    ? "grow-ball-new"
+                    : ""
+                } ${sizing.incomingBallSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
               />
             )}

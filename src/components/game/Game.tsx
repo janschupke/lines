@@ -51,6 +51,7 @@ const Game: React.FC<GameProps> = ({
     notReachable,
     showGameEndDialog,
     floatingScores,
+    growingBalls,
   } = gameState;
 
   const {
@@ -248,6 +249,7 @@ const Game: React.FC<GameProps> = ({
               onCellHover={handleCellHover}
               onCellLeave={handleCellLeave}
               selected={selected}
+              growingBalls={growingBalls}
             >
               {movingBallEl}
             </Board>

@@ -233,7 +233,6 @@ const Game: React.FC<GameProps> = ({
                 className={`absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide ${
                   isGuideClosing ? 'animate-in fade-out duration-300' : 'animate-in fade-in duration-300'
                 }`}
-                onClick={handleGuideClose}
               >
                 <Guide onClose={handleGuideClose} />
               </div>

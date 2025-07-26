@@ -23,62 +23,65 @@ const Guide: React.FC<GuideProps> = ({ onClose }) => {
       </div>
       
       <div className="flex-1 overflow-auto scrollbar-hide">
-        <div className="space-y-3 text-game-text-secondary text-sm">
-          <p>• Click on a ball to select it</p>
-          <p>• Click on an empty cell to move the ball</p>
-          <p>• Form lines of 5+ balls to clear them</p>
+        <div className="space-y-4 text-game-text-secondary text-base">
           <p>
-            •{" "}
-            <strong>Only your moves trigger line removal and scoring</strong>
+            Welcome to Lines! This is a strategic puzzle game where you need to clear colored balls by forming lines of 5 or more matching colors.
           </p>
-          <p>• Automatic ball placement won't clear lines</p>
-          <p>• Longer lines = more points!</p>
-          <p>• Game ends when board is full</p>
+          
+          <p>
+            To play, simply click on a ball to select it, then click on an empty cell where you'd like to move it. The game will automatically find the best path for your ball to reach its destination.
+          </p>
+          
+          <p>
+            The longer the line you create, the more points you'll earn. Try to plan ahead and create multiple lines at once for maximum scoring potential.
+          </p>
+          
+          <p>
+            The game ends when the board becomes completely full. Your goal is to achieve the highest score possible before that happens!
+          </p>
         </div>
         
-        <div className="mt-6">
-          <h4 className="game-title mb-3 text-base">
-            Scoring:
-          </h4>
-          <table className="w-full text-sm">
-            <tbody>
-              <tr className="text-game-text-accent">
-                <td>5 balls:</td>
-                <td>5 points</td>
-              </tr>
-              <tr className="text-game-text-secondary">
-                <td>6 balls:</td>
-                <td>8 points</td>
-              </tr>
-              <tr className="text-game-text-secondary">
-                <td>7 balls:</td>
-                <td>13 points</td>
-              </tr>
-              <tr className="text-game-text-secondary">
-                <td>8 balls:</td>
-                <td>21 points</td>
-              </tr>
-              <tr className="text-game-text-secondary">
-                <td>9 balls:</td>
-                <td>34 points</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-6">
-          <h4 className="game-title mb-3 text-base">
-            Hotkeys:
-          </h4>
-          <div className="space-y-2 text-sm text-game-text-secondary">
-            <p>• <strong>G</strong> - Toggle guide</p>
-            <p>• <strong>N</strong> - New game</p>
-            <p>• <strong>Escape</strong> - Close any overlay</p>
+        <div className="mt-6 flex gap-6">
+          <div className="flex-1">
+            <h4 className="game-title mb-3 text-base">
+              Scoring:
+            </h4>
+            <table className="w-full text-base">
+              <tbody>
+                <tr className="text-game-text-accent">
+                  <td>5 balls:</td>
+                  <td>5 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>6 balls:</td>
+                  <td>8 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>7 balls:</td>
+                  <td>13 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>8 balls:</td>
+                  <td>21 points</td>
+                </tr>
+                <tr className="text-game-text-secondary">
+                  <td>9 balls:</td>
+                  <td>34 points</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </div>
 
-        <div className="mt-6 text-game-text-accent font-semibold text-center text-base">
-          Good luck!
+          <div className="flex-1">
+            <h4 className="game-title mb-3 text-base">
+              Hotkeys:
+            </h4>
+            <div className="space-y-2 text-base text-game-text-secondary">
+              <p>• <strong>G</strong> - Toggle guide</p>
+              <p>• <strong>N</strong> - New game</p>
+              <p>• <strong>Escape</strong> - Close any overlay</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

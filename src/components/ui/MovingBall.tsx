@@ -1,4 +1,5 @@
 import React from "react";
+import { getBallColor, getGameSizing } from "../../utils/helpers";
 
 interface MovingBallProps {
   color: string;
@@ -7,13 +8,16 @@ interface MovingBallProps {
 }
 
 const MovingBall: React.FC<MovingBallProps> = ({ color, left, top }) => {
+  const sizing = getGameSizing();
+
   return (
     <div
-      className={`absolute rounded-full border-2 border-game-border-ball shadow-[0_1px_4px_theme(colors.game.shadow.ball)] bg-ball-${color} w-ball h-ball z-game-dialog`}
+      className={`absolute game-ball ${sizing.ballSizeClass} z-game-dialog animate-float`}
       style={{
         left,
         top,
         pointerEvents: "none",
+        backgroundColor: getBallColor(color),
       }}
     />
   );

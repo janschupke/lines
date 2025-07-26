@@ -1,40 +1,20 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import Board from "./Board";
+import Guide from "../ui/Guide";
 import GameEndDialog from "../ui/GameEndDialog";
 import MovingBall from "../ui/MovingBall";
-import MobileControls from "./MobileControls";
-import { HighScoreButton } from "../ui/HighScoreButton";
-import { HighScoreOverlay } from "../ui/HighScoreOverlay";
-import { PlayerNameInput } from "../ui/PlayerNameInput";
+import FloatingScoreComponent from "../ui/FloatingScore";
 import { useGameState } from "../../game/state";
-import { useMobileOptimization } from "../../hooks/useMobileOptimization";
+import { useKeyboard } from "../../hooks/useKeyboard";
+import { getGameSizing, getBallColor } from "../../utils/helpers";
 import { formatTime } from "../../utils/formatters";
-import { getGameSpacing } from "../../utils/helpers";
-import { createHighScoreService } from "../../services/HighScoreServiceFactory";
-import type { HighScore } from "../../services/HighScoreService";
-import type { HighScoreServiceInterface } from "../../services/HighScoreServiceFactory";
-import { useConnectionStatus } from "../../services/useConnectionStatus";
-import type { Cell } from "../../game/types";
-import type { BallColor } from "../../game/constants";
-
-// Helper to get the pixel position of a cell in the board
-const getCellPosition = (x: number, y: number) => {
-  // Get dynamic values from CSS custom properties
-  const { cellSize, gapSize, ballSize, boardPadding } = getGameSpacing();
-  const OFFSET = (cellSize - ballSize) / 2;
-
-  return {
-    left: boardPadding + x * (cellSize + gapSize) + OFFSET,
-    top: boardPadding + y * (cellSize + gapSize) + OFFSET,
-  };
-};
+import type { Cell, BallColor } from "../../game/types";
 
 interface GameProps {
   showGuide: boolean;
   setShowGuide: (v: boolean) => void;
   initialBoard?: Cell[][];
   initialNextBalls?: BallColor[];
-  highScoreService?: HighScoreServiceInterface;
 }
 
 const Game: React.FC<GameProps> = ({
@@ -42,35 +22,24 @@ const Game: React.FC<GameProps> = ({
   setShowGuide,
   initialBoard,
   initialNextBalls,
-  highScoreService: injectedHighScoreService,
 }) => {
-  // Create high score service instance or use injected one
-  const highScoreService = useMemo(
-    () => injectedHighScoreService || createHighScoreService(),
-    [injectedHighScoreService],
-  );
-  const { isMobile } = useMobileOptimization();
   const [gameState, gameActions] = useGameState(initialBoard, initialNextBalls);
-  const [showHighScoreOverlay, setShowHighScoreOverlay] = useState(false);
-  const [showPlayerNameInput, setShowPlayerNameInput] = useState(false);
-  const [pendingHighScore, setPendingHighScore] = useState<{
-    score: number;
-    playerName?: string;
-    statistics?: {
-      turnsCount?: number;
-      ballsCleared?: number;
-      linesPopped?: number;
-      longestLinePopped?: number;
-      individualBallsPopped?: number;
-    };
-  } | null>(null);
-  const [topScores, setTopScores] = useState<HighScore[]>([]);
-  const [loadingScores, setLoadingScores] = useState(false);
-  const connection = useConnectionStatus(highScoreService);
+
+  // State for fade animations
+  const [isGuideClosing, setIsGuideClosing] = useState(false);
+
+  // State for score flash animations
+  const [scoreFlash, setScoreFlash] = useState(false);
+  const [highScoreFlash, setHighScoreFlash] = useState(false);
+  const [prevScore, setPrevScore] = useState(0);
+  const [prevHighScore, setPrevHighScore] = useState(0);
 
   const {
     board,
     score,
+    highScore,
+    currentGameBeatHighScore,
+    selected,
     gameOver,
     nextBalls,
     timer,
@@ -80,10 +49,9 @@ const Game: React.FC<GameProps> = ({
     hoveredCell,
     pathTrail,
     notReachable,
-    currentHighScore,
-    isNewHighScore,
     showGameEndDialog,
-    statistics,
+    floatingScores,
+    growingBalls,
   } = gameState;
 
   const {
@@ -93,314 +61,270 @@ const Game: React.FC<GameProps> = ({
     handleCellLeave,
     handleNewGameFromDialog,
     handleCloseDialog,
+    checkAndUpdateHighScore,
+    resetNewHighScoreFlag,
+    resetCurrentGameHighScoreFlag,
   } = gameActions;
 
-  // Fetch top scores when overlay is opened
-  useEffect(() => {
-    if (showHighScoreOverlay) {
-      setLoadingScores(true);
-      highScoreService.getTopScores(20).then((scores: HighScore[]) => {
-        setTopScores(scores);
-        setLoadingScores(false);
-      });
-    }
-  }, [showHighScoreOverlay, highScoreService]);
+  // Handle guide close with fade out animation
+  const handleGuideClose = () => {
+    setIsGuideClosing(true);
+    setTimeout(() => {
+      setShowGuide(false);
+      setIsGuideClosing(false);
+    }, 300); // Match the animation duration
+  };
 
-  // Set pending high score when a new high score is achieved
-  useEffect(() => {
-    if (isNewHighScore && gameOver) {
-      setPendingHighScore({
-        score,
-        statistics: {
-          turnsCount: statistics.turnsCount,
-          ballsCleared: statistics.ballsCleared,
-          linesPopped: statistics.linesPopped,
-          longestLinePopped: statistics.longestLinePopped,
-          individualBallsPopped: statistics.individualBallsPopped,
-        },
-      });
+  // Keyboard event handling
+  useKeyboard({
+    onKeyG: () => {
+      if (showGuide) {
+        handleGuideClose();
+      } else {
+        setShowGuide(true);
+      }
+    },
+    onKeyN: () => startNewGame(),
+    onKeyEscape: () => {
+      if (showGuide) {
+        handleGuideClose();
+      }
+      if (showGameEndDialog) {
+        handleCloseDialog();
+      }
+    },
+  });
+
+  // Check for new high score after every score increase
+  React.useEffect(() => {
+    if (score > 0) {
+      checkAndUpdateHighScore(score);
     }
-  }, [isNewHighScore, gameOver, score, statistics]);
+  }, [score, checkAndUpdateHighScore]);
+
+  // Reset high score flags when starting new game
+  React.useEffect(() => {
+    if (!gameOver) {
+      resetNewHighScoreFlag();
+      resetCurrentGameHighScoreFlag();
+    }
+  }, [gameOver, resetNewHighScoreFlag, resetCurrentGameHighScoreFlag]);
+
+  // Track score changes and trigger flash animation
+  React.useEffect(() => {
+    if (score !== prevScore && score > prevScore) {
+      setScoreFlash(true);
+      setTimeout(() => setScoreFlash(false), 1000);
+      setPrevScore(score);
+    }
+  }, [score, prevScore]);
+
+  // Track high score changes and trigger flash animation
+  React.useEffect(() => {
+    if (highScore !== prevHighScore && highScore > prevHighScore) {
+      setHighScoreFlash(true);
+      setTimeout(() => setHighScoreFlash(false), 1000);
+      setPrevHighScore(highScore);
+    }
+  }, [highScore, prevHighScore]);
 
   // Render the moving ball absolutely above the board
   let movingBallEl = null;
   if (movingBall && movingStep < movingBall.path.length) {
     const [mx, my] = movingBall.path[movingStep];
-    const { left, top } = getCellPosition(mx, my);
+    const { left, top } = getGameSizing().getCellPosition(mx, my);
     movingBallEl = (
       <MovingBall color={movingBall.color} left={left} top={top} />
     );
   }
 
   return (
-    <div
-      className={`flex flex-col items-center ${isMobile ? "space-y-4 px-2" : "space-y-6"}`}
-    >
-      {/* Top Controls */}
-      <div className={`flex ${isMobile ? "gap-2" : "gap-4"} items-center`}>
-        <button
-          onClick={startNewGame}
-          className={`bg-game-button-primary hover:bg-game-button-hover text-game-text-primary font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors ${
-            isMobile ? "px-3 py-2 text-sm" : "px-4 py-2"
-          }`}
-        >
-          New Game
-        </button>
-
-        <button
-          onClick={() => setShowGuide(!showGuide)}
-          className={`font-semibold rounded-lg border border-game-border-default cursor-pointer transition-colors ${
-            showGuide
-              ? "bg-game-button-accent text-black hover:bg-game-button-accent-hover"
-              : "bg-game-button-primary text-game-text-primary hover:bg-game-button-hover"
-          } ${isMobile ? "px-3 py-2 text-sm" : "px-4 py-2 text-base"}`}
-        >
-          {showGuide ? "Hide Guide" : "Show Guide"}
-        </button>
-
-        <HighScoreButton
-          onClick={() => setShowHighScoreOverlay(true)}
-          disabled={gameOver}
-          className={isMobile ? "px-3 py-2 text-sm" : "px-4 py-2"}
-        />
-      </div>
-
-      {/* Game Info Row - Score, Incoming Balls, High Score */}
+    <div className="flex flex-col items-center">
+      {/* Single-line Top Panel */}
       <div
-        className={`flex items-center justify-between w-full ${isMobile ? "max-w-full px-2" : "max-w-2xl"}`}
+        className="flex items-center w-full relative mb-4"
+        style={{ maxWidth: "600px" }}
       >
-        {/* Current Score */}
-        <div className="text-center">
-          <div
-            className={`font-bold text-game-text-accent ${isMobile ? "text-lg" : "text-2xl"}`}
+        <div className="flex gap-2 flex-1">
+          <button
+            onClick={startNewGame}
+            className="game-button game-button-primary p-3 rounded-lg hover:bg-opacity-80 transition-colors"
+            data-testid="new-game-button"
+            title="New Game"
           >
-            Score
-          </div>
-          <div
-            className={`text-game-text-primary ${isMobile ? "text-lg" : "text-xl"}`}
-            data-testid="score-value"
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </button>
+
+          <button
+            onClick={() => setShowGuide(!showGuide)}
+            className={`game-button p-3 rounded-lg hover:bg-opacity-80 transition-colors ${
+              showGuide ? "game-button-accent" : "game-button-primary"
+            }`}
+            title="Game Guide"
           >
-            {score}
-          </div>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
         </div>
 
-        {/* Incoming Balls Panel */}
-        <div className="flex flex-col items-center">
-          <div
-            className={`text-game-text-secondary font-semibold mb-2 ${isMobile ? "text-xs" : "text-sm"}`}
-          >
+        {/* Center: Next Balls - absolutely centered */}
+        <div className="flex flex-col items-center absolute left-1/2 transform -translate-x-1/2">
+          <div className="text-game-text-secondary font-semibold mb-2 text-sm">
             Next Balls
           </div>
-          <div className={`flex ${isMobile ? "gap-1" : "gap-2"}`}>
+          <div className="flex gap-2">
             {nextBalls.map((color, index) => (
               <div
                 key={index}
-                className={`rounded-full bg-ball-${color} border-2 border-game-border-ball shadow-sm ${
-                  isMobile ? "w-4 h-4" : "w-6 h-6"
-                }`}
-                title={color}
+                className={`game-ball w-6 h-6`}
+                style={{ backgroundColor: getBallColor(color) }}
               />
             ))}
           </div>
         </div>
 
-        {/* High Score */}
-        <div className="text-center">
-          <div
-            className={`font-bold text-game-text-accent ${isMobile ? "text-lg" : "text-2xl"}`}
-          >
-            High Score
+        {/* Right: Score and High Score stacked */}
+        <div className="flex flex-col items-end flex-1">
+          <div className="flex items-center gap-2">
+            <span className="game-score text-base">High Score:</span>
+            <span
+              className={`text-game-text-primary font-bold text-xl ${highScoreFlash ? "score-flash" : ""}`}
+              data-testid="high-score-value"
+            >
+              {highScore}
+            </span>
           </div>
-          <div
-            className={`text-game-text-primary ${isMobile ? "text-lg" : "text-xl"}`}
-            data-testid="high-score-value"
-          >
-            {currentHighScore}
+          <div className="flex items-center gap-2">
+            <span className="game-score text-base">Current Score:</span>
+            <span
+              className={`text-game-text-primary font-bold text-xl ${scoreFlash ? "score-flash" : ""}`}
+              data-testid="score-value"
+            >
+              {score}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Game Board */}
-      <div
-        className={`bg-game-bg-board border border-game-border-default rounded-xl shadow-lg ${
-          isMobile ? "p-2" : "p-4"
-        }`}
-      >
-        <Board
-          board={board}
-          onCellClick={handleCellClick}
-          movingBall={movingBall}
-          poppingBalls={poppingBalls}
-          hoveredCell={hoveredCell}
-          pathTrail={pathTrail}
-          notReachable={notReachable}
-          onCellHover={handleCellHover}
-          onCellLeave={handleCellLeave}
-        >
-          {movingBallEl}
-        </Board>
+      {/* Game Board Container with Overlays */}
+      <div className="relative" style={{ maxWidth: "600px" }}>
+        <div className="game-panel p-4">
+          <div className="relative">
+            <Board
+              board={board}
+              onCellClick={handleCellClick}
+              movingBall={movingBall}
+              poppingBalls={poppingBalls}
+              hoveredCell={hoveredCell}
+              pathTrail={pathTrail}
+              notReachable={notReachable}
+              onCellHover={handleCellHover}
+              onCellLeave={handleCellLeave}
+              selected={selected}
+              growingBalls={growingBalls}
+            >
+              {movingBallEl}
+            </Board>
+
+            {/* Guide Overlay - exactly same size as board */}
+            {(showGuide || isGuideClosing) && (
+              <div
+                className={`absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide ${
+                  isGuideClosing
+                    ? "animate-in fade-out duration-300"
+                    : "animate-in fade-in duration-300"
+                }`}
+              >
+                <Guide onClose={handleGuideClose} />
+              </div>
+            )}
+
+            {/* Game End Dialog Overlay - exactly same size as board */}
+            {gameOver && (
+              <GameEndDialog
+                isOpen={showGameEndDialog}
+                score={score}
+                currentGameBeatHighScore={currentGameBeatHighScore}
+                statistics={gameState.statistics}
+                onNewGame={handleNewGameFromDialog}
+                onClose={handleCloseDialog}
+              />
+            )}
+
+            {/* Floating Score Animations */}
+            {floatingScores?.map((floatingScore) => (
+              <FloatingScoreComponent
+                key={floatingScore.id}
+                floatingScore={floatingScore}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Timer */}
-      <div className="text-center">
+      {/* Single-line Top Panel */}
+      <div
+        className="flex justify-between w-full relative mt-4"
+        style={{ maxWidth: "600px" }}
+      >
+        <div>
+          <a
+            href="https://github.com/janschupke/lines"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-game-text-secondary hover:text-game-text-primary transition-colors duration-300"
+            title="View on GitHub"
+          >
+            <svg
+              className="w-8 h-8"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </a>
+        </div>
         <div
-          className={`font-bold text-game-text-success ${
-            isMobile ? "text-xl" : "text-2xl"
+          className={`font-bold text-2xl ${
+            gameState.timerActive
+              ? "text-game-text-success"
+              : "text-game-text-secondary"
           }`}
         >
           {formatTime(timer)}
         </div>
       </div>
-
-      {/* Guide Panel */}
-      {showGuide && (
-        <div
-          className={`w-full bg-game-bg-secondary border border-game-border-default rounded-xl shadow-lg ${
-            isMobile ? "max-w-full px-4 py-4" : "max-w-2xl p-6"
-          }`}
-        >
-          <h3
-            className={`font-bold mb-4 text-game-text-accent text-center ${
-              isMobile ? "text-lg" : "text-xl"
-            }`}
-          >
-            How to Play
-          </h3>
-          <div
-            className={`space-y-2 text-game-text-secondary ${
-              isMobile ? "text-xs" : "text-sm"
-            }`}
-          >
-            <p>• {isMobile ? "Tap" : "Click"} on a ball to select it</p>
-            <p>
-              • {isMobile ? "Tap" : "Click"} on an empty cell to move the ball
-            </p>
-            <p>• Form lines of 5+ balls to clear them</p>
-            <p>
-              •{" "}
-              <strong>Only your moves trigger line removal and scoring</strong>
-            </p>
-            <p>• Automatic ball placement won't clear lines</p>
-            <p>• Longer lines = more points!</p>
-            <p>• Game ends when board is full</p>
-          </div>
-          <div className="mt-4">
-            <h4
-              className={`font-bold text-game-text-accent mb-2 ${
-                isMobile ? "text-xs" : "text-sm"
-              }`}
-            >
-              Scoring:
-            </h4>
-            <table className={`w-full ${isMobile ? "text-xs" : "text-xs"}`}>
-              <tbody>
-                <tr className="text-game-text-accent">
-                  <td>5 balls:</td>
-                  <td>5 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>6 balls:</td>
-                  <td>8 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>7 balls:</td>
-                  <td>13 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>8 balls:</td>
-                  <td>21 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>9 balls:</td>
-                  <td>34 points</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div
-            className={`mt-3 text-game-text-accent font-semibold text-center ${
-              isMobile ? "text-xs" : "text-sm"
-            }`}
-          >
-            Good luck!
-          </div>
-        </div>
-      )}
-
-      {gameOver && (
-        <GameEndDialog
-          isOpen={showGameEndDialog}
-          score={score}
-          isNewHighScore={isNewHighScore}
-          onNewGame={handleNewGameFromDialog}
-          onClose={handleCloseDialog}
-        />
-      )}
-
-      <MobileControls
-        onNewGame={startNewGame}
-        showGuide={showGuide}
-        onToggleGuide={() => setShowGuide(!showGuide)}
-      />
-
-      {/* High Score Overlay */}
-      <HighScoreOverlay
-        isOpen={showHighScoreOverlay}
-        onClose={() => setShowHighScoreOverlay(false)}
-        highScores={topScores}
-        className={loadingScores ? "opacity-50 pointer-events-none" : ""}
-      />
-      {/* Connection Status UI */}
-      {showHighScoreOverlay && (
-        <div
-          className={`fixed top-4 right-4 z-50 bg-game-bg-secondary border border-game-border-default rounded-lg shadow-lg p-3 ${
-            isMobile ? "max-w-xs" : "max-w-sm"
-          }`}
-        >
-          {connection.status === "connecting" && (
-            <div className="flex items-center space-x-2 text-game-text-secondary">
-              <div className="animate-spin w-4 h-4 border-2 border-game-border-default border-t-game-text-accent rounded-full"></div>
-              <span className={`${isMobile ? "text-xs" : "text-sm"}`}>
-                Connecting to database...
-              </span>
-            </div>
-          )}
-          {connection.status === "error" && (
-            <div className="flex flex-col space-y-2">
-              <span
-                className={`text-game-text-error ${isMobile ? "text-xs" : "text-sm"}`}
-              >
-                Database connection failed.
-              </span>
-              <button
-                onClick={connection.retryConnection}
-                className={`bg-game-button-accent hover:bg-game-button-accent-hover text-black font-semibold rounded border border-game-border-default cursor-pointer transition-colors ${
-                  isMobile ? "px-2 py-1 text-xs" : "px-3 py-1 text-sm"
-                }`}
-              >
-                Retry
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Player Name Input */}
-      <PlayerNameInput
-        isOpen={showPlayerNameInput}
-        onSubmit={(playerName) => {
-          if (pendingHighScore) {
-            // TODO: Handle high score submission with player name
-            console.log("Player name submitted:", playerName);
-            setShowPlayerNameInput(false);
-            setPendingHighScore(null);
-          }
-        }}
-        onCancel={() => {
-          setShowPlayerNameInput(false);
-          setPendingHighScore(null);
-        }}
-      />
     </div>
   );
 };

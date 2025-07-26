@@ -1,123 +1,112 @@
-import type { LineScore } from "./types";
-
-interface TrackerGameStatistics {
+export interface GameStatistics {
   turnsCount: number;
   gameDuration: number;
-  ballsCleared: number;
   linesPopped: number;
-  longestLinePopped: number;
   individualBallsPopped: number;
+  longestLinePopped: number;
+  averageScorePerTurn: number;
   totalScore: number;
   scoreProgression: number[];
-  lineScores: LineScore[];
-  averageScorePerTurn: number;
-  ballsPerTurn: number;
-  linesPerTurn: number;
+  lineScores: number[];
   peakScore: number;
   consecutiveHighScores: number;
-  strategicBonus: number;
+  ballsCleared: number;
 }
 
-export class GameStatisticsTracker {
-  private statistics: TrackerGameStatistics;
-  private gameStartTime: number = 0;
+export class StatisticsTracker {
+  private gameStartTime: number;
+  private statistics: GameStatistics;
 
   constructor() {
-    this.statistics = this.getInitialStatistics();
-  }
-
-  startGame(): void {
-    this.statistics = this.getInitialStatistics();
     this.gameStartTime = Date.now();
+    this.statistics = {
+      turnsCount: 0,
+      gameDuration: 0,
+      linesPopped: 0,
+      individualBallsPopped: 0,
+      longestLinePopped: 0,
+      averageScorePerTurn: 0,
+      totalScore: 0,
+      scoreProgression: [],
+      lineScores: [],
+      peakScore: 0,
+      consecutiveHighScores: 0,
+      ballsCleared: 0,
+    };
   }
 
-  endGame(): TrackerGameStatistics {
+  getCurrentStatistics(): GameStatistics {
     const finalStatistics = {
       ...this.statistics,
       gameDuration: Math.floor((Date.now() - this.gameStartTime) / 1000),
     };
+
     finalStatistics.averageScorePerTurn =
       finalStatistics.totalScore / Math.max(finalStatistics.turnsCount, 1);
-    finalStatistics.linesPerTurn =
-      finalStatistics.linesPopped / Math.max(finalStatistics.turnsCount, 1);
-    finalStatistics.ballsPerTurn =
-      finalStatistics.individualBallsPopped /
-      Math.max(finalStatistics.turnsCount, 1);
+
     return finalStatistics;
   }
 
-  recordTurn(): void {
+  recordTurn() {
     this.statistics.turnsCount++;
   }
 
-  recordLinePop(length: number, score: number): void {
-    const lineScore: LineScore = {
-      length,
-      score,
-      turnNumber: this.statistics.turnsCount,
-      timestamp: Date.now(),
-    };
-    this.statistics.linesPopped++;
-    this.statistics.longestLinePopped = Math.max(
-      this.statistics.longestLinePopped,
-      length,
-    );
-    this.statistics.individualBallsPopped += length;
-    this.statistics.totalScore += score;
-    this.statistics.scoreProgression.push(this.statistics.totalScore);
-    this.statistics.lineScores.push(lineScore);
-    this.statistics.peakScore = Math.max(this.statistics.peakScore, score);
-    if (length >= 5) {
+  recordLinePop(lineLength: number, score: number) {
+    if (lineLength >= 5) {
+      this.statistics.linesPopped++;
+      this.statistics.individualBallsPopped += lineLength;
+      this.statistics.longestLinePopped = Math.max(
+        this.statistics.longestLinePopped,
+        lineLength,
+      );
+      this.statistics.lineScores.push(score);
+      this.statistics.scoreProgression.push(score);
+      this.statistics.peakScore = Math.max(this.statistics.peakScore, score);
+    }
+  }
+
+  updateScore(newScore: number) {
+    const previousPeakScore = this.statistics.peakScore;
+    this.statistics.totalScore = newScore;
+    this.statistics.peakScore = Math.max(this.statistics.peakScore, newScore);
+
+    // Track consecutive high scores
+    if (newScore > previousPeakScore) {
       this.statistics.consecutiveHighScores++;
     } else {
       this.statistics.consecutiveHighScores = 0;
     }
-    const currentAverage =
-      this.statistics.turnsCount > 0
-        ? this.statistics.totalScore / this.statistics.turnsCount
-        : 0;
-    this.statistics.strategicBonus = Math.floor(currentAverage * 0.1);
   }
 
-  recordBallPop(): void {
+  recordBallClear() {
     this.statistics.ballsCleared++;
   }
 
-  updateScore(newScore: number): void {
-    this.statistics.totalScore = newScore;
+  getGameDuration(): number {
+    return Math.floor((Date.now() - this.gameStartTime) / 1000);
   }
 
-  recordGameDuration(): void {
-    this.statistics.gameDuration = Math.floor(
-      (Date.now() - this.gameStartTime) / 1000,
-    );
-  }
-
-  reset(): void {
-    this.startGame();
-  }
-
-  getCurrentStatistics(): TrackerGameStatistics {
-    return { ...this.statistics };
-  }
-
-  private getInitialStatistics(): TrackerGameStatistics {
-    return {
+  reset() {
+    this.gameStartTime = Date.now();
+    this.statistics = {
       turnsCount: 0,
       gameDuration: 0,
-      ballsCleared: 0,
       linesPopped: 0,
-      longestLinePopped: 0,
       individualBallsPopped: 0,
+      longestLinePopped: 0,
+      averageScorePerTurn: 0,
       totalScore: 0,
       scoreProgression: [],
       lineScores: [],
-      averageScorePerTurn: 0,
-      ballsPerTurn: 0,
-      linesPerTurn: 0,
       peakScore: 0,
       consecutiveHighScores: 0,
-      strategicBonus: 0,
+      ballsCleared: 0,
     };
+  }
+
+  loadStatistics(statistics: GameStatistics) {
+    this.statistics = { ...statistics };
+    // Adjust game start time based on saved duration
+    this.gameStartTime = Date.now() - statistics.gameDuration * 1000;
   }
 }

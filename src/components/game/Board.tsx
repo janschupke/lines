@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
-import { useMobileOptimization } from "../../hooks/useMobileOptimization";
 import type { Cell } from "../../game/types";
+import type { GrowingBall } from "../../hooks/useGameAnimation";
+import { getBallColor, getGameSizing } from "../../utils/helpers";
 
 interface BoardProps {
   board: Cell[][];
@@ -13,6 +14,8 @@ interface BoardProps {
   notReachable?: boolean;
   onCellHover?: (x: number, y: number) => void;
   onCellLeave?: () => void;
+  selected?: { x: number; y: number } | null;
+  growingBalls?: GrowingBall[];
 }
 
 const Board: React.FC<BoardProps> = ({
@@ -26,22 +29,22 @@ const Board: React.FC<BoardProps> = ({
   notReachable,
   onCellHover,
   onCellLeave,
+  selected,
+  growingBalls = [],
 }) => {
-  const { isMobile, handleTouchStart, handleTouchEnd, getMobileValues } =
-    useMobileOptimization();
-  const mobileValues = getMobileValues();
+  // Get unified sizing
+  const sizing = getGameSizing();
 
   // Convert pathTrail to a Set for fast lookup
   const pathSet = pathTrail
     ? new Set(pathTrail.map(([x, y]) => `${x},${y}`))
     : new Set();
 
-  // Calculate incoming ball size (50% of cell width)
-  const incomingBallSize = isMobile ? "w-[18px] h-[18px]" : "w-[28px] h-[28px]"; // Smaller on mobile
-
   // Check if any animation is in progress
   const isAnimationInProgress =
-    movingBall || (poppingBalls && poppingBalls.size > 0);
+    movingBall ||
+    (poppingBalls && poppingBalls.size > 0) ||
+    (growingBalls && growingBalls.length > 0);
 
   // Handle cell click with animation check
   const handleCellClick = useCallback(
@@ -67,26 +70,9 @@ const Board: React.FC<BoardProps> = ({
     onCellLeave?.();
   }, [isAnimationInProgress, onCellLeave]);
 
-  // Handle touch interactions
-  const handleCellTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (isAnimationInProgress) return;
-      handleTouchStart(e);
-    },
-    [isAnimationInProgress, handleTouchStart],
-  );
-
-  const handleCellTouchEnd = useCallback(
-    (e: React.TouchEvent, x: number, y: number) => {
-      if (isAnimationInProgress) return;
-      handleTouchEnd(e, x, y, handleCellClick);
-    },
-    [isAnimationInProgress, handleTouchEnd, handleCellClick],
-  );
-
   return (
     <div
-      className={`relative grid bg-game-bg-board p-board-padding rounded-xl shadow-lg mx-auto w-fit h-fit box-content gap-gap ${
+      className={`game-board grid p-board-padding mx-auto w-fit h-fit box-content gap-gap ${
         isAnimationInProgress ? "pointer-events-none" : ""
       }`}
       style={{
@@ -112,14 +98,16 @@ const Board: React.FC<BoardProps> = ({
         );
         const inPath = !!pathSet.has(key);
         const showNotReachable = isHovered && !!notReachable && !cell.ball;
+        const isSelected =
+          selected && selected.x === cell.x && selected.y === cell.y;
 
         // Determine cell background and border classes
         let cellBgClass = "bg-game-bg-cell-empty";
         let borderClass = "border-game-border-default";
 
-        if (cell.active) {
-          cellBgClass = "bg-game-bg-cell-active";
-          borderClass = "border-game-border-accent";
+        if (cell.active || isSelected) {
+          cellBgClass = "bg-game-bg-cell-hover";
+          // No special border for selected cells
         } else if (inPath) {
           cellBgClass = "bg-game-bg-cell-path";
           borderClass = "border-game-border-path";
@@ -137,39 +125,50 @@ const Board: React.FC<BoardProps> = ({
         return (
           <div
             key={key}
-            className={`rounded-lg flex items-center justify-center transition-colors duration-200 box-border relative border-2 ${
-              isAnimationInProgress ? "cursor-default" : "cursor-pointer"
-            } ${cellBgClass} ${borderClass} ${isMobile ? "w-12 h-12" : "w-cell h-cell"}`}
+            className={`game-cell ${
+              isAnimationInProgress
+                ? "cursor-default"
+                : !cell.ball && !selected
+                  ? "cursor-default"
+                  : "cursor-pointer"
+            } ${cellBgClass} ${borderClass} ${sizing.cellSizeClass}`}
             onClick={() => handleCellClick(cell.x, cell.y)}
             onMouseEnter={() => handleCellHover(cell.x, cell.y)}
             onMouseLeave={handleCellLeave}
-            onTouchStart={handleCellTouchStart}
-            onTouchEnd={(e) => handleCellTouchEnd(e, cell.x, cell.y)}
             role="button"
-            tabIndex={isAnimationInProgress ? -1 : 0}
-            style={{
-              minHeight: isMobile
-                ? `${mobileValues.touchTargetSize}px`
-                : undefined,
-              minWidth: isMobile
-                ? `${mobileValues.touchTargetSize}px`
-                : undefined,
-            }}
           >
             {cell.ball && !hideBall && (
               <span
-                className={`block rounded-full border-2 border-game-border-ball ${
-                  cell.active
-                    ? "shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)] border-game-border-accent"
-                    : "shadow-[0_1px_4px_theme(colors.game.shadow.ball)]"
-                } ${popping ? "z-20 animate-pop-ball" : "animate-move-ball"} bg-ball-${cell.ball.color} ${isMobile ? "w-9 h-9" : "w-ball h-ball"}`}
-                title={cell.ball.color}
+                className={`game-ball ${
+                  cell.active || isSelected
+                    ? "game-ball-active"
+                    : "animate-move-ball"
+                } ${
+                  growingBalls.find(
+                    (gb) =>
+                      gb.x === cell.x && gb.y === cell.y && gb.isTransitioning,
+                  )
+                    ? "grow-ball-transition"
+                    : popping
+                      ? "z-20 animate-pop-ball"
+                      : ""
+                } ${sizing.ballSizeClass}`}
+                style={{ backgroundColor: getBallColor(cell.ball.color) }}
               />
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`block rounded-full border border-game-border-preview shadow-sm opacity-50 bg-ball-${cell.incomingBall.color} ${incomingBallSize}`}
-                title={`Preview: ${cell.incomingBall.color}`}
+                className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
+                  growingBalls.find(
+                    (gb) =>
+                      gb.x === cell.x && gb.y === cell.y && !gb.isTransitioning,
+                  )
+                    ? "grow-ball-new"
+                    : ""
+                } ${sizing.incomingBallSizeClass}`}
+                style={{
+                  backgroundColor: getBallColor(cell.incomingBall.color),
+                }}
               />
             )}
             {/* Not reachable cross */}

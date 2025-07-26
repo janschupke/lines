@@ -68,40 +68,56 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      // Get all balls (both regular and preview)
-      const regularBalls = screen.getAllByTitle(/^(red|green)$/);
-      const previewBalls = screen.getAllByTitle(/^Preview:/);
+      // Verify that no balls have tooltips
+      expect(screen.queryByTitle(/^(red|green)$/)).not.toBeInTheDocument();
+      expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
+
+      // Get all ball elements by their classes instead of tooltips
+      const regularBalls = screen
+        .getAllByRole("button")
+        .filter((button) =>
+          button.querySelector(".game-ball:not(.opacity-50)"),
+        );
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
 
       expect(regularBalls).toHaveLength(2);
       expect(previewBalls).toHaveLength(1);
 
       // Check that preview balls have the correct size (responsive)
-      previewBalls.forEach((ball) => {
-        // On mobile, preview balls are smaller (w-[18px] h-[18px])
-        // On desktop, they are larger (w-[28px] h-[28px])
-        const hasMobileSize =
-          ball.classList.contains("w-[18px]") &&
-          ball.classList.contains("h-[18px]");
-        const hasDesktopSize =
-          ball.classList.contains("w-[28px]") &&
-          ball.classList.contains("h-[28px]");
-        expect(hasMobileSize || hasDesktopSize).toBe(true);
-        expect(ball).toHaveClass("rounded-full");
-        expect(ball).toHaveClass("border");
-        expect(ball).toHaveClass("shadow-sm");
-        expect(ball).toHaveClass("opacity-50");
+      previewBalls.forEach((cell) => {
+        const ball = cell.querySelector(".game-ball");
+        if (ball) {
+          // On mobile, preview balls are smaller (w-[18px] h-[18px])
+          // On desktop, they are larger (w-[28px] h-[28px])
+          const hasMobileSize =
+            ball.classList.contains("w-[18px]") &&
+            ball.classList.contains("h-[18px]");
+          const hasDesktopSize =
+            ball.classList.contains("w-[28px]") &&
+            ball.classList.contains("h-[28px]");
+          expect(hasMobileSize || hasDesktopSize).toBe(true);
+          expect(ball).toHaveClass("rounded-full");
+          expect(ball).toHaveClass("border");
+          expect(ball).toHaveClass("shadow-sm");
+          expect(ball).toHaveClass("opacity-50");
+        }
       });
 
       // Check that regular balls have the full size (responsive)
-      regularBalls.forEach((ball) => {
-        // On mobile, balls are smaller (w-9 h-9)
-        // On desktop, they are larger (w-ball h-ball)
-        const hasMobileSize =
-          ball.classList.contains("w-9") && ball.classList.contains("h-9");
-        const hasDesktopSize =
-          ball.classList.contains("w-ball") &&
-          ball.classList.contains("h-ball");
-        expect(hasMobileSize || hasDesktopSize).toBe(true);
+      regularBalls.forEach((cell) => {
+        const ball = cell.querySelector(".game-ball");
+        if (ball) {
+          // On mobile, balls are smaller (w-9 h-9)
+          // On desktop, they are larger (w-ball h-ball)
+          const hasMobileSize =
+            ball.classList.contains("w-9") && ball.classList.contains("h-9");
+          const hasDesktopSize =
+            ball.classList.contains("w-ball") &&
+            ball.classList.contains("h-ball");
+          expect(hasMobileSize || hasDesktopSize).toBe(true);
+        }
       });
     });
 
@@ -134,13 +150,22 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      const previewBalls = screen.getAllByTitle(/^Preview:/);
+      // Verify that no balls have tooltips
+      expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
+
+      // Get preview balls by their classes instead of tooltips
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
       expect(previewBalls).toHaveLength(3);
 
-      // Check that each preview ball has the correct color class
-      expect(previewBalls[0]).toHaveClass("bg-ball-red"); // red
-      expect(previewBalls[1]).toHaveClass("bg-ball-blue"); // blue
-      expect(previewBalls[2]).toHaveClass("bg-ball-green"); // green
+      // Check that each preview ball has the correct color via inline style
+      const balls = previewBalls
+        .map((cell) => cell.querySelector(".game-ball"))
+        .filter(Boolean);
+      expect(balls[0]).toHaveStyle({ backgroundColor: "#ef4444" }); // red
+      expect(balls[1]).toHaveStyle({ backgroundColor: "#3b82f6" }); // blue
+      expect(balls[2]).toHaveStyle({ backgroundColor: "#10b981" }); // green
     });
 
     it("preview balls are positioned correctly in empty cells", () => {
@@ -172,9 +197,19 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      // Should have 1 regular ball and 2 preview balls
-      const regularBalls = screen.getAllByTitle(/^(blue)$/);
-      const previewBalls = screen.getAllByTitle(/^Preview:/);
+      // Verify that no balls have tooltips
+      expect(screen.queryByTitle(/^(blue)$/)).not.toBeInTheDocument();
+      expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
+
+      // Get balls by their classes instead of tooltips
+      const regularBalls = screen
+        .getAllByRole("button")
+        .filter((button) =>
+          button.querySelector(".game-ball:not(.opacity-50)"),
+        );
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
 
       expect(regularBalls).toHaveLength(1);
       expect(previewBalls).toHaveLength(2);
@@ -189,7 +224,7 @@ describe("Preview Balls Functionality", () => {
             x: 0,
             y: 0,
             ball: null,
-            incomingBall: { color: "black" },
+            incomingBall: { color: "pink" },
             active: false,
           },
           {
@@ -204,22 +239,31 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      const previewBalls = screen.getAllByTitle(/^Preview:/);
+      // Verify that no balls have tooltips
+      expect(screen.queryByTitle(/^Preview:/)).not.toBeInTheDocument();
+
+      // Get preview balls by their classes instead of tooltips
+      const previewBalls = screen
+        .getAllByRole("button")
+        .filter((button) => button.querySelector(".game-ball.opacity-50"));
       expect(previewBalls).toHaveLength(2);
 
-      previewBalls.forEach((ball) => {
-        // Check for responsive Tailwind classes
-        const hasMobileSize =
-          ball.classList.contains("w-[18px]") &&
-          ball.classList.contains("h-[18px]");
-        const hasDesktopSize =
-          ball.classList.contains("w-[28px]") &&
-          ball.classList.contains("h-[28px]");
-        expect(hasMobileSize || hasDesktopSize).toBe(true);
-        expect(ball).toHaveClass("rounded-full"); // border-radius: 50%
-        expect(ball).toHaveClass("opacity-50"); // opacity: 0.5
-        expect(ball).toHaveClass("border"); // border
-        expect(ball).toHaveClass("shadow-sm"); // shadow
+      previewBalls.forEach((cell) => {
+        const ball = cell.querySelector(".game-ball");
+        if (ball) {
+          // Check for responsive Tailwind classes
+          const hasMobileSize =
+            ball.classList.contains("w-[18px]") &&
+            ball.classList.contains("h-[18px]");
+          const hasDesktopSize =
+            ball.classList.contains("w-[28px]") &&
+            ball.classList.contains("h-[28px]");
+          expect(hasMobileSize || hasDesktopSize).toBe(true);
+          expect(ball).toHaveClass("rounded-full"); // border-radius: 50%
+          expect(ball).toHaveClass("opacity-50"); // opacity: 0.5
+          expect(ball).toHaveClass("border"); // border
+          expect(ball).toHaveClass("shadow-sm"); // shadow
+        }
       });
     });
 
@@ -238,8 +282,17 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      const previewBall = screen.getByTitle("Preview: purple");
-      expect(previewBall).toHaveClass("border-game-border-preview");
+      // Verify that no balls have tooltips
+      expect(screen.queryByTitle("Preview: purple")).not.toBeInTheDocument();
+
+      // Get preview ball by its class instead of tooltip
+      const previewBall = screen
+        .getAllByRole("button")
+        .find((button) => button.querySelector(".game-ball.opacity-50"));
+      expect(previewBall).toBeDefined();
+
+      const ball = previewBall?.querySelector(".game-ball");
+      expect(ball).toHaveClass("border-game-border-preview");
     });
 
     it("preview balls have correct opacity", () => {
@@ -249,7 +302,7 @@ describe("Preview Balls Functionality", () => {
             x: 0,
             y: 0,
             ball: null,
-            incomingBall: { color: "cyan" },
+            incomingBall: { color: "purple" },
             active: false,
           },
         ],
@@ -257,8 +310,17 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      const previewBall = screen.getByTitle("Preview: cyan");
-      expect(previewBall).toHaveClass("opacity-50");
+      // Verify that no balls have tooltips
+      expect(screen.queryByTitle("Preview: purple")).not.toBeInTheDocument();
+
+      // Get preview ball by its class instead of tooltip
+      const previewBall = screen
+        .getAllByRole("button")
+        .find((button) => button.querySelector(".game-ball.opacity-50"));
+      expect(previewBall).toBeDefined();
+
+      const ball = previewBall?.querySelector(".game-ball");
+      expect(ball).toHaveClass("opacity-50");
     });
   });
 
@@ -301,8 +363,9 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      const previewBall = screen.getByTitle("Preview: green");
-      expect(previewBall).toBeInTheDocument();
+      // Verify that preview balls do NOT have tooltips
+      expect(screen.queryByTitle("Preview: green")).not.toBeInTheDocument();
+      expect(screen.queryByTitle("green")).not.toBeInTheDocument();
     });
   });
 
@@ -326,9 +389,8 @@ describe("Preview Balls Functionality", () => {
       const previewBalls = screen.queryAllByTitle(/^Preview:/);
       expect(previewBalls).toHaveLength(0);
 
-      // Should have the real ball
-      const realBall = screen.getByTitle("red");
-      expect(realBall).toBeInTheDocument();
+      // Verify that real balls do NOT have tooltips
+      expect(screen.queryByTitle("red")).not.toBeInTheDocument();
     });
 
     it("preview balls are replaced by real balls when game progresses", () => {
@@ -348,8 +410,9 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      const previewBall = screen.getByTitle("Preview: blue");
-      expect(previewBall).toBeInTheDocument();
+      // Verify that preview balls do NOT have tooltips
+      expect(screen.queryByTitle("Preview: blue")).not.toBeInTheDocument();
+      expect(screen.queryByTitle("blue")).not.toBeInTheDocument();
     });
   });
 });

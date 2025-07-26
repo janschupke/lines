@@ -8,7 +8,10 @@ import type {
   SpawnedBall,
 } from "../types";
 import type { StatisticsTracker } from "../statisticsTracker";
-import { handleIncomingBallConversion, isBoardFull } from "../logic/boardManagement";
+import {
+  handleIncomingBallConversion,
+  isBoardFull,
+} from "../logic/boardManagement";
 import { handleMoveCompletion } from "../logic/moveHandler";
 import { handleLineDetection } from "../logic/lineDetection";
 import { StorageManager } from "../storageManager";

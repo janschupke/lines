@@ -37,9 +37,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2
-            className={`text-4xl font-bold ${currentGameBeatHighScore ? "game-title animate-pulse-glow" : "text-game-text-primary"}`}
-          >
+          <h2 className={`text-4xl font-bold text-game-text-primary`}>
             {currentGameBeatHighScore ? "🎉 New High Score! 🎉" : "Game Over"}
           </h2>
           <button
@@ -57,13 +55,6 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
             <div className="game-score text-6xl font-bold mb-2">{score}</div>
             <div className="text-xl text-game-text-secondary">Final Score</div>
           </div>
-
-          {/* High Score Celebration */}
-          {currentGameBeatHighScore && (
-            <div className="game-highlight text-center my-6 p-4 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-2xl animate-pulse">
-              🏆 NEW RECORD! 🏆
-            </div>
-          )}
 
           {/* Game Statistics - Integrated into main dialog */}
           <div className="space-y-6 mb-8">

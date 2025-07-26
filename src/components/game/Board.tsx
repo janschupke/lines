@@ -86,7 +86,7 @@ const Board: React.FC<BoardProps> = ({
         // Check if this cell should show the moving ball
         let showMovingBall = false;
         let movingBallColor: string | null = null;
-        
+
         if (movingBall && movingBall.path && movingBall.path.length > 0) {
           // Show the ball at the current step position
           if (movingStep >= 0 && movingStep < movingBall.path.length) {
@@ -106,7 +106,7 @@ const Board: React.FC<BoardProps> = ({
             hideBall = true;
           }
         }
-        
+
         const key = `${cell.x},${cell.y}`;
         const popping = poppingBalls && poppingBalls.has(key);
         const isHovered = !!(
@@ -162,7 +162,7 @@ const Board: React.FC<BoardProps> = ({
                 style={{ backgroundColor: getBallColor(movingBallColor) }}
               />
             )}
-            
+
             {/* Show regular ball if not moving and not hidden */}
             {cell.ball && !hideBall && !showMovingBall && (
               <span

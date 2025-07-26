@@ -23,7 +23,10 @@ vi.mock("../storageManager", () => ({
   },
 }));
 
-import { handleIncomingBallConversion, isBoardFull } from "../logic/boardManagement";
+import {
+  handleIncomingBallConversion,
+  isBoardFull,
+} from "../logic/boardManagement";
 import { handleMoveCompletion } from "../logic/moveHandler";
 import { handleLineDetection } from "../logic/lineDetection";
 
@@ -81,7 +84,7 @@ describe("processMove", () => {
 
     // Reset all mocks
     vi.clearAllMocks();
-    
+
     // Set up default mock return values
     (isBoardFull as any).mockReturnValue(false);
   });
@@ -382,7 +385,7 @@ describe("processMove", () => {
       // Should stop popping but NOT spawn new balls (line was popped)
       expect(mockActions.stopPoppingAnimation).toHaveBeenCalled();
       expect(mockActions.addGrowingBall).not.toHaveBeenCalled();
-      
+
       // Should preserve the board state with incoming balls remaining as incoming balls
       expect(mockActions.setBoard).toHaveBeenCalledWith(mockBoard);
 

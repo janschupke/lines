@@ -57,9 +57,7 @@ export const MAX_LINE_LENGTH = 9;
 // ============================================================================
 
 /** Fibonacci sequence for line scoring (5, 8, 13, 21, 34, ...) */
-export const FIBONACCI_SEQUENCE = [
-  5, 8, 13, 21, 34,
-];
+export const FIBONACCI_SEQUENCE = [5, 8, 13, 21, 34];
 
 /** Scoring table for different line lengths */
 export const SCORING_TABLE: Record<number, number> = {

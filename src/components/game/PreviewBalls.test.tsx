@@ -137,10 +137,10 @@ describe("Preview Balls Functionality", () => {
       const previewBalls = screen.getAllByTitle(/^Preview:/);
       expect(previewBalls).toHaveLength(3);
 
-      // Check that each preview ball has the correct color class
-      expect(previewBalls[0]).toHaveClass("bg-ball-red"); // red
-      expect(previewBalls[1]).toHaveClass("bg-ball-blue"); // blue
-      expect(previewBalls[2]).toHaveClass("bg-ball-green"); // green
+      // Check that each preview ball has the correct color via inline style
+      expect(previewBalls[0]).toHaveStyle({ backgroundColor: "#ef4444" }); // red
+      expect(previewBalls[1]).toHaveStyle({ backgroundColor: "#3b82f6" }); // blue
+      expect(previewBalls[2]).toHaveStyle({ backgroundColor: "#10b981" }); // green
     });
 
     it("preview balls are positioned correctly in empty cells", () => {
@@ -189,7 +189,7 @@ describe("Preview Balls Functionality", () => {
             x: 0,
             y: 0,
             ball: null,
-            incomingBall: { color: "black" },
+            incomingBall: { color: "pink" },
             active: false,
           },
           {
@@ -249,7 +249,7 @@ describe("Preview Balls Functionality", () => {
             x: 0,
             y: 0,
             ball: null,
-            incomingBall: { color: "cyan" },
+            incomingBall: { color: "purple" },
             active: false,
           },
         ],
@@ -257,7 +257,7 @@ describe("Preview Balls Functionality", () => {
 
       render(<Board board={board} onCellClick={vi.fn()} />);
 
-      const previewBall = screen.getByTitle("Preview: cyan");
+      const previewBall = screen.getByTitle("Preview: purple");
       expect(previewBall).toHaveClass("opacity-50");
     });
   });

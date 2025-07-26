@@ -190,19 +190,11 @@ export const useGameState = (
         }
 
         // Check for lines and handle removal
-        const movedColor = moveResult.newBoard[toY][toX].ball?.color;
-        if (movedColor === 'red') {
-          console.log("Red ball moved to:", toX, toY);
-          console.log("Board state at destination:", moveResult.newBoard[toY][toX]);
-        }
         const lineResult = handleLineDetection(
           moveResult.newBoard,
           toX,
           toY,
         );
-        if (movedColor === 'red') {
-          console.log("Line detection result for red:", lineResult);
-        }
 
         if (lineResult) {
           // Lines were formed - handle ball removal

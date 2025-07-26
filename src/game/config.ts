@@ -16,8 +16,8 @@ export const BALL_COLORS = [
   "green",
   "yellow",
   "purple",
-  "orange",
   "pink",
+  "black",
 ] as const;
 
 export type BallColor = typeof BALL_COLORS[number];

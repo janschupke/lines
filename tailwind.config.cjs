@@ -26,7 +26,7 @@ module.exports = {
     "bg-ball-blue",
     "bg-ball-yellow",
     "bg-ball-purple",
-    "bg-ball-cyan",
+    "bg-ball-pink",
     "bg-ball-black",
     "text-black",
     "bg-game-button-primary",
@@ -98,10 +98,8 @@ module.exports = {
           green: "#10b981", // More vibrant green
           blue: "#3b82f6", // More vibrant blue
           yellow: "#f59e0b", // More vibrant yellow
-          purple: "#8b5cf6", // More vibrant purple ..
-          orange: "#f97316", // More vibrant orange
-          pink: "#ec4899", // More vibrant pink
-          cyan: "#06b6d4", // More vibrant cyan
+          purple: "#8b5cf6", // More vibrant purple
+          pink: "#f472b6", // Lighter pink for better contrast
           black: "#1f2937", // Darker, more sophisticated black
         },
         // Game theme colors - enhanced with gradients and better contrast

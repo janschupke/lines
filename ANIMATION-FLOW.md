@@ -22,4 +22,3 @@ Currently broken, to be fixed:
 
 - transition from preview to a full ball has popping animation, not growing
 - starting new game doesn't properly animate new balls - pops full ones, instead of growing
-- new balls have popping animation when transitioning from previews

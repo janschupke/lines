@@ -6,6 +6,7 @@ import type { StatisticsTracker } from "../statisticsTracker";
 // Mock dependencies
 vi.mock("../logic/boardManagement", () => ({
   handleIncomingBallConversion: vi.fn(),
+  isBoardFull: vi.fn(),
 }));
 
 vi.mock("../logic/moveHandler", () => ({
@@ -22,7 +23,7 @@ vi.mock("../storageManager", () => ({
   },
 }));
 
-import { handleIncomingBallConversion } from "../logic/boardManagement";
+import { handleIncomingBallConversion, isBoardFull } from "../logic/boardManagement";
 import { handleMoveCompletion } from "../logic/moveHandler";
 import { handleLineDetection } from "../logic/lineDetection";
 
@@ -80,6 +81,9 @@ describe("processMove", () => {
 
     // Reset all mocks
     vi.clearAllMocks();
+    
+    // Set up default mock return values
+    (isBoardFull as any).mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -350,37 +354,8 @@ describe("processMove", () => {
         pointsEarned: 5,
       };
 
-      // Create a new board where incoming balls become real balls and new incoming balls are placed
-      const boardAfterConversion = mockBoard.map((row) =>
-        row.map((cell) => ({ ...cell })),
-      );
-      // Convert incoming balls to real balls
-      boardAfterConversion[0][0].ball = { color: "red" as BallColor };
-      boardAfterConversion[0][0].incomingBall = null;
-      boardAfterConversion[1][1].ball = { color: "blue" as BallColor };
-      boardAfterConversion[1][1].incomingBall = null;
-      boardAfterConversion[2][2].ball = { color: "green" as BallColor };
-      boardAfterConversion[2][2].incomingBall = null;
-      // Add new incoming balls
-      boardAfterConversion[3][3].incomingBall = {
-        color: "yellow" as BallColor,
-      };
-      boardAfterConversion[4][4].incomingBall = {
-        color: "purple" as BallColor,
-      };
-      boardAfterConversion[5][5].incomingBall = {
-        color: "orange" as BallColor,
-      };
-
-      const conversionResult = {
-        newBoard: boardAfterConversion,
-        nextBalls: ["yellow", "purple", "orange"] as BallColor[],
-        gameOver: false,
-      };
-
       (handleMoveCompletion as any).mockReturnValue(moveResult);
       (handleLineDetection as any).mockReturnValue(lineResult);
-      (handleIncomingBallConversion as any).mockReturnValue(conversionResult);
 
       const promise = processMove(
         mockBoard,
@@ -404,12 +379,12 @@ describe("processMove", () => {
       // Fast-forward to popping animation completion
       vi.advanceTimersByTime(300);
 
-      // Should stop popping and start spawning
+      // Should stop popping but NOT spawn new balls (line was popped)
       expect(mockActions.stopPoppingAnimation).toHaveBeenCalled();
-      expect(mockActions.addGrowingBall).toHaveBeenCalled();
-
-      // Fast-forward to spawning animation completion
-      vi.advanceTimersByTime(600);
+      expect(mockActions.addGrowingBall).not.toHaveBeenCalled();
+      
+      // Should preserve the board state with incoming balls remaining as incoming balls
+      expect(mockActions.setBoard).toHaveBeenCalledWith(mockBoard);
 
       await promise;
     });
@@ -629,28 +604,9 @@ describe("processMove", () => {
         pointsEarned: 5,
       };
 
-      // Create a board that will be full after line removal (causing game over)
-      const boardAfterLineRemoval = mockBoard.map((row) =>
-        row.map((cell) => ({ ...cell })),
-      );
-      // Fill the board to trigger game over
-      for (let y = 0; y < boardAfterLineRemoval.length; y++) {
-        for (let x = 0; x < boardAfterLineRemoval[y].length; x++) {
-          if (!boardAfterLineRemoval[y][x].ball) {
-            boardAfterLineRemoval[y][x].ball = { color: "red" as BallColor };
-          }
-        }
-      }
-
-      const conversionResult = {
-        newBoard: boardAfterLineRemoval,
-        nextBalls: ["red", "blue", "green"] as BallColor[],
-        gameOver: true,
-      };
-
       (handleMoveCompletion as any).mockReturnValue(moveResult);
       (handleLineDetection as any).mockReturnValue(lineResult);
-      (handleIncomingBallConversion as any).mockReturnValue(conversionResult);
+      (isBoardFull as any).mockReturnValue(true); // Board will be full after line removal
 
       const promise = processMove(
         mockBoard,
@@ -670,9 +626,6 @@ describe("processMove", () => {
 
       // Fast-forward to popping animation completion
       vi.advanceTimersByTime(300);
-
-      // Fast-forward to spawning animation completion
-      vi.advanceTimersByTime(600);
 
       await promise;
 

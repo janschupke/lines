@@ -8,7 +8,7 @@ import type {
   SpawnedBall,
 } from "../types";
 import type { StatisticsTracker } from "../statisticsTracker";
-import { handleIncomingBallConversion } from "../logic/boardManagement";
+import { handleIncomingBallConversion, isBoardFull } from "../logic/boardManagement";
 import { handleMoveCompletion } from "../logic/moveHandler";
 import { handleLineDetection } from "../logic/lineDetection";
 import { StorageManager } from "../storageManager";
@@ -181,6 +181,7 @@ async function handleLineRemoval(
       currentGameBeatHighScore,
       steppedOnPreview,
       wasSteppedOnBallPopped,
+      true, // Indicate that a line was popped
     );
   }, ANIMATION_DURATIONS.POP_BALL);
 }
@@ -197,7 +198,44 @@ async function handleBallConversion(
   currentGameBeatHighScore: boolean,
   steppedOnPreview?: BallColor,
   wasSteppedOnBallPopped: boolean = false,
+  lineWasPopped: boolean = false,
 ): Promise<void> {
+  // If a line was popped, skip ball spawning and keep incoming balls as they are
+  if (lineWasPopped) {
+    // Keep incoming balls as incoming balls - don't convert them to real balls
+    // Just check if the board is full with the current state
+    if (isBoardFull(board)) {
+      const finalStats = statisticsTracker.getCurrentStatistics();
+      actions.setFinalStatistics(finalStats);
+      actions.setGameOver(true);
+      actions.setShowGameEndDialog(true);
+    }
+
+    // Update board state (keeping incoming balls as they are)
+    actions.setBoard(board);
+
+    // Persist game state
+    persistGameState(
+      board,
+      [], // No new balls spawned
+      currentScore,
+      isBoardFull(board),
+      statisticsTracker,
+      currentTimer,
+      currentTimerActive,
+      highScore,
+      isNewHighScore,
+      currentGameBeatHighScore,
+    );
+
+    // Start timer after first move
+    if (!currentTimerActive && currentTimer === 0) {
+      actions.setTimerActive(true);
+    }
+
+    return;
+  }
+
   // Handle incoming ball conversion with correct logic for stepped-on balls
   const conversionResult = handleIncomingBallConversion(
     board,

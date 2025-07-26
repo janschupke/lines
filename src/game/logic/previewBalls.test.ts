@@ -791,7 +791,7 @@ describe("Spawning Ball Line Detection", () => {
 
     expect(result.linesFormed).toBe(true);
     expect(result.ballsRemoved).toHaveLength(10); // 5 red + 5 blue
-    expect(result.pointsEarned).toBe(55);
+    expect(result.pointsEarned).toBe(34); // Capped at maximum Fibonacci value
     expect(result.gameOver).toBe(false);
   });
 });

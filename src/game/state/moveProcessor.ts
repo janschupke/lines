@@ -1,5 +1,5 @@
 import { ANIMATION_DURATIONS } from "../config";
-import type { Cell, BallColor, GameState, GameStatistics, MoveResult } from "../types";
+import type { Cell, BallColor, GameState, GameStatistics, MoveResult, SpawnedBall } from "../types";
 import type { StatisticsTracker } from "../statisticsTracker";
 import { handleIncomingBallConversion } from "../logic/boardManagement";
 import { handleMoveCompletion } from "../logic/moveHandler";
@@ -19,10 +19,15 @@ export interface MoveProcessorActions {
   setTimerActive: (active: boolean) => void;
   addFloatingScore: (score: number, x: number, y: number) => void;
   addGrowingBall: (x: number, y: number, color: BallColor, isTransitioning: boolean) => void;
+  addSpawningBalls: (balls: SpawnedBall[]) => void;
+  startPoppingAnimation: (balls: Set<string>) => void;
+  stopPoppingAnimation: () => void;
+  startSpawningAnimation: (balls: SpawnedBall[]) => void;
+  stopSpawningAnimation: () => void;
 }
 
 /**
- * Process a completed move and handle all subsequent game logic
+ * Process a completed move and handle all subsequent game logic with proper animation sequencing
  */
 export async function processMove(
   board: Cell[][],
@@ -40,7 +45,7 @@ export async function processMove(
   isNewHighScore: boolean,
   currentGameBeatHighScore: boolean,
 ): Promise<void> {
-  // Handle move completion
+  // Step 1: Handle move completion
   const moveResult: MoveResult = handleMoveCompletion(board, fromX, fromY, toX, toY);
   actions.setBoard(moveResult.newBoard);
 
@@ -48,18 +53,27 @@ export async function processMove(
   statisticsTracker.recordTurn();
   actions.onActivity();
 
-  // Check for lines and handle removal
+  // Check if we stepped on a preview ball
+  const steppedOnPreview = moveResult.steppedOnIncomingBall;
+
+  // Step 2: Check for lines formed by the move
   const lineResult = handleLineDetection(moveResult.newBoard, toX, toY);
 
   if (lineResult) {
-    await handleLineRemoval(lineResult, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, nextBalls, highScore, isNewHighScore, currentGameBeatHighScore);
+    // Lines were formed by the move - handle line removal first
+    // Check if the stepped-on preview ball was popped
+    const wasSteppedOnBallPopped = steppedOnPreview && 
+      lineResult.ballsRemoved?.some(([x, y]) => x === toX && y === toY);
+    
+    await handleLineRemoval(lineResult, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, nextBalls, highScore, isNewHighScore, currentGameBeatHighScore, steppedOnPreview, wasSteppedOnBallPopped);
   } else {
-    await handleBallConversion(moveResult.newBoard, toX, toY, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
+    // No lines formed by the move - proceed with ball conversion
+    await handleBallConversion(moveResult.newBoard, toX, toY, currentScore, statisticsTracker, actions, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore, steppedOnPreview, false);
   }
 }
 
 async function handleLineRemoval(
-  lineResult: GameMoveResult,
+  lineResult: MoveResult,
   currentScore: number,
   statisticsTracker: StatisticsTracker,
   actions: MoveProcessorActions,
@@ -69,21 +83,23 @@ async function handleLineRemoval(
   highScore: number,
   isNewHighScore: boolean,
   currentGameBeatHighScore: boolean,
+  steppedOnPreview?: BallColor,
+  wasSteppedOnBallPopped: boolean = false,
 ): Promise<void> {
   // Update score
   const newScore = currentScore + (lineResult.pointsEarned || 0);
   actions.setScore(newScore);
 
-  // Set popping animation
-  actions.setPoppingBalls(
+  // Start popping animation
+  actions.startPoppingAnimation(
     new Set((lineResult.ballsRemoved || []).map(([x, y]) => `${x},${y}`)),
   );
 
   // Add floating score animation
   if (lineResult.ballsRemoved && lineResult.ballsRemoved.length > 0) {
     // Calculate center of the popped line
-    const centerX = lineResult.ballsRemoved.reduce((sum, [x]) => sum + x, 0) / lineResult.ballsRemoved.length;
-    const centerY = lineResult.ballsRemoved.reduce((sum, [, y]) => sum + y, 0) / lineResult.ballsRemoved.length;
+    const centerX = lineResult.ballsRemoved.reduce((sum: number, [x]: [number, number]) => sum + x, 0) / lineResult.ballsRemoved.length;
+    const centerY = lineResult.ballsRemoved.reduce((sum: number, [, y]: [number, number]) => sum + y, 0) / lineResult.ballsRemoved.length;
     
     actions.addFloatingScore(lineResult.pointsEarned || 0, Math.round(centerX), Math.round(centerY));
   }
@@ -94,12 +110,13 @@ async function handleLineRemoval(
     lineResult.pointsEarned || 0,
   );
 
-  // Clear popping balls after animation and persist final state
-  setTimeout(() => {
-    actions.setPoppingBalls(new Set());
+  // Wait for popping animation to complete, then handle ball conversion
+  setTimeout(async () => {
+    actions.stopPoppingAnimation();
     actions.setBoard(lineResult.newBoard);
-    // Persist the final state after line removal animation completes
-    persistGameState(lineResult.newBoard, nextBalls, newScore, false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
+    
+    // Now handle ball conversion on the board after line removal
+    await handleBallConversion(lineResult.newBoard, -1, -1, newScore, statisticsTracker, actions, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore, steppedOnPreview, wasSteppedOnBallPopped);
   }, ANIMATION_DURATIONS.POP_BALL);
 }
 
@@ -115,77 +132,115 @@ async function handleBallConversion(
   highScore: number,
   isNewHighScore: boolean,
   currentGameBeatHighScore: boolean,
+  steppedOnPreview?: BallColor,
+  wasSteppedOnBallPopped: boolean = false,
 ): Promise<void> {
-  // Check if we stepped on an incoming ball
-  const steppedOnIncomingBall = board[toY][toX].incomingBall?.color;
+  // Handle incoming ball conversion with correct logic for stepped-on balls
+  const conversionResult = handleIncomingBallConversion(board, steppedOnPreview, wasSteppedOnBallPopped);
   
-  const conversionResult = handleIncomingBallConversion(board, steppedOnIncomingBall);
+  // Prepare spawning balls for animation
+  const spawningBalls: SpawnedBall[] = [];
   
-  // Update board state first
-  actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
-  
-  // Trigger growing ball animations for converted balls (now on the updated board)
+  // Track balls transitioning from preview to real
   for (let y = 0; y < conversionResult.newBoard.length; y++) {
     for (let x = 0; x < conversionResult.newBoard[y].length; x++) {
       const newCell = conversionResult.newBoard[y][x];
       const oldCell = board[y][x];
       if (oldCell.incomingBall && newCell.ball) {
         // This is a ball transitioning from preview to real
-        actions.addGrowingBall(x, y, oldCell.incomingBall.color, true);
+        spawningBalls.push({
+          x,
+          y,
+          color: oldCell.incomingBall.color,
+          isTransitioning: true,
+        });
       }
     }
   }
   
-  // Trigger growing ball animations for new preview balls
+  // Track new preview balls being placed
   for (let y = 0; y < conversionResult.newBoard.length; y++) {
     for (let x = 0; x < conversionResult.newBoard[y].length; x++) {
       const newCell = conversionResult.newBoard[y][x];
       const oldCell = board[y][x];
       if (newCell.incomingBall && !oldCell.incomingBall) {
         // This is a new preview ball being placed
-        actions.addGrowingBall(x, y, newCell.incomingBall.color, false);
+        spawningBalls.push({
+          x,
+          y,
+          color: newCell.incomingBall.color,
+          isTransitioning: false,
+        });
       }
     }
   }
   
+  // Start spawning animation
+  if (spawningBalls.length > 0) {
+    actions.startSpawningAnimation(spawningBalls);
+  }
+  
+  // Update board state
+  actions.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+  
+  // Check if lines were formed by spawning balls
   if (conversionResult.linesFormed) {
-    // Lines were formed by spawning balls
-    const newScore = currentScore + (conversionResult.pointsEarned || 0);
-    actions.setScore(newScore);
-    
-    actions.setPoppingBalls(
-      new Set((conversionResult.ballsRemoved || []).map(([x, y]) => `${x},${y}`)),
-    );
-
-    // Add floating score animation
-    if (conversionResult.ballsRemoved && conversionResult.ballsRemoved.length > 0) {
-      // Calculate center of the popped line
-      const centerX = conversionResult.ballsRemoved.reduce((sum: number, [x]: [number, number]) => sum + x, 0) / conversionResult.ballsRemoved.length;
-      const centerY = conversionResult.ballsRemoved.reduce((sum: number, [, y]: [number, number]) => sum + y, 0) / conversionResult.ballsRemoved.length;
+    // Lines were formed by spawning - handle them after spawning animation
+    setTimeout(async () => {
+      actions.stopSpawningAnimation();
       
-      actions.addFloatingScore(conversionResult.pointsEarned || 0, Math.round(centerX), Math.round(centerY));
-    }
+      const newScore = currentScore + (conversionResult.pointsEarned || 0);
+      actions.setScore(newScore);
+      
+      // Start popping animation for lines formed by spawning
+      actions.startPoppingAnimation(
+        new Set((conversionResult.ballsRemoved || []).map(([x, y]) => `${x},${y}`)),
+      );
 
-    statisticsTracker.recordLinePop(
-      conversionResult.ballsRemoved?.length || 0,
-      conversionResult.pointsEarned || 0,
-    );
+      // Add floating score animation
+      if (conversionResult.ballsRemoved && conversionResult.ballsRemoved.length > 0) {
+        const centerX = conversionResult.ballsRemoved.reduce((sum: number, [x]: [number, number]) => sum + x, 0) / conversionResult.ballsRemoved.length;
+        const centerY = conversionResult.ballsRemoved.reduce((sum: number, [, y]: [number, number]) => sum + y, 0) / conversionResult.ballsRemoved.length;
+        
+        actions.addFloatingScore(conversionResult.pointsEarned || 0, Math.round(centerX), Math.round(centerY));
+      }
 
-    setTimeout(() => {
-      actions.setPoppingBalls(new Set());
-      // Persist the final state after ball conversion animation completes
-      persistGameState(conversionResult.newBoard, conversionResult.nextBalls, newScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
-    }, ANIMATION_DURATIONS.POP_BALL);
+      statisticsTracker.recordLinePop(
+        conversionResult.ballsRemoved?.length || 0,
+        conversionResult.pointsEarned || 0,
+      );
+
+      // Wait for popping animation to complete
+      setTimeout(() => {
+        actions.stopPoppingAnimation();
+        persistGameState(conversionResult.newBoard, conversionResult.nextBalls, newScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
+        
+        if (conversionResult.gameOver) {
+          const finalStats = statisticsTracker.getCurrentStatistics();
+          actions.setFinalStatistics(finalStats);
+          actions.setGameOver(true);
+          actions.setShowGameEndDialog(true);
+        }
+      }, ANIMATION_DURATIONS.POP_BALL);
+    }, ANIMATION_DURATIONS.SPAWN_BALL);
   } else {
-    // No lines formed by spawning - persist the final state immediately
-    persistGameState(conversionResult.newBoard, conversionResult.nextBalls, currentScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
+    // No lines formed by spawning - complete after spawning animation
+    setTimeout(() => {
+      actions.stopSpawningAnimation();
+      persistGameState(conversionResult.newBoard, conversionResult.nextBalls, currentScore, conversionResult.gameOver || false, statisticsTracker, currentTimer, currentTimerActive, highScore, isNewHighScore, currentGameBeatHighScore);
+      
+      if (conversionResult.gameOver) {
+        const finalStats = statisticsTracker.getCurrentStatistics();
+        actions.setFinalStatistics(finalStats);
+        actions.setGameOver(true);
+        actions.setShowGameEndDialog(true);
+      }
+    }, ANIMATION_DURATIONS.SPAWN_BALL);
   }
 
-  if (conversionResult.gameOver) {
-    const finalStats = statisticsTracker.getCurrentStatistics();
-    actions.setFinalStatistics(finalStats);
-    actions.setGameOver(true);
-    actions.setShowGameEndDialog(true);
+  // Start timer after first move
+  if (!currentTimerActive && currentTimer === 0) {
+    actions.setTimerActive(true);
   }
 }
 

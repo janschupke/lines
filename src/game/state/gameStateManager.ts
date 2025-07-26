@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import type { Cell, BallColor, GameState, GameActions, GameStatistics } from "../types";
+import type { Cell, BallColor, GameState, GameActions, GameStatistics, SpawnedBall } from "../types";
 import { TIMER_INTERVAL_MS, INITIAL_BALLS, BALLS_PER_TURN } from "../config";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameTimer } from "../../hooks/useGameTimer";
@@ -121,6 +121,11 @@ export const useGameStateManager = (
     setTimerActive: timerState.setTimerActive,
     addFloatingScore: animationState.addFloatingScore,
     addGrowingBall: animationState.addGrowingBall,
+    addSpawningBalls: animationState.addSpawningBalls,
+    startPoppingAnimation: animationState.startPoppingAnimation,
+    stopPoppingAnimation: animationState.stopPoppingAnimation,
+    startSpawningAnimation: animationState.startSpawningAnimation,
+    stopSpawningAnimation: animationState.stopSpawningAnimation,
   };
 
   // Cell interaction handlers
@@ -186,11 +191,6 @@ export const useGameStateManager = (
           currentGameBeatHighScore,
         );
 
-        // Start timer after first move
-        if (!timerState.timerActive && timerState.timer === 0) {
-          timerState.setTimerActive(true);
-        }
-
         // Reset animation state
         animationState.setMovingBall(null);
         animationState.setMovingStep(0);
@@ -233,9 +233,7 @@ export const useGameStateManager = (
     boardState.setNextBalls(initialNext, finalBoard);
     timerState.setTimerActive(false);
     timerState.resetTimer();
-    animationState.setMovingBall(null);
-    animationState.setMovingStep(0);
-    animationState.setPoppingBalls(new Set());
+    animationState.resetAnimationState();
     setSelected(null);
     setHoveredCell(null);
     setPathTrail(null);
@@ -245,6 +243,34 @@ export const useGameStateManager = (
     // Reset statistics
     statisticsTracker.reset();
     setFinalStatistics(null);
+
+    // Animate initial balls growing from zero size
+    const initialSpawnedBalls: SpawnedBall[] = [];
+    for (let y = 0; y < finalBoard.length; y++) {
+      for (let x = 0; x < finalBoard[y].length; x++) {
+        const cell = finalBoard[y][x];
+        if (cell.ball) {
+          initialSpawnedBalls.push({
+            x,
+            y,
+            color: cell.ball.color,
+            isTransitioning: false, // These are new balls, not transitioning from preview
+          });
+        }
+        if (cell.incomingBall) {
+          initialSpawnedBalls.push({
+            x,
+            y,
+            color: cell.incomingBall.color,
+            isTransitioning: false, // These are new preview balls
+          });
+        }
+      }
+    }
+    
+    if (initialSpawnedBalls.length > 0) {
+      animationState.startSpawningAnimation(initialSpawnedBalls);
+    }
 
     // Clear saved game state and persist new game
     StorageManager.clearGameState();

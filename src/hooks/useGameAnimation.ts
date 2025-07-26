@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { BallColor } from "../game/types";
+import type { BallColor, SpawnedBall } from "../game/types";
 
 export interface FloatingScore {
   id: string;
@@ -18,6 +18,15 @@ export interface GrowingBall {
   timestamp: number;
 }
 
+export interface AnimationPhase {
+  type: "idle" | "moving" | "popping" | "spawning" | "converting";
+  data?: {
+    movingBall?: { color: BallColor; path: [number, number][] };
+    poppingBalls?: Set<string>;
+    spawningBalls?: SpawnedBall[];
+  };
+}
+
 export const useGameAnimation = () => {
   const [movingBall, setMovingBall] = useState<null | {
     color: BallColor;
@@ -27,11 +36,17 @@ export const useGameAnimation = () => {
   const [poppingBalls, setPoppingBalls] = useState<Set<string>>(new Set());
   const [floatingScores, setFloatingScores] = useState<FloatingScore[]>([]);
   const [growingBalls, setGrowingBalls] = useState<GrowingBall[]>([]);
+  const [spawningBalls, setSpawningBalls] = useState<SpawnedBall[]>([]);
+  const [currentPhase, setCurrentPhase] = useState<AnimationPhase>({ type: "idle" });
 
   const startMoveAnimation = useCallback(
     (ball: BallColor, path: [number, number][]) => {
       setMovingBall({ color: ball, path });
       setMovingStep(0);
+      setCurrentPhase({ 
+        type: "moving", 
+        data: { movingBall: { color: ball, path } } 
+      });
     },
     [],
   );
@@ -39,6 +54,33 @@ export const useGameAnimation = () => {
   const stopMoveAnimation = useCallback(() => {
     setMovingBall(null);
     setMovingStep(0);
+    setCurrentPhase({ type: "idle" });
+  }, []);
+
+  const startPoppingAnimation = useCallback((balls: Set<string>) => {
+    setPoppingBalls(balls);
+    setCurrentPhase({ 
+      type: "popping", 
+      data: { poppingBalls: balls } 
+    });
+  }, []);
+
+  const stopPoppingAnimation = useCallback(() => {
+    setPoppingBalls(new Set());
+    setCurrentPhase({ type: "idle" });
+  }, []);
+
+  const startSpawningAnimation = useCallback((balls: SpawnedBall[]) => {
+    setSpawningBalls(balls);
+    setCurrentPhase({ 
+      type: "spawning", 
+      data: { spawningBalls: balls } 
+    });
+  }, []);
+
+  const stopSpawningAnimation = useCallback(() => {
+    setSpawningBalls([]);
+    setCurrentPhase({ type: "idle" });
   }, []);
 
   const addFloatingScore = useCallback((score: number, x: number, y: number) => {
@@ -78,6 +120,27 @@ export const useGameAnimation = () => {
     }, 600); // Match the CSS animation duration
   }, []);
 
+  const addSpawningBalls = useCallback((balls: SpawnedBall[]) => {
+    setSpawningBalls(prev => [...prev, ...balls]);
+    
+    // Remove the spawning balls after animation completes
+    setTimeout(() => {
+      setSpawningBalls(prev => prev.filter(sb => 
+        !balls.some(ball => ball.x === sb.x && ball.y === sb.y && ball.color === sb.color)
+      ));
+    }, 600);
+  }, []);
+
+  const resetAnimationState = useCallback(() => {
+    setMovingBall(null);
+    setMovingStep(0);
+    setPoppingBalls(new Set());
+    setFloatingScores([]);
+    setGrowingBalls([]);
+    setSpawningBalls([]);
+    setCurrentPhase({ type: "idle" });
+  }, []);
+
   return {
     movingBall,
     setMovingBall,
@@ -87,9 +150,17 @@ export const useGameAnimation = () => {
     setPoppingBalls,
     floatingScores,
     growingBalls,
+    spawningBalls,
+    currentPhase,
     addFloatingScore,
     addGrowingBall,
+    addSpawningBalls,
     startMoveAnimation,
     stopMoveAnimation,
+    startPoppingAnimation,
+    stopPoppingAnimation,
+    startSpawningAnimation,
+    stopSpawningAnimation,
+    resetAnimationState,
   };
 };

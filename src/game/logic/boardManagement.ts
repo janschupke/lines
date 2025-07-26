@@ -116,10 +116,14 @@ export function checkGameOver(board: Cell[][]): boolean {
 
 /**
  * Handles incoming ball conversion and new ball placement
+ * According to SPAWN.md:
+ * - If ball steps on preview cell: recalculate that preview to new position
+ * - If ball steps on preview cell AND gets popped: DON'T recalculate, spawn in original position
  */
 export function handleIncomingBallConversion(
   board: Cell[][], 
-  steppedOnIncomingBall?: BallColor
+  steppedOnIncomingBall?: BallColor,
+  wasSteppedOnBallPopped: boolean = false
 ): ConversionResult {
   // Convert incoming balls to real balls
   const boardWithRealBalls = board.map((row) =>
@@ -144,13 +148,9 @@ export function handleIncomingBallConversion(
   let afterBalls: Cell[][];
   const spawnedPositions: [number, number][] = [];
 
-  if (steppedOnIncomingBall) {
-    // When stepping on an incoming ball:
-    // 1. RECALCULATE the stepped-on ball to a NEW position as a REAL BALL
-    // 2. Convert all existing incoming balls to real balls
-    // 3. THEN generate 3 new preview balls for the next turn
-    
-    // STEP 1: RECALCULATE the stepped-on ball to a new position as a REAL BALL
+  if (steppedOnIncomingBall && !wasSteppedOnBallPopped) {
+    // Case 1: Ball stepped on preview cell but didn't get popped
+    // Recalculate the stepped-on ball to a new position as a REAL BALL
     const boardWithSteppedOnBall = placeRealBalls(boardWithRealBalls, [steppedOnIncomingBall]);
     
     // Track the position where the stepped-on ball was placed
@@ -159,11 +159,32 @@ export function handleIncomingBallConversion(
       spawnedPositions.push(steppedOnPosition);
     }
     
-    // STEP 2: Generate 3 new preview balls for the next turn
+    // Generate 3 new preview balls for the next turn
+    nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
+    afterBalls = placePreviewBalls(boardWithSteppedOnBall, nextPreviewBalls);
+  } else if (steppedOnIncomingBall && wasSteppedOnBallPopped) {
+    // Case 2: Ball stepped on preview cell AND got popped
+    // DON'T recalculate - the preview ball should spawn in its original position
+    // But since the ball was moved there and then popped, we need to place the stepped-on ball
+    // in a new position as a REAL BALL
+    
+    // Find where the stepped-on ball originally was (before the move)
+    // Since the move handler cleared the incoming ball at the destination,
+    // we need to place it as a real ball in a new position
+    const boardWithSteppedOnBall = placeRealBalls(boardWithRealBalls, [steppedOnIncomingBall]);
+    
+    // Track the position where the stepped-on ball was placed
+    const steppedOnPosition = findBallPosition(boardWithSteppedOnBall, steppedOnIncomingBall);
+    if (steppedOnPosition) {
+      spawnedPositions.push(steppedOnPosition);
+    }
+    
+    // Generate 3 new preview balls for the next turn
     nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
     afterBalls = placePreviewBalls(boardWithSteppedOnBall, nextPreviewBalls);
   } else {
-    // Normal case: generate 3 new balls
+    // Case 3: Normal case - no ball stepped on preview cell
+    // Generate 3 new preview balls
     nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
     afterBalls = placePreviewBalls(boardWithRealBalls, nextPreviewBalls);
     

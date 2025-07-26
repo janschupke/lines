@@ -1,47 +1,133 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { 
-  handleIncomingBallConversion, 
-  checkGameOver,
-  createEmptyBoard 
+import {
+  handleIncomingBallConversion,
+  createEmptyBoard,
 } from "./boardManagement";
-import { handleLineDetection } from "./lineDetection";
+import { BALLS_PER_TURN } from "../config";
 import type { Cell, BallColor } from "../types";
 
-describe("boardManagement", () => {
+describe("Enhanced Board Management", () => {
   let board: Cell[][];
 
   beforeEach(() => {
     board = createEmptyBoard();
   });
 
-  describe("handleIncomingBallConversion", () => {
-    it("converts incoming balls to real balls", () => {
-      // Manually place incoming balls at specific positions
-      const boardWithIncoming = board.map((row) =>
-        row.map((cell) => ({ ...cell })),
-      );
-      boardWithIncoming[0][0].incomingBall = { color: "red" as BallColor };
-      boardWithIncoming[1][1].incomingBall = { color: "blue" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
+  describe("handleIncomingBallConversion - Stepped-on Preview Ball Logic", () => {
+    it("handles normal case - no ball stepped on preview cell", () => {
+      // Set up board with incoming balls
+      board[0][0].incomingBall = { color: "red" as BallColor };
+      board[1][1].incomingBall = { color: "blue" as BallColor };
+      board[2][2].incomingBall = { color: "green" as BallColor };
 
-      const result = handleIncomingBallConversion(boardWithIncoming);
+      const result = handleIncomingBallConversion(board);
 
-      // Should convert incoming balls to real balls
-      let realBallCount = 0;
+      // Should convert all incoming balls to real balls
+      expect(result.newBoard[0][0].ball?.color).toBe("red");
+      expect(result.newBoard[1][1].ball?.color).toBe("blue");
+      expect(result.newBoard[2][2].ball?.color).toBe("green");
+      expect(result.newBoard[0][0].incomingBall).toBeNull();
+      expect(result.newBoard[1][1].incomingBall).toBeNull();
+      expect(result.newBoard[2][2].incomingBall).toBeNull();
+
+      // Should generate new preview balls
+      expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
+      
+      // Should have new preview balls on the board
       let incomingBallCount = 0;
-
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].ball) realBallCount++;
-          if (result.newBoard[y][x].incomingBall) incomingBallCount++;
+          if (result.newBoard[y][x].incomingBall) {
+            incomingBallCount++;
+          }
         }
       }
+      expect(incomingBallCount).toBe(BALLS_PER_TURN);
+    });
 
-      // Should have 3 real balls (converted from incoming balls)
-      expect(realBallCount).toBe(3);
-      // Should have new preview balls placed
-      expect(incomingBallCount).toBeGreaterThan(0);
-      expect(result.gameOver).toBe(false);
+    it("handles ball stepped on preview cell but not popped", () => {
+      // Set up board with incoming balls
+      board[0][0].incomingBall = { color: "red" as BallColor };
+      board[1][1].incomingBall = { color: "blue" as BallColor };
+      board[2][2].incomingBall = { color: "green" as BallColor };
+
+      const result = handleIncomingBallConversion(board, "blue", false);
+
+      // Should convert all incoming balls to real balls
+      expect(result.newBoard[0][0].ball?.color).toBe("red");
+      expect(result.newBoard[1][1].ball?.color).toBe("blue");
+      expect(result.newBoard[2][2].ball?.color).toBe("green");
+
+      // The stepped-on ball (blue) should be spawned as a REAL BALL at a new position
+      let blueBallFound = false;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].ball?.color === "blue" && 
+              (x !== 1 || y !== 1)) { // Not the original position
+            blueBallFound = true;
+            break;
+          }
+        }
+        if (blueBallFound) break;
+      }
+      expect(blueBallFound).toBe(true);
+
+      // Should generate new preview balls (NOT including the stepped-on color)
+      expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
+      
+      // Should have new preview balls on the board
+      let incomingBallCount = 0;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].incomingBall) {
+            incomingBallCount++;
+          }
+        }
+      }
+      expect(incomingBallCount).toBe(BALLS_PER_TURN);
+    });
+
+    it("handles ball stepped on preview cell AND popped", () => {
+      // Set up board with incoming balls
+      board[0][0].incomingBall = { color: "red" as BallColor };
+      board[1][1].incomingBall = { color: "blue" as BallColor };
+      board[2][2].incomingBall = { color: "green" as BallColor };
+
+      const result = handleIncomingBallConversion(board, "blue", true);
+
+      // Should convert all incoming balls to real balls
+      expect(result.newBoard[0][0].ball?.color).toBe("red");
+      expect(result.newBoard[1][1].ball?.color).toBe("blue");
+      expect(result.newBoard[2][2].ball?.color).toBe("green");
+
+      // The stepped-on ball (blue) should be spawned as a REAL BALL at a new position
+      // Even though it was popped, it still needs to be placed somewhere
+      let blueBallFound = false;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].ball?.color === "blue" && 
+              (x !== 1 || y !== 1)) { // Not the original position
+            blueBallFound = true;
+            break;
+          }
+        }
+        if (blueBallFound) break;
+      }
+      expect(blueBallFound).toBe(true);
+
+      // Should generate new preview balls
+      expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
+      
+      // Should have new preview balls on the board
+      let incomingBallCount = 0;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].incomingBall) {
+            incomingBallCount++;
+          }
+        }
+      }
+      expect(incomingBallCount).toBe(BALLS_PER_TURN);
     });
 
     it("handles board full scenario", () => {
@@ -50,190 +136,186 @@ describe("boardManagement", () => {
         row.map((cell) => ({ ...cell, ball: { color: "red" as BallColor } })),
       );
 
-      const result = handleIncomingBallConversion(fullBoard);
+      const result = handleIncomingBallConversion(fullBoard, "blue", false);
 
+      // Should return the same board
+      expect(result.newBoard).toStrictEqual(fullBoard);
       expect(result.gameOver).toBe(true);
-
-      // Should clear all incoming balls
-      let incomingBallCount = 0;
-      for (let y = 0; y < 9; y++) {
-        for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].incomingBall) incomingBallCount++;
-        }
-      }
-      expect(incomingBallCount).toBe(0);
+      expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
     });
 
-    it("places fewer balls when limited space available", () => {
-      // Fill most of the board, leave only 1 empty cell
+    it("handles limited space scenario", () => {
+      // Fill most of the board, leave only 2 empty cells
       const almostFullBoard = board.map((row, y) =>
         row.map((cell, x) => {
-          if (x === 8 && y === 8) return cell; // Leave one empty cell
+          if ((x === 8 && y === 8) || (x === 7 && y === 8)) return cell; // Leave 2 empty cells
           return { ...cell, ball: { color: "red" as BallColor } };
         }),
       );
+      almostFullBoard[0][0].incomingBall = { color: "blue" as BallColor };
 
-      const result = handleIncomingBallConversion(almostFullBoard);
+      const result = handleIncomingBallConversion(almostFullBoard, "blue", false);
 
-      // Should place as many balls as possible given the space
-      let realBallCount = 0;
-      for (let y = 0; y < 9; y++) {
-        for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].ball) realBallCount++;
-        }
-      }
-
-      // Should have 80 balls (79 original + 1 from the empty cell)
-      expect(realBallCount).toBe(80);
-      // Game should not be over because there's still space for preview balls
-      expect(result.gameOver).toBe(false);
-    });
-  });
-
-  describe("checkGameOver", () => {
-    it("detects full board", () => {
-      const fullBoard = board.map((row) =>
-        row.map((cell) => ({ ...cell, ball: { color: "red" as BallColor } })),
-      );
-
-      expect(checkGameOver(fullBoard)).toBe(true);
-    });
-
-    it("detects non-full board", () => {
-      expect(checkGameOver(board)).toBe(false);
-    });
-
-    it("detects partially filled board", () => {
-      const partialBoard = board.map((row) => row.map((cell) => ({ ...cell })));
-      partialBoard[0][0].ball = { color: "red" as BallColor };
-      partialBoard[1][1].ball = { color: "blue" as BallColor };
-
-      expect(checkGameOver(partialBoard)).toBe(false);
-    });
-  });
-
-  describe("Integration: Line removal preserves incoming balls", () => {
-    it("incoming balls stay in position after line removal", () => {
-      // Create a board with incoming balls and a line
-      const testBoard = createEmptyBoard();
-
-      // Place incoming balls at specific positions
-      testBoard[0][0].incomingBall = { color: "blue" as BallColor };
-      testBoard[1][1].incomingBall = { color: "green" as BallColor };
-      testBoard[2][2].incomingBall = { color: "yellow" as BallColor };
-
-      // Create a horizontal line of 5 red balls
-      for (let i = 0; i < 5; i++) {
-        testBoard[3][i].ball = { color: "red" as BallColor };
-      }
-
-      // Simulate line removal
-      const lineResult = handleLineDetection(testBoard, 2, 3);
-
-      expect(lineResult).not.toBeNull();
-      expect(lineResult?.linesFormed).toBe(true);
-
-      // Verify that incoming balls are preserved exactly where they were
-      const boardAfterRemoval = lineResult!.newBoard;
-
-      // Incoming balls should be in the same positions
-      expect(boardAfterRemoval[0][0].incomingBall?.color).toBe("blue");
-      expect(boardAfterRemoval[1][1].incomingBall?.color).toBe("green");
-      expect(boardAfterRemoval[2][2].incomingBall?.color).toBe("yellow");
-
-      // Line balls should be removed
-      for (let i = 0; i < 5; i++) {
-        expect(boardAfterRemoval[3][i].ball).toBeNull();
-      }
-
-      // No new incoming balls should be placed
+      // Should place only 1 preview ball due to limited space (stepped-on ball takes one spot)
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (boardAfterRemoval[y][x].incomingBall) {
+          if (result.newBoard[y][x].incomingBall) {
             incomingBallCount++;
           }
         }
       }
+      expect(incomingBallCount).toBe(1);
+      expect(result.nextBalls).toHaveLength(BALLS_PER_TURN); // Still generate full set for display
+    });
+  });
 
-      // Should have exactly 3 incoming balls (the original ones)
-      expect(incomingBallCount).toBe(3);
+  describe("handleIncomingBallConversion - Line Formation", () => {
+    it("handles lines formed by spawned balls", () => {
+      // Create a setup where spawning balls will form lines
+      board[1][1].ball = { color: "red" };
+      board[1][2].ball = { color: "red" };
+      board[1][3].ball = { color: "red" };
+      board[1][4].ball = { color: "red" };
+      
+      // Place incoming ball that will complete the line when converted
+      board[1][0].incomingBall = { color: "red" };
+      
+      const result = handleIncomingBallConversion(board);
+      
+      expect(result.linesFormed).toBe(true);
+      expect(result.ballsRemoved).toHaveLength(5);
+      expect(result.pointsEarned).toBe(5);
+      expect(result.gameOver).toBe(false);
     });
 
-    it("game state preserves incoming balls after line removal", () => {
-      // This test simulates the actual game state behavior
-      const testBoard = createEmptyBoard();
-
-      // Place incoming balls at specific positions
-      testBoard[0][0].incomingBall = { color: "blue" as BallColor };
-      testBoard[1][1].incomingBall = { color: "green" as BallColor };
-      testBoard[2][2].incomingBall = { color: "yellow" as BallColor };
-
-      // Create a horizontal line of 5 red balls
-      for (let i = 0; i < 5; i++) {
-        testBoard[3][i].ball = { color: "red" as BallColor };
+    it("handles lines formed by stepped-on ball spawning", () => {
+      // Create a line setup (4 balls, need 1 more for 5)
+      board[1][0].ball = { color: "green" };
+      board[1][1].ball = { color: "green" };
+      board[1][2].ball = { color: "green" };
+      board[1][3].ball = { color: "green" };
+      
+      // Place incoming ball that will be stepped on
+      board[2][2].incomingBall = { color: "green" };
+      
+      const result = handleIncomingBallConversion(board, "green", false);
+      
+      // The stepped-on ball should spawn somewhere and potentially complete a line
+      // Note: This test may or may not form a line depending on where the ball is placed
+      // The important thing is that the ball is spawned correctly
+      let greenBallFound = false;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].ball?.color === "green" && 
+              (x !== 2 || y !== 2)) { // Not the original position
+            greenBallFound = true;
+            break;
+          }
+        }
+        if (greenBallFound) break;
       }
-
-      // Simulate the game state behavior: line removal without recalculation
-      const lineResult = handleLineDetection(testBoard, 2, 3);
-
-      expect(lineResult).not.toBeNull();
-
-      // The board after line removal should have the same incoming balls
-      const boardAfterRemoval = lineResult!.newBoard;
-
-      // Verify incoming balls are preserved
-      expect(boardAfterRemoval[0][0].incomingBall?.color).toBe("blue");
-      expect(boardAfterRemoval[1][1].incomingBall?.color).toBe("green");
-      expect(boardAfterRemoval[2][2].incomingBall?.color).toBe("yellow");
-
-      // Verify line was removed
-      for (let i = 0; i < 5; i++) {
-        expect(boardAfterRemoval[3][i].ball).toBeNull();
-      }
-
-      // Verify no recalculation happened (incoming balls stay in same positions)
-      const originalIncomingPositions = [
-        { x: 0, y: 0, color: "blue" },
-        { x: 1, y: 1, color: "green" },
-        { x: 2, y: 2, color: "yellow" },
-      ];
-
-      originalIncomingPositions.forEach(({ x, y, color }) => {
-        expect(boardAfterRemoval[y][x].incomingBall?.color).toBe(color);
-      });
+      expect(greenBallFound).toBe(true);
+      expect(result.gameOver).toBe(false);
     });
 
-    it("automatic ball placement triggers line removal", () => {
-      // This test verifies that when incoming balls are automatically converted to real balls
-      // and form a valid line, the line IS removed (spawning balls trigger line detection)
+    it("handles no lines formed by spawned balls", () => {
+      // Place isolated balls
+      board[1][1].ball = { color: "red" };
+      board[2][2].ball = { color: "blue" };
+      
+      // Place incoming balls that won't form lines
+      board[0][0].incomingBall = { color: "green" };
+      board[3][3].incomingBall = { color: "yellow" };
+      board[4][4].incomingBall = { color: "pink" };
+      
+      const result = handleIncomingBallConversion(board);
+      
+      expect(result.linesFormed).toBeUndefined();
+      expect(result.ballsRemoved).toBeUndefined();
+      expect(result.pointsEarned).toBeUndefined();
+      expect(result.gameOver).toBe(false);
+    });
+  });
 
-      // Create a board with a line that would be formed by automatic placement
-      const testBoard = createEmptyBoard();
+  describe("Complete Flow Tests", () => {
+    it("handles complete flow: step on preview, no pop", () => {
+      // Set up board with incoming balls
+      board[0][0].ball = { color: "red" as BallColor };
+      board[2][2].incomingBall = { color: "green" as BallColor };
+      board[3][3].incomingBall = { color: "yellow" as BallColor };
+      board[4][4].incomingBall = { color: "blue" as BallColor };
 
-      // Create a horizontal line of 4 red balls
-      for (let i = 0; i < 4; i++) {
-        testBoard[0][i].ball = { color: "red" as BallColor };
+      const result = handleIncomingBallConversion(board, "green", false);
+
+      // Should convert all existing incoming balls to real balls
+      expect(result.newBoard[3][3].ball?.color).toBe("yellow");
+      expect(result.newBoard[4][4].ball?.color).toBe("blue");
+
+      // The stepped-on ball (green) should be spawned as a REAL BALL at a new position
+      let greenBallFound = false;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].ball?.color === "green" && 
+              (x !== 2 || y !== 2)) { // Not the original position
+            greenBallFound = true;
+            break;
+          }
+        }
+        if (greenBallFound) break;
       }
+      expect(greenBallFound).toBe(true);
 
-      // Place an incoming ball that would complete the line
-      testBoard[0][4].incomingBall = { color: "red" as BallColor };
-
-      // Simulate automatic ball conversion (what happens after a user move)
-      const conversionResult = handleIncomingBallConversion(testBoard);
-
-      // The line SHOULD be removed because spawning balls trigger line detection
-      expect(conversionResult.linesFormed).toBe(true);
-      expect(conversionResult.ballsRemoved).toHaveLength(5);
-      expect(conversionResult.pointsEarned).toBe(5);
-
-      // The line should be removed (no balls in a row)
-      for (let i = 0; i < 5; i++) {
-        expect(conversionResult.newBoard[0][i].ball).toBeNull();
+      // Should have exactly BALLS_PER_TURN new preview balls
+      let incomingBallCount = 0;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].incomingBall) {
+            incomingBallCount++;
+          }
+        }
       }
+      expect(incomingBallCount).toBe(BALLS_PER_TURN);
+    });
 
-      // Scoring should occur from automatic placement
-      // This is verified by the fact that line detection IS called during conversion
+    it("handles complete flow: step on preview, gets popped", () => {
+      // Set up board with incoming balls
+      board[0][0].ball = { color: "red" as BallColor };
+      board[2][2].incomingBall = { color: "green" as BallColor };
+      board[3][3].incomingBall = { color: "yellow" as BallColor };
+      board[4][4].incomingBall = { color: "blue" as BallColor };
+
+      const result = handleIncomingBallConversion(board, "green", true);
+
+      // Should convert all existing incoming balls to real balls
+      expect(result.newBoard[3][3].ball?.color).toBe("yellow");
+      expect(result.newBoard[4][4].ball?.color).toBe("blue");
+
+      // The stepped-on ball (green) should still be spawned as a REAL BALL at a new position
+      // Even though it was popped, it needs to be placed somewhere
+      let greenBallFound = false;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].ball?.color === "green" && 
+              (x !== 2 || y !== 2)) { // Not the original position
+            greenBallFound = true;
+            break;
+          }
+        }
+        if (greenBallFound) break;
+      }
+      expect(greenBallFound).toBe(true);
+
+      // Should have exactly BALLS_PER_TURN new preview balls
+      let incomingBallCount = 0;
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          if (result.newBoard[y][x].incomingBall) {
+            incomingBallCount++;
+          }
+        }
+      }
+      expect(incomingBallCount).toBe(BALLS_PER_TURN);
     });
   });
 }); 

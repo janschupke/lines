@@ -22,3 +22,4 @@ Currently broken, to be fixed:
 
 - transition from preview to a full ball has popping animation, not growing
 - starting new game doesn't properly animate new balls
+- stepping on apreview ball results in its loss, as it's not spawned at all

@@ -76,7 +76,7 @@ export interface GameActions {
 
 // Game Phase Management Types
 export interface GamePhase {
-  type: "idle" | "moving" | "popping" | "converting" | "gameOver";
+  type: "idle" | "moving" | "popping" | "converting" | "spawning" | "gameOver";
   data?: Record<string, unknown>;
 }
 
@@ -86,6 +86,7 @@ export interface MoveResult {
   ballsRemoved?: [number, number][];
   pointsEarned?: number;
   nextBalls?: BallColor[];
+  steppedOnIncomingBall?: BallColor;
 }
 
 export interface ConversionResult {
@@ -113,6 +114,38 @@ export interface AnimationState {
   setMovingBall: (ball: { color: BallColor; path: [number, number][] } | null) => void;
   setMovingStep: (step: number) => void;
   setPoppingBalls: (balls: Set<string>) => void;
+}
+
+// Enhanced Animation Types
+export interface AnimationPhase {
+  type: "idle" | "moving" | "popping" | "spawning" | "converting";
+  data?: {
+    movingBall?: { color: BallColor; path: [number, number][] };
+    poppingBalls?: Set<string>;
+    spawningBalls?: Array<{ x: number; y: number; color: BallColor; isTransitioning: boolean }>;
+  };
+}
+
+export interface SpawnedBall {
+  x: number;
+  y: number;
+  color: BallColor;
+  isTransitioning: boolean; // true if transitioning from preview to real, false if new preview
+  originalPosition?: { x: number; y: number }; // for stepped-on balls that get relocated
+}
+
+export interface GameTurnState {
+  phase: "idle" | "moving" | "popping" | "spawning" | "converting" | "gameOver";
+  moveData?: {
+    fromX: number;
+    fromY: number;
+    toX: number;
+    toY: number;
+    steppedOnPreview?: BallColor;
+  };
+  spawnedBalls?: SpawnedBall[];
+  poppedBalls?: [number, number][];
+  pointsEarned?: number;
 }
 
 // Timer Types

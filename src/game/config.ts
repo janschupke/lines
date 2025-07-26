@@ -88,6 +88,9 @@ export const ANIMATION_DURATIONS = {
   /** Duration of ball popping animation */
   POP_BALL: 300,
   
+  /** Duration of ball spawning animation */
+  SPAWN_BALL: 600,
+  
   /** Duration of transition animations */
   TRANSITION: 200,
   

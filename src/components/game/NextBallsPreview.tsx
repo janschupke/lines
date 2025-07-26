@@ -16,7 +16,6 @@ const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({ nextBalls }) => {
           key={i}
           className={`block ${sizing.ballSizeClass} rounded-full border-2 border-game-border-default text-center align-middle`}
           style={{ backgroundColor: getBallColor(color) }}
-          title={color}
         />
       ))}
     </div>

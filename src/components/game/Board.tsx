@@ -138,14 +138,12 @@ const Board: React.FC<BoardProps> = ({
                     : "animate-move-ball"
                 } ${popping ? "z-20 animate-pop-ball" : ""} ${sizing.ballSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.ball.color) }}
-                title={cell.ball.color}
               />
             )}
             {!cell.ball && cell.incomingBall && (
               <span
                 className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${sizing.incomingBallSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
-                title={`Preview: ${cell.incomingBall.color}`}
               />
             )}
             {/* Not reachable cross */}

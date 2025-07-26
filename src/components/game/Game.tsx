@@ -47,6 +47,7 @@ const Game: React.FC<GameProps> = ({
   const {
     board,
     score,
+    selected,
     gameOver,
     nextBalls,
     timer,
@@ -204,6 +205,7 @@ const Game: React.FC<GameProps> = ({
               notReachable={notReachable}
               onCellHover={handleCellHover}
               onCellLeave={handleCellLeave}
+              selected={selected}
             >
               {movingBallEl}
             </Board>

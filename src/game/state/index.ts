@@ -57,7 +57,9 @@ export const useGameState = (
     (x: number, y: number) => {
       if (gameOver || animationState.movingBall) return;
       const cell = boardState.board[y][x];
+      
       if (cell.ball) {
+        // Clicked on a ball - select it
         setSelected({ x, y });
         boardState.setBoard((prev) =>
           prev.map((row, yy) =>
@@ -70,6 +72,7 @@ export const useGameState = (
         setPathTrail(null);
         setNotReachable(false);
       } else if (selected) {
+        // Clicked on empty cell with a ball selected - try to move
         // Validate move
         if (
           !GamePhaseManager.validateMove(
@@ -99,6 +102,9 @@ export const useGameState = (
             prev.map((row) => row.map((cell) => ({ ...cell, active: false }))),
           );
         }
+      } else {
+        // Clicked on empty cell without a ball selected - BLOCK THIS
+        return;
       }
     },
     [gameOver, animationState, boardState, selected],

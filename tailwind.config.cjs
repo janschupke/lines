@@ -171,7 +171,7 @@ module.exports = {
         "pop-ball": "popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)",
         "pulse-glow": "pulseGlow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
-        "bounce-ball": "bounceBall 1s ease-in-out infinite",
+        "bounce-ball": "pulseBall 1.5s ease-in-out infinite",
       },
       keyframes: {
         moveBall: {
@@ -197,9 +197,15 @@ module.exports = {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-4px)" },
         },
-        bounceBall: {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-8px)" },
+        pulseBall: {
+          "0%, 100%": { 
+            transform: "scale(1)",
+            opacity: "1"
+          },
+          "50%": { 
+            transform: "scale(1.1)",
+            opacity: "0.8"
+          },
         },
       },
       backgroundImage: {

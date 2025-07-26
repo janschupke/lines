@@ -13,6 +13,7 @@ interface BoardProps {
   notReachable?: boolean;
   onCellHover?: (x: number, y: number) => void;
   onCellLeave?: () => void;
+  selected?: { x: number; y: number } | null;
 }
 
 const Board: React.FC<BoardProps> = ({
@@ -26,6 +27,7 @@ const Board: React.FC<BoardProps> = ({
   notReachable,
   onCellHover,
   onCellLeave,
+  selected,
 }) => {
 
 
@@ -102,7 +104,7 @@ const Board: React.FC<BoardProps> = ({
 
         if (cell.active) {
           cellBgClass = "bg-game-bg-cell-hover";
-          borderClass = "border-game-border-default";
+          // No special border for selected cells
         } else if (inPath) {
           cellBgClass = "bg-game-bg-cell-path";
           borderClass = "border-game-border-path";
@@ -121,13 +123,13 @@ const Board: React.FC<BoardProps> = ({
           <div
             key={key}
             className={`game-cell ${
-              isAnimationInProgress ? "cursor-default" : "cursor-pointer"
+              isAnimationInProgress ? "cursor-default" : 
+              !cell.ball && !selected ? "cursor-default" : "cursor-pointer"
             } ${cellBgClass} ${borderClass} w-cell h-cell`}
             onClick={() => handleCellClick(cell.x, cell.y)}
             onMouseEnter={() => handleCellHover(cell.x, cell.y)}
             onMouseLeave={handleCellLeave}
             role="button"
-            tabIndex={isAnimationInProgress ? -1 : 0}
           >
             {cell.ball && !hideBall && (
               <span

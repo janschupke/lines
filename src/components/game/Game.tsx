@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import Board from "./Board";
 import GameEndDialog from "../ui/GameEndDialog";
+import Guide from "../ui/Guide";
 import MovingBall from "../ui/MovingBall";
 
 import { useGameState } from "../../game/state";
-
 import { useHighScore } from "../../hooks/useHighScore";
+import { useKeyboard } from "../../hooks/useKeyboard";
 import { formatTime } from "../../utils/formatters";
 import { getGameSpacing, getBallColor } from "../../utils/helpers";
-import type { Cell } from "../../game/types";
-import type { BallColor } from "../../game/constants";
+import type { Cell, BallColor } from "../../game/types";
 
 // Helper to get the pixel position of a cell in the board
 const getCellPosition = (x: number, y: number) => {
@@ -38,9 +38,11 @@ const Game: React.FC<GameProps> = ({
   initialBoard,
   initialNextBalls,
 }) => {
-
   const [gameState, gameActions] = useGameState(initialBoard, initialNextBalls);
   const { highScore, currentGameBeatHighScore, checkAndUpdateHighScore, resetNewHighScoreFlag, resetCurrentGameHighScoreFlag } = useHighScore();
+
+  // State for fade animations
+  const [isGuideClosing, setIsGuideClosing] = useState(false);
 
   const {
     board,
@@ -65,6 +67,35 @@ const Game: React.FC<GameProps> = ({
     handleNewGameFromDialog,
     handleCloseDialog,
   } = gameActions;
+
+  // Handle guide close with fade out animation
+  const handleGuideClose = () => {
+    setIsGuideClosing(true);
+    setTimeout(() => {
+      setShowGuide(false);
+      setIsGuideClosing(false);
+    }, 300); // Match the animation duration
+  };
+
+  // Keyboard event handling
+  useKeyboard({
+    onKeyG: () => {
+      if (showGuide) {
+        handleGuideClose();
+      } else {
+        setShowGuide(true);
+      }
+    },
+    onKeyN: () => startNewGame(),
+    onKeyEscape: () => {
+      if (showGuide) {
+        handleGuideClose();
+      }
+      if (showGameEndDialog) {
+        handleCloseDialog();
+      }
+    },
+  });
 
   // Check for new high score after every score increase
   React.useEffect(() => {
@@ -159,24 +190,49 @@ const Game: React.FC<GameProps> = ({
         </div>
       </div>
 
-      {/* Game Board */}
-      <div
-        className="game-panel p-4"
-        style={{ maxWidth: "600px" }}
-      >
-        <Board
-          board={board}
-          onCellClick={handleCellClick}
-          movingBall={movingBall}
-          poppingBalls={poppingBalls}
-          hoveredCell={hoveredCell}
-          pathTrail={pathTrail}
-          notReachable={notReachable}
-          onCellHover={handleCellHover}
-          onCellLeave={handleCellLeave}
-        >
-          {movingBallEl}
-        </Board>
+      {/* Game Board Container with Overlays */}
+      <div className="relative" style={{ maxWidth: "600px" }}>
+        <div className="game-panel p-4">
+          <div className="relative">
+            <Board
+              board={board}
+              onCellClick={handleCellClick}
+              movingBall={movingBall}
+              poppingBalls={poppingBalls}
+              hoveredCell={hoveredCell}
+              pathTrail={pathTrail}
+              notReachable={notReachable}
+              onCellHover={handleCellHover}
+              onCellLeave={handleCellLeave}
+            >
+              {movingBallEl}
+            </Board>
+
+            {/* Guide Overlay - exactly same size as board */}
+            {(showGuide || isGuideClosing) && (
+              <div 
+                className={`absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide ${
+                  isGuideClosing ? 'animate-in fade-out duration-300' : 'animate-in fade-in duration-300'
+                }`}
+                onClick={handleGuideClose}
+              >
+                <Guide onClose={handleGuideClose} />
+              </div>
+            )}
+
+            {/* Game End Dialog Overlay - exactly same size as board */}
+            {gameOver && (
+              <GameEndDialog
+                isOpen={showGameEndDialog}
+                score={score}
+                currentGameBeatHighScore={currentGameBeatHighScore}
+                statistics={gameState.statistics}
+                onNewGame={handleNewGameFromDialog}
+                onClose={handleCloseDialog}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Timer */}
@@ -189,77 +245,6 @@ const Game: React.FC<GameProps> = ({
           {formatTime(timer)}
         </div>
       </div>
-
-      {/* Guide Panel */}
-      {showGuide && (
-        <div
-          className="game-panel w-full p-6"
-          style={{ maxWidth: "600px" }}
-        >
-          <h3 className="game-title mb-4 text-center text-xl">
-            How to Play
-          </h3>
-          <div className="space-y-2 text-game-text-secondary text-sm">
-            <p>• Click on a ball to select it</p>
-            <p>
-              • Click on an empty cell to move the ball
-            </p>
-            <p>• Form lines of 5+ balls to clear them</p>
-            <p>
-              •{" "}
-              <strong>Only your moves trigger line removal and scoring</strong>
-            </p>
-            <p>• Automatic ball placement won't clear lines</p>
-            <p>• Longer lines = more points!</p>
-            <p>• Game ends when board is full</p>
-          </div>
-          <div className="mt-4">
-            <h4 className="game-title mb-2 text-sm">
-              Scoring:
-            </h4>
-            <table className="w-full text-xs">
-              <tbody>
-                <tr className="text-game-text-accent">
-                  <td>5 balls:</td>
-                  <td>5 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>6 balls:</td>
-                  <td>8 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>7 balls:</td>
-                  <td>13 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>8 balls:</td>
-                  <td>21 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>9 balls:</td>
-                  <td>34 points</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-3 text-game-text-accent font-semibold text-center text-sm">
-            Good luck!
-          </div>
-        </div>
-      )}
-
-      {gameOver && (
-        <GameEndDialog
-          isOpen={showGameEndDialog}
-          score={score}
-          currentGameBeatHighScore={currentGameBeatHighScore}
-          statistics={gameState.statistics}
-          onNewGame={handleNewGameFromDialog}
-          onClose={handleCloseDialog}
-        />
-      )}
-
-
     </div>
   );
 };

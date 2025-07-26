@@ -27,6 +27,7 @@ Game board
 - can only select cell with a ball
 - path is showing
 - unreachable cells indicate X
+- unreachable auto grey out after ball select
 - cells are unselected after a move
 
 turn

@@ -98,9 +98,7 @@
   }
 
   .game-panel {
-    @apply bg-game-gradient-secondary border border-game-border-default rounded-xl shadow-lg backdrop-blur-sm;
-    position: relative;
-    overflow: hidden;
+    @apply bg-game-gradient-secondary border border-game-border-default rounded-lg shadow-lg relative overflow-hidden;
   }
 
   .game-panel::before {
@@ -112,12 +110,11 @@
     bottom: 0;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
     pointer-events: none;
+    border-radius: 0.5rem;
   }
 
   .game-dialog {
-    @apply bg-game-gradient-secondary border-2 border-game-border-default rounded-xl shadow-2xl backdrop-blur-md;
-    position: relative;
-    overflow: hidden;
+    @apply bg-game-gradient-secondary border border-game-border-default rounded-lg shadow-xl relative overflow-hidden;
   }
 
   .game-dialog::before {
@@ -127,22 +124,62 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
     pointer-events: none;
+    border-radius: 0.5rem;
   }
 
   .game-score {
     @apply text-game-text-accent font-bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .game-title {
-    @apply text-game-text-accent font-bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    @apply text-game-text-primary font-bold;
   }
 
   .game-highlight {
-    @apply bg-game-gradient-accent text-black font-bold rounded-full px-4 py-2 shadow-lg animate-bounce;
+    @apply bg-game-gradient-accent text-black font-bold text-center py-2 px-4 rounded-lg;
+  }
+
+  /* Hide scrollbars but keep scrolling functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+  }
+
+  /* Fade animations */
+  .animate-in {
+    animation-fill-mode: both;
+  }
+
+  .fade-in {
+    animation-name: fadeIn;
+  }
+
+  .fade-out {
+    animation-name: fadeOut;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
 }
 

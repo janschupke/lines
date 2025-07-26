@@ -21,65 +21,84 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[1000] backdrop-blur-sm">
-      <div className="game-dialog p-6 max-w-md w-11/12 text-center">
-        <h2
-          className={`m-0 mb-4 text-2xl font-bold ${currentGameBeatHighScore ? "game-title" : "text-game-text-primary"}`}
-        >
-          {currentGameBeatHighScore ? "🎉 New High Score! 🎉" : "Game Over"}
-        </h2>
-        <div className="game-score text-3xl my-4">
-          Score: {score}
+    <div
+      className="absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide animate-in fade-in duration-300"
+      onClick={onClose}
+    >
+      <div 
+        className="h-full flex flex-col text-game-text-primary"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2
+            className={`text-2xl font-bold ${currentGameBeatHighScore ? "game-title" : "text-game-text-primary"}`}
+          >
+            {currentGameBeatHighScore ? "🎉 New High Score! 🎉" : "Game Over"}
+          </h2>
+          <button
+            className="text-game-text-primary text-2xl font-bold hover:scale-110 transition-transform cursor-pointer"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
-        {currentGameBeatHighScore && (
-          <div className="game-highlight my-4">
-            🏆 NEW RECORD! 🏆
+
+        <div className="flex-1 overflow-auto scrollbar-hide">
+          <div className="game-score text-3xl my-4">
+            Score: {score}
           </div>
-        )}
-        
-        {/* Game Statistics */}
-        <div className="game-panel p-4 my-4">
-          <h3 className="game-title text-lg mb-3 text-center">
-            Game Statistics
-          </h3>
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="text-game-text-secondary">
-              <span className="font-medium">Turns:</span> {statistics.turnsCount}
+          {currentGameBeatHighScore && (
+            <div className="game-highlight my-4">
+              🏆 NEW RECORD! 🏆
             </div>
-            <div className="text-game-text-secondary">
-              <span className="font-medium">Duration:</span> {Math.floor(statistics.gameDuration / 60)}:{(statistics.gameDuration % 60).toString().padStart(2, '0')}
+          )}
+          
+          {/* Game Statistics */}
+          <div className="game-panel p-4 my-4">
+            <h3 className="game-title text-lg mb-3 text-center">
+              Game Statistics
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="text-game-text-secondary">
+                <span className="font-medium">Turns:</span> {statistics.turnsCount}
+              </div>
+              <div className="text-game-text-secondary">
+                <span className="font-medium">Duration:</span> {Math.floor(statistics.gameDuration / 60)}:{(statistics.gameDuration % 60).toString().padStart(2, '0')}
+              </div>
+              <div className="text-game-text-secondary">
+                <span className="font-medium">Lines Popped:</span> {statistics.linesPopped}
+              </div>
+              <div className="text-game-text-secondary">
+                <span className="font-medium">Balls Cleared:</span> {statistics.individualBallsPopped}
+              </div>
+              <div className="text-game-text-secondary">
+                <span className="font-medium">Longest Line:</span> {statistics.longestLinePopped}
+              </div>
+              <div className="text-game-text-secondary">
+                <span className="font-medium">Avg Score/Turn:</span> {Math.round(statistics.averageScorePerTurn)}
+              </div>
+              {statistics.linesPopped > 0 && (
+                <>
+                  <div className="text-game-text-secondary">
+                    <span className="font-medium">Lines/Turn:</span> {(statistics.linesPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
+                  </div>
+                  <div className="text-game-text-secondary">
+                    <span className="font-medium">Balls/Turn:</span> {(statistics.individualBallsPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
+                  </div>
+                </>
+              )}
             </div>
-            <div className="text-game-text-secondary">
-              <span className="font-medium">Lines Popped:</span> {statistics.linesPopped}
-            </div>
-            <div className="text-game-text-secondary">
-              <span className="font-medium">Balls Cleared:</span> {statistics.individualBallsPopped}
-            </div>
-            <div className="text-game-text-secondary">
-              <span className="font-medium">Longest Line:</span> {statistics.longestLinePopped}
-            </div>
-            <div className="text-game-text-secondary">
-              <span className="font-medium">Avg Score/Turn:</span> {Math.round(statistics.averageScorePerTurn)}
-            </div>
-            {statistics.linesPopped > 0 && (
-              <>
-                <div className="text-game-text-secondary">
-                  <span className="font-medium">Lines/Turn:</span> {(statistics.linesPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
-                </div>
-                <div className="text-game-text-secondary">
-                  <span className="font-medium">Balls/Turn:</span> {(statistics.individualBallsPopped / Math.max(statistics.turnsCount, 1)).toFixed(1)}
-                </div>
-              </>
-            )}
           </div>
+          
+          <p className="text-game-text-secondary my-4 text-base">
+            {currentGameBeatHighScore
+              ? "Congratulations! You've set a new personal best!"
+              : "Great game! Try again to beat your high score."}
+          </p>
         </div>
-        
-        <p className="text-game-text-secondary my-4 text-base">
-          {currentGameBeatHighScore
-            ? "Congratulations! You've set a new personal best!"
-            : "Great game! Try again to beat your high score."}
-        </p>
-        <div className="flex gap-3 justify-center mt-5">
+
+        <div className="flex gap-3 justify-center mt-4">
           <button
             className="game-button game-button-accent py-2 px-5"
             onClick={onNewGame}

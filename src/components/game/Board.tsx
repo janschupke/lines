@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import type { Cell } from "../../game/types";
-import { getBallColor } from "../../utils/helpers";
+import { getBallColor, getGameSizing } from "../../utils/helpers";
 
 interface BoardProps {
   board: Cell[][];
@@ -29,15 +29,13 @@ const Board: React.FC<BoardProps> = ({
   onCellLeave,
   selected,
 }) => {
-
+  // Get unified sizing
+  const sizing = getGameSizing();
 
   // Convert pathTrail to a Set for fast lookup
   const pathSet = pathTrail
     ? new Set(pathTrail.map(([x, y]) => `${x},${y}`))
     : new Set();
-
-  // Calculate incoming ball size (50% of cell width)
-  const incomingBallSize = "w-[28px] h-[28px]";
 
   // Check if any animation is in progress
   const isAnimationInProgress =
@@ -126,7 +124,7 @@ const Board: React.FC<BoardProps> = ({
             className={`game-cell ${
               isAnimationInProgress ? "cursor-default" : 
               !cell.ball && !selected ? "cursor-default" : "cursor-pointer"
-            } ${cellBgClass} ${borderClass} w-cell h-cell`}
+            } ${cellBgClass} ${borderClass} ${sizing.cellSizeClass}`}
             onClick={() => handleCellClick(cell.x, cell.y)}
             onMouseEnter={() => handleCellHover(cell.x, cell.y)}
             onMouseLeave={handleCellLeave}
@@ -138,14 +136,14 @@ const Board: React.FC<BoardProps> = ({
                   cell.active || isSelected
                     ? "game-ball-active"
                     : "animate-move-ball"
-                } ${popping ? "z-20 animate-pop-ball" : ""} w-ball h-ball`}
+                } ${popping ? "z-20 animate-pop-ball" : ""} ${sizing.ballSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.ball.color) }}
                 title={cell.ball.color}
               />
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${incomingBallSize}`}
+                className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${sizing.incomingBallSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
                 title={`Preview: ${cell.incomingBall.color}`}
               />

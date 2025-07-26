@@ -8,22 +8,8 @@ import { useGameState } from "../../game/state";
 import { useHighScore } from "../../hooks/useHighScore";
 import { useKeyboard } from "../../hooks/useKeyboard";
 import { formatTime } from "../../utils/formatters";
-import { getGameSpacing, getBallColor } from "../../utils/helpers";
+import { getGameSizing, getBallColor } from "../../utils/helpers";
 import type { Cell, BallColor } from "../../game/types";
-
-// Helper to get the pixel position of a cell in the board
-const getCellPosition = (x: number, y: number) => {
-  // Get dynamic values from CSS custom properties
-  const { cellSize, gapSize, ballSize, boardPadding } = getGameSpacing();
-  // Account for ball border (border-2 = 2px on each side = 4px total)
-  const actualBallSize = ballSize + 4;
-  const OFFSET = (cellSize - actualBallSize) / 2;
-
-  return {
-    left: boardPadding + x * (cellSize + gapSize) + OFFSET,
-    top: boardPadding + y * (cellSize + gapSize) + OFFSET,
-  };
-};
 
 interface GameProps {
   showGuide: boolean;
@@ -117,7 +103,7 @@ const Game: React.FC<GameProps> = ({
   let movingBallEl = null;
   if (movingBall && movingStep < movingBall.path.length) {
     const [mx, my] = movingBall.path[movingStep];
-    const { left, top } = getCellPosition(mx, my);
+    const { left, top } = getGameSizing().getCellPosition(mx, my);
     movingBallEl = (
       <MovingBall color={movingBall.color} left={left} top={top} />
     );

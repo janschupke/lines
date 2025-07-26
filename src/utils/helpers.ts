@@ -16,6 +16,45 @@ export const getGameSpacing = () => ({
   boardPadding: getCSSVariable("board-padding"),
 });
 
+// Unified game sizing system
+export const getGameSizing = () => {
+  const { cellSize, gapSize, ballSize, boardPadding } = getGameSpacing();
+  
+  // Ball border is 2px on each side = 4px total
+  const ballBorder = 4;
+  const actualBallSize = ballSize + ballBorder;
+  
+  // Calculate ball offset to center it in cell
+  const ballOffset = (cellSize - actualBallSize) / 2;
+  
+  return {
+    // Base dimensions
+    cellSize,
+    gapSize,
+    ballSize,
+    boardPadding,
+    ballBorder,
+    actualBallSize,
+    ballOffset,
+    
+    // Positioning helpers
+    getCellPosition: (x: number, y: number) => {
+      // The moving ball is positioned relative to the Board component
+      // The Board has p-board-padding, but the ball is positioned relative to the content area
+      // So we don't include boardPadding in the calculation
+      const left = x * (cellSize + gapSize) + ballOffset;
+      const top = y * (cellSize + gapSize) + ballOffset;
+      
+      return { left, top };
+    },
+    
+    // Size classes
+    cellSizeClass: "w-cell h-cell",
+    ballSizeClass: "w-ball h-ball",
+    incomingBallSizeClass: "w-[28px] h-[28px]", // 50% of cell width
+  };
+};
+
 // Helper function to get ball color
 export const getBallColor = (color: string): string => {
   const colors: Record<string, string> = {

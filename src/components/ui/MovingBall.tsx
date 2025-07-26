@@ -1,5 +1,5 @@
 import React from "react";
-import { getBallColor } from "../../utils/helpers";
+import { getBallColor, getGameSizing } from "../../utils/helpers";
 
 interface MovingBallProps {
   color: string;
@@ -8,9 +8,11 @@ interface MovingBallProps {
 }
 
 const MovingBall: React.FC<MovingBallProps> = ({ color, left, top }) => {
+  const sizing = getGameSizing();
+  
   return (
     <div
-      className={`absolute game-ball w-ball h-ball z-game-dialog animate-float`}
+      className={`absolute game-ball ${sizing.ballSizeClass} z-game-dialog animate-float`}
       style={{
         left,
         top,

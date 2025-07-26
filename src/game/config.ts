@@ -38,7 +38,7 @@ export const BOARD_COLS = BOARD_SIZE;
 // ============================================================================
 
 /** Number of balls spawned at the start of the game */
-export const INITIAL_BALLS = 75;
+export const INITIAL_BALLS = 3;
 
 /** Number of new balls spawned after each move */
 export const BALLS_PER_TURN = 3;
@@ -50,7 +50,7 @@ export const BALL_COLORS_COUNT = 7;
 export const MIN_LINE_LENGTH = 5;
 
 /** Maximum line length for scoring calculations */
-export const MAX_LINE_LENGTH = 19;
+export const MAX_LINE_LENGTH = 9;
 
 // ============================================================================
 // SCORING CONFIGURATION

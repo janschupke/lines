@@ -147,7 +147,6 @@ const Board: React.FC<BoardProps> = ({
                     : ""
                 } ${sizing.ballSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.ball.color) }}
-                title={cell.ball.color}
               />
             )}
             {!cell.ball && cell.incomingBall && (
@@ -158,7 +157,6 @@ const Board: React.FC<BoardProps> = ({
                     : ""
                 } ${sizing.incomingBallSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
-                title={`Preview: ${cell.incomingBall.color}`}
               />
             )}
             {/* Not reachable cross */}

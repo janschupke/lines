@@ -97,12 +97,13 @@ const Board: React.FC<BoardProps> = ({
         );
         const inPath = !!pathSet.has(key);
         const showNotReachable = isHovered && !!notReachable && !cell.ball;
+        const isSelected = selected && selected.x === cell.x && selected.y === cell.y;
 
         // Determine cell background and border classes
         let cellBgClass = "bg-game-bg-cell-empty";
         let borderClass = "border-game-border-default";
 
-        if (cell.active) {
+        if (cell.active || isSelected) {
           cellBgClass = "bg-game-bg-cell-hover";
           // No special border for selected cells
         } else if (inPath) {
@@ -134,7 +135,7 @@ const Board: React.FC<BoardProps> = ({
             {cell.ball && !hideBall && (
               <span
                 className={`game-ball ${
-                  cell.active
+                  cell.active || isSelected
                     ? "game-ball-active"
                     : "animate-move-ball"
                 } ${popping ? "z-20 animate-pop-ball" : ""} w-ball h-ball`}

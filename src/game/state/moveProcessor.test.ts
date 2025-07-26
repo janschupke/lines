@@ -245,8 +245,8 @@ describe("processMove", () => {
       // First advance to spawning animation completion
       vi.advanceTimersByTime(600);
 
-      // Should start spawning animation immediately
-      expect(mockActions.startSpawningAnimation).toHaveBeenCalled();
+      // Should add growing ball animations instead of spawning animation
+      expect(mockActions.addGrowingBall).toHaveBeenCalled();
 
       // Then advance to popping animation completion (from spawning)
       vi.advanceTimersByTime(300);
@@ -255,7 +255,6 @@ describe("processMove", () => {
 
       // Verify that handleBallConversion was called
       expect(handleIncomingBallConversion).toHaveBeenCalled();
-      expect(mockActions.stopSpawningAnimation).toHaveBeenCalled();
       expect(mockActions.startPoppingAnimation).toHaveBeenCalledWith(
         new Set(["2,2", "2,3", "2,4", "2,5", "2,6"])
       );
@@ -314,7 +313,7 @@ describe("processMove", () => {
 
       // Should stop popping and start spawning
       expect(mockActions.stopPoppingAnimation).toHaveBeenCalled();
-      expect(mockActions.startSpawningAnimation).toHaveBeenCalled();
+      expect(mockActions.addGrowingBall).toHaveBeenCalled();
 
       // Fast-forward to spawning animation completion
       vi.advanceTimersByTime(600);
@@ -359,7 +358,7 @@ describe("processMove", () => {
       );
 
       // Should start spawning animation immediately (no popping)
-      expect(mockActions.startSpawningAnimation).toHaveBeenCalled();
+      expect(mockActions.addGrowingBall).toHaveBeenCalled();
       expect(mockActions.startPoppingAnimation).not.toHaveBeenCalled();
 
       // Fast-forward to spawning animation completion

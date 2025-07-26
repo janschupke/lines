@@ -48,14 +48,14 @@ describe("handleMoveCompletion", () => {
   });
 
   it("handles move to cell with incoming ball", () => {
-    const boardWithBall = board.map((row) =>
+    const boardWithBalls = board.map((row) =>
       row.map((cell) => ({ ...cell })),
     );
-    boardWithBall[0][0].ball = { color: "red" as BallColor };
-    boardWithBall[1][1].incomingBall = { color: "blue" as BallColor };
+    boardWithBalls[0][0].ball = { color: "red" as BallColor };
+    boardWithBalls[1][1].incomingBall = { color: "blue" as BallColor };
 
     const result = handleMoveCompletion(
-      boardWithBall,
+      boardWithBalls,
       0,
       0,
       1,
@@ -65,7 +65,7 @@ describe("handleMoveCompletion", () => {
     // Should convert the incoming ball to a real ball
     expect(result.newBoard[1][1].ball?.color).toBe("red");
     expect(result.newBoard[1][1].incomingBall).toBeNull();
-    expect(result.nextBalls).toBeDefined();
+    expect(result.steppedOnIncomingBall).toBe("blue");
   });
 
   it("preserves other incoming balls when stepping on one", () => {
@@ -109,10 +109,8 @@ describe("handleMoveCompletion", () => {
     // Should preserve other incoming balls
     expect(result.newBoard[3][3].incomingBall?.color).toBe("yellow");
     
-    // Should return next balls with stepped-on color included
-    expect(result.nextBalls).toBeDefined();
-    expect(result.nextBalls).toHaveLength(3); // 2 random + 1 stepped-on color
-    expect(result.nextBalls).toContain("green"); // stepped-on color should be preserved
+    // Should return stepped-on color for spawning logic
+    expect(result.steppedOnIncomingBall).toBe("green");
   });
 
   it("updates next balls when stepping on incoming ball", () => {
@@ -131,10 +129,8 @@ describe("handleMoveCompletion", () => {
       2,
     );
 
-    // Should return updated next balls that include the stepped-on color
-    expect(result.nextBalls).toBeDefined();
-    expect(result.nextBalls).toHaveLength(3); // 2 random + 1 stepped-on color
-    expect(result.nextBalls).toContain("green"); // stepped-on color should be preserved
+    // Should return stepped-on color for spawning logic
+    expect(result.steppedOnIncomingBall).toBe("green");
   });
 
   it("handles normal move without stepping on incoming ball", () => {

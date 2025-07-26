@@ -35,10 +35,13 @@ export class StorageManager {
    */
   static saveGameState(gameState: GameState): void {
     try {
+      // Update high score if current score is higher
+      const updatedHighScore = gameState.isNewHighScore ? gameState.score : gameState.highScore;
+      
       const persistedState: PersistedGameState = {
         board: gameState.board,
         score: gameState.score,
-        highScore: gameState.highScore,
+        highScore: updatedHighScore,
         nextBalls: gameState.nextBalls,
         timer: gameState.timer,
         timerActive: gameState.timerActive,

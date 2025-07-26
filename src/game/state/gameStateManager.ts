@@ -245,31 +245,18 @@ export const useGameStateManager = (
     setFinalStatistics(null);
 
     // Animate initial balls growing from zero size
-    const initialSpawnedBalls: SpawnedBall[] = [];
     for (let y = 0; y < finalBoard.length; y++) {
       for (let x = 0; x < finalBoard[y].length; x++) {
         const cell = finalBoard[y][x];
         if (cell.ball) {
-          initialSpawnedBalls.push({
-            x,
-            y,
-            color: cell.ball.color,
-            isTransitioning: false, // These are new balls, not transitioning from preview
-          });
+          // Real balls should grow from zero size
+          animationState.addGrowingBall(x, y, cell.ball.color, false);
         }
         if (cell.incomingBall) {
-          initialSpawnedBalls.push({
-            x,
-            y,
-            color: cell.incomingBall.color,
-            isTransitioning: false, // These are new preview balls
-          });
+          // Preview balls should grow from zero size
+          animationState.addGrowingBall(x, y, cell.incomingBall.color, false);
         }
       }
-    }
-    
-    if (initialSpawnedBalls.length > 0) {
-      animationState.startSpawningAnimation(initialSpawnedBalls);
     }
 
     // Clear saved game state and persist new game

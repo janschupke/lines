@@ -42,7 +42,7 @@ const Board: React.FC<BoardProps> = ({
 
   // Check if any animation is in progress
   const isAnimationInProgress =
-    movingBall || (poppingBalls && poppingBalls.size > 0);
+    movingBall || (poppingBalls && poppingBalls.size > 0) || (growingBalls && growingBalls.length > 0);
 
   // Handle cell click with animation check
   const handleCellClick = useCallback(
@@ -147,6 +147,7 @@ const Board: React.FC<BoardProps> = ({
                     : ""
                 } ${sizing.ballSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.ball.color) }}
+                title={cell.ball.color}
               />
             )}
             {!cell.ball && cell.incomingBall && (
@@ -157,6 +158,7 @@ const Board: React.FC<BoardProps> = ({
                     : ""
                 } ${sizing.incomingBallSizeClass}`}
                 style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
+                title={`Preview: ${cell.incomingBall.color}`}
               />
             )}
             {/* Not reachable cross */}

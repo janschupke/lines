@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useGameAnimation } from "./useGameAnimation";
 import type { BallColor, SpawnedBall } from "../game/types";
+import { ANIMATION_DURATIONS } from "../game/config";
 
 describe("useGameAnimation", () => {
   describe("initial state", () => {
@@ -236,7 +237,7 @@ describe("useGameAnimation", () => {
       expect(result.current.spawningBalls).toEqual(spawningBalls);
 
       // Wait for the animation to complete
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await new Promise((resolve) => setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL + 100));
 
       expect(result.current.spawningBalls).toEqual([]);
     });
@@ -388,7 +389,7 @@ describe("useGameAnimation", () => {
       expect(result.current.floatingScores).toHaveLength(1);
 
       // Wait for the animation to complete
-      await new Promise((resolve) => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, ANIMATION_DURATIONS.FLOATING_SCORE + 100));
 
       expect(result.current.floatingScores).toHaveLength(0);
     });
@@ -445,7 +446,7 @@ describe("useGameAnimation", () => {
       expect(result.current.growingBalls).toHaveLength(1);
 
       // Wait for the animation to complete
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await new Promise((resolve) => setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL + 100));
 
       expect(result.current.growingBalls).toHaveLength(0);
     });

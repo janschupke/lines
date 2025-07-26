@@ -58,7 +58,7 @@ export const MAX_LINE_LENGTH = 9;
 
 /** Fibonacci sequence for line scoring (5, 8, 13, 21, 34, ...) */
 export const FIBONACCI_SEQUENCE = [
-  5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181,
+  5, 8, 13, 21, 34,
 ];
 
 /** Scoring table for different line lengths */
@@ -68,12 +68,6 @@ export const SCORING_TABLE: Record<number, number> = {
   7: 13,
   8: 21,
   9: 34,
-  10: 55,
-  11: 89,
-  12: 144,
-  13: 233,
-  14: 377,
-  15: 610,
 };
 
 // ============================================================================
@@ -89,10 +83,16 @@ export const ANIMATION_DURATIONS = {
   POP_BALL: 300,
 
   /** Duration of ball spawning animation */
-  SPAWN_BALL: 600,
+  SPAWN_BALL: 100,
+
+  /** Duration of ball growing animation */
+  GROW_BALL: 100,
+
+  /** Duration of floating score animation */
+  FLOATING_SCORE: 1000,
 
   /** Duration of transition animations */
-  TRANSITION: 200,
+  TRANSITION: 100,
 
   /** Duration of fade in/out animations */
   FADE: 300,

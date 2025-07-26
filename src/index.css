@@ -210,11 +210,11 @@ button:focus-visible {
 
   /* Growing ball animations */
   .grow-ball-transition {
-    animation: growBallTransition 0.6s ease-out forwards;
+    animation: growBallTransition var(--grow-ball-duration) ease-out forwards;
   }
 
   .grow-ball-new {
-    animation: growBallNew 0.6s ease-out forwards;
+    animation: growBallNew var(--grow-ball-duration) ease-out forwards;
   }
 
   @keyframes fadeIn {

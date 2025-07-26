@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import type { BallColor, SpawnedBall } from "../game/types";
+import { ANIMATION_DURATIONS } from "../game/config";
 
 export interface FloatingScore {
   id: string;
@@ -101,7 +102,7 @@ export const useGameAnimation = () => {
       // Remove the floating score after animation completes
       setTimeout(() => {
         setFloatingScores((prev) => prev.filter((fs) => fs.id !== id));
-      }, 1000);
+      }, ANIMATION_DURATIONS.FLOATING_SCORE);
     },
     [],
   );
@@ -123,7 +124,7 @@ export const useGameAnimation = () => {
       // Remove the growing ball after animation completes
       setTimeout(() => {
         setGrowingBalls((prev) => prev.filter((gb) => gb.id !== id));
-      }, 600); // Match the CSS animation duration
+      }, ANIMATION_DURATIONS.GROW_BALL);
     },
     [],
   );
@@ -142,7 +143,7 @@ export const useGameAnimation = () => {
             ),
         ),
       );
-    }, 600);
+    }, ANIMATION_DURATIONS.GROW_BALL);
   }, []);
 
   const resetAnimationState = useCallback(() => {

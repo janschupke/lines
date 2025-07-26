@@ -98,7 +98,9 @@ module.exports = {
           green: "#10b981", // More vibrant green
           blue: "#3b82f6", // More vibrant blue
           yellow: "#f59e0b", // More vibrant yellow
-          purple: "#8b5cf6", // More vibrant purple
+          purple: "#8b5cf6", // More vibrant purple ..
+          orange: "#f97316", // More vibrant orange
+          pink: "#ec4899", // More vibrant pink
           cyan: "#06b6d4", // More vibrant cyan
           black: "#1f2937", // Darker, more sophisticated black
         },

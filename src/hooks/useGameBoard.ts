@@ -6,7 +6,7 @@ import {
   placePreviewBalls,
 } from "../game/logic";
 import type { Cell, BallColor } from "../game/types";
-import { INITIAL_BALLS, BALLS_PER_TURN } from "../game/constants";
+import { INITIAL_BALLS, BALLS_PER_TURN } from "../game/config";
 
 export const useGameBoard = (
   initialBoard?: Cell[][],

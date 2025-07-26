@@ -1,7 +1,13 @@
-import {
-  calculateLineScore as configCalculateLineScore,
-} from "../config";
+import { MIN_LINE_LENGTH, FIBONACCI_SEQUENCE, SCORE_BASE_MULTIPLIER } from "../config";
 
-export const calculateLineScore = (lineLength: number): number => {
-  return configCalculateLineScore(lineLength);
-};
+/**
+ * Calculate line score based on line length
+ */
+export function calculateLineScore(lineLength: number): number {
+  if (lineLength < MIN_LINE_LENGTH) return 0;
+  const fibonacciIndex = Math.min(
+    lineLength - MIN_LINE_LENGTH,
+    FIBONACCI_SEQUENCE.length - 1,
+  );
+  return FIBONACCI_SEQUENCE[fibonacciIndex] * SCORE_BASE_MULTIPLIER;
+}

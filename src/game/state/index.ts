@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import type { Cell, BallColor } from "../types";
+import type { Cell, BallColor, GameState, GameActions, GameStatistics } from "../types";
 import {
   INITIAL_BALLS,
   BALLS_PER_TURN,
@@ -12,9 +12,11 @@ import {
   placeRealBalls,
   placePreviewBalls,
   findPath,
+  validateMove,
+  handleLineDetection,
+  handleIncomingBallConversion,
+  handleMoveCompletion,
 } from "../logic";
-import type { GameState, GameActions, GameStatistics } from "../types";
-import { GamePhaseManager } from "./gamePhaseManager";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { useGameAnimation } from "../../hooks/useGameAnimation";
@@ -75,7 +77,7 @@ export const useGameState = (
         // Clicked on empty cell with a ball selected - try to move
         // Validate move
         if (
-          !GamePhaseManager.validateMove(
+          !validateMove(
             boardState.board,
             selected.x,
             selected.y,
@@ -165,22 +167,16 @@ export const useGameState = (
             animationState.movingBall.path.length - 1
           ];
 
-        // Handle move completion using GamePhaseManager
-        const moveResult = GamePhaseManager.handleMoveCompletion(
+        // Handle move completion using moveHandler
+        const moveResult = handleMoveCompletion(
           boardState.board,
           fromX,
           fromY,
           toX,
           toY,
         );
-        // Update nextBalls and board - handleMoveCompletion returns the complete board
-        if (moveResult.nextBalls) {
-          // When stepping on an incoming ball, handleMoveCompletion already generated 3 new balls
-          boardState.setNextBalls(moveResult.nextBalls);
-          boardState.setBoard(moveResult.newBoard);
-        } else {
-          boardState.setBoard(moveResult.newBoard);
-        }
+        // Update board - handleMoveCompletion returns the board before placing new incoming balls
+        boardState.setBoard(moveResult.newBoard);
 
         // Update statistics - increment turns count
         statisticsTracker.recordTurn();
@@ -194,11 +190,19 @@ export const useGameState = (
         }
 
         // Check for lines and handle removal
-        const lineResult = GamePhaseManager.handleLineDetection(
+        const movedColor = moveResult.newBoard[toY][toX].ball?.color;
+        if (movedColor === 'red') {
+          console.log("Red ball moved to:", toX, toY);
+          console.log("Board state at destination:", moveResult.newBoard[toY][toX]);
+        }
+        const lineResult = handleLineDetection(
           moveResult.newBoard,
           toX,
           toY,
         );
+        if (movedColor === 'red') {
+          console.log("Line detection result for red:", lineResult);
+        }
 
         if (lineResult) {
           // Lines were formed - handle ball removal
@@ -229,23 +233,27 @@ export const useGameState = (
           }, ANIMATION_DURATIONS.POP_BALL);
         } else {
           // No lines formed - convert incoming balls
-          // Skip conversion if we already handled incoming balls in handleMoveCompletion
-          if (!moveResult.nextBalls) {
-            // Check if we stepped on an incoming ball
-            const steppedOnIncomingBall = boardState.board[toY][toX].incomingBall?.color;
-            
-            const conversionResult =
-              GamePhaseManager.handleIncomingBallConversion(moveResult.newBoard, steppedOnIncomingBall);
-            boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
+          // Check if we stepped on an incoming ball
+          const steppedOnIncomingBall = boardState.board[toY][toX].incomingBall?.color;
+          
+          const conversionResult =
+            handleIncomingBallConversion(moveResult.newBoard, steppedOnIncomingBall);
+          boardState.setNextBalls(conversionResult.nextBalls, conversionResult.newBoard);
 
-            if (conversionResult.gameOver) {
-              // Finalize statistics when game ends
-              const finalStats = statisticsTracker.getCurrentStatistics();
-              setFinalStatistics(finalStats);
-              setGameOver(true);
-              setShowGameEndDialog(true);
-            }
+          if (conversionResult.gameOver) {
+            // Finalize statistics when game ends
+            const finalStats = statisticsTracker.getCurrentStatistics();
+            setFinalStatistics(finalStats);
+            setGameOver(true);
+            setShowGameEndDialog(true);
           }
+        }
+
+        // Place new incoming balls if we have them (from stepping on incoming ball)
+        // Only do this if no lines were formed
+        if (!lineResult && moveResult.nextBalls) {
+          const boardWithNewIncoming = placePreviewBalls(moveResult.newBoard, moveResult.nextBalls);
+          boardState.setBoard(boardWithNewIncoming);
         }
 
         // Reset animation state

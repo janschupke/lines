@@ -1,7 +1,7 @@
 /**
  * Game Configuration
  * 
- * This file contains all the configurable numbers that define the game's behavior.
+ * This file contains all the configurable values that define the game's behavior.
  * Centralizing these values makes it easy to adjust game balance and behavior.
  */
 
@@ -21,16 +21,6 @@ export const BALL_COLORS = [
 ] as const;
 
 export type BallColor = typeof BALL_COLORS[number];
-
-/** Function to get a random ball color */
-export function getRandomBallColor(): BallColor {
-  return BALL_COLORS[Math.floor(Math.random() * BALL_COLORS.length)];
-}
-
-/** Function to get multiple random ball colors */
-export function getRandomNextBalls(count: number): BallColor[] {
-  return Array.from({ length: count }, () => getRandomBallColor());
-}
 
 // ============================================================================
 // BOARD CONFIGURATION
@@ -152,20 +142,4 @@ export const Z_INDEX = {
 // ============================================================================
 
 /** Local storage key for high score */
-export const HIGH_SCORE_STORAGE_KEY = "lines-game-high-score";
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Calculate line score based on line length
- */
-export function calculateLineScore(lineLength: number): number {
-  if (lineLength < MIN_LINE_LENGTH) return 0;
-  const fibonacciIndex = Math.min(
-    lineLength - MIN_LINE_LENGTH,
-    FIBONACCI_SEQUENCE.length - 1,
-  );
-  return FIBONACCI_SEQUENCE[fibonacciIndex] * SCORE_BASE_MULTIPLIER;
-} 
+export const HIGH_SCORE_STORAGE_KEY = "lines-game-high-score"; 

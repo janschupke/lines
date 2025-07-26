@@ -144,7 +144,8 @@ const Board: React.FC<BoardProps> = ({
             )}
             {!cell.ball && cell.incomingBall && (
               <span
-                className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 bg-ball-${cell.incomingBall.color} ${incomingBallSize}`}
+                className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${incomingBallSize}`}
+                style={{ backgroundColor: getBallColor(cell.incomingBall.color) }}
                 title={`Preview: ${cell.incomingBall.color}`}
               />
             )}

@@ -2,15 +2,16 @@ New game button
 
 - reset the game
 - N hotkey works
+- new game trigger closes any overlays
 
 guide
 
 - G hotkey toggles it
-- renders ove rthe game board
+- renders over the game board
 
 current score
 
-- updates on ball pop
+- updates on line pop
 
 high score
 
@@ -27,19 +28,23 @@ Game board
 - can only select cell with a ball
 - path is showing
 - unreachable cells indicate X
-- unreachable auto grey out after ball select
+- unreachable auto grey out after ball select, with a background color transition (implement)
 - cells are unselected after a move
+- Do not allow selecting cells without a ball unless it's a move target.
 
 turn
 
-- each turn spawns 3 new balls
+- each turn spawns 3 new balls, i.e. turns preview balls into real ones
 - popping a line does not spawn balls
 - longer lines yield more points
+- forming a line in any direction pops the balls
+- longer lines yield more points
+- spawning balls do trigger line pop and yield points (differs from current logic)
 
-incoming balls
+preview balls
 
 - 3 are places on next turn
-- are not places if a line was popped this turn
+- are not placed if a line was popped this turn
 - if stepped on, only the one ball is recalculated, maintianing color
 - if empty cells are less than the amount of incoming balls, only that amount of balls is calculated to spawn
 - top panel and board colors match

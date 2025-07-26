@@ -24,6 +24,8 @@ export const getBallColor = (color: string): string => {
     blue: '#3b82f6',
     yellow: '#f59e0b',
     purple: '#8b5cf6',
+    orange: '#f97316',
+    pink: '#ec4899',
     cyan: '#06b6d4',
     black: '#1f2937'
   };

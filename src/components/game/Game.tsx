@@ -3,6 +3,7 @@ import Board from "./Board";
 import Guide from "../ui/Guide";
 import GameEndDialog from "../ui/GameEndDialog";
 import MovingBall from "../ui/MovingBall";
+import FloatingScore from "../ui/FloatingScore";
 import { useGameState } from "../../game/state";
 import { useKeyboard } from "../../hooks/useKeyboard";
 import { getGameSizing, getBallColor } from "../../utils/helpers";
@@ -43,6 +44,7 @@ const Game: React.FC<GameProps> = ({
     pathTrail,
     notReachable,
     showGameEndDialog,
+    floatingScores,
   } = gameState;
 
   const {
@@ -248,6 +250,14 @@ const Game: React.FC<GameProps> = ({
                 onClose={handleCloseDialog}
               />
             )}
+
+            {/* Floating Score Animations */}
+            {floatingScores?.map((floatingScore) => (
+              <FloatingScore
+                key={floatingScore.id}
+                floatingScore={floatingScore}
+              />
+            ))}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { MIN_LINE_LENGTH, FIBONACCI_SEQUENCE, SCORE_BASE_MULTIPLIER } from "../config";
+import { MIN_LINE_LENGTH, FIBONACCI_SEQUENCE } from "../config";
 
 /**
  * Calculate line score based on line length
@@ -9,5 +9,5 @@ export function calculateLineScore(lineLength: number): number {
     lineLength - MIN_LINE_LENGTH,
     FIBONACCI_SEQUENCE.length - 1,
   );
-  return FIBONACCI_SEQUENCE[fibonacciIndex] * SCORE_BASE_MULTIPLIER;
+  return FIBONACCI_SEQUENCE[fibonacciIndex];
 }

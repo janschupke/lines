@@ -56,12 +56,9 @@ export const MAX_LINE_LENGTH = 19;
 // SCORING CONFIGURATION
 // ============================================================================
 
-/** Base multiplier for line scores (fibonacci sequence * this value) */
-export const SCORE_BASE_MULTIPLIER = 100;
-
-/** Fibonacci sequence for line scoring (up to 19 balls) */
+/** Fibonacci sequence for line scoring (5, 8, 13, 21, 34, ...) */
 export const FIBONACCI_SEQUENCE = [
-  1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610,
+  5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181,
 ];
 
 /** Scoring table for different line lengths */
@@ -71,6 +68,12 @@ export const SCORING_TABLE: Record<number, number> = {
   7: 13,
   8: 21,
   9: 34,
+  10: 55,
+  11: 89,
+  12: 144,
+  13: 233,
+  14: 377,
+  15: 610,
 };
 
 // ============================================================================

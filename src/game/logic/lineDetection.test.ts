@@ -83,7 +83,7 @@ describe("handleLineDetection", () => {
     expect(result).not.toBeNull();
     expect(result?.linesFormed).toBe(true);
     // Should count all unique balls (9 total, but intersection counted once)
-    expect(result?.pointsEarned).toBe(9);
+    expect(result?.pointsEarned).toBe(34);
   });
 
   it("preserves incoming balls when lines are removed", () => {
@@ -128,7 +128,7 @@ describe("handleLineDetection", () => {
 
     expect(result).not.toBeNull();
     expect(result?.linesFormed).toBe(true);
-    expect(result?.pointsEarned).toBe(7);
+    expect(result?.pointsEarned).toBe(13);
     expect(result?.ballsRemoved).toHaveLength(7);
   });
 
@@ -241,7 +241,7 @@ describe("handleMultiPositionLineDetection", () => {
     expect(result).not.toBeNull();
     expect(result!.linesFormed).toBe(true);
     expect(result!.ballsRemoved).toHaveLength(10); // 5 red + 5 blue
-    expect(result!.pointsEarned).toBe(10);
+    expect(result!.pointsEarned).toBe(55);
   });
 
   it("handles multiple positions with no lines", () => {

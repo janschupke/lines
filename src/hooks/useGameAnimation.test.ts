@@ -184,4 +184,71 @@ describe("useGameAnimation", () => {
       expect(result.current.movingStep).toBe(0);
     });
   });
+
+  describe("floating score animation", () => {
+    it("initializes with empty floating scores", () => {
+      const { result } = renderHook(() => useGameAnimation());
+
+      expect(result.current.floatingScores).toEqual([]);
+    });
+
+    it("adds floating score with correct properties", () => {
+      const { result } = renderHook(() => useGameAnimation());
+      const score = 5;
+      const x = 3;
+      const y = 4;
+
+      act(() => {
+        result.current.addFloatingScore(score, x, y);
+      });
+
+      expect(result.current.floatingScores).toHaveLength(1);
+      const floatingScore = result.current.floatingScores[0];
+      expect(floatingScore.score).toBe(score);
+      expect(floatingScore.x).toBe(x);
+      expect(floatingScore.y).toBe(y);
+      expect(floatingScore.id).toBeDefined();
+      expect(floatingScore.timestamp).toBeDefined();
+    });
+
+    it("adds multiple floating scores", () => {
+      const { result } = renderHook(() => useGameAnimation());
+
+      act(() => {
+        result.current.addFloatingScore(5, 1, 1);
+        result.current.addFloatingScore(3, 2, 2);
+      });
+
+      expect(result.current.floatingScores).toHaveLength(2);
+      expect(result.current.floatingScores[0].score).toBe(5);
+      expect(result.current.floatingScores[1].score).toBe(3);
+    });
+
+    it("generates unique IDs for floating scores", () => {
+      const { result } = renderHook(() => useGameAnimation());
+
+      act(() => {
+        result.current.addFloatingScore(5, 1, 1);
+        result.current.addFloatingScore(3, 2, 2);
+      });
+
+      const ids = result.current.floatingScores.map(fs => fs.id);
+      expect(ids[0]).not.toBe(ids[1]);
+    });
+
+    it("removes floating score after animation duration", async () => {
+      const { result } = renderHook(() => useGameAnimation());
+
+      act(() => {
+        result.current.addFloatingScore(5, 1, 1);
+      });
+
+      expect(result.current.floatingScores).toHaveLength(1);
+
+      // Wait for the animation to complete
+      await new Promise(resolve => setTimeout(resolve, 1100));
+
+      expect(result.current.floatingScores).toHaveLength(0);
+    });
+  });
 }); 

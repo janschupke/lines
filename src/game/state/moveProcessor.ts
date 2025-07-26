@@ -18,6 +18,7 @@ export interface MoveProcessorActions {
   setNextBalls: (nextBalls: BallColor[], board?: Cell[][]) => void;
   onActivity: () => void;
   setTimerActive: (active: boolean) => void;
+  addFloatingScore: (score: number, x: number, y: number) => void;
 }
 
 /**
@@ -78,6 +79,15 @@ async function handleLineRemoval(
     new Set((lineResult.ballsRemoved || []).map(([x, y]) => `${x},${y}`)),
   );
 
+  // Add floating score animation
+  if (lineResult.ballsRemoved && lineResult.ballsRemoved.length > 0) {
+    // Calculate center of the popped line
+    const centerX = lineResult.ballsRemoved.reduce((sum, [x]) => sum + x, 0) / lineResult.ballsRemoved.length;
+    const centerY = lineResult.ballsRemoved.reduce((sum, [, y]) => sum + y, 0) / lineResult.ballsRemoved.length;
+    
+    actions.addFloatingScore(lineResult.pointsEarned || 0, Math.round(centerX), Math.round(centerY));
+  }
+
   // Update statistics
   statisticsTracker.recordLinePop(
     lineResult.ballsRemoved?.length || 0,
@@ -119,6 +129,15 @@ async function handleBallConversion(
     actions.setPoppingBalls(
       new Set((conversionResult.ballsRemoved || []).map(([x, y]) => `${x},${y}`)),
     );
+
+    // Add floating score animation
+    if (conversionResult.ballsRemoved && conversionResult.ballsRemoved.length > 0) {
+      // Calculate center of the popped line
+      const centerX = conversionResult.ballsRemoved.reduce((sum, [x]) => sum + x, 0) / conversionResult.ballsRemoved.length;
+      const centerY = conversionResult.ballsRemoved.reduce((sum, [, y]) => sum + y, 0) / conversionResult.ballsRemoved.length;
+      
+      actions.addFloatingScore(conversionResult.pointsEarned || 0, Math.round(centerX), Math.round(centerY));
+    }
 
     statisticsTracker.recordLinePop(
       conversionResult.ballsRemoved?.length || 0,

@@ -172,6 +172,7 @@ module.exports = {
         "pulse-glow": "pulseGlow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "bounce-ball": "pulseBall 1.5s ease-in-out infinite",
+        "float-score": "floatScore 1s ease-out forwards",
       },
       keyframes: {
         moveBall: {
@@ -205,6 +206,20 @@ module.exports = {
           "50%": { 
             transform: "scale(1.1)",
             opacity: "0.8"
+          },
+        },
+        floatScore: {
+          "0%": { 
+            transform: "translate(-50%, -50%) scale(0.8)",
+            opacity: "0"
+          },
+          "20%": { 
+            transform: "translate(-50%, -50%) scale(1.2)",
+            opacity: "1"
+          },
+          "100%": { 
+            transform: "translate(-50%, -80px) scale(1)",
+            opacity: "0"
           },
         },
       },

@@ -119,6 +119,7 @@ export const useGameStateManager = (
     setNextBalls: boardState.setNextBalls,
     onActivity: timerState.onActivity,
     setTimerActive: timerState.setTimerActive,
+    addFloatingScore: animationState.addFloatingScore,
   };
 
   // Cell interaction handlers
@@ -264,6 +265,7 @@ export const useGameStateManager = (
       pathTrail: null,
       notReachable: false,
       showGameEndDialog: false,
+      floatingScores: [],
       statistics: statisticsTracker.getCurrentStatistics(),
     };
     StorageManager.saveGameState(newGameState);
@@ -297,6 +299,7 @@ export const useGameStateManager = (
       pathTrail,
       notReachable,
       showGameEndDialog,
+      floatingScores: animationState.floatingScores,
       statistics: finalStatistics || statisticsTracker.getCurrentStatistics(),
     },
     {

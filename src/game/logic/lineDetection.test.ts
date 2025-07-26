@@ -116,4 +116,101 @@ describe("handleLineDetection", () => {
       expect(result?.newBoard[3][i].ball).toBeNull();
     }
   });
+
+  it("detects longer lines and yields more points", () => {
+    // Create a horizontal line of 7 red balls
+    const testBoard = createEmptyBoard();
+    for (let i = 0; i < 7; i++) {
+      testBoard[0][i].ball = { color: "red" as BallColor };
+    }
+
+    const result = handleLineDetection(testBoard, 3, 0);
+
+    expect(result).not.toBeNull();
+    expect(result?.linesFormed).toBe(true);
+    expect(result?.pointsEarned).toBe(7);
+    expect(result?.ballsRemoved).toHaveLength(7);
+  });
+
+  it("detects diagonal lines in both directions", () => {
+    // Create a diagonal line going up-right
+    const testBoard = createEmptyBoard();
+    for (let i = 0; i < 5; i++) {
+      testBoard[4 - i][i].ball = { color: "red" as BallColor };
+    }
+
+    const result = handleLineDetection(testBoard, 2, 2);
+
+    expect(result).not.toBeNull();
+    expect(result?.linesFormed).toBe(true);
+    expect(result?.pointsEarned).toBe(5);
+  });
+
+  it("handles lines of minimum length", () => {
+    // Create a horizontal line of exactly 5 balls (minimum length)
+    const testBoard = createEmptyBoard();
+    for (let i = 0; i < 5; i++) {
+      testBoard[0][i].ball = { color: "red" as BallColor };
+    }
+
+    const result = handleLineDetection(testBoard, 2, 0);
+
+    expect(result).not.toBeNull();
+    expect(result?.linesFormed).toBe(true);
+    expect(result?.pointsEarned).toBe(5);
+  });
+
+  it("does not detect lines shorter than minimum length", () => {
+    // Create a horizontal line of only 4 balls (below minimum)
+    const testBoard = createEmptyBoard();
+    for (let i = 0; i < 4; i++) {
+      testBoard[0][i].ball = { color: "red" as BallColor };
+    }
+
+    const result = handleLineDetection(testBoard, 2, 0);
+
+    expect(result).toBeNull();
+  });
+
+  it("handles lines with different colors", () => {
+    // Create a horizontal line of 5 blue balls
+    const testBoard = createEmptyBoard();
+    for (let i = 0; i < 5; i++) {
+      testBoard[0][i].ball = { color: "blue" as BallColor };
+    }
+
+    const result = handleLineDetection(testBoard, 2, 0);
+
+    expect(result).not.toBeNull();
+    expect(result?.linesFormed).toBe(true);
+    expect(result?.pointsEarned).toBe(5);
+  });
+
+  it("detects lines in any direction", () => {
+    // Test that lines are detected in all four directions
+    const directions = [
+      { dx: 1, dy: 0 },
+      { dx: 0, dy: 1 },
+      { dx: 1, dy: 1 },
+      { dx: 1, dy: -1 },
+    ];
+
+    directions.forEach(({ dx, dy }) => {
+      const testBoard = createEmptyBoard();
+      
+      // Create a line in the specified direction
+      for (let i = 0; i < 5; i++) {
+        const x = 4 + i * dx;
+        const y = 4 + i * dy;
+        if (x >= 0 && x < 9 && y >= 0 && y < 9) {
+          testBoard[y][x].ball = { color: "red" as BallColor };
+        }
+      }
+
+      const result = handleLineDetection(testBoard, 4, 4);
+      expect(result).not.toBeNull();
+      expect(result?.linesFormed).toBe(true);
+      expect(result?.pointsEarned).toBeGreaterThanOrEqual(5);
+    });
+  });
 }); 

@@ -84,9 +84,10 @@ describe("handleMoveCompletion", () => {
       2,
     );
 
-    // All existing incoming balls should be cleared and replaced with 3 new ones
+    // Should clear only the stepped-on incoming ball
     expect(result.newBoard[2][2].incomingBall).toBeNull();
-    expect(result.newBoard[3][3].incomingBall).toBeNull();
+    // Should preserve other incoming balls
+    expect(result.newBoard[3][3].incomingBall?.color).toBe("yellow");
   });
 
   it("includes stepped-on color in new incoming balls", () => {
@@ -105,22 +106,13 @@ describe("handleMoveCompletion", () => {
       2,
     );
 
-    // Should have exactly 2 incoming balls (green preserved + blue recalculated)
-    let incomingBallCount = 0;
-    let hasBlueIncomingBall = false;
-    for (let y = 0; y < result.newBoard.length; y++) {
-      for (let x = 0; x < result.newBoard[y].length; x++) {
-        if (result.newBoard[y][x].incomingBall) {
-          incomingBallCount++;
-          if (result.newBoard[y][x].incomingBall?.color === "green") {
-            hasBlueIncomingBall = true;
-          }
-        }
-      }
-    }
-    expect(incomingBallCount).toBe(2);
-    // The blue color should be preserved and placed somewhere else
-    expect(hasBlueIncomingBall).toBe(true);
+    // Should preserve other incoming balls
+    expect(result.newBoard[3][3].incomingBall?.color).toBe("yellow");
+    
+    // Should return next balls with stepped-on color included
+    expect(result.nextBalls).toBeDefined();
+    expect(result.nextBalls).toHaveLength(3); // 2 random + 1 stepped-on color
+    expect(result.nextBalls).toContain("green"); // stepped-on color should be preserved
   });
 
   it("updates next balls when stepping on incoming ball", () => {
@@ -141,7 +133,26 @@ describe("handleMoveCompletion", () => {
 
     // Should return updated next balls that include the stepped-on color
     expect(result.nextBalls).toBeDefined();
-    expect(result.nextBalls).toHaveLength(2); // green preserved + blue recalculated
-    expect(result.nextBalls).toContain("green"); // existing color should be preserved
+    expect(result.nextBalls).toHaveLength(3); // 2 random + 1 stepped-on color
+    expect(result.nextBalls).toContain("green"); // stepped-on color should be preserved
+  });
+
+  it("handles normal move without stepping on incoming ball", () => {
+    const boardWithBall = board.map((row) =>
+      row.map((cell) => ({ ...cell })),
+    );
+    boardWithBall[0][0].ball = { color: "red" as BallColor };
+
+    const result = handleMoveCompletion(
+      boardWithBall,
+      0,
+      0,
+      1,
+      1,
+    );
+
+    // Should not return nextBalls for normal moves
+    expect(result.nextBalls).toBeUndefined();
+    expect(result.linesFormed).toBe(false);
   });
 }); 

@@ -253,6 +253,7 @@ module.exports = {
           "--board-padding": theme("spacing.board-padding"),
           "--touch-target-size": theme("spacing.touch-target"),
           "--game-animation-duration": theme("transitionDuration.game"),
+          "--grow-ball-duration": "0.6s",
         },
         "@media (max-width: 768px)": {
           ":root": {

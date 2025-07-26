@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import Board from "./Board";
-import Guide from "../ui/Guide";
-import GameEndDialog from "../ui/GameEndDialog";
-import MovingBall from "../ui/MovingBall";
-import FloatingScoreComponent from "../ui/FloatingScore";
 import { useGameState } from "../../game/state";
 import { useKeyboard } from "../../hooks/useKeyboard";
-import { getGameSizing, getBallColor } from "../../utils/helpers";
 import { formatTime } from "../../utils/formatters";
+import { getBallColor } from "../../utils/helpers";
 import type { Cell, BallColor } from "../../game/types";
+import Board from "./Board";
+import GameEndDialog from "../ui/GameEndDialog";
+import Guide from "../ui/Guide";
+import FloatingScore from "../ui/FloatingScore";
 
 interface GameProps {
   showGuide: boolean;
@@ -128,16 +127,6 @@ const Game: React.FC<GameProps> = ({
     }
   }, [highScore, prevHighScore]);
 
-  // Render the moving ball absolutely above the board
-  let movingBallEl = null;
-  if (movingBall && movingStep < movingBall.path.length) {
-    const [mx, my] = movingBall.path[movingStep];
-    const { left, top } = getGameSizing().getCellPosition(mx, my);
-    movingBallEl = (
-      <MovingBall color={movingBall.color} left={left} top={top} />
-    );
-  }
-
   return (
     <div className="flex flex-col items-center">
       {/* Single-line Top Panel */}
@@ -247,9 +236,8 @@ const Game: React.FC<GameProps> = ({
               onCellLeave={handleCellLeave}
               selected={selected}
               growingBalls={growingBalls}
-            >
-              {movingBallEl}
-            </Board>
+              movingStep={movingStep}
+            />
 
             {/* Guide Overlay - exactly same size as board */}
             {(showGuide || isGuideClosing) && (
@@ -278,7 +266,7 @@ const Game: React.FC<GameProps> = ({
 
             {/* Floating Score Animations */}
             {floatingScores?.map((floatingScore) => (
-              <FloatingScoreComponent
+              <FloatingScore
                 key={floatingScore.id}
                 floatingScore={floatingScore}
               />

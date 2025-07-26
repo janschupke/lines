@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { TIMER_INTERVAL_MS } from "../game/constants";
-
-const INACTIVITY_TIMEOUT_MS = 10000; // 10 seconds
+import { TIMER_INTERVAL_MS, INACTIVITY_TIMEOUT_MS } from "../game/config";
 
 export const useGameTimer = () => {
   const [timer, setTimer] = useState(0);

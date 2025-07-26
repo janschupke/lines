@@ -1,4 +1,4 @@
-import { type BallColor as _BallColor } from "../constants";
+import { type BallColor as _BallColor } from "../config";
 export type BallColor = _BallColor;
 
 export interface Ball {
@@ -25,19 +25,16 @@ export interface LineScore {
 export interface GameStatistics {
   turnsCount: number;
   gameDuration: number;
-  ballsCleared: number;
   linesPopped: number;
-  longestLinePopped: number;
   individualBallsPopped: number;
+  longestLinePopped: number;
+  averageScorePerTurn: number;
   totalScore: number;
   scoreProgression: number[];
-  lineScores: LineScore[];
-  averageScorePerTurn: number;
-  ballsPerTurn: number;
-  linesPerTurn: number;
+  lineScores: number[];
   peakScore: number;
   consecutiveHighScores: number;
-  strategicBonus: number;
+  ballsCleared: number;
 }
 
 export interface GameState {

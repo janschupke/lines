@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
+import type { Cell, BallColor } from "../types";
 import {
   INITIAL_BALLS,
   BALLS_PER_TURN,
   ANIMATION_DURATIONS,
   TIMER_INTERVAL_MS,
-  type BallColor,
-} from "../constants";
+} from "../config";
 import {
   getRandomNextBalls,
   createEmptyBoard,
@@ -13,12 +13,12 @@ import {
   placePreviewBalls,
   findPath,
 } from "../logic";
-import type { Cell, GameState, GameActions, GameStatistics } from "../types";
+import type { GameState, GameActions, GameStatistics } from "../types";
 import { GamePhaseManager } from "./gamePhaseManager";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { useGameAnimation } from "../../hooks/useGameAnimation";
-import { GameStatisticsTracker } from "../statisticsTracker";
+import { StatisticsTracker } from "../statisticsTracker";
 
 export const useGameState = (
   initialBoard?: Cell[][],
@@ -42,7 +42,7 @@ export const useGameState = (
   const [finalStatistics, setFinalStatistics] = useState<GameStatistics | null>(null);
 
   // Game statistics tracker
-  const [statisticsTracker] = useState(() => new GameStatisticsTracker());
+  const [statisticsTracker] = useState(() => new StatisticsTracker());
 
   const [hoveredCell, setHoveredCell] = useState<{
     x: number;
@@ -136,8 +136,6 @@ export const useGameState = (
     if (!timerState.timerActive) return;
     const interval = setInterval(() => {
       setTimer((t) => t + 1);
-      // Update game duration in statistics
-      statisticsTracker.recordGameDuration();
     }, TIMER_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [timerState.timerActive, statisticsTracker]);
@@ -236,7 +234,7 @@ export const useGameState = (
 
             if (conversionResult.gameOver) {
               // Finalize statistics when game ends
-              const finalStats = statisticsTracker.endGame();
+              const finalStats = statisticsTracker.getCurrentStatistics();
               setFinalStatistics(finalStats);
               setGameOver(true);
               setShowGameEndDialog(true);

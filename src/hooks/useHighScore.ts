@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-
-const HIGH_SCORE_KEY = "lines-game-high-score";
+import { HIGH_SCORE_STORAGE_KEY } from "../game/config";
 
 export const useHighScore = () => {
   const [highScore, setHighScore] = useState(0);
@@ -10,7 +9,7 @@ export const useHighScore = () => {
   // Load high score from localStorage on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(HIGH_SCORE_KEY);
+      const stored = localStorage.getItem(HIGH_SCORE_STORAGE_KEY);
       if (stored) {
         const score = parseInt(stored, 10);
         if (!isNaN(score)) {
@@ -22,7 +21,6 @@ export const useHighScore = () => {
     }
   }, []);
 
-  // Check if current score is a new high score and update if needed
   const checkAndUpdateHighScore = useCallback((currentScore: number) => {
     if (currentScore > highScore) {
       setHighScore(currentScore);
@@ -31,7 +29,7 @@ export const useHighScore = () => {
       
       // Save to localStorage
       try {
-        localStorage.setItem(HIGH_SCORE_KEY, currentScore.toString());
+        localStorage.setItem(HIGH_SCORE_STORAGE_KEY, currentScore.toString());
       } catch (error) {
         console.warn("Failed to save high score to localStorage:", error);
       }

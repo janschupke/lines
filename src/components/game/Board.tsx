@@ -8,6 +8,7 @@ interface BoardProps {
   onCellClick: (x: number, y: number) => void;
   children?: React.ReactNode;
   movingBall?: { color: string; path: [number, number][] } | null;
+  movingStep?: number;
   poppingBalls?: Set<string>;
   hoveredCell?: { x: number; y: number } | null;
   pathTrail?: [number, number][] | null;
@@ -23,6 +24,7 @@ const Board: React.FC<BoardProps> = ({
   onCellClick,
   children,
   movingBall,
+  movingStep = 0,
   poppingBalls,
   hoveredCell,
   pathTrail,
@@ -81,6 +83,21 @@ const Board: React.FC<BoardProps> = ({
       }}
     >
       {board.flat().map((cell) => {
+        // Check if this cell should show the moving ball
+        let showMovingBall = false;
+        let movingBallColor: string | null = null;
+        
+        if (movingBall && movingBall.path && movingBall.path.length > 0) {
+          // Show the ball at the current step position
+          if (movingStep >= 0 && movingStep < movingBall.path.length) {
+            const [mx, my] = movingBall.path[movingStep];
+            if (cell.x === mx && cell.y === my) {
+              showMovingBall = true;
+              movingBallColor = movingBall.color;
+            }
+          }
+        }
+
         // Hide the ball in the source cell if a ball is moving
         let hideBall = false;
         if (movingBall && movingBall.path && movingBall.path.length > 0) {
@@ -89,6 +106,7 @@ const Board: React.FC<BoardProps> = ({
             hideBall = true;
           }
         }
+        
         const key = `${cell.x},${cell.y}`;
         const popping = poppingBalls && poppingBalls.has(key);
         const isHovered = !!(
@@ -137,7 +155,16 @@ const Board: React.FC<BoardProps> = ({
             onMouseLeave={handleCellLeave}
             role="button"
           >
-            {cell.ball && !hideBall && (
+            {/* Show moving ball if this cell is the current position */}
+            {showMovingBall && movingBallColor && (
+              <span
+                className={`game-ball animate-move-ball ${sizing.ballSizeClass}`}
+                style={{ backgroundColor: getBallColor(movingBallColor) }}
+              />
+            )}
+            
+            {/* Show regular ball if not moving and not hidden */}
+            {cell.ball && !hideBall && !showMovingBall && (
               <span
                 className={`game-ball ${
                   cell.active || isSelected

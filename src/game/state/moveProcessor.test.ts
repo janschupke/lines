@@ -214,9 +214,23 @@ describe("processMove", () => {
         steppedOnIncomingBall: undefined,
       };
 
+      // Create a new board where incoming balls become real balls and new incoming balls are placed
+      const boardAfterConversion = boardWithIncoming.map(row => row.map(cell => ({ ...cell })));
+      // Convert incoming balls to real balls
+      boardAfterConversion[0][0].ball = { color: "red" as BallColor };
+      boardAfterConversion[0][0].incomingBall = null;
+      boardAfterConversion[1][1].ball = { color: "blue" as BallColor };
+      boardAfterConversion[1][1].incomingBall = null;
+      boardAfterConversion[2][2].ball = { color: "green" as BallColor };
+      boardAfterConversion[2][2].incomingBall = null;
+      // Add new incoming balls
+      boardAfterConversion[3][3].incomingBall = { color: "yellow" as BallColor };
+      boardAfterConversion[4][4].incomingBall = { color: "purple" as BallColor };
+      boardAfterConversion[5][5].incomingBall = { color: "orange" as BallColor };
+
       const conversionResult = {
-        newBoard: boardWithIncoming,
-        nextBalls: ["red", "blue", "green"] as BallColor[],
+        newBoard: boardAfterConversion,
+        nextBalls: ["yellow", "purple", "orange"] as BallColor[],
         gameOver: false,
         linesFormed: true,
         ballsRemoved: [[2, 2], [2, 3], [2, 4], [2, 5], [2, 6]],
@@ -281,9 +295,23 @@ describe("processMove", () => {
         pointsEarned: 5,
       };
 
+      // Create a new board where incoming balls become real balls and new incoming balls are placed
+      const boardAfterConversion = mockBoard.map(row => row.map(cell => ({ ...cell })));
+      // Convert incoming balls to real balls
+      boardAfterConversion[0][0].ball = { color: "red" as BallColor };
+      boardAfterConversion[0][0].incomingBall = null;
+      boardAfterConversion[1][1].ball = { color: "blue" as BallColor };
+      boardAfterConversion[1][1].incomingBall = null;
+      boardAfterConversion[2][2].ball = { color: "green" as BallColor };
+      boardAfterConversion[2][2].incomingBall = null;
+      // Add new incoming balls
+      boardAfterConversion[3][3].incomingBall = { color: "yellow" as BallColor };
+      boardAfterConversion[4][4].incomingBall = { color: "purple" as BallColor };
+      boardAfterConversion[5][5].incomingBall = { color: "orange" as BallColor };
+
       const conversionResult = {
-        newBoard: mockBoard,
-        nextBalls: ["red", "blue", "green"] as BallColor[],
+        newBoard: boardAfterConversion,
+        nextBalls: ["yellow", "purple", "orange"] as BallColor[],
         gameOver: false,
       };
 
@@ -333,9 +361,23 @@ describe("processMove", () => {
         steppedOnIncomingBall: undefined,
       };
 
+      // Create a new board where incoming balls become real balls and new incoming balls are placed
+      const boardAfterConversion = mockBoard.map(row => row.map(cell => ({ ...cell })));
+      // Convert incoming balls to real balls
+      boardAfterConversion[0][0].ball = { color: "red" as BallColor };
+      boardAfterConversion[0][0].incomingBall = null;
+      boardAfterConversion[1][1].ball = { color: "blue" as BallColor };
+      boardAfterConversion[1][1].incomingBall = null;
+      boardAfterConversion[2][2].ball = { color: "green" as BallColor };
+      boardAfterConversion[2][2].incomingBall = null;
+      // Add new incoming balls
+      boardAfterConversion[3][3].incomingBall = { color: "yellow" as BallColor };
+      boardAfterConversion[4][4].incomingBall = { color: "purple" as BallColor };
+      boardAfterConversion[5][5].incomingBall = { color: "orange" as BallColor };
+
       const conversionResult = {
-        newBoard: mockBoard,
-        nextBalls: ["red", "blue", "green"] as BallColor[],
+        newBoard: boardAfterConversion,
+        nextBalls: ["yellow", "purple", "orange"] as BallColor[],
         gameOver: false,
       };
 
@@ -381,21 +423,28 @@ describe("processMove", () => {
         steppedOnIncomingBall: "blue" as BallColor,
       };
 
-      const lineResult = {
-        newBoard: mockBoard,
-        linesFormed: true,
-        ballsRemoved: [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]],
-        pointsEarned: 5,
-      };
+      // Create a new board where the stepped-on ball is placed as a real ball
+      const boardAfterConversion = mockBoard.map(row => row.map(cell => ({ ...cell })));
+      // Convert incoming balls to real balls
+      boardAfterConversion[0][0].ball = { color: "red" as BallColor };
+      boardAfterConversion[0][0].incomingBall = null;
+      boardAfterConversion[1][1].ball = { color: "blue" as BallColor };
+      boardAfterConversion[1][1].incomingBall = null;
+      boardAfterConversion[2][2].ball = { color: "green" as BallColor };
+      boardAfterConversion[2][2].incomingBall = null;
+      // Add new incoming balls
+      boardAfterConversion[3][3].incomingBall = { color: "yellow" as BallColor };
+      boardAfterConversion[4][4].incomingBall = { color: "purple" as BallColor };
+      boardAfterConversion[5][5].incomingBall = { color: "orange" as BallColor };
 
       const conversionResult = {
-        newBoard: mockBoard,
-        nextBalls: ["red", "green", "yellow"] as BallColor[],
+        newBoard: boardAfterConversion,
+        nextBalls: ["yellow", "purple", "orange"] as BallColor[],
         gameOver: false,
       };
 
       (handleMoveCompletion as any).mockReturnValue(moveResult);
-      (handleLineDetection as any).mockReturnValue(lineResult);
+      (handleLineDetection as any).mockReturnValue(null); // No lines formed by the move
       (handleIncomingBallConversion as any).mockReturnValue(conversionResult);
 
       const promise = processMove(
@@ -413,10 +462,10 @@ describe("processMove", () => {
       );
 
       // Should pass the stepped-on preview color to conversion
-      expect(handleIncomingBallConversion).toHaveBeenCalledWith(moveResult.newBoard, "blue", true);
+      expect(handleIncomingBallConversion).toHaveBeenCalledWith(moveResult.newBoard, "blue", false);
 
-      // Fast-forward to popping animation completion
-      vi.advanceTimersByTime(300);
+      // Fast-forward to spawning animation completion
+      vi.advanceTimersByTime(600);
 
       await promise;
     });
@@ -483,8 +532,19 @@ describe("processMove", () => {
         pointsEarned: 5,
       };
 
+      // Create a board that will be full after line removal (causing game over)
+      const boardAfterLineRemoval = mockBoard.map(row => row.map(cell => ({ ...cell })));
+      // Fill the board to trigger game over
+      for (let y = 0; y < boardAfterLineRemoval.length; y++) {
+        for (let x = 0; x < boardAfterLineRemoval[y].length; x++) {
+          if (!boardAfterLineRemoval[y][x].ball) {
+            boardAfterLineRemoval[y][x].ball = { color: "red" as BallColor };
+          }
+        }
+      }
+
       const conversionResult = {
-        newBoard: mockBoard,
+        newBoard: boardAfterLineRemoval,
         nextBalls: ["red", "blue", "green"] as BallColor[],
         gameOver: true,
       };
@@ -509,6 +569,9 @@ describe("processMove", () => {
 
       // Fast-forward to popping animation completion
       vi.advanceTimersByTime(300);
+
+      // Fast-forward to spawning animation completion
+      vi.advanceTimersByTime(600);
 
       await promise;
 

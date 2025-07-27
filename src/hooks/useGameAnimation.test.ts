@@ -180,7 +180,21 @@ describe("useGameAnimation", () => {
         result.current.addSpawningBalls(spawningBalls);
       });
 
-      expect(result.current.spawningBalls).toEqual(spawningBalls);
+      expect(result.current.spawningBalls).toHaveLength(2);
+      expect(result.current.spawningBalls[0]).toMatchObject({
+        x: 0,
+        y: 0,
+        color: "red",
+        isTransitioning: true,
+      });
+      expect(result.current.spawningBalls[0].id).toBeDefined();
+      expect(result.current.spawningBalls[1]).toMatchObject({
+        x: 1,
+        y: 1,
+        color: "blue",
+        isTransitioning: false,
+      });
+      expect(result.current.spawningBalls[1].id).toBeDefined();
     });
 
     it("removes spawning balls after animation duration", async () => {
@@ -193,7 +207,14 @@ describe("useGameAnimation", () => {
         result.current.addSpawningBalls(spawningBalls);
       });
 
-      expect(result.current.spawningBalls).toEqual(spawningBalls);
+      expect(result.current.spawningBalls).toHaveLength(1);
+      expect(result.current.spawningBalls[0]).toMatchObject({
+        x: 0,
+        y: 0,
+        color: "red",
+        isTransitioning: true,
+      });
+      expect(result.current.spawningBalls[0].id).toBeDefined();
 
       // Wait for the animation to complete
       await new Promise((resolve) =>

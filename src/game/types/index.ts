@@ -130,6 +130,7 @@ export interface SpawnedBall {
   color: BallColor;
   isTransitioning: boolean; // true if transitioning from preview to real, false if new preview
   originalPosition?: { x: number; y: number }; // for stepped-on balls that get relocated
+  id?: string; // optional ID for animation tracking
 }
 
 export interface GameTurnState {

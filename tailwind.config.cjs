@@ -21,27 +21,11 @@ module.exports = {
     "border-game-border-accent",
     "border-game-border-ball",
     "border-game-border-preview",
-    "bg-ball-red",
-    "bg-ball-green",
-    "bg-ball-blue",
-    "bg-ball-yellow",
-    "bg-ball-purple",
-    "bg-ball-pink",
-    "bg-ball-black",
     "text-black",
-    "bg-game-button-primary",
-    "bg-game-button-hover",
-    "bg-game-button-accent",
-    "bg-game-button-accent-hover",
-    "border-game-button-accent",
-    "border-game-button-hover",
-    "shadow-[0_0_16px_4px_theme(colors.game.shadow.glow),0_0_0_4px_theme(colors.game.shadow.glow)]",
-    "shadow-[0_1px_4px_theme(colors.game.shadow.ball)]",
     "z-game-dialog",
     "animate-move-ball",
     "animate-pop-ball",
     "animate-bounce-ball",
-    "animate-pulse-glow",
     // Mobile responsive classes
     "w-12",
     "h-12",
@@ -85,23 +69,10 @@ module.exports = {
     "h-ball",
     "gap-gap",
     "p-board-padding",
-    "min-h-touch-target",
-    "min-w-touch-target",
-    "duration-game",
   ],
   theme: {
     extend: {
       colors: {
-        // Game ball colors - enhanced with better contrast
-        ball: {
-          red: "#ef4444", // More vibrant red
-          green: "#10b981", // More vibrant green
-          blue: "#3b82f6", // More vibrant blue
-          yellow: "#f59e0b", // More vibrant yellow
-          purple: "#8b5cf6", // More vibrant purple
-          pink: "#f472b6", // Lighter pink for better contrast
-          black: "#1f2937", // Darker, more sophisticated black
-        },
         // Game theme colors - enhanced with gradients and better contrast
         game: {
           bg: {
@@ -131,14 +102,7 @@ module.exports = {
             ball: "#64748b", // Enhanced ball borders
             preview: "#94a3b8", // Enhanced preview borders
           },
-          button: {
-            primary: "#475569", // Enhanced dark grey buttons
-            hover: "#64748b", // Enhanced lighter grey on hover
-            accent: "#fbbf24", // Enhanced gold accent buttons
-            "accent-hover": "#f59e0b", // Enhanced darker gold on hover
-          },
           shadow: {
-            glow: "#fbbf24", // Enhanced glow color
             ball: "#00000040", // Enhanced ball shadow
           },
           // New gradient definitions
@@ -158,10 +122,6 @@ module.exports = {
         cell: "56px", // CELL_SIZE
         gap: "8px", // GAP - increased from 4px
         "board-padding": "8px", // PADDING
-        "touch-target": "44px", // Touch target size
-      },
-      transitionDuration: {
-        game: "300ms",
       },
       zIndex: {
         "game-dialog": "1000",
@@ -169,7 +129,6 @@ module.exports = {
       animation: {
         "move-ball": "moveBall 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)", // Slowed from 0.25s to 0.4s
         "pop-ball": "popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)",
-        "pulse-glow": "pulseGlow 2s ease-in-out infinite",
         float: "float 3s ease-in-out infinite",
         "bounce-ball": "pulseBall 1.5s ease-in-out infinite",
         "float-score": "floatScore 1s ease-out forwards",
@@ -183,18 +142,6 @@ module.exports = {
           "0%": { transform: "scale(1)", opacity: "1" },
           "80%": { transform: "scale(1.3)", opacity: "1" },
           "100%": { transform: "scale(0.5)", opacity: "0" },
-        },
-        pulseGlow: {
-          "0%, 100%": {
-            boxShadow:
-              "0 0 16px 4px theme(colors.game.shadow.glow), 0 0 0 4px theme(colors.game.shadow.glow)",
-            opacity: "1",
-          },
-          "50%": {
-            boxShadow:
-              "0 0 24px 6px theme(colors.game.shadow.glow), 0 0 0 6px theme(colors.game.shadow.glow)",
-            opacity: "0.8",
-          },
         },
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
@@ -251,8 +198,6 @@ module.exports = {
           "--gap-size": theme("spacing.gap"),
           "--ball-size": theme("spacing.ball"),
           "--board-padding": theme("spacing.board-padding"),
-          "--touch-target-size": theme("spacing.touch-target"),
-          "--game-animation-duration": theme("transitionDuration.game"),
           "--grow-ball-duration": "0.6s",
         },
         "@media (max-width: 768px)": {

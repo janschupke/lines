@@ -176,10 +176,6 @@ button:focus-visible {
     @apply text-game-text-primary font-bold;
   }
 
-  .game-highlight {
-    @apply bg-game-gradient-accent text-black font-bold text-center py-2 px-4 rounded-lg;
-  }
-
   /* Hide scrollbars but keep scrolling functionality */
   .scrollbar-hide {
     -ms-overflow-style: none; /* Internet Explorer 10+ */
@@ -197,10 +193,6 @@ button:focus-visible {
 
   .fade-in {
     animation-name: fadeIn;
-  }
-
-  .fade-out {
-    animation-name: fadeOut;
   }
 
   /* Score flash animation */
@@ -223,15 +215,6 @@ button:focus-visible {
     }
     to {
       opacity: 1;
-    }
-  }
-
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
     }
   }
 
@@ -270,25 +253,6 @@ button:focus-visible {
   }
 }
 
-/* Custom scrollbar for game elements */
-.game-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-
-.game-scrollbar::-webkit-scrollbar-track {
-  background: theme("colors.game.bg.secondary");
-  border-radius: 4px;
-}
-
-.game-scrollbar::-webkit-scrollbar-thumb {
-  background: theme("colors.game.border.default");
-  border-radius: 4px;
-}
-
-.game-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: theme("colors.game.border.accent");
-}
-
 /* Animations */
 @keyframes gradientShift {
   0%,
@@ -298,23 +262,6 @@ button:focus-visible {
   50% {
     background-position: 100% 50%;
   }
-}
-
-/* Enhanced focus styles */
-.game-button:focus {
-  @apply outline-none ring-0;
-}
-
-.game-button:focus-visible {
-  @apply outline-none ring-0;
-}
-
-.game-button:focus-within {
-  @apply outline-none ring-0;
-}
-
-.game-cell:focus {
-  @apply outline-none ring-0;
 }
 
 /* Mobile optimizations */

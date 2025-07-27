@@ -42,8 +42,6 @@ export const useGameAnimation = () => {
     type: "idle",
   });
 
-
-
   const startPoppingAnimation = useCallback((balls: Set<string>) => {
     setPoppingBalls(balls);
     setCurrentPhase({

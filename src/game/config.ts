@@ -91,10 +91,6 @@ export const TIMER_INTERVAL_MS = 1000;
 /** Inactivity timeout before timer pauses (10 seconds) */
 export const INACTIVITY_TIMEOUT_MS = 10000;
 
-
-
-
-
 // ============================================================================
 // STORAGE KEYS
 // ============================================================================

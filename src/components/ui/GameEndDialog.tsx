@@ -86,14 +86,14 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
                   Lines Popped
                 </div>
               </div>
-                <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
-                  <div className="text-3xl font-bold text-game-text-primary">
-                    {statistics.longestLinePopped}
-                  </div>
-                  <div className="text-sm text-game-text-secondary">
-                    Longest Line
-                  </div>
+              <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
+                <div className="text-3xl font-bold text-game-text-primary">
+                  {statistics.longestLinePopped}
                 </div>
+                <div className="text-sm text-game-text-secondary">
+                  Longest Line
+                </div>
+              </div>
             </div>
           </div>
 

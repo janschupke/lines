@@ -229,11 +229,7 @@ describe("useGameAnimation", () => {
       // Current phase should be the last one set (spawning)
       expect(result.current.currentPhase.type).toBe("spawning");
     });
-
-
   });
-
-
 
   describe("floating score animation", () => {
     it("initializes with empty floating scores", () => {
@@ -369,7 +365,13 @@ describe("useGameAnimation", () => {
 
       // Set up various animation states
       act(() => {
-        result.current.setMovingBall({ color: "red" as BallColor, path: [[0, 0], [1, 1]] });
+        result.current.setMovingBall({
+          color: "red" as BallColor,
+          path: [
+            [0, 0],
+            [1, 1],
+          ],
+        });
         result.current.setMovingStep(1);
         result.current.startPoppingAnimation(new Set(["0,0"]));
         result.current.startSpawningAnimation([

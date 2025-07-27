@@ -334,9 +334,7 @@ async function handleBallConversion(
 
       // Update statistics
       if (conversionResult.ballsRemoved) {
-        statisticsTracker.recordLinePop(
-          conversionResult.ballsRemoved.length,
-        );
+        statisticsTracker.recordLinePop(conversionResult.ballsRemoved.length);
       }
 
       // Wait for popping animation to complete

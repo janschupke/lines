@@ -6,7 +6,12 @@ import type {
   GameActions,
   GameStatistics,
 } from "../types";
-import { TIMER_INTERVAL_MS, INITIAL_BALLS, BALLS_PER_TURN, INACTIVITY_TIMEOUT_MS } from "../config";
+import {
+  TIMER_INTERVAL_MS,
+  INITIAL_BALLS,
+  BALLS_PER_TURN,
+  INACTIVITY_TIMEOUT_MS,
+} from "../config";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameAnimation } from "../../hooks/useGameAnimation";
 import { StatisticsTracker } from "../statisticsTracker";
@@ -38,7 +43,9 @@ export const useGameStateManager = (
 
   // Timer state - single source of truth
   const [timer, setTimer] = useState(savedState?.timer || 0);
-  const [timerActive, setTimerActive] = useState(savedState?.timerActive || false);
+  const [timerActive, setTimerActive] = useState(
+    savedState?.timerActive || false,
+  );
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -229,11 +236,7 @@ export const useGameStateManager = (
       startSpawningAnimation: animationState.startSpawningAnimation,
       stopSpawningAnimation: animationState.stopSpawningAnimation,
     }),
-    [
-      animationState,
-      boardState,
-      onActivity,
-    ],
+    [animationState, boardState, onActivity],
   );
 
   // Stop timer on game over

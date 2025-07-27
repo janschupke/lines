@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom CSS Variables for Animation Durations */
+:root {
+  --animation-duration-fade: 300ms;
+  --animation-duration-button-hover: 300ms;
+  --animation-duration-button-shine: 500ms;
+  --animation-duration-score-flash: 1000ms;
+  --animation-duration-gradient-shift: 8000ms;
+  --animation-duration-grow-ball: 100ms;
+  --animation-duration-pop-ball: 300ms;
+  --animation-duration-floating-score: 2000ms;
+  --animation-duration-moving-step: 100ms;
+  --animation-duration-high-score-flash: 1000ms;
+  --animation-duration-selected-ball-pulse: 1500ms;
+}
+
 /* Remove focus outlines globally */
 button:focus {
   outline: none !important;
@@ -16,7 +31,8 @@ button:focus-visible {
   .game-board {
     @apply bg-game-gradient-board border border-game-border-default rounded-xl shadow-lg relative overflow-hidden;
     background-size: 200% 200%;
-    animation: gradientShift 8s ease-in-out infinite;
+    animation: gradientShift var(--animation-duration-gradient-shift)
+      ease-in-out infinite;
   }
 
   .game-board::before {
@@ -42,9 +58,10 @@ button:focus-visible {
   }
 
   .game-cell {
-    @apply rounded-lg flex items-center justify-center transition-all duration-300 box-border relative border-2 backdrop-blur-sm;
+    @apply rounded-lg flex items-center justify-center transition-all box-border relative border-2 backdrop-blur-sm;
     position: relative;
     z-index: 1;
+    transition-duration: var(--animation-duration-button-hover);
   }
 
   .game-cell::before {
@@ -88,8 +105,9 @@ button:focus-visible {
   }
 
   .game-button {
-    @apply font-semibold rounded-lg border border-game-border-default cursor-pointer transition-all duration-300 relative overflow-hidden;
+    @apply font-semibold rounded-lg border border-game-border-default cursor-pointer transition-all relative overflow-hidden;
     background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+    transition-duration: var(--animation-duration-button-hover);
   }
 
   .game-button::before {
@@ -105,7 +123,7 @@ button:focus-visible {
       rgba(255, 255, 255, 0.2),
       transparent
     );
-    transition: left 0.5s;
+    transition: left var(--animation-duration-button-shine);
   }
 
   .game-button:hover::before {
@@ -193,11 +211,26 @@ button:focus-visible {
 
   .fade-in {
     animation-name: fadeIn;
+    animation-duration: var(--animation-duration-fade);
+  }
+
+  .fade-out {
+    animation-name: fadeIn;
+    animation-direction: reverse;
+    animation-duration: var(--animation-duration-fade);
+  }
+
+  /* Transition utilities */
+  .transition-colors {
+    transition-property:
+      color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-duration: var(--animation-duration-button-hover);
   }
 
   /* Score flash animation */
   .score-flash {
-    animation: scoreFlash 1s ease-out forwards;
+    animation: scoreFlash var(--animation-duration-score-flash) ease-out
+      forwards;
   }
 
   /* Growing ball animations */

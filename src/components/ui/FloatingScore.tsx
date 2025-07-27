@@ -24,7 +24,7 @@ const FloatingScoreComponent: React.FC<FloatingScoreProps> = ({
         transform: "translate(-50%, -50%)",
       }}
     >
-      <span className="text-game-text-success font-bold text-xl drop-shadow-lg">
+      <span className="text-game-text-success font-bold text-4xl drop-shadow-lg">
         +{floatingScore.score}
       </span>
     </div>

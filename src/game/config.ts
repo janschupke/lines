@@ -78,7 +78,31 @@ export const ANIMATION_DURATIONS = {
   GROW_BALL: 100,
 
   /** Duration of floating score animation */
-  FLOATING_SCORE: 1000,
+  FLOATING_SCORE: 2000,
+
+  /** Duration of score flash animation */
+  SCORE_FLASH: 1000,
+
+  /** Duration of high score flash animation */
+  HIGH_SCORE_FLASH: 1000,
+
+  /** Duration of fade in/out animations */
+  FADE: 300,
+
+  /** Duration of button hover transition */
+  BUTTON_HOVER: 300,
+
+  /** Duration of moving ball animation step */
+  MOVING_STEP: 100,
+
+  /** Duration of button shine effect transition */
+  BUTTON_SHINE: 500,
+
+  /** Duration of gradient shift animation */
+  GRADIENT_SHIFT: 8000,
+
+  /** Duration of selected ball pulse animation */
+  SELECTED_BALL_PULSE: 1500,
 } as const;
 
 // ============================================================================

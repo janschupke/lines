@@ -30,7 +30,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
 
   return (
     <div
-      className="absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-6 overflow-auto scrollbar-hide animate-in fade-in duration-300"
+      className="absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-6 overflow-auto scrollbar-hide animate-in fade-in"
       onClick={onClose}
     >
       <div

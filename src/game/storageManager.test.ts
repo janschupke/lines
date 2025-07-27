@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { StorageManager, type PersistedGameState } from "./storageManager";
 import type { BallColor } from "./types";
 
+// Mock console.warn to suppress intentional warnings in tests
+const originalConsoleWarn = console.warn;
+
 // Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
@@ -324,6 +327,9 @@ describe("StorageManager", () => {
     });
 
     it("should handle localStorage errors gracefully", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error("Storage quota exceeded");
       });
@@ -357,6 +363,9 @@ describe("StorageManager", () => {
 
       // Should not throw
       expect(() => StorageManager.saveGameState(mockGameState)).not.toThrow();
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
   });
 
@@ -452,14 +461,23 @@ describe("StorageManager", () => {
     });
 
     it("should return null for invalid JSON", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       localStorageMock.getItem.mockReturnValue("invalid json");
 
       const result = StorageManager.loadGameState();
 
       expect(result).toBeNull();
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
 
     it("should return null for invalid state structure", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       const invalidState = {
         board: "not an array",
         score: "not a number",
@@ -470,9 +488,15 @@ describe("StorageManager", () => {
       const result = StorageManager.loadGameState();
 
       expect(result).toBeNull();
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
 
     it("should handle localStorage errors gracefully", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error("Storage access denied");
       });
@@ -480,6 +504,9 @@ describe("StorageManager", () => {
       const result = StorageManager.loadGameState();
 
       expect(result).toBeNull();
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
   });
 
@@ -493,12 +520,18 @@ describe("StorageManager", () => {
     });
 
     it("should handle localStorage errors gracefully", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       localStorageMock.removeItem.mockImplementation(() => {
         throw new Error("Storage access denied");
       });
 
       // Should not throw
       expect(() => StorageManager.clearGameState()).not.toThrow();
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
   });
 
@@ -521,6 +554,9 @@ describe("StorageManager", () => {
     });
 
     it("should handle localStorage errors gracefully", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error("Storage access denied");
       });
@@ -528,26 +564,41 @@ describe("StorageManager", () => {
       const result = StorageManager.hasSavedGameState();
 
       expect(result).toBe(false);
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
   });
 
   describe("saveHighScore", () => {
     it("should save high score to localStorage", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       StorageManager.saveHighScore(1000);
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "lines-game-high-score",
         "1000",
       );
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
 
     it("should handle localStorage errors gracefully", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error("Storage quota exceeded");
       });
 
       // Should not throw
       expect(() => StorageManager.saveHighScore(1000)).not.toThrow();
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
   });
 
@@ -580,6 +631,9 @@ describe("StorageManager", () => {
     });
 
     it("should handle localStorage errors gracefully", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error("Storage access denied");
       });
@@ -587,11 +641,17 @@ describe("StorageManager", () => {
       const result = StorageManager.loadHighScore();
 
       expect(result).toBe(0);
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
   });
 
   describe("unified persistence", () => {
     it("should not overwrite high score with lower score on page refresh", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       // Simulate a game state with a high score of 500 and current score of 100
       const gameStateWithHighScore = {
         board: Array(9)
@@ -647,9 +707,15 @@ describe("StorageManager", () => {
       // Verify that the high score is preserved and not overwritten by the lower current score
       expect(loadedState?.highScore).toBe(500);
       expect(loadedState?.score).toBe(100);
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
 
     it("should update high score when current score is higher", () => {
+      // Suppress console.warn for this test
+      console.warn = vi.fn();
+
       // Start with a game state where current score is higher than high score
       const gameStateWithNewHighScore = {
         board: Array(9)
@@ -697,6 +763,9 @@ describe("StorageManager", () => {
       const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
       expect(savedData.highScore).toBe(600);
       expect(savedData.score).toBe(600);
+
+      // Restore console.warn
+      console.warn = originalConsoleWarn;
     });
   });
 });

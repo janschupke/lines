@@ -217,9 +217,11 @@ describe("useGameAnimation", () => {
       expect(result.current.spawningBalls[0].id).toBeDefined();
 
       // Wait for the animation to complete
-      await new Promise((resolve) =>
-        setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL + 100),
-      );
+      await act(async () => {
+        await new Promise((resolve) =>
+          setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL + 100),
+        );
+      });
 
       expect(result.current.spawningBalls).toEqual([]);
     });
@@ -313,9 +315,11 @@ describe("useGameAnimation", () => {
       expect(result.current.floatingScores).toHaveLength(1);
 
       // Wait for the animation to complete
-      await new Promise((resolve) =>
-        setTimeout(resolve, ANIMATION_DURATIONS.FLOATING_SCORE + 100),
-      );
+      await act(async () => {
+        await new Promise((resolve) =>
+          setTimeout(resolve, ANIMATION_DURATIONS.FLOATING_SCORE + 100),
+        );
+      });
 
       expect(result.current.floatingScores).toHaveLength(0);
     });
@@ -372,9 +376,11 @@ describe("useGameAnimation", () => {
       expect(result.current.growingBalls).toHaveLength(1);
 
       // Wait for the animation to complete
-      await new Promise((resolve) =>
-        setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL + 100),
-      );
+      await act(async () => {
+        await new Promise((resolve) =>
+          setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL + 100),
+        );
+      });
 
       expect(result.current.growingBalls).toHaveLength(0);
     });

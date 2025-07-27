@@ -646,6 +646,87 @@ describe("processMove", () => {
     });
   });
 
+  describe("incoming ball preservation after line pop", () => {
+    it("preserves incoming ball when stepped-on ball gets popped", async () => {
+      // Set up board with proper coordinates
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          mockBoard[y][x].x = x;
+          mockBoard[y][x].y = y;
+        }
+      }
+      
+      // Set up board with a ball that can move to a cell with an incoming ball
+      mockBoard[0][0].ball = { color: "red" as BallColor };
+      mockBoard[1][1].incomingBall = { color: "blue" as BallColor };
+      
+      // Set up board after move (ball moved to cell with incoming ball)
+      const boardAfterMove = mockBoard.map((row) =>
+        row.map((cell) => ({ ...cell }))
+      );
+      boardAfterMove[1][1].ball = { color: "red" as BallColor };
+      boardAfterMove[0][0].ball = null;
+      boardAfterMove[1][1].incomingBall = null; // Cleared by move handler
+
+      const moveResult = {
+        newBoard: boardAfterMove,
+        linesFormed: false,
+        steppedOnIncomingBall: "blue" as BallColor,
+      };
+
+      // Set up board after line removal (the stepped-on ball gets popped)
+      const boardAfterLineRemoval = boardAfterMove.map((row) =>
+        row.map((cell) => ({ ...cell }))
+      );
+      boardAfterLineRemoval[1][1].ball = null; // Ball was popped
+
+      const lineResult = {
+        newBoard: boardAfterLineRemoval,
+        linesFormed: true,
+        ballsRemoved: [[1, 1]], // The stepped-on ball was popped
+        pointsEarned: 1,
+      };
+
+      (handleMoveCompletion as any).mockReturnValue(moveResult);
+      (handleLineDetection as any).mockReturnValue(lineResult);
+
+      const promise = processMove(
+        mockBoard,
+        0,
+        0,
+        1,
+        1,
+        100,
+        mockStatisticsTracker,
+        mockActions,
+        0,
+        false,
+        500,
+        false,
+        false,
+      );
+
+      // Fast-forward to popping animation completion
+      vi.advanceTimersByTime(300);
+
+      await promise;
+
+      // Verify that the board was set with the incoming ball restored at position (1,1)
+      expect(mockActions.setBoard).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.arrayContaining([
+            expect.objectContaining({
+              x: 1,
+              y: 1,
+              ball: null,
+              incomingBall: { color: "blue" },
+            }),
+          ]),
+        ])
+      );
+    });
+  });
+
   describe("timer management", () => {
     it("starts timer after first move", async () => {
       const moveResult = {

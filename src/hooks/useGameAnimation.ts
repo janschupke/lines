@@ -112,18 +112,18 @@ export const useGameAnimation = () => {
   );
 
   const addSpawningBalls = useCallback((balls: SpawnedBall[]) => {
-    setSpawningBalls((prev) => [...prev, ...balls]);
+    // Add unique IDs to the balls for reliable removal
+    const ballsWithIds = balls.map((ball) => ({
+      ...ball,
+      id: `${Date.now()}-${Math.random()}-${ball.x}-${ball.y}-${ball.color}`,
+    }));
+
+    setSpawningBalls((prev) => [...prev, ...ballsWithIds]);
 
     // Remove the spawning balls after animation completes
     setTimeout(() => {
       setSpawningBalls((prev) =>
-        prev.filter(
-          (sb) =>
-            !balls.some(
-              (ball) =>
-                ball.x === sb.x && ball.y === sb.y && ball.color === sb.color,
-            ),
-        ),
+        prev.filter((sb) => !ballsWithIds.some((ball) => ball.id === sb.id)),
       );
     }, ANIMATION_DURATIONS.GROW_BALL);
   }, []);

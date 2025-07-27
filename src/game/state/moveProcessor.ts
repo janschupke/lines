@@ -366,7 +366,7 @@ async function handleBallConversion(
           actions.setShowGameEndDialog(true);
         }
       }, ANIMATION_DURATIONS.POP_BALL);
-    }, ANIMATION_DURATIONS.SPAWN_BALL);
+    }, ANIMATION_DURATIONS.GROW_BALL);
   } else {
     // No lines formed by spawning - complete after growing animation
     setTimeout(() => {
@@ -390,7 +390,7 @@ async function handleBallConversion(
         actions.setGameOver(true);
         actions.setShowGameEndDialog(true);
       }
-    }, ANIMATION_DURATIONS.SPAWN_BALL);
+    }, ANIMATION_DURATIONS.GROW_BALL);
   }
 
   // Start timer after first move

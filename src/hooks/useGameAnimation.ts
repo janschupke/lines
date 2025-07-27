@@ -42,23 +42,7 @@ export const useGameAnimation = () => {
     type: "idle",
   });
 
-  const startMoveAnimation = useCallback(
-    (ball: BallColor, path: [number, number][]) => {
-      setMovingBall({ color: ball, path });
-      setMovingStep(0);
-      setCurrentPhase({
-        type: "moving",
-        data: { movingBall: { color: ball, path } },
-      });
-    },
-    [],
-  );
 
-  const stopMoveAnimation = useCallback(() => {
-    setMovingBall(null);
-    setMovingStep(0);
-    setCurrentPhase({ type: "idle" });
-  }, []);
 
   const startPoppingAnimation = useCallback((balls: Set<string>) => {
     setPoppingBalls(balls);
@@ -170,8 +154,6 @@ export const useGameAnimation = () => {
     addFloatingScore,
     addGrowingBall,
     addSpawningBalls,
-    startMoveAnimation,
-    stopMoveAnimation,
     startPoppingAnimation,
     stopPoppingAnimation,
     startSpawningAnimation,

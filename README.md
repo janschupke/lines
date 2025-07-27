@@ -124,3 +124,55 @@ The game tracks statistics including:
 - Lines popped
 - Longest line achieved
 - High score progression
+
+## 🤝 Contributing
+
+There are several ways you can help improve the game:
+
+### Reporting Issues
+
+If you find a bug or have a feature request, please [file an issue on GitHub](https://github.com/janschupke/lines/issues). When reporting issues, please include:
+
+- A clear description of the problem
+- Steps to reproduce the issue
+- Expected vs actual behavior
+- Browser/device information (if relevant)
+
+### Making Changes
+
+If you'd like to contribute code changes:
+
+1. **Fork the repository** on GitHub
+2. **Create a feature branch** from `master`
+3. **Make your changes** with clear, well-documented code
+4. **Add tests** for any new functionality
+5. **Run the test suite** to ensure everything works
+6. **Submit a pull request** to the `master` branch
+
+### Development Guidelines
+
+- Follow the existing code style and conventions
+- Add appropriate tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting
+- Run `npm run check:all` to run all code checks
+
+## 📄 License
+
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+
+### GPL-3.0 License Terms
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see [https://www.gnu.org/licenses/](https://www.gnu.org/licenses/).
+
+### What This Means
+
+- **Freedom to use**: You can run the game for any purpose
+- **Freedom to study**: You can examine the source code
+- **Freedom to modify**: You can change the code to suit your needs
+- **Freedom to distribute**: You can share the original or modified versions
+- **Copyleft**: If you distribute modified versions, you must also license them under GPL-3.0

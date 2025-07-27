@@ -200,7 +200,7 @@ const Board: React.FC<BoardProps> = ({
             )}
             {/* Not reachable cross */}
             {showNotReachable && shouldShowHoverEffects && (
-              <span className="absolute left-2 top-2 flex items-center justify-center text-game-text-error text-2xl font-extrabold opacity-70 w-[40px] h-[40px] pointer-events-none">
+              <span className="absolute inset-0 flex items-center justify-center text-game-text-error text-4xl font-black opacity-80 pointer-events-none">
                 ×
               </span>
             )}

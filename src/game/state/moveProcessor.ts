@@ -347,9 +347,9 @@ async function handleBallConversion(
             0,
           ) / conversionResult.ballsRemoved.length;
         actions.addFloatingScore(
+          conversionResult.pointsEarned || 0,
           centerX,
           centerY,
-          conversionResult.pointsEarned || 0,
         );
       }
 

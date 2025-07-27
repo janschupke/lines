@@ -31,7 +31,8 @@ button:focus-visible {
   .game-board {
     @apply bg-game-gradient-board border border-game-border-default rounded-xl shadow-lg relative overflow-hidden;
     background-size: 200% 200%;
-    animation: gradientShift var(--animation-duration-gradient-shift) ease-in-out infinite;
+    animation: gradientShift var(--animation-duration-gradient-shift)
+      ease-in-out infinite;
   }
 
   .game-board::before {
@@ -221,13 +222,15 @@ button:focus-visible {
 
   /* Transition utilities */
   .transition-colors {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-property:
+      color, background-color, border-color, text-decoration-color, fill, stroke;
     transition-duration: var(--animation-duration-button-hover);
   }
 
   /* Score flash animation */
   .score-flash {
-    animation: scoreFlash var(--animation-duration-score-flash) ease-out forwards;
+    animation: scoreFlash var(--animation-duration-score-flash) ease-out
+      forwards;
   }
 
   /* Growing ball animations */

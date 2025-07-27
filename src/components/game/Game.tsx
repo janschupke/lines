@@ -123,7 +123,10 @@ const Game: React.FC<GameProps> = ({
   React.useEffect(() => {
     if (highScore !== prevHighScore && highScore > prevHighScore) {
       setHighScoreFlash(true);
-      setTimeout(() => setHighScoreFlash(false), ANIMATION_DURATIONS.HIGH_SCORE_FLASH);
+      setTimeout(
+        () => setHighScoreFlash(false),
+        ANIMATION_DURATIONS.HIGH_SCORE_FLASH,
+      );
       setPrevHighScore(highScore);
     }
   }, [highScore, prevHighScore]);
@@ -244,9 +247,7 @@ const Game: React.FC<GameProps> = ({
             {(showGuide || isGuideClosing) && (
               <div
                 className={`absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide ${
-                  isGuideClosing
-                    ? "animate-in fade-out"
-                    : "animate-in fade-in"
+                  isGuideClosing ? "animate-in fade-out" : "animate-in fade-in"
                 }`}
               >
                 <Guide onClose={handleGuideClose} />

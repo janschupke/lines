@@ -130,7 +130,8 @@ module.exports = {
         "move-ball": "moveBall 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)", // Slowed from 0.25s to 0.4s
         "pop-ball": "popBall 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)",
         float: "float 3s ease-in-out infinite",
-        "bounce-ball": "pulseBall var(--animation-duration-selected-ball-pulse) ease-in-out infinite",
+        "bounce-ball":
+          "pulseBall var(--animation-duration-selected-ball-pulse) ease-in-out infinite",
         "float-score": "floatScore 1s ease-out forwards",
       },
       keyframes: {

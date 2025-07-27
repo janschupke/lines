@@ -174,7 +174,12 @@ async function handleLineRemoval(
 
     // If the stepped-on ball was popped, restore it as an incoming ball
     let boardAfterLineRemoval = lineResult.newBoard;
-    if (wasSteppedOnBallPopped && steppedOnPreview && toX !== undefined && toY !== undefined) {
+    if (
+      wasSteppedOnBallPopped &&
+      steppedOnPreview &&
+      toX !== undefined &&
+      toY !== undefined
+    ) {
       // The stepped-on position is exactly where the ball was moved to (toX, toY)
       // This position should now be empty after line removal
       if (
@@ -184,7 +189,9 @@ async function handleLineRemoval(
         boardAfterLineRemoval = lineResult.newBoard.map((row) =>
           row.map((cell) => ({ ...cell })),
         );
-        boardAfterLineRemoval[toY][toX].incomingBall = { color: steppedOnPreview };
+        boardAfterLineRemoval[toY][toX].incomingBall = {
+          color: steppedOnPreview,
+        };
       }
     }
 

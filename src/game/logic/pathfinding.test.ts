@@ -106,10 +106,10 @@ describe("findUnreachableCells", () => {
     }
 
     const unreachable = findUnreachableCells(board, { x: 0, y: 0 });
-    
+
     // Should find cells on the other side of the wall
     expect(unreachable.length).toBeGreaterThan(0);
-    
+
     // All unreachable cells should be on the other side of the wall
     unreachable.forEach(([x, y]) => {
       expect(y).toBeGreaterThan(4);
@@ -129,10 +129,10 @@ describe("findUnreachableCells", () => {
     }
 
     const unreachable = findUnreachableCells(board, { x: 0, y: 0 });
-    
+
     // Should find some unreachable cells
     expect(unreachable.length).toBeGreaterThan(0);
-    
+
     // Cells in the isolated area should be unreachable
     const unreachableSet = new Set(unreachable.map(([x, y]) => `${x},${y}`));
     expect(unreachableSet.has("4,4")).toBe(true);

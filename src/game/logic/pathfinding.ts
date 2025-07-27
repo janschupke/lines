@@ -78,7 +78,7 @@ export function findUnreachableCells(
     [0, -1],
     [-1, 0],
   ];
-  
+
   // BFS to find all reachable cells
   while (queue.length > 0) {
     const [x, y] = queue.shift()!;
@@ -98,7 +98,7 @@ export function findUnreachableCells(
       }
     }
   }
-  
+
   // Return all unreachable cells (empty cells that weren't visited)
   const unreachableCells: [number, number][] = [];
   for (let y = 0; y < BOARD_SIZE; y++) {
@@ -108,6 +108,6 @@ export function findUnreachableCells(
       }
     }
   }
-  
+
   return unreachableCells;
 }

@@ -1,25 +1,39 @@
 # Lines
 
-A turn-based puzzle game where you form lines of colored balls on a two-dimensional grid while preventing the board from filling up. Every time you move a ball, new balls are spawned onto the board. When a line is formed, it is removed and you score points according to the line length.
+A turn-based puzzle game where you form lines of colored balls on a 9x9 grid while preventing the board from filling up. Every time you move a ball, new balls are spawned onto the board. When a line of 5 or more balls is formed, it is removed and you score points according to the line length using a Fibonacci-based scoring system.
 
-React app is up at [https://lines.schupke.io/](https://lines.schupke.io/).
+Play the game at [https://lines.schupke.io/](https://lines.schupke.io/).
 
-## Features
+## 🎮 Game Features
 
-- Highlighting of reachable cells within the board
-- Incoming balls' positions and colors hint
-- Remembers current game state when closed
-- Extensive Game Guide available through the game menu
-- Simple high score system with localStorage persistence
-- Mobile-optimized: touch controls, responsive design, and mobile accessibility
-- > 80% automated test coverage, all tests and builds must pass for every deployment
-- ...and more!
+### Core Gameplay
 
----
+- **9x9 grid puzzle game** with strategic ball placement
+- **Line formation**: Create lines of 5+ balls to clear them and score points
+- **Fibonacci scoring**: 5 balls = 5 points, 6 balls = 8 points, 7 balls = 13 points, etc.
+- **Ball spawning**: 3 new balls spawn after each move
+- **7 ball colors**: Red, blue, green, yellow, purple, pink, and black
 
-# Local Development Environment
+### User Experience
 
-## Getting Started
+- **Smart pathfinding**: Visual highlighting of reachable cells
+- **Preview system**: See incoming balls' positions and colors before they spawn
+- **Smooth animations**: Ball movement, popping, growing, and floating score effects
+- **Game state persistence**: Remembers current game state when closed
+- **High score tracking**: Local storage-based high score system
+- **Guide**: In-game help system accessible via 'G' key
+
+### Controls
+
+- **Mouse/Touch**: Click/tap to select and move balls
+- **Keyboard shortcuts**:
+  - `G`: Toggle game guide
+  - `N`: Start new game
+  - `Escape`: Close dialogs/guide
+
+## 🛠️ Development
+
+### Getting Started
 
 1. **Install dependencies:**
 
@@ -33,8 +47,6 @@ npm install
 npm run dev
 ```
 
-That's it! The app will use localStorage for high scores and work immediately.
-
 3. **Build for production:**
 
 ```bash
@@ -47,51 +59,68 @@ npm run build
 npm run test:run
 ```
 
-## High Score System
+### Available Scripts
 
-The game uses a simple localStorage-based high score system:
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run test:run` - Run all tests
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run lint` - Run ESLint with auto-fix
+- `npm run types` - Type checking
+- `npm run check:all` - Run all quality checks
 
-- High scores are stored locally in the browser
-- Only the highest score is tracked (as a single number)
-- High scores persist between browser sessions
-- No external dependencies or database required
+## 🏗️ Architecture
 
-## ESLint Configuration
+### Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React 18** with TypeScript
+- **Vite** for fast development and building
+- **Tailwind CSS** with custom theme system
+- **Vitest** + React Testing Library for testing
+- **ESLint** + Prettier for code quality
 
-```js
-export default tseslint.config([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      ...tseslint.configs.recommendedTypeChecked,
-      ...tseslint.configs.strictTypeChecked,
-      ...tseslint.configs.stylisticTypeChecked,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },
-]);
+### Project Structure
+
+```
+src/
+├── components/
+│   ├── game/          # Game-specific components
+│   └── ui/            # Reusable UI components
+├── game/
+│   ├── logic/         # Core game logic
+│   ├── state/         # State management
+│   └── types/         # TypeScript type definitions
+├── hooks/             # Custom React hooks
+└── utils/             # Utility functions
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules.
+## 🚀 Deployment
 
-# Production Deployment
+### Vercel Hosting
 
-## Vercel Hosting
+- **Automatic deployments** from master branch
 
-Production is deployed via [Vercel](https://vercel.com/). The `vercel.json` configures static builds, routes, and environment variable mapping. Automatic deployments are triggered from the main branch. Custom domain and SSL are managed via the Vercel dashboard.
+### Quality Assurance
 
-## Tech Stack
+- **Pre-deployment checks**: Tests, linting, type checking
+- **Code quality**: ESLint + Prettier enforcement
+- **Unused exports detection**: Automated cleanup
 
-- React 18 + TypeScript
-- Vite
-- Tailwind CSS (with theme classes, no hardcoded colors)
-- Vercel (hosting)
-- Vitest + React Testing Library (with >80% coverage required)
+## 🎯 Game Rules
+
+1. **Objective**: Prevent the board from filling up while scoring points
+2. **Movement**: Click a ball, then click a valid destination cell
+3. **Line Formation**: Create horizontal, vertical, or diagonal lines of 5+ balls
+4. **Scoring**: Longer lines score more points (Fibonacci sequence)
+5. **Ball Spawning**: 3 new balls spawn after each move
+6. **Game Over**: Board fills up completely
+
+## 📊 Statistics
+
+The game tracks statistics including:
+
+- Total turns played
+- Game duration
+- Lines popped
+- Longest line achieved
+- High score progression

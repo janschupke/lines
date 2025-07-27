@@ -167,7 +167,7 @@ async function handleLineRemoval(
   // Wait for popping animation to complete, then handle ball conversion
   setTimeout(async () => {
     actions.stopPoppingAnimation();
-    
+
     // If the stepped-on ball was popped, restore it as an incoming ball
     let boardAfterLineRemoval = lineResult.newBoard;
     if (wasSteppedOnBallPopped && steppedOnPreview) {
@@ -175,18 +175,21 @@ async function handleLineRemoval(
       // We need to find where the ball was moved to, which should be the position that was popped
       const steppedOnPosition = lineResult.ballsRemoved?.find(([x, y]) => {
         // This position should now be empty after line removal
-        return !lineResult.newBoard[y][x].ball && !lineResult.newBoard[y][x].incomingBall;
+        return (
+          !lineResult.newBoard[y][x].ball &&
+          !lineResult.newBoard[y][x].incomingBall
+        );
       });
-      
+
       if (steppedOnPosition) {
         const [x, y] = steppedOnPosition;
         boardAfterLineRemoval = lineResult.newBoard.map((row) =>
-          row.map((cell) => ({ ...cell }))
+          row.map((cell) => ({ ...cell })),
         );
         boardAfterLineRemoval[y][x].incomingBall = { color: steppedOnPreview };
       }
     }
-    
+
     actions.setBoard(boardAfterLineRemoval);
 
     // Now handle ball conversion on the board after line removal

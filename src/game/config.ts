@@ -38,7 +38,7 @@ export const BOARD_COLS = BOARD_SIZE;
 // ============================================================================
 
 /** Number of balls spawned at the start of the game */
-export const INITIAL_BALLS = 3;
+export const INITIAL_BALLS = 5;
 
 /** Number of new balls spawned after each move */
 export const BALLS_PER_TURN = 3;
@@ -56,10 +56,7 @@ export const MAX_LINE_LENGTH = 9;
 // SCORING CONFIGURATION
 // ============================================================================
 
-/** Fibonacci sequence for line scoring (5, 8, 13, 21, 34, ...) */
-export const FIBONACCI_SEQUENCE = [5, 8, 13, 21, 34];
-
-/** Scoring table for different line lengths */
+/** Scoring table for different line lengths (Fibonacci sequence) */
 export const SCORING_TABLE: Record<number, number> = {
   5: 5,
   6: 8,
@@ -74,26 +71,14 @@ export const SCORING_TABLE: Record<number, number> = {
 
 /** Animation durations in milliseconds */
 export const ANIMATION_DURATIONS = {
-  /** Duration of ball movement animation */
-  MOVE_BALL: 50,
-
   /** Duration of ball popping animation */
   POP_BALL: 300,
-
-  /** Duration of ball spawning animation */
-  SPAWN_BALL: 100,
 
   /** Duration of ball growing animation */
   GROW_BALL: 100,
 
   /** Duration of floating score animation */
   FLOATING_SCORE: 1000,
-
-  /** Duration of transition animations */
-  TRANSITION: 100,
-
-  /** Duration of fade in/out animations */
-  FADE: 300,
 } as const;
 
 // ============================================================================
@@ -105,41 +90,6 @@ export const TIMER_INTERVAL_MS = 1000;
 
 /** Inactivity timeout before timer pauses (10 seconds) */
 export const INACTIVITY_TIMEOUT_MS = 10000;
-
-// ============================================================================
-// GAME MECHANICS
-// ============================================================================
-
-/** Maximum number of balls that can be on the board before game over */
-export const MAX_BOARD_BALLS = BOARD_SIZE * BOARD_SIZE;
-
-/** Number of preview balls shown to the player */
-export const PREVIEW_BALLS_COUNT = 3;
-
-// ============================================================================
-// UI CONFIGURATION
-// ============================================================================
-
-/** Overlay transparency percentage (5% = 95% opacity) */
-export const OVERLAY_OPACITY = 95;
-
-/** Z-index values for different UI layers */
-export const Z_INDEX = {
-  /** Game board base layer */
-  BOARD: 0,
-
-  /** Moving ball animation layer */
-  MOVING_BALL: 10,
-
-  /** UI elements layer */
-  UI: 20,
-
-  /** Overlay layer */
-  OVERLAY: 50,
-
-  /** Dialog layer */
-  DIALOG: 1000,
-} as const;
 
 // ============================================================================
 // STORAGE KEYS

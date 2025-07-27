@@ -15,17 +15,8 @@ export interface PersistedGameState {
   gameOver: boolean;
   statistics: {
     turnsCount: number;
-    gameDuration: number;
     linesPopped: number;
-    individualBallsPopped: number;
     longestLinePopped: number;
-    averageScorePerTurn: number;
-    totalScore: number;
-    scoreProgression: number[];
-    lineScores: number[];
-    peakScore: number;
-    consecutiveHighScores: number;
-    ballsCleared: number;
   };
 }
 

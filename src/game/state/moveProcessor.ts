@@ -3,11 +3,10 @@ import type {
   Cell,
   BallColor,
   GameState,
-  GameStatistics,
   MoveResult,
   SpawnedBall,
 } from "../types";
-import type { StatisticsTracker } from "../statisticsTracker";
+import type { StatisticsTracker, GameStatistics } from "../statisticsTracker";
 import {
   handleIncomingBallConversion,
   isBoardFull,
@@ -161,10 +160,9 @@ async function handleLineRemoval(
   }
 
   // Update statistics
-  statisticsTracker.recordLinePop(
-    lineResult.ballsRemoved?.length || 0,
-    lineResult.pointsEarned || 0,
-  );
+  if (lineResult.ballsRemoved) {
+    statisticsTracker.recordLinePop(lineResult.ballsRemoved.length);
+  }
 
   // Wait for popping animation to complete, then handle ball conversion
   setTimeout(async () => {
@@ -336,10 +334,7 @@ async function handleBallConversion(
 
       // Update statistics
       if (conversionResult.ballsRemoved) {
-        statisticsTracker.recordLinePop(
-          conversionResult.ballsRemoved.length,
-          conversionResult.pointsEarned || 0,
-        );
+        statisticsTracker.recordLinePop(conversionResult.ballsRemoved.length);
       }
 
       // Wait for popping animation to complete
@@ -369,7 +364,7 @@ async function handleBallConversion(
           actions.setShowGameEndDialog(true);
         }
       }, ANIMATION_DURATIONS.POP_BALL);
-    }, ANIMATION_DURATIONS.SPAWN_BALL);
+    }, ANIMATION_DURATIONS.GROW_BALL);
   } else {
     // No lines formed by spawning - complete after growing animation
     setTimeout(() => {
@@ -393,7 +388,7 @@ async function handleBallConversion(
         actions.setGameOver(true);
         actions.setShowGameEndDialog(true);
       }
-    }, ANIMATION_DURATIONS.SPAWN_BALL);
+    }, ANIMATION_DURATIONS.GROW_BALL);
   }
 
   // Start timer after first move

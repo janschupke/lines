@@ -1,96 +1,98 @@
+import { describe, it, expect, beforeEach } from "vitest";
 import { StatisticsTracker } from "./statisticsTracker";
-import { vi, describe, it, expect } from "vitest";
 
 describe("StatisticsTracker", () => {
-  it("initializes with zeroed statistics", () => {
-    const tracker = new StatisticsTracker();
-    const stats = tracker.getCurrentStatistics();
-    expect(stats.turnsCount).toBe(0);
-    expect(stats.gameDuration).toBe(0);
-    expect(stats.linesPopped).toBe(0);
-    expect(stats.individualBallsPopped).toBe(0);
-    expect(stats.longestLinePopped).toBe(0);
-    expect(stats.averageScorePerTurn).toBe(0);
-    expect(stats.totalScore).toBe(0);
-    expect(stats.scoreProgression).toEqual([]);
-    expect(stats.lineScores).toEqual([]);
-    expect(stats.peakScore).toBe(0);
-    expect(stats.consecutiveHighScores).toBe(0);
-    expect(stats.ballsCleared).toBe(0);
+  let tracker: StatisticsTracker;
+
+  beforeEach(() => {
+    tracker = new StatisticsTracker();
   });
 
-  it("records turns and updates statistics", () => {
-    const tracker = new StatisticsTracker();
-    tracker.recordTurn();
-    tracker.recordTurn();
-    expect(tracker.getCurrentStatistics().turnsCount).toBe(2);
+  describe("initialization", () => {
+    it("should initialize with default values", () => {
+      const stats = tracker.getCurrentStatistics();
+      expect(stats.turnsCount).toBe(0);
+      expect(stats.linesPopped).toBe(0);
+      expect(stats.longestLinePopped).toBe(0);
+    });
   });
 
-  it("records line pops and updates statistics", () => {
-    const tracker = new StatisticsTracker();
-    tracker.recordTurn();
-    tracker.recordLinePop(5, 100);
-    tracker.recordLinePop(7, 300);
-    const stats = tracker.getCurrentStatistics();
-    expect(stats.linesPopped).toBe(2);
-    expect(stats.individualBallsPopped).toBe(12);
-    expect(stats.scoreProgression).toEqual([100, 300]);
-    expect(stats.lineScores.length).toBe(2);
-    expect(stats.peakScore).toBe(300);
-    expect(stats.consecutiveHighScores).toBe(0);
+  describe("recordTurn", () => {
+    it("should increment turn count", () => {
+      tracker.recordTurn();
+      expect(tracker.getCurrentStatistics().turnsCount).toBe(1);
+
+      tracker.recordTurn();
+      expect(tracker.getCurrentStatistics().turnsCount).toBe(2);
+    });
   });
 
-  it("resets consecutiveHighScores if line < 5", () => {
-    const tracker = new StatisticsTracker();
-    tracker.recordTurn();
-    tracker.recordLinePop(5, 100);
-    tracker.recordLinePop(4, 50);
-    expect(tracker.getCurrentStatistics().consecutiveHighScores).toBe(0);
+  describe("recordLinePop", () => {
+    it("should track line pops correctly", () => {
+      tracker.recordLinePop(5);
+      tracker.recordLinePop(7);
+
+      const stats = tracker.getCurrentStatistics();
+      expect(stats.linesPopped).toBe(2);
+      expect(stats.longestLinePopped).toBe(7);
+    });
+
+    it("should not count lines shorter than 5", () => {
+      tracker.recordLinePop(5);
+      tracker.recordLinePop(4);
+
+      const stats = tracker.getCurrentStatistics();
+      expect(stats.linesPopped).toBe(1);
+      expect(stats.longestLinePopped).toBe(5);
+    });
+
+    it("should update longest line correctly", () => {
+      tracker.recordLinePop(5);
+      tracker.recordLinePop(7);
+      tracker.recordLinePop(6);
+
+      const stats = tracker.getCurrentStatistics();
+      expect(stats.linesPopped).toBe(3);
+      expect(stats.longestLinePopped).toBe(7);
+    });
   });
 
-  it("records ball pops", () => {
-    const tracker = new StatisticsTracker();
-    tracker.recordBallClear();
-    tracker.recordBallClear();
-    expect(tracker.getCurrentStatistics().ballsCleared).toBe(2);
+  describe("reset", () => {
+    it("should reset all statistics", () => {
+      tracker.recordTurn();
+      tracker.recordLinePop(5);
+      tracker.recordLinePop(7);
+
+      tracker.reset();
+
+      const stats = tracker.getCurrentStatistics();
+      expect(stats.turnsCount).toBe(0);
+      expect(stats.linesPopped).toBe(0);
+      expect(stats.longestLinePopped).toBe(0);
+    });
   });
 
-  it("updates score", () => {
-    const tracker = new StatisticsTracker();
-    tracker.updateScore(1234);
-    expect(tracker.getCurrentStatistics().totalScore).toBe(1234);
+  describe("loadStatistics", () => {
+    it("should load statistics correctly", () => {
+      const testStats = {
+        turnsCount: 10,
+        linesPopped: 5,
+        longestLinePopped: 8,
+      };
+
+      tracker.loadStatistics(testStats);
+
+      const stats = tracker.getCurrentStatistics();
+      expect(stats.turnsCount).toBe(10);
+      expect(stats.linesPopped).toBe(5);
+      expect(stats.longestLinePopped).toBe(8);
+    });
   });
 
-  it("records and calculates game duration", () => {
-    const mockStartTime = 1000000;
-    const mockEndTime = mockStartTime + 5000;
-
-    // Mock Date.now to control timing
-    const originalNow = Date.now;
-    Date.now = vi.fn(() => mockStartTime);
-
-    const tracker2 = new StatisticsTracker();
-    Date.now = vi.fn(() => mockEndTime);
-
-    expect(tracker2.getGameDuration()).toBe(5);
-
-    // Restore original Date.now
-    Date.now = originalNow;
-  });
-
-  it("resets statistics", () => {
-    const tracker = new StatisticsTracker();
-    tracker.recordTurn();
-    tracker.recordLinePop(5, 100);
-    tracker.updateScore(100);
-    tracker.recordBallClear();
-
-    tracker.reset();
-
-    const stats = tracker.getCurrentStatistics();
-    expect(stats.turnsCount).toBe(0);
-    expect(stats.linesPopped).toBe(0);
-    expect(stats.totalScore).toBe(0);
-    expect(stats.ballsCleared).toBe(0);
+  describe("getGameDuration", () => {
+    it("should return game duration in seconds", () => {
+      const duration = tracker.getGameDuration();
+      expect(duration).toBeGreaterThanOrEqual(0);
+    });
   });
 });

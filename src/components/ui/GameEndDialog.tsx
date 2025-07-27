@@ -6,6 +6,7 @@ interface GameEndDialogProps {
   score: number;
   currentGameBeatHighScore: boolean;
   statistics: GameStatistics;
+  timer: number;
   onNewGame: () => void;
   onClose: () => void;
 }
@@ -15,6 +16,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   score,
   currentGameBeatHighScore,
   statistics,
+  timer,
   onNewGame,
   onClose,
 }) => {
@@ -68,7 +70,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               </div>
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {formatDuration(statistics.gameDuration)}
+                  {formatDuration(timer)}
                 </div>
                 <div className="text-sm text-game-text-secondary">Duration</div>
               </div>
@@ -86,72 +88,13 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               </div>
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {statistics.individualBallsPopped}
+                  {statistics.longestLinePopped}
                 </div>
                 <div className="text-sm text-game-text-secondary">
-                  Balls Cleared
+                  Longest Line
                 </div>
               </div>
             </div>
-
-            {/* Advanced Stats */}
-            {statistics.linesPopped > 0 && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
-                  <div className="text-3xl font-bold text-game-text-primary">
-                    {statistics.longestLinePopped}
-                  </div>
-                  <div className="text-sm text-game-text-secondary">
-                    Longest Line
-                  </div>
-                </div>
-                <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
-                  <div className="text-3xl font-bold text-game-text-primary">
-                    {Math.round(statistics.averageScorePerTurn)}
-                  </div>
-                  <div className="text-sm text-game-text-secondary">
-                    Avg Score/Turn
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Efficiency Stats */}
-            {statistics.linesPopped > 0 && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
-                  <div className="text-3xl font-bold text-game-text-primary">
-                    {(
-                      statistics.linesPopped /
-                      Math.max(statistics.turnsCount, 1)
-                    ).toFixed(1)}
-                  </div>
-                  <div className="text-sm text-game-text-secondary">
-                    Lines/Turn
-                  </div>
-                </div>
-                <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
-                  <div className="text-3xl font-bold text-game-text-primary">
-                    {(
-                      statistics.individualBallsPopped /
-                      Math.max(statistics.turnsCount, 1)
-                    ).toFixed(1)}
-                  </div>
-                  <div className="text-sm text-game-text-secondary">
-                    Balls/Turn
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Message */}
-          <div className="text-center mb-8">
-            <p className="text-xl text-game-text-secondary">
-              {currentGameBeatHighScore
-                ? "🎉 Congratulations! You've set a new personal best! 🎉"
-                : "Great game! Try again to beat your high score."}
-            </p>
           </div>
 
           {/* Action Buttons */}

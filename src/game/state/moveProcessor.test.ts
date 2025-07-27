@@ -78,7 +78,12 @@ describe("processMove", () => {
     mockStatisticsTracker = {
       recordTurn: vi.fn(),
       recordLinePop: vi.fn(),
-      getCurrentStatistics: vi.fn(() => ({}) as GameStatistics),
+      getCurrentStatistics: vi.fn(() => ({
+        turnsCount: 0,
+        gameDuration: 0,
+        linesPopped: 0,
+        longestLinePopped: 0,
+      } as GameStatistics)),
       reset: vi.fn(),
     } as any;
 

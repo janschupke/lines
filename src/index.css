@@ -80,6 +80,10 @@ button:focus-visible {
     pointer-events: none;
   }
 
+  .bg-game-bg-cell-unreachable {
+    background-color: theme("colors.game.bg.cell.unreachable");
+  }
+
   .game-ball {
     @apply block rounded-full border-2 border-game-border-ball shadow-[0_2px_8px_theme(colors.game.shadow.ball)] relative;
   }

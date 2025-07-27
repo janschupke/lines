@@ -1,7 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import type { Cell } from "../../game/types";
 import type { GrowingBall } from "../../hooks/useGameAnimation";
 import { getBallColor, getGameSizing } from "../../utils/helpers";
+import { findUnreachableCells } from "../../game/logic/pathfinding";
 
 interface BoardProps {
   board: Cell[][];
@@ -47,6 +48,15 @@ const Board: React.FC<BoardProps> = ({
     movingBall ||
     (poppingBalls && poppingBalls.size > 0) ||
     (growingBalls && growingBalls.length > 0);
+
+  // Calculate unreachable cells when a ball is selected
+  const unreachableCells = useMemo(() => {
+    if (!selected || isAnimationInProgress) {
+      return new Set<string>();
+    }
+    const unreachable = findUnreachableCells(board, selected);
+    return new Set(unreachable.map(([x, y]) => `${x},${y}`));
+  }, [selected, board, isAnimationInProgress]);
 
   // Handle cell click with animation check
   const handleCellClick = useCallback(
@@ -118,6 +128,7 @@ const Board: React.FC<BoardProps> = ({
         const showNotReachable = isHovered && !!notReachable && !cell.ball;
         const isSelected =
           selected && selected.x === cell.x && selected.y === cell.y;
+        const isUnreachable = unreachableCells.has(key) && !cell.ball;
 
         // Determine cell background and border classes
         let cellBgClass = "bg-game-bg-cell-empty";
@@ -131,6 +142,8 @@ const Board: React.FC<BoardProps> = ({
           borderClass = "border-game-border-path";
         } else if (isHovered) {
           cellBgClass = "bg-game-bg-cell-hover";
+        } else if (isUnreachable) {
+          cellBgClass = "bg-game-bg-cell-unreachable";
         }
 
         if (showNotReachable) {
@@ -200,7 +213,7 @@ const Board: React.FC<BoardProps> = ({
             )}
             {/* Not reachable cross */}
             {showNotReachable && shouldShowHoverEffects && (
-              <span className="absolute left-2 top-2 flex items-center justify-center text-game-text-error text-2xl font-extrabold opacity-70 w-[40px] h-[40px] pointer-events-none">
+              <span className="absolute inset-0 flex items-center justify-center text-game-text-error text-4xl font-black opacity-80 pointer-events-none">
                 ×
               </span>
             )}

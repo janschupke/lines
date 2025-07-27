@@ -336,6 +336,8 @@ describe("processMove", () => {
       expect(mockActions.startPoppingAnimation).toHaveBeenCalledWith(
         new Set(["2,2", "2,3", "2,4", "2,5", "2,6"]),
       );
+      // Verify floating score is called with correct parameters (score, x, y)
+      expect(mockActions.addFloatingScore).toHaveBeenCalledWith(5, 2, 4);
     });
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { findPath } from "./pathfinding";
+import { findPath, findUnreachableCells } from "./pathfinding";
 import { createEmptyBoard } from "./boardManagement";
 import type { Cell, BallColor } from "../types";
 
@@ -84,5 +84,63 @@ describe("findPath", () => {
     const pathSet = new Set(path!.map(([x, y]) => `${x},${y}`));
     expect(pathSet.has("1,1")).toBe(false);
     expect(pathSet.has("2,2")).toBe(false);
+  });
+});
+
+describe("findUnreachableCells", () => {
+  let board: Cell[][];
+
+  beforeEach(() => {
+    board = createEmptyBoard();
+  });
+
+  it("finds no unreachable cells on empty board", () => {
+    const unreachable = findUnreachableCells(board, { x: 0, y: 0 });
+    expect(unreachable).toEqual([]);
+  });
+
+  it("finds unreachable cells when blocked by obstacles", () => {
+    // Create a wall that blocks access to half the board
+    for (let i = 0; i < 9; i++) {
+      board[4][i].ball = { color: "red" as BallColor };
+    }
+
+    const unreachable = findUnreachableCells(board, { x: 0, y: 0 });
+
+    // Should find cells on the other side of the wall
+    expect(unreachable.length).toBeGreaterThan(0);
+
+    // All unreachable cells should be on the other side of the wall
+    unreachable.forEach(([x, y]) => {
+      expect(y).toBeGreaterThan(4);
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThan(9);
+    });
+  });
+
+  it("finds unreachable cells in isolated areas", () => {
+    // Create a wall that completely blocks access to some cells
+    for (let i = 0; i < 9; i++) {
+      board[3][i].ball = { color: "red" as BallColor };
+    }
+    // Also block the left and right edges
+    for (let i = 0; i < 9; i++) {
+      board[i][3].ball = { color: "blue" as BallColor };
+    }
+
+    const unreachable = findUnreachableCells(board, { x: 0, y: 0 });
+
+    // Should find some unreachable cells
+    expect(unreachable.length).toBeGreaterThan(0);
+
+    // Cells in the isolated area should be unreachable
+    const unreachableSet = new Set(unreachable.map(([x, y]) => `${x},${y}`));
+    expect(unreachableSet.has("4,4")).toBe(true);
+  });
+
+  it("handles edge cases", () => {
+    // Test from corner position
+    const unreachable = findUnreachableCells(board, { x: 8, y: 8 });
+    expect(unreachable).toEqual([]);
   });
 });

@@ -85,6 +85,7 @@ module.exports = {
               hover: "#f1f5f9", // Subtle hover state
               active: "#fef3c7", // Warm active state
               path: "#dbeafe", // Subtle blue path
+              unreachable: "#ffffff",
             },
           },
           text: {
@@ -150,7 +151,7 @@ module.exports = {
         },
         pulseBall: {
           "0%, 100%": {
-            transform: "scale(1)",
+            transform: "scale(0.9)",
             opacity: "1",
           },
           "50%": {

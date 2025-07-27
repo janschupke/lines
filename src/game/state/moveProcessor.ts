@@ -97,6 +97,8 @@ export async function processMove(
       currentGameBeatHighScore,
       steppedOnPreview,
       wasSteppedOnBallPopped,
+      toX,
+      toY,
     );
   } else {
     // No lines formed by the move - proceed with ball conversion
@@ -128,6 +130,8 @@ async function handleLineRemoval(
   currentGameBeatHighScore: boolean,
   steppedOnPreview?: BallColor,
   wasSteppedOnBallPopped: boolean = false,
+  toX?: number,
+  toY?: number,
 ): Promise<void> {
   // Update score
   const newScore = currentScore + (lineResult.pointsEarned || 0);
@@ -170,23 +174,24 @@ async function handleLineRemoval(
 
     // If the stepped-on ball was popped, restore it as an incoming ball
     let boardAfterLineRemoval = lineResult.newBoard;
-    if (wasSteppedOnBallPopped && steppedOnPreview) {
-      // Find the position where the ball was stepped on (which should be empty after line removal)
-      // We need to find where the ball was moved to, which should be the position that was popped
-      const steppedOnPosition = lineResult.ballsRemoved?.find(([x, y]) => {
-        // This position should now be empty after line removal
-        return (
-          !lineResult.newBoard[y][x].ball &&
-          !lineResult.newBoard[y][x].incomingBall
-        );
-      });
-
-      if (steppedOnPosition) {
-        const [x, y] = steppedOnPosition;
+    if (
+      wasSteppedOnBallPopped &&
+      steppedOnPreview &&
+      toX !== undefined &&
+      toY !== undefined
+    ) {
+      // The stepped-on position is exactly where the ball was moved to (toX, toY)
+      // This position should now be empty after line removal
+      if (
+        !lineResult.newBoard[toY][toX].ball &&
+        !lineResult.newBoard[toY][toX].incomingBall
+      ) {
         boardAfterLineRemoval = lineResult.newBoard.map((row) =>
           row.map((cell) => ({ ...cell })),
         );
-        boardAfterLineRemoval[y][x].incomingBall = { color: steppedOnPreview };
+        boardAfterLineRemoval[toY][toX].incomingBall = {
+          color: steppedOnPreview,
+        };
       }
     }
 
@@ -349,9 +354,9 @@ async function handleBallConversion(
             0,
           ) / conversionResult.ballsRemoved.length;
         actions.addFloatingScore(
+          conversionResult.pointsEarned || 0,
           centerX,
           centerY,
-          conversionResult.pointsEarned || 0,
         );
       }
 

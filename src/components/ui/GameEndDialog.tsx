@@ -6,6 +6,7 @@ interface GameEndDialogProps {
   score: number;
   currentGameBeatHighScore: boolean;
   statistics: GameStatistics;
+  timer: number;
   onNewGame: () => void;
   onClose: () => void;
 }
@@ -15,6 +16,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   score,
   currentGameBeatHighScore,
   statistics,
+  timer,
   onNewGame,
   onClose,
 }) => {
@@ -68,7 +70,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               </div>
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {formatDuration(statistics.gameDuration)}
+                  {formatDuration(timer)}
                 </div>
                 <div className="text-sm text-game-text-secondary">Duration</div>
               </div>

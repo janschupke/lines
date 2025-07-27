@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import type {
   Cell,
   BallColor,
@@ -6,9 +6,8 @@ import type {
   GameActions,
   GameStatistics,
 } from "../types";
-import { TIMER_INTERVAL_MS, INITIAL_BALLS, BALLS_PER_TURN } from "../config";
+import { TIMER_INTERVAL_MS, INITIAL_BALLS, BALLS_PER_TURN, INACTIVITY_TIMEOUT_MS } from "../config";
 import { useGameBoard } from "../../hooks/useGameBoard";
-import { useGameTimer } from "../../hooks/useGameTimer";
 import { useGameAnimation } from "../../hooks/useGameAnimation";
 import { StatisticsTracker } from "../statisticsTracker";
 import { StorageManager, type PersistedGameState } from "../storageManager";
@@ -35,15 +34,83 @@ export const useGameStateManager = (
     savedState?.board || initialBoard,
     savedState?.nextBalls || initialNextBalls,
   );
-  const timerState = useGameTimer(savedState?.timer || 0);
   const animationState = useGameAnimation();
 
-  // Restore timer active state if loading from saved state
-  useEffect(() => {
-    if (savedState?.timerActive !== undefined) {
-      timerState.setTimerActive(savedState.timerActive);
+  // Timer state - single source of truth
+  const [timer, setTimer] = useState(savedState?.timer || 0);
+  const [timerActive, setTimerActive] = useState(savedState?.timerActive || false);
+  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear inactivity timeout
+  const clearInactivityTimeout = useCallback(() => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = null;
     }
-  }, [savedState?.timerActive, timerState]);
+  }, []);
+
+  // Set up inactivity timeout
+  const setupInactivityTimeout = useCallback(() => {
+    clearInactivityTimeout();
+    if (timerActive) {
+      inactivityTimeoutRef.current = setTimeout(() => {
+        setTimerActive(false);
+      }, INACTIVITY_TIMEOUT_MS);
+    }
+  }, [timerActive, clearInactivityTimeout]);
+
+  // Timer effect - real-time updates
+  useEffect(() => {
+    if (!timerActive) {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      return;
+    }
+
+    timerIntervalRef.current = setInterval(() => {
+      setTimer((t) => t + 1);
+    }, TIMER_INTERVAL_MS);
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    };
+  }, [timerActive]);
+
+  // Set up inactivity timeout when timer becomes active
+  useEffect(() => {
+    if (timerActive) {
+      setupInactivityTimeout();
+    } else {
+      clearInactivityTimeout();
+    }
+  }, [timerActive, setupInactivityTimeout, clearInactivityTimeout]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+      }
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Activity handler
+  const onActivity = useCallback(() => {
+    if (!timerActive) {
+      setTimerActive(true);
+    } else {
+      setupInactivityTimeout();
+    }
+  }, [timerActive, setupInactivityTimeout]);
 
   // Game state
   const [score, setScore] = useState(savedState?.score || 0);
@@ -124,48 +191,6 @@ export const useGameStateManager = (
     },
   };
 
-  // Move processor actions
-  const moveProcessorActions = useMemo(
-    () => ({
-      setScore,
-      setHighScore,
-      setGameOver,
-      setShowGameEndDialog,
-      setFinalStatistics,
-      setPoppingBalls: animationState.setPoppingBalls,
-      setBoard: boardState.setBoard,
-      setNextBalls: boardState.setNextBalls,
-      onActivity: timerState.onActivity,
-      setTimerActive: timerState.setTimerActive,
-      addFloatingScore: animationState.addFloatingScore,
-      addGrowingBall: animationState.addGrowingBall,
-      addSpawningBalls: animationState.addSpawningBalls,
-      startPoppingAnimation: animationState.startPoppingAnimation,
-      stopPoppingAnimation: animationState.stopPoppingAnimation,
-      startSpawningAnimation: animationState.startSpawningAnimation,
-      stopSpawningAnimation: animationState.stopSpawningAnimation,
-    }),
-    [
-      setScore,
-      setHighScore,
-      setGameOver,
-      setShowGameEndDialog,
-      setFinalStatistics,
-      animationState.setPoppingBalls,
-      boardState.setBoard,
-      boardState.setNextBalls,
-      timerState.onActivity,
-      timerState.setTimerActive,
-      animationState.addFloatingScore,
-      animationState.addGrowingBall,
-      animationState.addSpawningBalls,
-      animationState.startPoppingAnimation,
-      animationState.stopPoppingAnimation,
-      animationState.startSpawningAnimation,
-      animationState.stopSpawningAnimation,
-    ],
-  );
-
   // Cell interaction handlers
   const cellHandlers = useCellInteraction(
     boardState.board,
@@ -183,19 +208,38 @@ export const useGameStateManager = (
     },
   );
 
-  // Timer effect - synchronize timer state with timer hook
-  useEffect(() => {
-    if (!timerState.timerActive) return;
-    const interval = setInterval(() => {
-      // No need to update local timer state since we're using timerState.timer directly
-    }, TIMER_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, [timerState.timerActive]);
+  // Move processor actions
+  const moveProcessorActions = useMemo(
+    () => ({
+      setScore,
+      setHighScore,
+      setGameOver,
+      setShowGameEndDialog,
+      setFinalStatistics,
+      setPoppingBalls: animationState.setPoppingBalls,
+      setBoard: boardState.setBoard,
+      setNextBalls: boardState.setNextBalls,
+      onActivity,
+      setTimerActive,
+      addFloatingScore: animationState.addFloatingScore,
+      addGrowingBall: animationState.addGrowingBall,
+      addSpawningBalls: animationState.addSpawningBalls,
+      startPoppingAnimation: animationState.startPoppingAnimation,
+      stopPoppingAnimation: animationState.stopPoppingAnimation,
+      startSpawningAnimation: animationState.startSpawningAnimation,
+      stopSpawningAnimation: animationState.stopSpawningAnimation,
+    }),
+    [
+      animationState,
+      boardState,
+      onActivity,
+    ],
+  );
 
   // Stop timer on game over
   useEffect(() => {
-    if (gameOver) timerState.setTimerActive(false);
-  }, [gameOver, timerState]);
+    if (gameOver) setTimerActive(false);
+  }, [gameOver]);
 
   // Animation effect for moving ball
   useEffect(() => {
@@ -221,8 +265,8 @@ export const useGameStateManager = (
           score,
           statisticsTracker,
           moveProcessorActions,
-          timerState.timer,
-          timerState.timerActive,
+          timer,
+          timerActive,
           highScore,
           isNewHighScore,
           currentGameBeatHighScore,
@@ -246,13 +290,12 @@ export const useGameStateManager = (
     animationState.movingStep,
     boardState.board,
     boardState.nextBalls,
-    timerState.timerActive,
-    timerState.timer,
+    timerActive,
+    timer,
     score,
     statisticsTracker,
     animationState,
     boardState,
-    timerState,
     moveProcessorActions,
     currentGameBeatHighScore,
     highScore,
@@ -271,8 +314,8 @@ export const useGameStateManager = (
     setScore(0);
     setGameOver(false);
     boardState.setNextBalls(initialNext, finalBoard);
-    timerState.setTimerActive(false);
-    timerState.resetTimer();
+    setTimerActive(false);
+    setTimer(0);
     animationState.resetAnimationState();
     setSelected(null);
     setHoveredCell(null);
@@ -324,7 +367,7 @@ export const useGameStateManager = (
       statistics: statisticsTracker.getCurrentStatistics(),
     };
     StorageManager.saveGameState(newGameState);
-  }, [boardState, timerState, animationState, statisticsTracker, highScore]);
+  }, [boardState, animationState, statisticsTracker, highScore]);
 
   const handleNewGameFromDialog = useCallback(() => {
     setShowGameEndDialog(false);
@@ -345,8 +388,8 @@ export const useGameStateManager = (
       selected,
       gameOver,
       nextBalls: boardState.nextBalls,
-      timer: timerState.timer,
-      timerActive: timerState.timerActive,
+      timer,
+      timerActive,
       movingBall: animationState.movingBall,
       movingStep: animationState.movingStep,
       poppingBalls: animationState.poppingBalls,

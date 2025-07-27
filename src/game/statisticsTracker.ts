@@ -1,6 +1,5 @@
 export interface GameStatistics {
   turnsCount: number;
-  gameDuration: number;
   linesPopped: number;
   longestLinePopped: number;
 }
@@ -13,7 +12,6 @@ export class StatisticsTracker {
     this.gameStartTime = Date.now();
     this.statistics = {
       turnsCount: 0,
-      gameDuration: 0,
       linesPopped: 0,
       longestLinePopped: 0,
     };
@@ -22,7 +20,6 @@ export class StatisticsTracker {
   getCurrentStatistics(): GameStatistics {
     return {
       ...this.statistics,
-      gameDuration: Math.floor((Date.now() - this.gameStartTime) / 1000),
     };
   }
 
@@ -48,7 +45,6 @@ export class StatisticsTracker {
     this.gameStartTime = Date.now();
     this.statistics = {
       turnsCount: 0,
-      gameDuration: 0,
       linesPopped: 0,
       longestLinePopped: 0,
     };

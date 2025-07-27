@@ -12,7 +12,6 @@ describe("StatisticsTracker", () => {
     it("should initialize with default values", () => {
       const stats = tracker.getCurrentStatistics();
       expect(stats.turnsCount).toBe(0);
-      expect(stats.gameDuration).toBeGreaterThanOrEqual(0);
       expect(stats.linesPopped).toBe(0);
       expect(stats.longestLinePopped).toBe(0);
     });
@@ -77,7 +76,6 @@ describe("StatisticsTracker", () => {
     it("should load statistics correctly", () => {
       const testStats = {
         turnsCount: 10,
-        gameDuration: 300,
         linesPopped: 5,
         longestLinePopped: 8,
       };

@@ -26,7 +26,6 @@ export interface LineScore {
 
 export interface GameStatistics {
   turnsCount: number;
-  gameDuration: number;
   linesPopped: number;
   longestLinePopped: number;
 }

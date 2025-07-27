@@ -38,7 +38,7 @@ export const BOARD_COLS = BOARD_SIZE;
 // ============================================================================
 
 /** Number of balls spawned at the start of the game */
-export const INITIAL_BALLS = 75;
+export const INITIAL_BALLS = 5;
 
 /** Number of new balls spawned after each move */
 export const BALLS_PER_TURN = 3;

@@ -259,6 +259,7 @@ const Game: React.FC<GameProps> = ({
                 score={score}
                 currentGameBeatHighScore={currentGameBeatHighScore}
                 statistics={gameState.statistics}
+                timer={gameState.timer}
                 onNewGame={handleNewGameFromDialog}
                 onClose={handleCloseDialog}
               />

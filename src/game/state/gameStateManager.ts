@@ -11,6 +11,7 @@ import {
   INITIAL_BALLS,
   BALLS_PER_TURN,
   INACTIVITY_TIMEOUT_MS,
+  ANIMATION_DURATIONS,
 } from "../config";
 import { useGameBoard } from "../../hooks/useGameBoard";
 import { useGameAnimation } from "../../hooks/useGameAnimation";
@@ -285,7 +286,7 @@ export const useGameStateManager = (
     // Continue animation with timer
     const animationTimer = setTimeout(() => {
       animationState.setMovingStep((prev) => prev + 1);
-    }, 100); // Animation duration
+    }, ANIMATION_DURATIONS.MOVING_STEP); // Animation duration
 
     return () => clearTimeout(animationTimer);
   }, [

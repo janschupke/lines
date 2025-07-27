@@ -4,6 +4,7 @@ import { useKeyboard } from "../../hooks/useKeyboard";
 import { formatTime } from "../../utils/formatters";
 import { getBallColor } from "../../utils/helpers";
 import type { Cell, BallColor } from "../../game/types";
+import { ANIMATION_DURATIONS } from "../../game/config";
 import Board from "./Board";
 import GameEndDialog from "../ui/GameEndDialog";
 import Guide from "../ui/Guide";
@@ -71,7 +72,7 @@ const Game: React.FC<GameProps> = ({
     setTimeout(() => {
       setShowGuide(false);
       setIsGuideClosing(false);
-    }, 300); // Match the animation duration
+    }, ANIMATION_DURATIONS.FADE); // Match the animation duration
   };
 
   // Keyboard event handling
@@ -113,7 +114,7 @@ const Game: React.FC<GameProps> = ({
   React.useEffect(() => {
     if (score !== prevScore && score > prevScore) {
       setScoreFlash(true);
-      setTimeout(() => setScoreFlash(false), 1000);
+      setTimeout(() => setScoreFlash(false), ANIMATION_DURATIONS.SCORE_FLASH);
       setPrevScore(score);
     }
   }, [score, prevScore]);
@@ -122,7 +123,7 @@ const Game: React.FC<GameProps> = ({
   React.useEffect(() => {
     if (highScore !== prevHighScore && highScore > prevHighScore) {
       setHighScoreFlash(true);
-      setTimeout(() => setHighScoreFlash(false), 1000);
+      setTimeout(() => setHighScoreFlash(false), ANIMATION_DURATIONS.HIGH_SCORE_FLASH);
       setPrevHighScore(highScore);
     }
   }, [highScore, prevHighScore]);
@@ -244,8 +245,8 @@ const Game: React.FC<GameProps> = ({
               <div
                 className={`absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide ${
                   isGuideClosing
-                    ? "animate-in fade-out duration-300"
-                    : "animate-in fade-in duration-300"
+                    ? "animate-in fade-out"
+                    : "animate-in fade-in"
                 }`}
               >
                 <Guide onClose={handleGuideClose} />
@@ -287,7 +288,7 @@ const Game: React.FC<GameProps> = ({
             href="https://github.com/janschupke/lines"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-game-text-secondary hover:text-game-text-primary transition-colors duration-300"
+            className="text-game-text-secondary hover:text-game-text-primary transition-colors"
             title="View on GitHub"
           >
             <svg

@@ -2,6 +2,8 @@
 module.exports = {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   safelist: [
+    // Only truly dynamic classes that can't be detected by Tailwind
+    // Most classes should be in theme or components
     "bg-game-bg-primary",
     "bg-game-bg-secondary",
     "bg-game-bg-tertiary",
@@ -21,57 +23,30 @@ module.exports = {
     "border-game-border-accent",
     "border-game-border-ball",
     "border-game-border-preview",
-    "text-black",
     "z-game-dialog",
     "animate-move-ball",
     "animate-pop-ball",
     "animate-bounce-ball",
-    // Mobile responsive classes
-    "w-12",
-    "h-12",
-    "w-9",
-    "h-9",
-    "w-4",
-    "h-4",
-    "text-lg",
-    "text-xl",
-    "text-xs",
-    "text-sm",
-    "px-2",
-    "px-3",
-    "py-2",
-    "py-3",
-    "py-4",
-    "gap-1",
-    "gap-2",
-    "space-y-4",
-    "space-x-3",
-    "max-w-full",
-    "px-4",
-    "py-4",
-    "min-h-[44px]",
-    "min-w-[44px]",
-    "touch-manipulation",
-    "active:bg-game-button-hover",
-    "active:bg-game-button-accent-hover",
-    "focus:ring-2",
-    "focus:ring-game-border-accent",
-    "shadow-lg",
-    "z-50",
-    "w-[18px]",
-    "h-[18px]",
-    "w-[28px]",
-    "h-[28px]",
-    // Design token utilities
+    // Design token utilities (from theme)
     "w-cell",
     "h-cell",
     "w-ball",
     "h-ball",
+    "w-incoming-ball",
+    "h-incoming-ball",
     "gap-gap",
     "p-board-padding",
   ],
   theme: {
     extend: {
+      spacing: {
+        // Game-specific spacing
+        'cell': '56px',
+        'ball': '40px',
+        'incoming-ball': '28px',
+        'gap': '8px',
+        'board-padding': '8px',
+      },
       colors: {
         // Game theme colors - enhanced with gradients and better contrast
         game: {
@@ -117,12 +92,6 @@ module.exports = {
             accentHover: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
           },
         },
-      },
-      spacing: {
-        ball: "40px", // BALL_SIZE
-        cell: "56px", // CELL_SIZE
-        gap: "8px", // GAP - increased from 4px
-        "board-padding": "8px", // PADDING
       },
       zIndex: {
         "game-dialog": "1000",

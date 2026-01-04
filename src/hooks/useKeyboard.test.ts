@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useKeyboard } from "./useKeyboard";
+import { useKeyboard } from "../shared/hooks/useKeyboard";
 
 describe("useKeyboard", () => {
   let mockHandlers: {

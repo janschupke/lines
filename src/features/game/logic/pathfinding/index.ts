@@ -1,0 +1,2 @@
+export * from "../pathfinding/pathfinding";
+

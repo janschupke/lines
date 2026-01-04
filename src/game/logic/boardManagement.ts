@@ -110,7 +110,7 @@ export function isBoardFull(board: Cell[][]): boolean {
 /**
  * Check if the game should end
  */
-export function checkGameOver(board: Cell[][]): boolean {
+function checkGameOver(board: Cell[][]): boolean {
   return isBoardFull(board);
 }
 

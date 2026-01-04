@@ -20,7 +20,7 @@ export const BALL_COLORS = [
   "black",
 ] as const;
 
-export type BallColor = (typeof BALL_COLORS)[number];
+type BallColor = (typeof BALL_COLORS)[number];
 
 // ============================================================================
 // BOARD CONFIGURATION
@@ -30,8 +30,8 @@ export type BallColor = (typeof BALL_COLORS)[number];
 export const BOARD_SIZE = 9;
 
 /** Number of rows and columns (same as BOARD_SIZE for square board) */
-export const BOARD_ROWS = BOARD_SIZE;
-export const BOARD_COLS = BOARD_SIZE;
+const BOARD_ROWS = BOARD_SIZE;
+const BOARD_COLS = BOARD_SIZE;
 
 // ============================================================================
 // BALL CONFIGURATION
@@ -44,13 +44,13 @@ export const INITIAL_BALLS = 5;
 export const BALLS_PER_TURN = 3;
 
 /** Number of ball colors available in the game */
-export const BALL_COLORS_COUNT = 7;
+const BALL_COLORS_COUNT = 7;
 
 /** Minimum line length required to clear balls */
 export const MIN_LINE_LENGTH = 5;
 
 /** Maximum line length for scoring calculations */
-export const MAX_LINE_LENGTH = 9;
+const MAX_LINE_LENGTH = 9;
 
 // ============================================================================
 // SCORING CONFIGURATION

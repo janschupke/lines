@@ -2,14 +2,14 @@ import { useCallback } from "react";
 import type { Cell, BallColor } from "../types";
 import { findPath, validateMove } from "../logic";
 
-export interface CellInteractionState {
+interface CellInteractionState {
   selected: { x: number; y: number } | null;
   hoveredCell: { x: number; y: number } | null;
   pathTrail: [number, number][] | null;
   notReachable: boolean;
 }
 
-export interface CellInteractionActions {
+interface CellInteractionActions {
   setSelected: (selected: { x: number; y: number } | null) => void;
   setHoveredCell: (hoveredCell: { x: number; y: number } | null) => void;
   setPathTrail: (pathTrail: [number, number][] | null) => void;
@@ -17,7 +17,7 @@ export interface CellInteractionActions {
   clearPathPreview: () => void;
 }
 
-export interface CellInteractionHandlers {
+interface CellInteractionHandlers {
   handleCellClick: (x: number, y: number) => void;
   handleCellHover: (x: number, y: number) => void;
   handleCellLeave: () => void;

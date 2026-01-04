@@ -12,7 +12,7 @@ const DIRECTIONS: Direction[] = [
 /**
  * Find all lines that pass through a given position
  */
-export function findLine(
+function findLine(
   board: Cell[][],
   x: number,
   y: number,
@@ -173,7 +173,7 @@ export function handleMultiPositionLineDetection(
 /**
  * Calculate the center position of a line
  */
-export function calculateLineCenter(line: [number, number][]): {
+function calculateLineCenter(line: [number, number][]): {
   x: number;
   y: number;
 } {

@@ -19,7 +19,7 @@ export interface GrowingBall {
   timestamp: number;
 }
 
-export interface AnimationPhase {
+interface AnimationPhase {
   type: "idle" | "moving" | "popping" | "spawning" | "converting";
   data?: {
     movingBall?: { color: BallColor; path: [number, number][] };

@@ -1,5 +1,5 @@
 // Utility function to get CSS custom properties
-export const getCSSVariable = (variableName: string): number => {
+const getCSSVariable = (variableName: string): number => {
   const value = getComputedStyle(document.documentElement)
     .getPropertyValue(`--${variableName}`)
     .trim();
@@ -9,7 +9,7 @@ export const getCSSVariable = (variableName: string): number => {
 };
 
 // Get game spacing values from CSS custom properties
-export const getGameSpacing = () => ({
+const getGameSpacing = () => ({
   cellSize: getCSSVariable("cell-size"),
   gapSize: getCSSVariable("gap-size"),
   ballSize: getCSSVariable("ball-size"),

@@ -17,7 +17,7 @@ export interface Cell {
 
 export type Direction = [number, number];
 
-export interface LineScore {
+interface LineScore {
   length: number;
   score: number;
   turnNumber: number;
@@ -66,7 +66,7 @@ export interface GameActions {
 }
 
 // Game Phase Management Types
-export interface GamePhase {
+interface GamePhase {
   type: "idle" | "moving" | "popping" | "converting" | "spawning" | "gameOver";
   data?: Record<string, unknown>;
 }
@@ -90,7 +90,7 @@ export interface ConversionResult {
 }
 
 // Board State Types
-export interface BoardState {
+interface BoardState {
   board: Cell[][];
   nextBalls: BallColor[];
   setBoard: (board: Cell[][]) => void;
@@ -98,7 +98,7 @@ export interface BoardState {
 }
 
 // Animation Types
-export interface AnimationState {
+interface AnimationState {
   movingBall: { color: BallColor; path: [number, number][] } | null;
   movingStep: number;
   poppingBalls: Set<string>;
@@ -110,7 +110,7 @@ export interface AnimationState {
 }
 
 // Enhanced Animation Types
-export interface AnimationPhase {
+interface AnimationPhase {
   type: "idle" | "moving" | "popping" | "spawning" | "converting";
   data?: {
     movingBall?: { color: BallColor; path: [number, number][] };
@@ -133,7 +133,7 @@ export interface SpawnedBall {
   id?: string; // optional ID for animation tracking
 }
 
-export interface GameTurnState {
+interface GameTurnState {
   phase: "idle" | "moving" | "popping" | "spawning" | "converting" | "gameOver";
   moveData?: {
     fromX: number;
@@ -148,7 +148,7 @@ export interface GameTurnState {
 }
 
 // Timer Types
-export interface TimerState {
+interface TimerState {
   timer: number;
   timerActive: boolean;
   setTimerActive: (active: boolean) => void;

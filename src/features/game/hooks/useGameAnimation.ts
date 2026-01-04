@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { BallColor, SpawnedBall } from "../types";
 import { ANIMATION_DURATIONS } from "../config";
 
@@ -41,6 +41,8 @@ export const useGameAnimation = () => {
   const [currentPhase, setCurrentPhase] = useState<AnimationPhase>({
     type: "idle",
   });
+  // Track active floating scores by key (x,y,score) to prevent duplicates synchronously
+  const activeFloatingScoresRef = useRef<Set<string>>(new Set());
 
   const startPoppingAnimation = useCallback((balls: Set<string>) => {
     setPoppingBalls(balls);
@@ -70,20 +72,35 @@ export const useGameAnimation = () => {
 
   const addFloatingScore = useCallback(
     (score: number, x: number, y: number) => {
-      const id = `${Date.now()}-${Math.random()}`;
+      // Create a unique key for this floating score
+      const key = `${x},${y},${score}`;
+
+      // Check synchronously if this exact floating score is already active
+      if (activeFloatingScoresRef.current.has(key)) {
+        // Duplicate - don't add
+        return;
+      }
+
+      // Mark as active immediately (synchronously)
+      activeFloatingScoresRef.current.add(key);
+
+      const now = Date.now();
+      const id = `${now}-${Math.random()}`;
       const newFloatingScore: FloatingScore = {
         id,
         score,
         x,
         y,
-        timestamp: Date.now(),
+        timestamp: now,
       };
 
       setFloatingScores((prev) => [...prev, newFloatingScore]);
 
       // Remove the floating score after animation completes
       setTimeout(() => {
-        setFloatingScores((prev) => prev.filter((fs) => fs.id !== id));
+        setFloatingScores((current) => current.filter((fs) => fs.id !== id));
+        // Remove from active set
+        activeFloatingScoresRef.current.delete(key);
       }, ANIMATION_DURATIONS.FLOATING_SCORE);
     },
     [],
@@ -136,6 +153,7 @@ export const useGameAnimation = () => {
     setGrowingBalls([]);
     setSpawningBalls([]);
     setCurrentPhase({ type: "idle" });
+    activeFloatingScoresRef.current.clear();
   }, []);
 
   return {

@@ -101,16 +101,17 @@ export const BoardCell: React.FC<BoardCellProps> = ({
       tabIndex={0}
       aria-label={`Cell at position ${cell.x}, ${cell.y}`}
     >
-      {/* Show moving ball if this cell is the current position */}
-      {showMovingBall && movingBallColor && (
+      {/* Show moving ball if this cell is the current position, but only if not popping */}
+      {showMovingBall && movingBallColor && !isPopping && (
         <span
           className={`game-ball animate-move-ball ${sizing.ballSizeClass}`}
           style={{ backgroundColor: getBallColor(movingBallColor) }}
         />
       )}
 
-      {/* Show regular ball if not moving and not hidden */}
-      {cell.ball && !hideBall && !showMovingBall && (
+      {/* Show regular ball - prioritize showing ball at destination if it should be popped */}
+      {/* If isPopping, always show the regular ball (even if moving ball was active) */}
+      {cell.ball && !hideBall && (!showMovingBall || isPopping) && (
         <span
           className={`game-ball ${
             cell.active || isSelected ? "game-ball-active" : ""

@@ -191,6 +191,12 @@ export const useGameStateManager = (
   };
 
   // UI Update callbacks for TurnFlowController
+  // Use refs to ensure stable callbacks that don't cause re-renders
+  const animationStateRef = useRef(animationState);
+  useEffect(() => {
+    animationStateRef.current = animationState;
+  }, [animationState]);
+
   const uiUpdateCallbacks: UIUpdateCallbacks = useMemo(
     () => ({
       onPhaseChange: (phase: TurnPhase) => {
@@ -212,21 +218,37 @@ export const useGameStateManager = (
           statistics: newState.statistics,
         } as PersistedGameState);
       },
-      onUIUpdate: (update) => {
-        if (update.type === "pop") {
-          const data = update.data as { balls: [number, number][] };
-          const ballSet = new Set(data.balls.map(([x, y]) => coordToKey({ x, y })));
-          animationState.startPoppingAnimation(ballSet);
-          setTimeout(() => {
-            animationState.stopPoppingAnimation();
-          }, ANIMATION_DURATIONS.POP_BALL);
-        } else if (update.type === "grow") {
+        onUIUpdate: (update) => {
+          const currentAnimationState = animationStateRef.current;
+          if (update.type === "pop") {
+            const data = update.data as { balls: [number, number][] };
+            const ballSet = new Set(data.balls.map(([x, y]) => coordToKey({ x, y })));
+
+            // Clear moving ball animation so the ball at destination can be popped
+            // The game state has already been updated with the ball at destination,
+            // so clearing the moving animation will show the regular ball which can then pop
+            setUIState((prev) => ({
+              ...prev,
+              movingBall: null,
+              movingStep: 0,
+            }));
+            currentAnimationState.setMovingBall(null);
+            currentAnimationState.setMovingStep(0);
+
+            // Small delay to ensure React has rendered the ball at destination
+            setTimeout(() => {
+              currentAnimationState.startPoppingAnimation(ballSet);
+              setTimeout(() => {
+                currentAnimationState.stopPoppingAnimation();
+              }, ANIMATION_DURATIONS.POP_BALL);
+            }, 0);
+          } else if (update.type === "grow") {
           const data = update.data as {
             transitioning: Array<{ x: number; y: number; color: string }>;
             new: Array<{ x: number; y: number; color: string }>;
           };
           data.transitioning.forEach((ball) => {
-            animationState.addGrowingBall(
+            currentAnimationState.addGrowingBall(
               ball.x,
               ball.y,
               ball.color as BallColor,
@@ -234,7 +256,7 @@ export const useGameStateManager = (
             );
           });
           data.new.forEach((ball) => {
-            animationState.addGrowingBall(
+            currentAnimationState.addGrowingBall(
               ball.x,
               ball.y,
               ball.color as BallColor,
@@ -243,7 +265,7 @@ export const useGameStateManager = (
           });
         } else if (update.type === "floatingScore") {
           const data = update.data as { score: number; x: number; y: number };
-          animationState.addFloatingScore(data.score, data.x, data.y);
+          currentAnimationState.addFloatingScore(data.score, data.x, data.y);
         }
       },
       onAnimationComplete: async (_phase: TurnPhase) => {
@@ -251,7 +273,7 @@ export const useGameStateManager = (
         return Promise.resolve();
       },
     }),
-    [animationState],
+    [], // Empty dependency array - callbacks are stable, use refs for current state
   );
 
   // Handle move start (called from cell interaction)
@@ -352,7 +374,7 @@ export const useGameStateManager = (
     statisticsTracker,
     onActivity,
     animationState,
-    uiUpdateCallbacks,
+    // uiUpdateCallbacks is stable (empty deps), so we don't need it in the dependency array
   ]);
 
   // Stop timer on game over

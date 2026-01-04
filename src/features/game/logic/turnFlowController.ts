@@ -58,22 +58,22 @@ export class TurnFlowController {
       const moveResult = this.gameEngine.moveBall(currentState, from, to);
       currentState = moveResult.newState;
 
+      // Update game state in React so the ball is visible at destination before popping
+      callbacks.onGameStateUpdate(currentState);
+
       const lineResult = this.gameEngine.detectLines(currentState, to);
       const steppedOnIncomingBall = moveResult.steppedOnIncomingBall;
 
       if (lineResult) {
         // Phase 3: Pop lines
         callbacks.onPhaseChange(TurnPhaseEnum.Popping);
-        currentState = this.gameEngine.updateScore(
-          currentState,
-          lineResult.score,
-        );
-        currentState = this.gameEngine.removeLines(currentState, lineResult.lines);
-        currentState = this.gameEngine.updateStatistics(currentState, {
-          linesPopped: lineResult.lines.length,
-          longestLinePopped: Math.max(
-            ...lineResult.lines.map((l) => l.length),
-          ),
+
+        // Trigger pop animation FIRST (before removing balls from state)
+        callbacks.onUIUpdate({
+          type: "pop",
+          data: {
+            balls: lineResult.ballsToRemove,
+          },
         });
 
         // Add floating score
@@ -94,18 +94,25 @@ export class TurnFlowController {
           });
         }
 
-        callbacks.onUIUpdate({
-          type: "pop",
-          data: {
-            balls: lineResult.ballsToRemove,
-          },
-        });
-        callbacks.onGameStateUpdate(currentState);
-
+        // Wait for animation to complete
         await new Promise((resolve) =>
           setTimeout(resolve, ANIMATION_DURATIONS.POP_BALL),
         );
         await callbacks.onAnimationComplete(TurnPhaseEnum.Popping);
+
+        // NOW update the game state (remove balls after animation)
+        currentState = this.gameEngine.updateScore(
+          currentState,
+          lineResult.score,
+        );
+        currentState = this.gameEngine.removeLines(currentState, lineResult.lines);
+        currentState = this.gameEngine.updateStatistics(currentState, {
+          linesPopped: lineResult.lines.length,
+          longestLinePopped: Math.max(
+            ...lineResult.lines.map((l) => l.length),
+          ),
+        });
+        callbacks.onGameStateUpdate(currentState);
 
         // Note: wasSteppedOnBallPopped is not needed when line is popped
         // because we skip conversion anyway
@@ -237,19 +244,13 @@ export class TurnFlowController {
           if (growLineResult) {
             // Phase 7: Pop lines from grown balls
             callbacks.onPhaseChange(TurnPhaseEnum.PoppingAfterGrow);
-            currentState = this.gameEngine.updateScore(
-              currentState,
-              growLineResult.score,
-            );
-            currentState = this.gameEngine.removeLines(
-              currentState,
-              growLineResult.lines,
-            );
-            currentState = this.gameEngine.updateStatistics(currentState, {
-              linesPopped: growLineResult.lines.length,
-              longestLinePopped: Math.max(
-                ...growLineResult.lines.map((l) => l.length),
-              ),
+
+            // Trigger pop animation FIRST (before removing balls from state)
+            callbacks.onUIUpdate({
+              type: "pop",
+              data: {
+                balls: growLineResult.ballsToRemove,
+              },
             });
 
             // Add floating score
@@ -270,18 +271,28 @@ export class TurnFlowController {
               });
             }
 
-            callbacks.onUIUpdate({
-              type: "pop",
-              data: {
-                balls: growLineResult.ballsToRemove,
-              },
-            });
-            callbacks.onGameStateUpdate(currentState);
-
+            // Wait for animation to complete
             await new Promise((resolve) =>
               setTimeout(resolve, ANIMATION_DURATIONS.POP_BALL),
             );
             await callbacks.onAnimationComplete(TurnPhaseEnum.PoppingAfterGrow);
+
+            // NOW update the game state (remove balls after animation)
+            currentState = this.gameEngine.updateScore(
+              currentState,
+              growLineResult.score,
+            );
+            currentState = this.gameEngine.removeLines(
+              currentState,
+              growLineResult.lines,
+            );
+            currentState = this.gameEngine.updateStatistics(currentState, {
+              linesPopped: growLineResult.lines.length,
+              longestLinePopped: Math.max(
+                ...growLineResult.lines.map((l) => l.length),
+              ),
+            });
+            callbacks.onGameStateUpdate(currentState);
           }
         }
 

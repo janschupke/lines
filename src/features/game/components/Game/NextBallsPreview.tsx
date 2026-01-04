@@ -10,7 +10,7 @@ interface NextBallsPreviewProps {
  * Next Balls Preview Component
  * Displays the upcoming balls that will be placed
  */
-export const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({
+const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({
   nextBalls,
 }) => {
   return (

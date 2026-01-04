@@ -148,4 +148,3 @@ export const BoardCell: React.FC<BoardCellProps> = ({
   );
 };
 
-export default React.memo(BoardCell);

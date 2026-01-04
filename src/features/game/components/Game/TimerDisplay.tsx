@@ -10,7 +10,7 @@ interface TimerDisplayProps {
  * Timer Display Component
  * Shows game timer with active/inactive state styling
  */
-export const TimerDisplay: React.FC<TimerDisplayProps> = ({
+const TimerDisplay: React.FC<TimerDisplayProps> = ({
   timer,
   timerActive,
 }) => {

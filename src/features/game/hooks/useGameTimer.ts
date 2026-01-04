@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TIMER_INTERVAL_MS, INACTIVITY_TIMEOUT_MS } from "../config";
 
-export interface UseGameTimerReturn {
+interface UseGameTimerReturn {
   timer: number;
   timerActive: boolean;
   setTimer: (timer: number) => void;

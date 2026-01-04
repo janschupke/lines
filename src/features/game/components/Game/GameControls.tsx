@@ -10,7 +10,7 @@ interface GameControlsProps {
  * Game Controls Component
  * Contains new game and guide toggle buttons
  */
-export const GameControls: React.FC<GameControlsProps> = ({
+const GameControls: React.FC<GameControlsProps> = ({
   onNewGame,
   onToggleGuide,
   showGuide,

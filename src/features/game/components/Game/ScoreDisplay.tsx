@@ -11,7 +11,7 @@ interface ScoreDisplayProps {
  * Score Display Component
  * Shows current score and high score with flash animations
  */
-export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
+const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
   score,
   highScore,
   scoreFlash,

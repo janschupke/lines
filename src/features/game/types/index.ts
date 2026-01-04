@@ -16,7 +16,7 @@ export interface Cell {
   active: boolean;
 }
 
-export type Direction = [number, number];
+type Direction = [number, number];
 
 /**
  * Coordinate type
@@ -92,7 +92,7 @@ export interface LineDetectionResult {
   score: number;
 }
 
-export interface MoveResult {
+interface MoveResult {
   newBoard: Cell[][];
   linesFormed: boolean;
   ballsRemoved?: [number, number][];

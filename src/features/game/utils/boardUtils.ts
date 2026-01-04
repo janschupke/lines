@@ -16,7 +16,7 @@ export function cloneBoard(board: Cell[][]): Cell[][] {
  * Update a single cell on the board
  * Returns a new board with the updated cell
  */
-export function updateCell(
+function updateCell(
   board: Cell[][],
   x: number,
   y: number,
@@ -37,7 +37,7 @@ export function updateCell(
  * Update multiple cells on the board
  * Returns a new board with all updated cells
  */
-export function updateCells(
+function updateCells(
   board: Cell[][],
   updates: { x: number; y: number; updates: Partial<Cell> }[],
 ): Cell[][] {

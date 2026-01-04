@@ -11,10 +11,16 @@ export function validateMove(
   toY: number,
 ): boolean {
   // Check if source has a ball
-  if (!board[fromY][fromX].ball) return false;
+  const fromRow = board[fromY];
+  if (!fromRow) return false;
+  const fromCell = fromRow[fromX];
+  if (!fromCell || !fromCell.ball) return false;
 
-  // Check if target is empty
-  if (board[toY][toX].ball) return false;
+  // Check if target is empty (can have incoming ball, but not a real ball)
+  const toRow = board[toY];
+  if (!toRow) return false;
+  const toCell = toRow[toX];
+  if (!toCell || toCell.ball) return false; // Incoming balls are OK, real balls are not
 
   // Check if it's the same cell
   if (fromX === toX && fromY === toY) return false;

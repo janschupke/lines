@@ -7,8 +7,9 @@ export function calculateLineScore(lineLength: number): number {
   if (lineLength < MIN_LINE_LENGTH) return 0;
 
   // If the line length is in the scoring table, use it
-  if (lineLength in SCORING_TABLE) {
-    return SCORING_TABLE[lineLength];
+  const score = SCORING_TABLE[lineLength];
+  if (score !== undefined) {
+    return score;
   }
 
   // For line lengths beyond the table, return the maximum available score

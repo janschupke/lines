@@ -26,7 +26,7 @@ export function createEmptyBoard(): Cell[][] {
 export function getRandomEmptyCells(
   board: Cell[][],
   count: number,
-  exclude: Set<string> = new Set(),
+  exclude = new Set<string>(),
 ): [number, number][] {
   const emptyCells: [number, number][] = [];
   for (let y = 0; y < BOARD_SIZE; y++) {
@@ -37,11 +37,11 @@ export function getRandomEmptyCells(
       }
     }
   }
-  // Shuffle and take 'count' cells
-  for (let i = emptyCells.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [emptyCells[i], emptyCells[j]] = [emptyCells[j], emptyCells[i]];
-  }
+  // Sort by position for deterministic selection (prevents blinking on re-renders)
+  emptyCells.sort(([x1, y1], [x2, y2]) => {
+    if (y1 !== y2) return y1 - y2;
+    return x1 - x2;
+  });
   return emptyCells.slice(0, count);
 }
 
@@ -51,7 +51,7 @@ export function getRandomEmptyCells(
 export function placeRealBalls(
   board: Cell[][],
   colors: BallColor[],
-  exclude: Set<string> = new Set(),
+  exclude = new Set<string>(),
 ): Cell[][] {
   const newBoard = cloneBoard(board);
   const positions = getRandomEmptyCells(newBoard, colors.length, exclude);
@@ -67,7 +67,7 @@ export function placeRealBalls(
 export function placePreviewBalls(
   board: Cell[][],
   colors: BallColor[],
-  exclude: Set<string> = new Set(),
+  exclude = new Set<string>(),
 ): Cell[][] {
   const newBoard = cloneBoard(board);
   const positions = getRandomEmptyCells(newBoard, colors.length, exclude);
@@ -109,7 +109,6 @@ export function isBoardFull(board: Cell[][]): boolean {
   return true;
 }
 
-
 /**
  * Handles incoming ball conversion and new ball placement
  * According to SPAWN.md:
@@ -119,7 +118,7 @@ export function isBoardFull(board: Cell[][]): boolean {
 export function handleIncomingBallConversion(
   board: Cell[][],
   steppedOnIncomingBall?: BallColor,
-  _wasSteppedOnBallPopped: boolean = false,
+  _wasSteppedOnBallPopped = false,
 ): ConversionResult {
   // Convert incoming balls to real balls
   const boardWithRealBalls = cloneBoard(board);
@@ -174,7 +173,11 @@ export function handleIncomingBallConversion(
         spawnedPositions.push([x, y]);
       }
       // Also track any new balls that appeared (for normal case)
-      else if (afterBalls[y][x].ball && !board[y][x].ball && !board[y][x].incomingBall) {
+      else if (
+        afterBalls[y][x].ball &&
+        !board[y][x].ball &&
+        !board[y][x].incomingBall
+      ) {
         spawnedPositions.push([x, y]);
       }
     }
@@ -202,6 +205,7 @@ export function handleIncomingBallConversion(
       linesFormed: true,
       ballsRemoved: lineResult.ballsToRemove,
       pointsEarned: lineResult.score,
+      lines: lineResult.lines, // Include lines for statistics
     };
   }
 

@@ -20,4 +20,3 @@ const config: KnipConfig = {
 };
 
 export default config;
-

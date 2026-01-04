@@ -32,7 +32,9 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
       <div className="flex flex-col">
         <div
           className={`text-2xl font-bold ${
-            scoreFlash ? "animate-pulse text-yellow-400" : "text-game-text-primary"
+            scoreFlash
+              ? "animate-pulse text-yellow-400"
+              : "text-game-text-primary"
           }`}
         >
           Score: {score}

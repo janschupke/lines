@@ -130,9 +130,7 @@ export const BoardCell: React.FC<BoardCellProps> = ({
       {!cell.ball && cell.incomingBall && (
         <span
           className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
-            growingBall && !growingBall.isTransitioning
-              ? "grow-ball-new"
-              : ""
+            growingBall && !growingBall.isTransitioning ? "grow-ball-new" : ""
           } ${sizing.incomingBallSizeClass}`}
           style={{
             backgroundColor: getBallColor(cell.incomingBall.color),

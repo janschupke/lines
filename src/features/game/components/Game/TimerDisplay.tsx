@@ -17,9 +17,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
   return (
     <div
       className={`font-bold text-2xl ${
-        timerActive
-          ? "text-game-text-success"
-          : "text-game-text-secondary"
+        timerActive ? "text-game-text-success" : "text-game-text-secondary"
       }`}
     >
       {formatTime(timer)}

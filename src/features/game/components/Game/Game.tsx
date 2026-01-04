@@ -26,7 +26,10 @@ const Game: React.FC<GameProps> = ({
   initialBoard,
   initialNextBalls,
 }) => {
-  const [gameState, gameActions] = useGameStateManager(initialBoard, initialNextBalls);
+  const [gameState, gameActions] = useGameStateManager(
+    initialBoard,
+    initialNextBalls,
+  );
 
   // State for fade animations
   const [isGuideClosing, setIsGuideClosing] = useState(false);
@@ -92,11 +95,16 @@ const Game: React.FC<GameProps> = ({
         }
       },
     }),
-    [showGuide, showGameEndDialog, handleGuideClose, startNewGame, handleCloseDialog, setShowGuide],
+    [
+      showGuide,
+      showGameEndDialog,
+      handleGuideClose,
+      startNewGame,
+      handleCloseDialog,
+      setShowGuide,
+    ],
   );
   useKeyboard(keyboardHandlers);
-
-
 
   return (
     <div className="flex flex-col items-center">

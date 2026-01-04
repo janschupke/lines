@@ -21,9 +21,7 @@ describe("useGameTimer", () => {
     });
 
     it("initializes with provided values", () => {
-      const { result } = renderHook(() =>
-        useGameTimer(100, true),
-      );
+      const { result } = renderHook(() => useGameTimer(100, true));
 
       expect(result.current.timer).toBe(100);
       expect(result.current.timerActive).toBe(true);
@@ -230,4 +228,3 @@ describe("useGameTimer", () => {
     });
   });
 });
-

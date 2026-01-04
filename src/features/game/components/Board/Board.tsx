@@ -41,7 +41,10 @@ const Board: React.FC<BoardProps> = ({
 
   // Convert pathTrail to a Set for fast lookup
   const pathSet = useMemo(
-    () => (pathTrail ? new Set(pathTrail.map(([x, y]) => coordToKey({ x, y }))) : new Set()),
+    () =>
+      pathTrail
+        ? new Set(pathTrail.map(([x, y]) => coordToKey({ x, y })))
+        : new Set(),
     [pathTrail],
   );
 
@@ -135,16 +138,23 @@ const Board: React.FC<BoardProps> = ({
 export default React.memo(Board, (prevProps, nextProps) => {
   // Custom comparison function
   if (prevProps.board !== nextProps.board) return false;
-  if (prevProps.selected?.x !== nextProps.selected?.x ||
-      prevProps.selected?.y !== nextProps.selected?.y) return false;
-  if (prevProps.hoveredCell?.x !== nextProps.hoveredCell?.x ||
-      prevProps.hoveredCell?.y !== nextProps.hoveredCell?.y) return false;
+  if (
+    prevProps.selected?.x !== nextProps.selected?.x ||
+    prevProps.selected?.y !== nextProps.selected?.y
+  )
+    return false;
+  if (
+    prevProps.hoveredCell?.x !== nextProps.hoveredCell?.x ||
+    prevProps.hoveredCell?.y !== nextProps.hoveredCell?.y
+  )
+    return false;
   if (prevProps.pathTrail !== nextProps.pathTrail) return false;
   if (prevProps.notReachable !== nextProps.notReachable) return false;
   if (prevProps.movingBall !== nextProps.movingBall) return false;
   if (prevProps.movingStep !== nextProps.movingStep) return false;
   if (prevProps.poppingBalls !== nextProps.poppingBalls) return false;
-  if (prevProps.growingBalls?.length !== nextProps.growingBalls?.length) return false;
+  if (prevProps.growingBalls?.length !== nextProps.growingBalls?.length)
+    return false;
   if (prevProps.onCellClick !== nextProps.onCellClick) return false;
   if (prevProps.onCellHover !== nextProps.onCellHover) return false;
   if (prevProps.onCellLeave !== nextProps.onCellLeave) return false;

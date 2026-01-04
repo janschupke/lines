@@ -7,13 +7,12 @@ import { GameEngine } from "./gameEngine";
  * UI Update callbacks
  */
 export interface UIUpdateCallbacks {
-      onPhaseChange: (phase: TurnPhase) => void;
   onGameStateUpdate: (state: GameState) => void;
   onUIUpdate: (update: {
     type: "pop" | "grow" | "floatingScore";
     data: unknown;
   }) => void;
-      onAnimationComplete: (phase: TurnPhase) => Promise<void>;
+  onAnimationComplete: (phase: TurnPhase) => Promise<void>;
 }
 
 /**
@@ -50,11 +49,9 @@ export class TurnFlowController {
 
     try {
       // Phase 1: Moving (UI handles animation)
-      callbacks.onPhaseChange(TurnPhaseEnum.Moving);
       await callbacks.onAnimationComplete(TurnPhaseEnum.Moving);
 
       // Phase 2: Move ball and check for lines
-      callbacks.onPhaseChange(TurnPhaseEnum.CheckingLines);
       const moveResult = this.gameEngine.moveBall(currentState, from, to);
       currentState = moveResult.newState;
 
@@ -66,8 +63,6 @@ export class TurnFlowController {
 
       if (lineResult) {
         // Phase 3: Pop lines
-        callbacks.onPhaseChange(TurnPhaseEnum.Popping);
-
         // Trigger pop animation FIRST (before removing balls from state)
         callbacks.onUIUpdate({
           type: "pop",
@@ -105,31 +100,25 @@ export class TurnFlowController {
           currentState,
           lineResult.score,
         );
-        currentState = this.gameEngine.removeLines(currentState, lineResult.lines);
+        currentState = this.gameEngine.removeLines(
+          currentState,
+          lineResult.lines,
+        );
         currentState = this.gameEngine.updateStatistics(currentState, {
           linesPopped: lineResult.lines.length,
-          longestLinePopped: Math.max(
-            ...lineResult.lines.map((l) => l.length),
-          ),
+          longestLinePopped: Math.max(...lineResult.lines.map((l) => l.length)),
         });
         callbacks.onGameStateUpdate(currentState);
 
         // Note: wasSteppedOnBallPopped is not needed when line is popped
         // because we skip conversion anyway
 
-        // Phase 4: Check blocked preview balls
-        callbacks.onPhaseChange(TurnPhaseEnum.CheckingBlocked);
-        const blockedCheck = this.gameEngine.checkBlockedPreviewBalls(
-          currentState,
-        );
-        if (blockedCheck.needsRecalculation && blockedCheck.newState) {
-          currentState = blockedCheck.newState;
-          callbacks.onGameStateUpdate(currentState);
-        }
+        // Phase 4: When lines are popped, we skip conversion
+        // Preview balls remain in their positions - no need to check or recalculate
+        // (They can't be blocked because we just removed balls, creating space)
 
         // Phase 5: When line was popped, skip conversion - keep incoming balls as they are
         // No grow animation needed since no balls are converting
-        callbacks.onPhaseChange(TurnPhaseEnum.Growing);
         // No UI update needed - no balls to grow
         await new Promise((resolve) =>
           setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL),
@@ -143,33 +132,27 @@ export class TurnFlowController {
             ball: cell.incomingBall ? cell.incomingBall : cell.ball,
           })),
         );
-        if (this.gameEngine.checkGameOver({ ...currentState, board: boardWithIncomingAsReal })) {
+        if (
+          this.gameEngine.checkGameOver({
+            ...currentState,
+            board: boardWithIncomingAsReal,
+          })
+        ) {
           currentState = {
             ...currentState,
             gameOver: true,
             showGameEndDialog: true,
           };
           callbacks.onGameStateUpdate(currentState);
-          callbacks.onPhaseChange(TurnPhaseEnum.TurnComplete);
           return currentState;
         }
-
-        callbacks.onPhaseChange(TurnPhaseEnum.TurnComplete);
         return currentState;
       } else {
         // No lines formed, proceed with ball conversion
-        // Phase 4: Check blocked preview balls
-        callbacks.onPhaseChange(TurnPhaseEnum.CheckingBlocked);
-        const blockedCheck = this.gameEngine.checkBlockedPreviewBalls(
-          currentState,
-        );
-        if (blockedCheck.needsRecalculation && blockedCheck.newState) {
-          currentState = blockedCheck.newState;
-          callbacks.onGameStateUpdate(currentState);
-        }
+        // Note: No need to check blocked preview balls here because
+        // convertPreviewToReal will handle conversion and place new preview balls
 
         // Phase 5: Convert preview to real and grow
-        callbacks.onPhaseChange(TurnPhaseEnum.Growing);
         const conversionResult = this.gameEngine.convertPreviewToReal(
           currentState,
           steppedOnIncomingBall,
@@ -177,13 +160,18 @@ export class TurnFlowController {
         );
 
         // Track transitioning and new balls for animation
-        const transitioningBalls: Array<{ x: number; y: number; color: string }> = [];
-        const newPreviewBalls: Array<{ x: number; y: number; color: string }> = [];
+        const transitioningBalls: { x: number; y: number; color: string }[] =
+          [];
+        const newPreviewBalls: { x: number; y: number; color: string }[] = [];
 
         for (let y = 0; y < conversionResult.newBoard.length; y++) {
-          for (let x = 0; x < conversionResult.newBoard[y].length; x++) {
-            const newCell = conversionResult.newBoard[y][x];
-            const oldCell = currentState.board[y][x];
+          const newRow = conversionResult.newBoard[y];
+          const oldRow = currentState.board[y];
+          if (!newRow || !oldRow) continue;
+          for (let x = 0; x < newRow.length; x++) {
+            const newCell = newRow[x];
+            const oldCell = oldRow[x];
+            if (!newCell || !oldCell) continue;
             if (oldCell.incomingBall && newCell.ball) {
               transitioningBalls.push({
                 x,
@@ -201,11 +189,21 @@ export class TurnFlowController {
           }
         }
 
+        // Phase 6: Check for lines after grow FIRST, before updating state
+        // Note: handleIncomingBallConversion already detects lines and removes them
+        // The newBoard in conversionResult already has the balls removed
+        const hasSpawnedLines = conversionResult.linesFormed && conversionResult.ballsRemoved && conversionResult.pointsEarned !== undefined;
+
+        // Update state with new board and next balls IMMEDIATELY
+        // This ensures preview balls are visible and stable
         currentState = {
           ...currentState,
           board: conversionResult.newBoard,
           nextBalls: conversionResult.nextBalls,
         };
+
+        // Update state immediately so preview balls are visible and don't blink
+        callbacks.onGameStateUpdate(currentState);
 
         callbacks.onUIUpdate({
           type: "grow",
@@ -214,90 +212,79 @@ export class TurnFlowController {
             new: newPreviewBalls,
           },
         });
-        callbacks.onGameStateUpdate(currentState);
 
         await new Promise((resolve) =>
           setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL),
         );
         await callbacks.onAnimationComplete(TurnPhaseEnum.Growing);
 
-        // Phase 6: Check for lines after grow
-        if (conversionResult.linesFormed && conversionResult.ballsRemoved) {
-          callbacks.onPhaseChange(TurnPhaseEnum.CheckingLinesAfterGrow);
-          const spawnedPositions: Coord[] = [];
-          for (let y = 0; y < conversionResult.newBoard.length; y++) {
-            for (let x = 0; x < conversionResult.newBoard[y].length; x++) {
-              if (
-                conversionResult.newBoard[y][x].ball &&
-                !currentState.board[y][x].ball
-              ) {
-                spawnedPositions.push({ x, y });
-              }
-            }
-          }
+        // Now handle spawned ball lines if any
+        if (hasSpawnedLines) {
+          // Phase 7: Pop lines from grown balls
+          // The balls have already been removed from conversionResult.newBoard
+          // We just need to animate and award points
 
-          const growLineResult = this.gameEngine.detectLinesAtPositions(
-            currentState,
-            spawnedPositions,
-          );
+          // Trigger pop animation FIRST (before updating score)
+          callbacks.onUIUpdate({
+            type: "pop",
+            data: {
+              balls: conversionResult.ballsRemoved,
+            },
+          });
 
-          if (growLineResult) {
-            // Phase 7: Pop lines from grown balls
-            callbacks.onPhaseChange(TurnPhaseEnum.PoppingAfterGrow);
-
-            // Trigger pop animation FIRST (before removing balls from state)
+          // Add floating score
+          if (conversionResult.ballsRemoved.length > 0) {
+            const centerX =
+              conversionResult.ballsRemoved.reduce((sum, [x]) => sum + x, 0) /
+              conversionResult.ballsRemoved.length;
+            const centerY =
+              conversionResult.ballsRemoved.reduce(
+                (sum, [, y]) => sum + y,
+                0,
+              ) / conversionResult.ballsRemoved.length;
             callbacks.onUIUpdate({
-              type: "pop",
+              type: "floatingScore",
               data: {
-                balls: growLineResult.ballsToRemove,
+                score: conversionResult.pointsEarned,
+                x: Math.round(centerX),
+                y: Math.round(centerY),
               },
             });
+          }
 
-            // Add floating score
-            if (growLineResult.ballsToRemove.length > 0) {
-              const centerX =
-                growLineResult.ballsToRemove.reduce((sum, [x]) => sum + x, 0) /
-                growLineResult.ballsToRemove.length;
-              const centerY =
-                growLineResult.ballsToRemove.reduce((sum, [, y]) => sum + y, 0) /
-                growLineResult.ballsToRemove.length;
-              callbacks.onUIUpdate({
-                type: "floatingScore",
-                data: {
-                  score: growLineResult.score,
-                  x: Math.round(centerX),
-                  y: Math.round(centerY),
-                },
-              });
-            }
+          // Wait for animation to complete
+          await new Promise((resolve) =>
+            setTimeout(resolve, ANIMATION_DURATIONS.POP_BALL),
+          );
+          await callbacks.onAnimationComplete(TurnPhaseEnum.PoppingAfterGrow);
 
-            // Wait for animation to complete
-            await new Promise((resolve) =>
-              setTimeout(resolve, ANIMATION_DURATIONS.POP_BALL),
-            );
-            await callbacks.onAnimationComplete(TurnPhaseEnum.PoppingAfterGrow);
+          // NOW update the game state (award points and update statistics)
+          // The board already has balls removed (in conversionResult.newBoard)
+          // Update score and statistics, but DON'T update the board again (it's already correct)
+          currentState = this.gameEngine.updateScore(
+            currentState, // Board already has balls removed from line 199 update
+            conversionResult.pointsEarned,
+          );
 
-            // NOW update the game state (remove balls after animation)
-            currentState = this.gameEngine.updateScore(
-              currentState,
-              growLineResult.score,
-            );
-            currentState = this.gameEngine.removeLines(
-              currentState,
-              growLineResult.lines,
-            );
+          // Update statistics if lines information is available
+          if (conversionResult.lines) {
             currentState = this.gameEngine.updateStatistics(currentState, {
-              linesPopped: growLineResult.lines.length,
+              linesPopped: conversionResult.lines.length,
               longestLinePopped: Math.max(
-                ...growLineResult.lines.map((l) => l.length),
+                ...conversionResult.lines.map((l) => l.length),
               ),
             });
-            callbacks.onGameStateUpdate(currentState);
           }
+
+          // Update state with score/statistics changes (board is already correct)
+          callbacks.onGameStateUpdate(currentState);
         }
 
         // Check game over
-        if (conversionResult.gameOver || this.gameEngine.checkGameOver(currentState)) {
+        if (
+          conversionResult.gameOver ||
+          this.gameEngine.checkGameOver(currentState)
+        ) {
           currentState = {
             ...currentState,
             gameOver: true,
@@ -306,12 +293,10 @@ export class TurnFlowController {
           callbacks.onGameStateUpdate(currentState);
         }
 
-        callbacks.onPhaseChange(TurnPhaseEnum.TurnComplete);
         return currentState;
       }
     } catch (error) {
       console.error("Error in turn flow:", error);
-      callbacks.onPhaseChange(TurnPhaseEnum.TurnComplete);
       return currentState;
     }
   }
@@ -323,4 +308,3 @@ export class TurnFlowController {
     return this.gameEngine;
   }
 }
-

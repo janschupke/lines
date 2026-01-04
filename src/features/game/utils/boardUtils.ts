@@ -23,7 +23,13 @@ export function updateCell(
   updates: Partial<Cell>,
 ): Cell[][] {
   const newBoard = cloneBoard(board);
-  newBoard[y][x] = { ...newBoard[y][x], ...updates };
+  const row = newBoard[y];
+  if (row) {
+    const cell = row[x];
+    if (cell) {
+      row[x] = { ...cell, ...updates };
+    }
+  }
   return newBoard;
 }
 
@@ -33,12 +39,17 @@ export function updateCell(
  */
 export function updateCells(
   board: Cell[][],
-  updates: Array<{ x: number; y: number; updates: Partial<Cell> }>,
+  updates: { x: number; y: number; updates: Partial<Cell> }[],
 ): Cell[][] {
   const newBoard = cloneBoard(board);
   updates.forEach(({ x, y, updates: cellUpdates }) => {
-    newBoard[y][x] = { ...newBoard[y][x], ...cellUpdates };
+    const row = newBoard[y];
+    if (row) {
+      const cell = row[x];
+      if (cell) {
+        row[x] = { ...cell, ...cellUpdates };
+      }
+    }
   });
   return newBoard;
 }
-

@@ -3,7 +3,6 @@ import type { Cell, BallColor } from "../types";
 import { findPath } from "../logic/pathfinding";
 import { validateMove } from "../logic/validation";
 
-
 interface CellInteractionActions {
   setSelected: (selected: { x: number; y: number } | null) => void;
   setHoveredCell: (hoveredCell: { x: number; y: number } | null) => void;
@@ -24,12 +23,15 @@ export const useCellInteraction = (
   isAnimating: boolean,
   selected: { x: number; y: number } | null,
   actions: CellInteractionActions,
-  onStartMove: (color: BallColor, path: [number, number][]) => void,
+  onStartMove: (color: BallColor, path: [number, number][], from: { x: number; y: number }, to: { x: number; y: number }) => void,
 ): CellInteractionHandlers => {
   const handleCellClick = useCallback(
     (x: number, y: number) => {
       if (gameOver || isAnimating) return;
-      const cell = board[y][x];
+      const row = board[y];
+      if (!row) return;
+      const cell = row[x];
+      if (!cell) return;
 
       if (cell.ball) {
         // Clicked on a ball - select it
@@ -47,9 +49,15 @@ export const useCellInteraction = (
         const path = findPath(board, selected, { x, y });
         if (path && path.length > 1) {
           // Start move animation
-          const selectedBall = board[selected.y][selected.x].ball;
-          if (selectedBall) {
-            onStartMove(selectedBall.color, path);
+          const selectedRow = board[selected.y];
+          if (selectedRow) {
+            const selectedCell = selectedRow[selected.x];
+            if (selectedCell) {
+              const selectedBall = selectedCell.ball;
+              if (selectedBall) {
+                onStartMove(selectedBall.color, path, selected, { x, y });
+              }
+            }
           }
           actions.setPathTrail(null);
           actions.setNotReachable(false);
@@ -64,7 +72,11 @@ export const useCellInteraction = (
   const handleCellHover = useCallback(
     (x: number, y: number) => {
       if (gameOver || isAnimating || !selected) return;
-      const cell = board[y][x];
+      const row = board[y];
+      if (!row) return;
+      const cell = row[x];
+      if (!cell) return;
+
       if (!cell.ball && selected) {
         const path = findPath(board, selected, { x, y });
         if (path && path.length > 1) {

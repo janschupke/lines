@@ -83,8 +83,33 @@ export class GameEngine {
     from: Coord,
     to: Coord,
   ): { newState: GameState; steppedOnIncomingBall?: BallColor } {
-    if (!validateMove(state.board, from.x, from.y, to.x, to.y)) {
-      throw new Error("Invalid move");
+    // Validate move with detailed error messages
+    const fromRow = state.board[from.y];
+    if (!fromRow) {
+      throw new Error(`Invalid move: source row ${from.y} out of bounds`);
+    }
+    const fromCell = fromRow[from.x];
+    if (!fromCell) {
+      throw new Error(`Invalid move: source cell [${from.x}, ${from.y}] does not exist`);
+    }
+    if (!fromCell.ball) {
+      throw new Error(`Invalid move: source cell [${from.x}, ${from.y}] has no ball`);
+    }
+
+    const toRow = state.board[to.y];
+    if (!toRow) {
+      throw new Error(`Invalid move: target row ${to.y} out of bounds`);
+    }
+    const toCell = toRow[to.x];
+    if (!toCell) {
+      throw new Error(`Invalid move: target cell [${to.x}, ${to.y}] does not exist`);
+    }
+    if (toCell.ball) {
+      throw new Error(`Invalid move: target cell [${to.x}, ${to.y}] is occupied by a ball`);
+    }
+
+    if (from.x === to.x && from.y === to.y) {
+      throw new Error("Invalid move: same cell");
     }
 
     // Check if we're stepping on an incoming ball
@@ -151,14 +176,14 @@ export class GameEngine {
   /**
    * Check for blocked preview balls and recalculate if needed
    */
-  checkBlockedPreviewBalls(
-    state: GameState,
-  ): { needsRecalculation: boolean; newState?: GameState } {
+  checkBlockedPreviewBalls(state: GameState): {
+    needsRecalculation: boolean;
+    newState?: GameState;
+  } {
     // Check if any preview balls are blocked (cell has a real ball now)
     let needsRecalculation = false;
-    for (let y = 0; y < state.board.length; y++) {
-      for (let x = 0; x < state.board[y].length; x++) {
-        const cell = state.board[y][x];
+    for (const row of state.board) {
+      for (const cell of row) {
         if (cell.incomingBall && cell.ball) {
           needsRecalculation = true;
           break;
@@ -195,7 +220,7 @@ export class GameEngine {
   convertPreviewToReal(
     state: GameState,
     steppedOnIncomingBall?: BallColor,
-    wasSteppedOnBallPopped: boolean = false,
+    wasSteppedOnBallPopped = false,
   ): ConversionResult {
     return handleIncomingBallConversion(
       state.board,
@@ -251,8 +276,7 @@ export class GameEngine {
     return {
       ...state,
       statistics: {
-        turnsCount:
-          state.statistics.turnsCount + (updates.turnsCount || 0),
+        turnsCount: state.statistics.turnsCount + (updates.turnsCount || 0),
         linesPopped: state.statistics.linesPopped + (updates.linesPopped || 0),
         longestLinePopped: Math.max(
           state.statistics.longestLinePopped,
@@ -265,33 +289,21 @@ export class GameEngine {
   /**
    * Find path between two positions
    */
-  findPath(
-    board: Cell[][],
-    from: Coord,
-    to: Coord,
-  ): [number, number][] | null {
+  findPath(board: Cell[][], from: Coord, to: Coord): [number, number][] | null {
     return findPath(board, from, to);
   }
 
   /**
    * Find unreachable cells from a position
    */
-  findUnreachableCells(
-    board: Cell[][],
-    from: Coord,
-  ): [number, number][] {
+  findUnreachableCells(board: Cell[][], from: Coord): [number, number][] {
     return findUnreachableCells(board, from);
   }
 
   /**
    * Validate a move
    */
-  validateMove(
-    board: Cell[][],
-    from: Coord,
-    to: Coord,
-  ): boolean {
+  validateMove(board: Cell[][], from: Coord, to: Coord): boolean {
     return validateMove(board, from.x, from.y, to.x, to.y);
   }
 }
-

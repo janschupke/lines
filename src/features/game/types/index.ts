@@ -21,8 +21,10 @@ export type Direction = [number, number];
 /**
  * Coordinate type
  */
-export type Coord = { x: number; y: number };
-
+export interface Coord {
+  x: number;
+  y: number;
+}
 
 export interface GameStatistics {
   turnsCount: number;
@@ -55,7 +57,7 @@ export interface UIState {
   hoveredCell: { x: number; y: number } | null;
   pathTrail: [number, number][] | null;
   notReachable: boolean;
-  movingBall: { color: BallColor; path: [number, number][] } | null;
+  movingBall: { color: BallColor; path: [number, number][]; from: { x: number; y: number }; to: { x: number; y: number }; boardSnapshot: Cell[][] } | null;
   movingStep: number;
   poppingBalls: Set<string>;
   floatingScores: FloatingScore[];
@@ -71,7 +73,6 @@ export interface GameActions {
   handleCloseDialog: () => void;
 }
 
-
 /**
  * Represents a line of balls
  */
@@ -79,7 +80,7 @@ export interface Line {
   cells: [number, number][];
   color: BallColor;
   length: number;
-  direction: typeof LineDirectionEnum[keyof typeof LineDirectionEnum];
+  direction: (typeof LineDirectionEnum)[keyof typeof LineDirectionEnum];
 }
 
 /**
@@ -107,6 +108,7 @@ export interface ConversionResult {
   linesFormed?: boolean;
   ballsRemoved?: [number, number][];
   pointsEarned?: number;
+  lines?: Line[]; // Lines that were formed (for statistics)
 }
 
 // SpawnedBall is still used in useGameAnimation hook for animation tracking

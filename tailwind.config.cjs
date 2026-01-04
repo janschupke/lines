@@ -41,11 +41,11 @@ module.exports = {
     extend: {
       spacing: {
         // Game-specific spacing
-        'cell': '56px',
-        'ball': '40px',
-        'incoming-ball': '28px',
-        'gap': '8px',
-        'board-padding': '8px',
+        cell: "56px",
+        ball: "40px",
+        "incoming-ball": "28px",
+        gap: "8px",
+        "board-padding": "8px",
       },
       colors: {
         // Game theme colors - enhanced with gradients and better contrast

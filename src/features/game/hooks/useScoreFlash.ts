@@ -21,7 +21,10 @@ export const useScoreFlash = (
   useEffect(() => {
     if (score !== prevScore && score > prevScore) {
       setScoreFlash(true);
-      const timeout = setTimeout(() => setScoreFlash(false), ANIMATION_DURATIONS.SCORE_FLASH);
+      const timeout = setTimeout(
+        () => setScoreFlash(false),
+        ANIMATION_DURATIONS.SCORE_FLASH,
+      );
       setPrevScore(score);
       return () => clearTimeout(timeout);
     }
@@ -45,4 +48,3 @@ export const useScoreFlash = (
     highScoreFlash,
   };
 };
-

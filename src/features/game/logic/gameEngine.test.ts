@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { GameEngine } from "./gameEngine";
 import type { GameState, Cell, BallColor, Coord } from "../types";
-import { BallColor as BallColorEnum, BOARD_SIZE, INITIAL_BALLS, BALLS_PER_TURN } from "../config";
+import {
+  BallColor as BallColorEnum,
+  BOARD_SIZE,
+  INITIAL_BALLS,
+  BALLS_PER_TURN,
+} from "../config";
 import { createEmptyBoard, placeRealBalls } from "./board/boardManagement";
 
 describe("GameEngine", () => {
@@ -493,9 +498,7 @@ describe("GameEngine", () => {
       ]);
 
       expect(totalScore).toBeGreaterThan(0);
-      expect(totalScore).toBe(
-        lineResult1!.score + lineResult2!.score,
-      );
+      expect(totalScore).toBe(lineResult1!.score + lineResult2!.score);
     });
   });
 
@@ -507,7 +510,11 @@ describe("GameEngine", () => {
       const state: GameState = {
         ...initialState,
         board,
-        nextBalls: [BallColorEnum.Green, BallColorEnum.Yellow, BallColorEnum.Purple],
+        nextBalls: [
+          BallColorEnum.Green,
+          BallColorEnum.Yellow,
+          BallColorEnum.Purple,
+        ],
       };
 
       const result = engine.convertPreviewToReal(state);
@@ -524,7 +531,11 @@ describe("GameEngine", () => {
       const state: GameState = {
         ...initialState,
         board,
-        nextBalls: [BallColorEnum.Blue, BallColorEnum.Green, BallColorEnum.Yellow],
+        nextBalls: [
+          BallColorEnum.Blue,
+          BallColorEnum.Green,
+          BallColorEnum.Yellow,
+        ],
       };
 
       const result = engine.convertPreviewToReal(state, BallColorEnum.Red);
@@ -583,7 +594,10 @@ describe("GameEngine", () => {
         board,
       };
 
-      const unreachable = engine.findUnreachableCells(state.board, { x: 0, y: 0 });
+      const unreachable = engine.findUnreachableCells(state.board, {
+        x: 0,
+        y: 0,
+      });
 
       expect(unreachable.length).toBeGreaterThan(0);
       expect(unreachable.some(([x, y]) => x === 8 && y === 8)).toBe(true);
@@ -599,7 +613,11 @@ describe("GameEngine", () => {
         board,
       };
 
-      const isValid = engine.validateMove(state.board, { x: 0, y: 0 }, { x: 1, y: 1 });
+      const isValid = engine.validateMove(
+        state.board,
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+      );
 
       expect(isValid).toBe(true);
     });
@@ -611,7 +629,11 @@ describe("GameEngine", () => {
         board,
       };
 
-      const isValid = engine.validateMove(state.board, { x: 0, y: 0 }, { x: 1, y: 1 });
+      const isValid = engine.validateMove(
+        state.board,
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+      );
 
       expect(isValid).toBe(false);
     });
@@ -625,11 +647,13 @@ describe("GameEngine", () => {
         board,
       };
 
-      const isValid = engine.validateMove(state.board, { x: 0, y: 0 }, { x: 1, y: 1 });
+      const isValid = engine.validateMove(
+        state.board,
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+      );
 
       expect(isValid).toBe(false);
     });
   });
 });
-
-

@@ -18,8 +18,11 @@ export function findPath(
     () => Array(BOARD_SIZE).fill(null),
   );
   const queue: [number, number][] = [[from.x, from.y]];
-  visited[from.y][from.x] = true;
-  const directions = [
+  const fromVisitedRow = visited[from.y];
+  if (fromVisitedRow) {
+    fromVisitedRow[from.x] = true;
+  }
+  const directions: [number, number][] = [
     [0, 1],
     [1, 0],
     [0, -1],
@@ -29,35 +32,73 @@ export function findPath(
     const current = queue.shift();
     if (!current) break;
     const [x, y] = current;
-    for (const [dx, dy] of directions) {
+    for (const direction of directions) {
+      const [dx, dy] = direction;
       const nx = x + dx,
         ny = y + dy;
       if (
         nx >= 0 &&
         nx < BOARD_SIZE &&
         ny >= 0 &&
-        ny < BOARD_SIZE &&
-        !visited[ny][nx] &&
-        !board[ny][nx].ball
+        ny < BOARD_SIZE
       ) {
-        visited[ny][nx] = true;
-        prev[ny][nx] = [x, y];
-        if (nx === to.x && ny === to.y) {
-          // Reconstruct path
-          const path: [number, number][] = [];
-          let cx = nx,
-            cy = ny;
-          while (!(cx === from.x && cy === from.y)) {
-            path.push([cx, cy]);
-            const prevCell = prev[cy]?.[cx];
-            if (!prevCell) break;
-            [cx, cy] = prevCell;
+        const visitedRow = visited[ny];
+        const boardRow = board[ny];
+        if (!visitedRow || !boardRow) continue;
+        const visitedCell = visitedRow[nx];
+        const boardCell = boardRow[nx];
+        if (visitedCell === undefined || !boardCell) continue;
+        if (!visitedCell && !boardCell.ball) {
+          visitedRow[nx] = true;
+          const prevRow = prev[ny];
+          if (prevRow) {
+            prevRow[nx] = [x, y];
           }
-          path.push([from.x, from.y]);
-          path.reverse();
-          return path;
+          if (nx === to.x && ny === to.y) {
+            // Reconstruct path backwards from destination to source
+            const path: [number, number][] = [];
+            let cx = nx,
+              cy = ny;
+            const maxIterations = BOARD_SIZE * BOARD_SIZE; // Safety limit
+            let iterations = 0;
+
+            // Build path backwards until we reach the start
+            while (iterations < maxIterations) {
+              path.push([cx, cy]);
+
+              // If we've reached the start, we're done
+              if (cx === from.x && cy === from.y) {
+                path.reverse();
+                return path;
+              }
+
+              // Get the previous cell in the path
+              const prevRow = prev[cy];
+              if (!prevRow) {
+                // Path chain broken - return null
+                return null;
+              }
+              const prevCell = prevRow[cx];
+              if (!prevCell) {
+                // Reached a cell with no previous (should be the start)
+                // If we're not at the start, path is broken
+                if (cx !== from.x || cy !== from.y) {
+                  return null;
+                }
+                path.reverse();
+                return path;
+              }
+
+              // Move to previous cell
+              [cx, cy] = prevCell;
+              iterations++;
+            }
+
+            // Safety: exceeded max iterations - path reconstruction failed
+            return null;
+          }
+          queue.push([nx, ny]);
         }
-        queue.push([nx, ny]);
       }
     }
   }
@@ -75,8 +116,11 @@ export function findUnreachableCells(
     Array(BOARD_SIZE).fill(false),
   );
   const queue: [number, number][] = [[from.x, from.y]];
-  visited[from.y][from.x] = true;
-  const directions = [
+  const fromVisitedRow = visited[from.y];
+  if (fromVisitedRow) {
+    fromVisitedRow[from.x] = true;
+  }
+  const directions: [number, number][] = [
     [0, 1],
     [1, 0],
     [0, -1],
@@ -88,19 +132,26 @@ export function findUnreachableCells(
     const current = queue.shift();
     if (!current) break;
     const [x, y] = current;
-    for (const [dx, dy] of directions) {
+    for (const direction of directions) {
+      const [dx, dy] = direction;
       const nx = x + dx,
         ny = y + dy;
       if (
         nx >= 0 &&
         nx < BOARD_SIZE &&
         ny >= 0 &&
-        ny < BOARD_SIZE &&
-        !visited[ny][nx] &&
-        !board[ny][nx].ball
+        ny < BOARD_SIZE
       ) {
-        visited[ny][nx] = true;
-        queue.push([nx, ny]);
+        const visitedRow = visited[ny];
+        const boardRow = board[ny];
+        if (!visitedRow || !boardRow) continue;
+        const visitedCell = visitedRow[nx];
+        const boardCell = boardRow[nx];
+        if (visitedCell === undefined || !boardCell) continue;
+        if (!visitedCell && !boardCell.ball) {
+          visitedRow[nx] = true;
+          queue.push([nx, ny]);
+        }
       }
     }
   }
@@ -108,8 +159,14 @@ export function findUnreachableCells(
   // Return all unreachable cells (empty cells that weren't visited)
   const unreachableCells: [number, number][] = [];
   for (let y = 0; y < BOARD_SIZE; y++) {
+    const row = board[y];
+    const visitedRow = visited[y];
+    if (!row || !visitedRow) continue;
     for (let x = 0; x < BOARD_SIZE; x++) {
-      if (!board[y][x].ball && !visited[y][x]) {
+      const cell = row[x];
+      const visitedCell = visitedRow[x];
+      if (!cell || visitedCell === undefined) continue;
+      if (!cell.ball && !visitedCell) {
         unreachableCells.push([x, y]);
       }
     }

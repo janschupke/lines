@@ -12,11 +12,21 @@ import { BALLS_PER_TURN } from "../../config";
 import type { Cell, BallColor } from "../../types";
 
 // Helper function to replace handleMoveCompletion
-function simulateMove(board: Cell[][], fromX: number, fromY: number, toX: number, toY: number) {
+function simulateMove(
+  board: Cell[][],
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+) {
   const engine = new GameEngine();
   const state = engine.createNewGame();
   state.board = board;
-  const moveResult = engine.moveBall(state, { x: fromX, y: fromY }, { x: toX, y: toY });
+  const moveResult = engine.moveBall(
+    state,
+    { x: fromX, y: fromY },
+    { x: toX, y: toY },
+  );
   return {
     newBoard: moveResult.newState.board,
     steppedOnIncomingBall: moveResult.steppedOnIncomingBall,

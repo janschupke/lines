@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { TurnFlowController } from "./turnFlowController";
 import { TurnPhase } from "../types/enums";
-import type { GameState, TurnPhase as TurnPhaseType } from "../types";
+import type { GameState } from "../types";
 import { GameEngine } from "./gameEngine";
 import { createEmptyBoard } from "./board/boardManagement";
 import { BallColor as BallColorEnum, ANIMATION_DURATIONS } from "../config";
@@ -10,7 +10,6 @@ describe("TurnFlowController", () => {
   let controller: TurnFlowController;
   let initialState: GameState;
   let mockCallbacks: {
-    onPhaseChange: ReturnType<typeof vi.fn>;
     onGameStateUpdate: ReturnType<typeof vi.fn>;
     onUIUpdate: ReturnType<typeof vi.fn>;
     onAnimationComplete: ReturnType<typeof vi.fn>;
@@ -23,7 +22,6 @@ describe("TurnFlowController", () => {
     initialState = engine.createNewGame();
 
     mockCallbacks = {
-      onPhaseChange: vi.fn(),
       onGameStateUpdate: vi.fn(),
       onUIUpdate: vi.fn(),
       onAnimationComplete: vi.fn().mockResolvedValue(undefined),
@@ -59,9 +57,6 @@ describe("TurnFlowController", () => {
 
       const result = await resultPromise;
 
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.Moving);
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.CheckingLines);
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.Popping);
       expect(mockCallbacks.onUIUpdate).toHaveBeenCalledWith(
         expect.objectContaining({ type: "pop" }),
       );
@@ -83,11 +78,6 @@ describe("TurnFlowController", () => {
         board,
       };
 
-      const phaseCalls: TurnPhaseType[] = [];
-      mockCallbacks.onPhaseChange = vi.fn((phase) => {
-        phaseCalls.push(phase);
-      });
-
       const resultPromise = controller.executeTurn(
         state,
         { from: { x: 0, y: 0 }, to: { x: 5, y: 0 } },
@@ -96,14 +86,10 @@ describe("TurnFlowController", () => {
 
       await vi.advanceTimersByTimeAsync(ANIMATION_DURATIONS.POP_BALL + 100);
       await vi.advanceTimersByTimeAsync(ANIMATION_DURATIONS.GROW_BALL + 100);
-      await resultPromise;
+      const result = await resultPromise;
 
-      expect(phaseCalls[0]).toBe(TurnPhase.Moving);
-      expect(phaseCalls).toContain(TurnPhase.CheckingLines);
-      expect(phaseCalls).toContain(TurnPhase.Popping);
-      expect(phaseCalls).toContain(TurnPhase.CheckingBlocked);
-      expect(phaseCalls).toContain(TurnPhase.Growing);
-      expect(phaseCalls[phaseCalls.length - 1]).toBe(TurnPhase.TurnComplete);
+      expect(result).toBeDefined();
+      expect(result.score).toBeGreaterThan(0);
     });
 
     it("updates game state after popping lines", async () => {
@@ -158,9 +144,9 @@ describe("TurnFlowController", () => {
 
       await vi.advanceTimersByTimeAsync(ANIMATION_DURATIONS.POP_BALL + 100);
       await vi.advanceTimersByTimeAsync(ANIMATION_DURATIONS.GROW_BALL + 100);
-      await resultPromise;
+      const result = await resultPromise;
 
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.CheckingBlocked);
+      expect(result).toBeDefined();
     });
 
     it("detects game over after line pop when board is full", async () => {
@@ -168,7 +154,14 @@ describe("TurnFlowController", () => {
       // Fill almost entire board, leaving path for move
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (!(x === 0 && y === 0) && !(x === 5 && y === 0) && !(x === 1 && y === 0) && !(x === 2 && y === 0) && !(x === 3 && y === 0) && !(x === 4 && y === 0)) {
+          if (
+            !(x === 0 && y === 0) &&
+            !(x === 5 && y === 0) &&
+            !(x === 1 && y === 0) &&
+            !(x === 2 && y === 0) &&
+            !(x === 3 && y === 0) &&
+            !(x === 4 && y === 0)
+          ) {
             board[y][x].ball = { color: BallColorEnum.Red };
           }
         }
@@ -217,10 +210,6 @@ describe("TurnFlowController", () => {
       await vi.advanceTimersByTimeAsync(ANIMATION_DURATIONS.GROW_BALL + 100);
       const result = await resultPromise;
 
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.Moving);
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.CheckingLines);
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.CheckingBlocked);
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.Growing);
       expect(mockCallbacks.onUIUpdate).toHaveBeenCalledWith(
         expect.objectContaining({ type: "grow" }),
       );
@@ -272,7 +261,6 @@ describe("TurnFlowController", () => {
 
       // Verify turn completes successfully
       expect(result).toBeDefined();
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.TurnComplete);
     });
 
     it("handles game over after ball conversion", async () => {
@@ -280,7 +268,14 @@ describe("TurnFlowController", () => {
       // Fill board except path for move - simpler setup
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (!(x === 0 && y === 0) && !(x === 1 && y === 1) && !(x === 1 && y === 0) && !(x === 0 && y === 1) && !(x === 2 && y === 0) && !(x === 0 && y === 2)) {
+          if (
+            !(x === 0 && y === 0) &&
+            !(x === 1 && y === 1) &&
+            !(x === 1 && y === 0) &&
+            !(x === 0 && y === 1) &&
+            !(x === 2 && y === 0) &&
+            !(x === 0 && y === 2)
+          ) {
             board[y][x].ball = { color: BallColorEnum.Red };
           }
         }
@@ -302,7 +297,6 @@ describe("TurnFlowController", () => {
 
       // Verify turn completes
       expect(result).toBeDefined();
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.TurnComplete);
     }, 10000);
 
     it("handles stepped-on incoming ball", async () => {
@@ -352,7 +346,6 @@ describe("TurnFlowController", () => {
       await vi.advanceTimersByTimeAsync(100);
       const result = await resultPromise;
 
-      expect(mockCallbacks.onPhaseChange).toHaveBeenCalledWith(TurnPhase.TurnComplete);
       expect(result).toBeDefined();
     });
   });

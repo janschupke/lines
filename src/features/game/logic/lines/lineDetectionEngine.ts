@@ -1,5 +1,11 @@
 import { BOARD_SIZE, MIN_LINE_LENGTH, SCORING_TABLE } from "../../config";
-import type { Cell, BallColor, Line, LineDetectionResult, LineDirection } from "../../types";
+import type {
+  Cell,
+  BallColor,
+  Line,
+  LineDetectionResult,
+  LineDirection,
+} from "../../types";
 import { LineDirection as LineDirectionEnum } from "../../types/enums";
 import { coordsFromKeys, coordToKey } from "@shared/utils/coordinates";
 
@@ -47,9 +53,9 @@ export class LineDetectionEngine {
       });
     });
 
-    const ballsToRemove: [number, number][] = coordsFromKeys(ballsToRemoveSet).map(
-      (coord) => [coord.x, coord.y],
-    );
+    const ballsToRemove: [number, number][] = coordsFromKeys(
+      ballsToRemoveSet,
+    ).map((coord) => [coord.x, coord.y]);
 
     const score = this.calculateTotalScore(lines);
 
@@ -102,9 +108,9 @@ export class LineDetectionEngine {
 
     if (ballsToRemoveSet.size === 0) return null;
 
-    const ballsToRemove: [number, number][] = coordsFromKeys(ballsToRemoveSet).map(
-      (coord) => [coord.x, coord.y],
-    );
+    const ballsToRemove: [number, number][] = coordsFromKeys(
+      ballsToRemoveSet,
+    ).map((coord) => [coord.x, coord.y]);
 
     const score = this.calculateTotalScore(allLines);
 
@@ -197,7 +203,10 @@ export class LineDetectionEngine {
    * Each line is scored separately
    */
   private calculateTotalScore(lines: Line[]): number {
-    return lines.reduce((total, line) => total + this.calculateLineScore(line), 0);
+    return lines.reduce(
+      (total, line) => total + this.calculateLineScore(line),
+      0,
+    );
   }
 
   /**
@@ -208,4 +217,3 @@ export class LineDetectionEngine {
     return DIRECTION_TO_ENUM[key] || LineDirectionEnum.Horizontal;
   }
 }
-

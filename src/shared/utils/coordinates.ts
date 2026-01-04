@@ -38,7 +38,9 @@ export function coordToKey(coord: Coord): string {
  * Parse coordinate from string key
  */
 export function coordFromKey(key: string): Coord {
-  const [x, y] = key.split(",").map(Number);
+  const parts = key.split(",").map(Number);
+  const x = parts[0] ?? 0;
+  const y = parts[1] ?? 0;
   return { x, y };
 }
 
@@ -52,15 +54,9 @@ export function coordsEqual(a: Coord, b: Coord): boolean {
 /**
  * Check if coordinate is within board bounds
  */
-export function isCoordInBounds(
-  coord: Coord,
-  boardSize: number = 9,
-): boolean {
+export function isCoordInBounds(coord: Coord, boardSize = 9): boolean {
   return (
-    coord.x >= 0 &&
-    coord.x < boardSize &&
-    coord.y >= 0 &&
-    coord.y < boardSize
+    coord.x >= 0 && coord.x < boardSize && coord.y >= 0 && coord.y < boardSize
   );
 }
 
@@ -91,4 +87,3 @@ export function coordsFromTuples(tuples: [number, number][]): Coord[] {
 export function coordsToTuples(coords: Coord[]): [number, number][] {
   return coords.map(coordToTuple);
 }
-

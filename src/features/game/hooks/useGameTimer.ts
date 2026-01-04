@@ -14,8 +14,8 @@ export interface UseGameTimerReturn {
  * Hook for managing game timer with inactivity timeout
  */
 export const useGameTimer = (
-  initialTimer: number = 0,
-  initialTimerActive: boolean = false,
+  initialTimer = 0,
+  initialTimerActive = false,
 ): UseGameTimerReturn => {
   const [timer, setTimer] = useState(initialTimer);
   const [timerActive, setTimerActive] = useState(initialTimerActive);
@@ -107,4 +107,3 @@ export const useGameTimer = (
     resetTimer,
   };
 };
-

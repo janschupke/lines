@@ -16,8 +16,6 @@ export interface Cell {
   active: boolean;
 }
 
-type Direction = [number, number];
-
 /**
  * Coordinate type
  */
@@ -57,7 +55,13 @@ export interface UIState {
   hoveredCell: { x: number; y: number } | null;
   pathTrail: [number, number][] | null;
   notReachable: boolean;
-  movingBall: { color: BallColor; path: [number, number][]; from: { x: number; y: number }; to: { x: number; y: number }; boardSnapshot: Cell[][] } | null;
+  movingBall: {
+    color: BallColor;
+    path: [number, number][];
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+    boardSnapshot: Cell[][];
+  } | null;
   movingStep: number;
   poppingBalls: Set<string>;
   floatingScores: FloatingScore[];
@@ -90,15 +94,6 @@ export interface LineDetectionResult {
   lines: Line[];
   ballsToRemove: [number, number][];
   score: number;
-}
-
-interface MoveResult {
-  newBoard: Cell[][];
-  linesFormed: boolean;
-  ballsRemoved?: [number, number][];
-  pointsEarned?: number;
-  nextBalls?: BallColor[];
-  steppedOnIncomingBall?: BallColor;
 }
 
 export interface ConversionResult {

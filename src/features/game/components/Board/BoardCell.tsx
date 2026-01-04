@@ -46,10 +46,13 @@ export const BoardCell: React.FC<BoardCellProps> = ({
   let movingBallColor: string | null = null;
   if (movingBall && movingBall.path && movingBall.path.length > 0) {
     if (movingStep >= 0 && movingStep < movingBall.path.length) {
-      const [mx, my] = movingBall.path[movingStep];
-      if (cell.x === mx && cell.y === my) {
-        showMovingBall = true;
-        movingBallColor = movingBall.color;
+      const pathStep = movingBall.path[movingStep];
+      if (pathStep) {
+        const [mx, my] = pathStep;
+        if (cell.x === mx && cell.y === my) {
+          showMovingBall = true;
+          movingBallColor = movingBall.color;
+        }
       }
     }
   }
@@ -59,6 +62,7 @@ export const BoardCell: React.FC<BoardCellProps> = ({
     movingBall &&
     movingBall.path &&
     movingBall.path.length > 0 &&
+    movingBall.path[0] &&
     cell.x === movingBall.path[0][0] &&
     cell.y === movingBall.path[0][1];
 
@@ -94,6 +98,10 @@ export const BoardCell: React.FC<BoardCellProps> = ({
   return (
     <div
       className={cellClasses}
+      style={{
+        gridColumn: `${cell.x + 1}`,
+        gridRow: `${cell.y + 1}`,
+      }}
       onClick={onClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
@@ -147,4 +155,3 @@ export const BoardCell: React.FC<BoardCellProps> = ({
     </div>
   );
 };
-

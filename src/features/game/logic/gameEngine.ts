@@ -90,10 +90,14 @@ export class GameEngine {
     }
     const fromCell = fromRow[from.x];
     if (!fromCell) {
-      throw new Error(`Invalid move: source cell [${from.x}, ${from.y}] does not exist`);
+      throw new Error(
+        `Invalid move: source cell [${from.x}, ${from.y}] does not exist`,
+      );
     }
     if (!fromCell.ball) {
-      throw new Error(`Invalid move: source cell [${from.x}, ${from.y}] has no ball`);
+      throw new Error(
+        `Invalid move: source cell [${from.x}, ${from.y}] has no ball`,
+      );
     }
 
     const toRow = state.board[to.y];
@@ -102,10 +106,14 @@ export class GameEngine {
     }
     const toCell = toRow[to.x];
     if (!toCell) {
-      throw new Error(`Invalid move: target cell [${to.x}, ${to.y}] does not exist`);
+      throw new Error(
+        `Invalid move: target cell [${to.x}, ${to.y}] does not exist`,
+      );
     }
     if (toCell.ball) {
-      throw new Error(`Invalid move: target cell [${to.x}, ${to.y}] is occupied by a ball`);
+      throw new Error(
+        `Invalid move: target cell [${to.x}, ${to.y}] is occupied by a ball`,
+      );
     }
 
     if (from.x === to.x && from.y === to.y) {
@@ -113,20 +121,28 @@ export class GameEngine {
     }
 
     // Check if we're stepping on an incoming ball
-    const steppedOnIncomingBall = state.board[to.y][to.x].incomingBall?.color;
+    const steppedOnIncomingBall = toCell.incomingBall?.color;
 
     // Clone board and move the ball
     const newBoard = cloneBoard(state.board);
-    newBoard[to.y][to.x].ball = state.board[from.y][from.x].ball;
-    newBoard[from.y][from.x].ball = null;
-    newBoard[to.y][to.x].incomingBall = null; // Clear incoming ball at destination
+    const newFromRow = newBoard[from.y];
+    const newFromCell = newFromRow?.[from.x];
+    const newToRow = newBoard[to.y];
+    const newToCell = newToRow?.[to.x];
+    if (newToCell && newFromCell) {
+      newToCell.ball = fromCell.ball;
+      if (newFromCell) {
+        newFromCell.ball = null;
+      }
+      newToCell.incomingBall = null; // Clear incoming ball at destination
+    }
 
     return {
       newState: {
         ...state,
         board: newBoard,
       },
-      steppedOnIncomingBall,
+      ...(steppedOnIncomingBall ? { steppedOnIncomingBall } : {}),
     };
   }
 
@@ -164,7 +180,13 @@ export class GameEngine {
 
     const newBoard = cloneBoard(state.board);
     coordsFromKeys(ballsToRemoveSet).forEach((coord) => {
-      newBoard[coord.y][coord.x].ball = null;
+      const row = newBoard[coord.y];
+      if (row) {
+        const cell = row[coord.x];
+        if (cell) {
+          cell.ball = null;
+        }
+      }
     });
 
     return {

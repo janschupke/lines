@@ -36,12 +36,7 @@ export function findPath(
       const [dx, dy] = direction;
       const nx = x + dx,
         ny = y + dy;
-      if (
-        nx >= 0 &&
-        nx < BOARD_SIZE &&
-        ny >= 0 &&
-        ny < BOARD_SIZE
-      ) {
+      if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
         const visitedRow = visited[ny];
         const boardRow = board[ny];
         if (!visitedRow || !boardRow) continue;
@@ -136,12 +131,7 @@ export function findUnreachableCells(
       const [dx, dy] = direction;
       const nx = x + dx,
         ny = y + dy;
-      if (
-        nx >= 0 &&
-        nx < BOARD_SIZE &&
-        ny >= 0 &&
-        ny < BOARD_SIZE
-      ) {
+      if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
         const visitedRow = visited[ny];
         const boardRow = board[ny];
         if (!visitedRow || !boardRow) continue;

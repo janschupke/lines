@@ -292,7 +292,9 @@ describe("TurnFlowController", () => {
         mockCallbacks,
       );
 
+      // Advance timers for grow animation and animation complete callback
       await vi.advanceTimersByTimeAsync(ANIMATION_DURATIONS.GROW_BALL + 100);
+      await vi.runAllTimersAsync();
       const result = await resultPromise;
 
       // Verify turn completes

@@ -4,6 +4,7 @@ import type { GrowingBall } from "../../hooks/useGameAnimation";
 import { findUnreachableCells } from "../../logic/pathfinding";
 import { BoardCell } from "./BoardCell";
 import { coordToKey } from "@shared/utils/coordinates";
+import { BOARD_SIZE } from "../../config";
 
 interface BoardProps {
   board: Cell[][];
@@ -93,8 +94,9 @@ const Board: React.FC<BoardProps> = ({
         isAnimationInProgress ? "pointer-events-none" : ""
       }`}
       style={{
-        gridTemplateColumns: `repeat(${board[0].length}, minmax(0, 1fr))`,
+        gridTemplateColumns: `repeat(${board[0]?.length ?? BOARD_SIZE}, minmax(0, 1fr))`,
         gridTemplateRows: `repeat(${board.length}, minmax(0, 1fr))`,
+        gridAutoFlow: "row",
       }}
     >
       {boardCells.map((cell) => {
@@ -121,7 +123,7 @@ const Board: React.FC<BoardProps> = ({
             isNotReachable={!!(showNotReachable || isUnreachable)}
             isPopping={isPopping}
             growingBalls={growingBalls}
-            movingBall={movingBall}
+            movingBall={movingBall ?? null}
             movingStep={movingStep}
             onClick={() => handleCellClick(cell.x, cell.y)}
             onHover={() => handleCellHover(cell.x, cell.y)}

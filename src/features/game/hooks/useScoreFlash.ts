@@ -28,6 +28,7 @@ export const useScoreFlash = (
       setPrevScore(score);
       return () => clearTimeout(timeout);
     }
+    return undefined;
   }, [score, prevScore]);
 
   // Track high score changes and trigger flash animation
@@ -41,6 +42,7 @@ export const useScoreFlash = (
       setPrevHighScore(highScore);
       return () => clearTimeout(timeout);
     }
+    return undefined;
   }, [highScore, prevHighScore]);
 
   return {

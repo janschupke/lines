@@ -37,6 +37,7 @@ This causes React to re-render multiple times with the same state, making previe
 ### File: `src/features/game/state/gameStateManager.ts`
 
 **Lines 340-353 - Current code**:
+
 ```typescript
 .then((newGameState) => {
   // Update state
@@ -55,6 +56,7 @@ This causes React to re-render multiple times with the same state, making previe
 ```
 
 **Fixed code**:
+
 ```typescript
 .then((newGameState) => {
   // State already updated via onGameStateUpdate callbacks during turn execution
@@ -90,6 +92,7 @@ This causes React to re-render multiple times with the same state, making previe
 ## Testing
 
 After fix:
+
 1. Move a ball
 2. Verify preview balls appear once and stay stable (no blinking)
 3. Verify state is correct (score, statistics, etc.)
@@ -98,6 +101,7 @@ After fix:
 ## Risk Assessment
 
 **Low Risk**:
+
 - Removing a redundant state update
 - State is already correct (updated via callbacks)
 - Only cleanup code remains in promise handler

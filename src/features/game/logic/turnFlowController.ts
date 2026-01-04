@@ -192,7 +192,10 @@ export class TurnFlowController {
         // Phase 6: Check for lines after grow FIRST, before updating state
         // Note: handleIncomingBallConversion already detects lines and removes them
         // The newBoard in conversionResult already has the balls removed
-        const hasSpawnedLines = conversionResult.linesFormed && conversionResult.ballsRemoved && conversionResult.pointsEarned !== undefined;
+        const hasSpawnedLines =
+          conversionResult.linesFormed &&
+          conversionResult.ballsRemoved &&
+          conversionResult.pointsEarned !== undefined;
 
         // Update state with new board and next balls IMMEDIATELY
         // This ensures preview balls are visible and stable
@@ -233,19 +236,20 @@ export class TurnFlowController {
           });
 
           // Add floating score
-          if (conversionResult.ballsRemoved.length > 0) {
+          if (
+            conversionResult.ballsRemoved &&
+            conversionResult.ballsRemoved.length > 0
+          ) {
             const centerX =
               conversionResult.ballsRemoved.reduce((sum, [x]) => sum + x, 0) /
               conversionResult.ballsRemoved.length;
             const centerY =
-              conversionResult.ballsRemoved.reduce(
-                (sum, [, y]) => sum + y,
-                0,
-              ) / conversionResult.ballsRemoved.length;
+              conversionResult.ballsRemoved.reduce((sum, [, y]) => sum + y, 0) /
+              conversionResult.ballsRemoved.length;
             callbacks.onUIUpdate({
               type: "floatingScore",
               data: {
-                score: conversionResult.pointsEarned,
+                score: conversionResult.pointsEarned ?? 0,
                 x: Math.round(centerX),
                 y: Math.round(centerY),
               },
@@ -263,7 +267,7 @@ export class TurnFlowController {
           // Update score and statistics, but DON'T update the board again (it's already correct)
           currentState = this.gameEngine.updateScore(
             currentState, // Board already has balls removed from line 199 update
-            conversionResult.pointsEarned,
+            conversionResult.pointsEarned ?? 0,
           );
 
           // Update statistics if lines information is available

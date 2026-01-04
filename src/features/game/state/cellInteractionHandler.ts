@@ -23,7 +23,12 @@ export const useCellInteraction = (
   isAnimating: boolean,
   selected: { x: number; y: number } | null,
   actions: CellInteractionActions,
-  onStartMove: (color: BallColor, path: [number, number][], from: { x: number; y: number }, to: { x: number; y: number }) => void,
+  onStartMove: (
+    color: BallColor,
+    path: [number, number][],
+    from: { x: number; y: number },
+    to: { x: number; y: number },
+  ) => void,
 ): CellInteractionHandlers => {
   const handleCellClick = useCallback(
     (x: number, y: number) => {

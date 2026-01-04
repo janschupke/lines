@@ -40,7 +40,11 @@ export class LineDetectionEngine {
     position: [number, number],
   ): LineDetectionResult | null {
     const [x, y] = position;
-    const ball = board[y][x].ball;
+    const row = board[y];
+    if (!row) return null;
+    const cell = row[x];
+    if (!cell) return null;
+    const ball = cell.ball;
     if (!ball) return null;
 
     const lines = this.findLines(board, x, y, ball.color);
@@ -79,7 +83,11 @@ export class LineDetectionEngine {
 
     // Check for lines at each position
     for (const [x, y] of positions) {
-      const ball = board[y][x].ball;
+      const row = board[y];
+      if (!row) continue;
+      const cell = row[x];
+      if (!cell) continue;
+      const ball = cell.ball;
       if (!ball) continue;
 
       const lines = this.findLines(board, x, y, ball.color);
@@ -134,8 +142,9 @@ export class LineDetectionEngine {
   calculateLineScore(line: Line): number {
     if (!this.isValidLine(line)) return 0;
 
-    if (line.length in SCORING_TABLE) {
-      return SCORING_TABLE[line.length];
+    const score = SCORING_TABLE[line.length];
+    if (score !== undefined) {
+      return score;
     }
 
     // For line lengths beyond the table, return the maximum available score
@@ -158,30 +167,34 @@ export class LineDetectionEngine {
       // Forward
       let nx = x + dx,
         ny = y + dy;
-      while (
-        nx >= 0 &&
-        nx < BOARD_SIZE &&
-        ny >= 0 &&
-        ny < BOARD_SIZE &&
-        board[ny][nx].ball &&
-        board[ny][nx].ball?.color === color
-      ) {
-        lineCells.push([nx, ny]);
+      while (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
+        const forwardRow = board[ny];
+        const forwardCell = forwardRow?.[nx];
+        if (
+          forwardCell &&
+          forwardCell.ball &&
+          forwardCell.ball.color === color
+        ) {
+          lineCells.push([nx, ny]);
+        } else {
+          break;
+        }
         nx += dx;
         ny += dy;
       }
       // Backward
       nx = x - dx;
       ny = y - dy;
-      while (
-        nx >= 0 &&
-        nx < BOARD_SIZE &&
-        ny >= 0 &&
-        ny < BOARD_SIZE &&
-        board[ny][nx].ball &&
-        board[ny][nx].ball?.color === color
-      ) {
-        lineCells.unshift([nx, ny]);
+      while (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
+        const backwardRow = board[ny];
+        const backwardCell = backwardRow?.[nx];
+        if (
+          backwardCell &&
+          backwardCell.ball &&
+          backwardCell.ball.color === color
+        ) {
+          lineCells.unshift([nx, ny]);
+        }
         nx -= dx;
         ny -= dy;
       }

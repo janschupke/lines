@@ -10,9 +10,7 @@ interface NextBallsPreviewProps {
  * Next Balls Preview Component
  * Displays the upcoming balls that will be placed
  */
-const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({
-  nextBalls,
-}) => {
+const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({ nextBalls }) => {
   return (
     <div className="flex items-center gap-2">
       <span className="text-game-text-secondary text-sm">Next:</span>

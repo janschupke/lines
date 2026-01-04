@@ -284,7 +284,12 @@ export const useGameStateManager = (
   // Handle move start (called from cell interaction)
   // Capture the board state at move start to ensure validation uses correct state
   const handleMoveStart = useCallback(
-    (color: BallColor, path: [number, number][], from: { x: number; y: number }, to: { x: number; y: number }) => {
+    (
+      color: BallColor,
+      path: [number, number][],
+      from: { x: number; y: number },
+      to: { x: number; y: number },
+    ) => {
       // Capture board state snapshot at move start
       const boardSnapshot = cloneBoard(gameState.board);
 
@@ -413,23 +418,28 @@ export const useGameStateManager = (
     animationState.resetAnimationState();
     statisticsTracker.reset();
 
-      // Animate initial balls
-      for (let y = 0; y < newGameState.board.length; y++) {
-        const row = newGameState.board[y];
-        if (row) {
-          for (let x = 0; x < row.length; x++) {
-            const cell = row[x];
-            if (cell) {
-              if (cell.ball) {
-                animationState.addGrowingBall(x, y, cell.ball.color, false);
-              }
-              if (cell.incomingBall) {
-                animationState.addGrowingBall(x, y, cell.incomingBall.color, false);
-              }
+    // Animate initial balls
+    for (let y = 0; y < newGameState.board.length; y++) {
+      const row = newGameState.board[y];
+      if (row) {
+        for (let x = 0; x < row.length; x++) {
+          const cell = row[x];
+          if (cell) {
+            if (cell.ball) {
+              animationState.addGrowingBall(x, y, cell.ball.color, false);
+            }
+            if (cell.incomingBall) {
+              animationState.addGrowingBall(
+                x,
+                y,
+                cell.incomingBall.color,
+                false,
+              );
             }
           }
         }
       }
+    }
 
     StorageManager.clearGameState();
     StorageManager.saveGameState({

@@ -10,10 +10,7 @@ interface TimerDisplayProps {
  * Timer Display Component
  * Shows game timer with active/inactive state styling
  */
-const TimerDisplay: React.FC<TimerDisplayProps> = ({
-  timer,
-  timerActive,
-}) => {
+const TimerDisplay: React.FC<TimerDisplayProps> = ({ timer, timerActive }) => {
   return (
     <div
       className={`font-bold text-2xl ${

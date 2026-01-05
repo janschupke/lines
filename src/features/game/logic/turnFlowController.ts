@@ -142,6 +142,7 @@ export class TurnFlowController {
             ...currentState,
             gameOver: true,
             showGameEndDialog: true,
+            statistics: currentState.statistics, // Explicitly preserve statistics
           };
           callbacks.onGameStateUpdate(currentState);
           return currentState;
@@ -197,20 +198,8 @@ export class TurnFlowController {
           conversionResult.ballsRemoved &&
           conversionResult.pointsEarned !== undefined;
 
-        // Update state with new board and next balls IMMEDIATELY and ATOMICALLY
-        // This ensures preview balls are visible and stable - they are calculated once
-        // in handleIncomingBallConversion and should not be recalculated
-        // The board reference is stable, preventing unnecessary React re-renders
-        currentState = {
-          ...currentState,
-          board: conversionResult.newBoard,
-          nextBalls: conversionResult.nextBalls,
-        };
-
-        // Update state immediately so preview balls are visible and don't blink
-        // This is the ONLY state update for preview balls during conversion
-        callbacks.onGameStateUpdate(currentState);
-
+        // Trigger grow animation FIRST to ensure growingBalls state is updated before board renders
+        // This prevents flicker where converted balls appear full-size before animation class is applied
         callbacks.onUIUpdate({
           type: "grow",
           data: {
@@ -218,6 +207,25 @@ export class TurnFlowController {
             new: newPreviewBalls,
           },
         });
+
+        // Wait for growingBalls state to update before updating board state
+        // This ensures converted balls have animation class when they render
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Update state with new board and next balls
+        // This ensures preview balls are visible and stable - they are calculated once
+        // in handleIncomingBallConversion and should not be recalculated
+        // IMPORTANT: Explicitly preserve statistics to prevent them from being lost
+        currentState = {
+          ...currentState,
+          board: conversionResult.newBoard,
+          nextBalls: conversionResult.nextBalls,
+          statistics: currentState.statistics, // Explicitly preserve statistics
+        };
+
+        // Update state so preview balls are visible and don't blink
+        // This is the ONLY state update for preview balls during conversion
+        callbacks.onGameStateUpdate(currentState);
 
         await new Promise((resolve) =>
           setTimeout(resolve, ANIMATION_DURATIONS.GROW_BALL),
@@ -296,6 +304,7 @@ export class TurnFlowController {
             ...currentState,
             gameOver: true,
             showGameEndDialog: true,
+            statistics: currentState.statistics, // Explicitly preserve statistics
           };
           callbacks.onGameStateUpdate(currentState);
         }

@@ -155,16 +155,11 @@ export class LineDetectionEngine {
   /**
    * Check if two cells are adjacent (including diagonals)
    */
-  private areAdjacent(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-  ): boolean {
+  private areAdjacent(x1: number, y1: number, x2: number, y2: number): boolean {
     const dx = Math.abs(x1 - x2);
     const dy = Math.abs(y1 - y2);
     // Adjacent if they differ by at most 1 in both x and y
-    return dx <= 1 && dy <= 1 && (dx + dy > 0);
+    return dx <= 1 && dy <= 1 && dx + dy > 0;
   }
 
   /**
@@ -234,7 +229,10 @@ export class LineDetectionEngine {
         ) {
           // Verify this cell is adjacent to the first cell in the line
           const firstCell = lineCells[0];
-          if (firstCell && this.areAdjacent(firstCell[0], firstCell[1], nx, ny)) {
+          if (
+            firstCell &&
+            this.areAdjacent(firstCell[0], firstCell[1], nx, ny)
+          ) {
             lineCells.unshift([nx, ny]);
           } else {
             // Not adjacent - stop building this line

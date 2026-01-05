@@ -327,28 +327,37 @@ describe("TurnFlowController", () => {
 
   describe("executeTurn - Error Handling", () => {
     it("handles errors gracefully and completes turn", async () => {
-      const board = createEmptyBoard();
-      const state: GameState = {
-        ...initialState,
-        board,
-      };
+      // Suppress console.error for this test since we're intentionally throwing an error
+      const originalConsoleError = console.error;
+      console.error = vi.fn();
 
-      // Make moveBall throw an error
-      const engine = controller.getGameEngine();
-      vi.spyOn(engine, "moveBall").mockImplementation(() => {
-        throw new Error("Test error");
-      });
+      try {
+        const board = createEmptyBoard();
+        const state: GameState = {
+          ...initialState,
+          board,
+        };
 
-      const resultPromise = controller.executeTurn(
-        state,
-        { from: { x: 0, y: 0 }, to: { x: 1, y: 1 } },
-        mockCallbacks,
-      );
+        // Make moveBall throw an error
+        const engine = controller.getGameEngine();
+        vi.spyOn(engine, "moveBall").mockImplementation(() => {
+          throw new Error("Test error");
+        });
 
-      await vi.advanceTimersByTimeAsync(100);
-      const result = await resultPromise;
+        const resultPromise = controller.executeTurn(
+          state,
+          { from: { x: 0, y: 0 }, to: { x: 1, y: 1 } },
+          mockCallbacks,
+        );
 
-      expect(result).toBeDefined();
+        await vi.advanceTimersByTimeAsync(100);
+        const result = await resultPromise;
+
+        expect(result).toBeDefined();
+      } finally {
+        // Restore console.error
+        console.error = originalConsoleError;
+      }
     });
   });
 
@@ -356,6 +365,71 @@ describe("TurnFlowController", () => {
     it("returns the game engine instance", () => {
       const engine = controller.getGameEngine();
       expect(engine).toBeInstanceOf(GameEngine);
+    });
+  });
+
+  describe("executeTurn - Statistics Preservation", () => {
+    it("preserves turnsCount correctly through a turn", async () => {
+      const board = createEmptyBoard();
+      board[0][0].ball = { color: BallColorEnum.Red };
+      const state: GameState = {
+        ...initialState,
+        board,
+        statistics: {
+          turnsCount: 5,
+          linesPopped: 2,
+          longestLinePopped: 6,
+        },
+      };
+
+      const resultPromise = controller.executeTurn(
+        state,
+        { from: { x: 0, y: 0 }, to: { x: 1, y: 1 } },
+        mockCallbacks,
+      );
+
+      await vi.advanceTimersByTimeAsync(ANIMATION_DURATIONS.GROW_BALL + 100);
+      const result = await resultPromise;
+
+      // turnsCount should be preserved (not incremented by executeTurn)
+      expect(result.statistics.turnsCount).toBe(5);
+      expect(result.statistics.linesPopped).toBe(2);
+      expect(result.statistics.longestLinePopped).toBe(6);
+    });
+
+    it("preserves turnsCount when lines are popped", async () => {
+      const board = createEmptyBoard();
+      // Create horizontal line of 5 red balls - place 4, move to complete
+      for (let x = 1; x < 5; x++) {
+        board[0][x].ball = { color: BallColorEnum.Red };
+      }
+      board[0][0].ball = { color: BallColorEnum.Red };
+      const state: GameState = {
+        ...initialState,
+        board,
+        statistics: {
+          turnsCount: 10,
+          linesPopped: 3,
+          longestLinePopped: 7,
+        },
+      };
+
+      const resultPromise = controller.executeTurn(
+        state,
+        { from: { x: 0, y: 0 }, to: { x: 5, y: 0 } },
+        mockCallbacks,
+      );
+
+      await vi.advanceTimersByTimeAsync(
+        ANIMATION_DURATIONS.POP_BALL + ANIMATION_DURATIONS.GROW_BALL + 100,
+      );
+      const result = await resultPromise;
+
+      // turnsCount should be preserved
+      expect(result.statistics.turnsCount).toBe(10);
+      // linesPopped should be incremented
+      expect(result.statistics.linesPopped).toBe(4); // 3 + 1
+      expect(result.statistics.longestLinePopped).toBe(7); // max(7, 5)
     });
   });
 });

@@ -223,7 +223,9 @@ describe("LineDetectionEngine", () => {
       expect(result).not.toBeNull();
       expect(result?.ballsToRemove.length).toBe(5);
       // Verify the disconnected ball is not included
-      const removedPositions = result?.ballsToRemove.map(([x, y]) => `${x},${y}`);
+      const removedPositions = result?.ballsToRemove.map(
+        ([x, y]) => `${x},${y}`,
+      );
       expect(removedPositions).not.toContain("7,0");
     });
 

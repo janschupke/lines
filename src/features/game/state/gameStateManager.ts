@@ -123,6 +123,9 @@ export const useGameStateManager = (
   // Animation state hook
   const animationState = useGameAnimation();
 
+  // Ref to track if turn is being processed to prevent multiple executions
+  const isProcessingTurnRef = useRef(false);
+
   // Statistics tracker
   const [statisticsTracker] = useState(() => {
     const tracker = new StatisticsTracker();
@@ -322,12 +325,16 @@ export const useGameStateManager = (
       !uiState.movingBall ||
       uiState.movingStep >= uiState.movingBall.path.length
     ) {
-      if (uiState.movingBall) {
+      if (uiState.movingBall && !isProcessingTurnRef.current) {
         // Animation complete, execute turn
         // Use the stored from/to coordinates and board snapshot
         const { from, to, boardSnapshot } = uiState.movingBall;
 
-        // Update statistics
+        // Mark as processing to prevent this effect from running again
+        // when gameState updates during turn execution
+        isProcessingTurnRef.current = true;
+
+        // Update statistics - only called once per turn now
         statisticsTracker.recordTurn();
         onActivity();
 
@@ -344,10 +351,7 @@ export const useGameStateManager = (
           )
           .then((newGameState) => {
             // State already updated via onGameStateUpdate callbacks during turn execution
-            // Only update statistics tracker and clear animations
-            statisticsTracker.loadStatistics(newGameState.statistics);
-
-            // Clear moving animation
+            // Clear moving animation AFTER board state is updated to prevent flicker
             setUIState((prev) => ({
               ...prev,
               movingBall: null,
@@ -355,10 +359,14 @@ export const useGameStateManager = (
             }));
             animationState.setMovingBall(null);
             animationState.setMovingStep(0);
+            isProcessingTurnRef.current = false;
+
+            // Update statistics tracker
+            statisticsTracker.loadStatistics(newGameState.statistics);
           })
           .catch((error) => {
             console.error("Error executing turn:", error);
-            // Clear moving animation on error
+            // Clear animation and reset flag on error
             setUIState((prev) => ({
               ...prev,
               movingBall: null,
@@ -366,6 +374,7 @@ export const useGameStateManager = (
             }));
             animationState.setMovingBall(null);
             animationState.setMovingStep(0);
+            isProcessingTurnRef.current = false;
           });
       }
       return;

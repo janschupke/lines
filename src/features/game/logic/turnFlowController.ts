@@ -197,8 +197,10 @@ export class TurnFlowController {
           conversionResult.ballsRemoved &&
           conversionResult.pointsEarned !== undefined;
 
-        // Update state with new board and next balls IMMEDIATELY
-        // This ensures preview balls are visible and stable
+        // Update state with new board and next balls IMMEDIATELY and ATOMICALLY
+        // This ensures preview balls are visible and stable - they are calculated once
+        // in handleIncomingBallConversion and should not be recalculated
+        // The board reference is stable, preventing unnecessary React re-renders
         currentState = {
           ...currentState,
           board: conversionResult.newBoard,
@@ -206,6 +208,7 @@ export class TurnFlowController {
         };
 
         // Update state immediately so preview balls are visible and don't blink
+        // This is the ONLY state update for preview balls during conversion
         callbacks.onGameStateUpdate(currentState);
 
         callbacks.onUIUpdate({

@@ -134,8 +134,8 @@ export const BoardCell: React.FC<BoardCellProps> = ({
         />
       )}
 
-      {/* Preview Ball (incoming) */}
-      {!cell.ball && cell.incomingBall && (
+      {/* Preview Ball (incoming) - hide when moving ball is at this cell */}
+      {!cell.ball && cell.incomingBall && !showMovingBall && (
         <span
           className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
             growingBall && !growingBall.isTransitioning ? "grow-ball-new" : ""

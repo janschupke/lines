@@ -153,7 +153,39 @@ export class LineDetectionEngine {
   }
 
   /**
+   * Check if two cells are adjacent (including diagonals)
+   */
+  private areAdjacent(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): boolean {
+    const dx = Math.abs(x1 - x2);
+    const dy = Math.abs(y1 - y2);
+    // Adjacent if they differ by at most 1 in both x and y
+    return dx <= 1 && dy <= 1 && (dx + dy > 0);
+  }
+
+  /**
+   * Verify that all cells in a line are connected (adjacent to each other)
+   */
+  private verifyLineContinuity(lineCells: [number, number][]): boolean {
+    if (lineCells.length < 2) return true;
+    // Check that each cell is adjacent to the next one
+    for (let i = 0; i < lineCells.length - 1; i++) {
+      const [x1, y1] = lineCells[i]!;
+      const [x2, y2] = lineCells[i + 1]!;
+      if (!this.areAdjacent(x1, y1, x2, y2)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Find all lines that pass through a given position
+   * Only detects continuous lines where all balls are touching
    */
   private findLines(
     board: Cell[][],
@@ -175,7 +207,14 @@ export class LineDetectionEngine {
           forwardCell.ball &&
           forwardCell.ball.color === color
         ) {
-          lineCells.push([nx, ny]);
+          // Verify this cell is adjacent to the last cell in the line
+          const lastCell = lineCells[lineCells.length - 1];
+          if (lastCell && this.areAdjacent(lastCell[0], lastCell[1], nx, ny)) {
+            lineCells.push([nx, ny]);
+          } else {
+            // Not adjacent - stop building this line
+            break;
+          }
         } else {
           break;
         }
@@ -193,12 +232,25 @@ export class LineDetectionEngine {
           backwardCell.ball &&
           backwardCell.ball.color === color
         ) {
-          lineCells.unshift([nx, ny]);
+          // Verify this cell is adjacent to the first cell in the line
+          const firstCell = lineCells[0];
+          if (firstCell && this.areAdjacent(firstCell[0], firstCell[1], nx, ny)) {
+            lineCells.unshift([nx, ny]);
+          } else {
+            // Not adjacent - stop building this line
+            break;
+          }
+        } else {
+          break;
         }
         nx -= dx;
         ny -= dy;
       }
-      if (lineCells.length >= MIN_LINE_LENGTH) {
+      // Verify the entire line is continuous before adding it
+      if (
+        lineCells.length >= MIN_LINE_LENGTH &&
+        this.verifyLineContinuity(lineCells)
+      ) {
         const direction = this.getDirectionForVector(dx, dy);
         lines.push({
           cells: lineCells,

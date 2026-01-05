@@ -178,4 +178,95 @@ describe("LineDetectionEngine", () => {
       expect(result?.score).toBe(34);
     });
   });
+
+  describe("line continuity validation", () => {
+    it("does not detect line with gap in middle", () => {
+      // Create balls at positions 0,1,2,4,5 (gap at position 3)
+      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0][1].ball = { color: BallColorEnum.Red };
+      board[0][2].ball = { color: BallColorEnum.Red };
+      // Gap at [0][3]
+      board[0][4].ball = { color: BallColorEnum.Red };
+      board[0][5].ball = { color: BallColorEnum.Red };
+
+      const result = engine.detectLinesAtPosition(board, [2, 0]);
+
+      // Should not detect a line because of the gap
+      expect(result).toBeNull();
+    });
+
+    it("does not detect line when balls are not touching", () => {
+      // Create balls that are in same direction but not adjacent
+      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0][2].ball = { color: BallColorEnum.Red }; // Skip position 1
+      board[0][3].ball = { color: BallColorEnum.Red };
+      board[0][4].ball = { color: BallColorEnum.Red };
+      board[0][5].ball = { color: BallColorEnum.Red };
+
+      const result = engine.detectLinesAtPosition(board, [3, 0]);
+
+      // Should not detect a line because balls at 0 and 2 are not touching
+      expect(result).toBeNull();
+    });
+
+    it("detects only continuous lines", () => {
+      // Create a continuous line of 5 balls
+      for (let x = 0; x < 5; x++) {
+        board[0][x].ball = { color: BallColorEnum.Red };
+      }
+      // Add a disconnected ball in the same row
+      board[0][7].ball = { color: BallColorEnum.Red };
+
+      const result = engine.detectLinesAtPosition(board, [2, 0]);
+
+      // Should detect the continuous line of 5, not including the disconnected ball
+      expect(result).not.toBeNull();
+      expect(result?.ballsToRemove.length).toBe(5);
+      // Verify the disconnected ball is not included
+      const removedPositions = result?.ballsToRemove.map(([x, y]) => `${x},${y}`);
+      expect(removedPositions).not.toContain("7,0");
+    });
+
+    it("does not detect line when direction changes", () => {
+      // Create an L-shape pattern (not a straight line)
+      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0][1].ball = { color: BallColorEnum.Red };
+      board[0][2].ball = { color: BallColorEnum.Red };
+      board[1][2].ball = { color: BallColorEnum.Red };
+      board[2][2].ball = { color: BallColorEnum.Red };
+
+      const result = engine.detectLinesAtPosition(board, [2, 0]);
+
+      // Should not detect a line because it's not straight
+      expect(result).toBeNull();
+    });
+
+    it("handles diagonal lines with gaps correctly", () => {
+      // Create diagonal pattern with gap
+      board[0][0].ball = { color: BallColorEnum.Red };
+      board[1][1].ball = { color: BallColorEnum.Red };
+      board[2][2].ball = { color: BallColorEnum.Red };
+      // Gap at [3][3]
+      board[4][4].ball = { color: BallColorEnum.Red };
+      board[5][5].ball = { color: BallColorEnum.Red };
+
+      const result = engine.detectLinesAtPosition(board, [2, 2]);
+
+      // Should not detect a line because of the gap
+      expect(result).toBeNull();
+    });
+
+    it("detects continuous diagonal line correctly", () => {
+      // Create continuous diagonal line
+      for (let i = 0; i < 5; i++) {
+        board[i][i].ball = { color: BallColorEnum.Red };
+      }
+
+      const result = engine.detectLinesAtPosition(board, [2, 2]);
+
+      // Should detect the continuous line
+      expect(result).not.toBeNull();
+      expect(result?.ballsToRemove.length).toBe(5);
+    });
+  });
 });

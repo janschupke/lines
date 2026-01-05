@@ -110,7 +110,7 @@ const Game: React.FC<GameProps> = ({
     <div className="flex flex-col items-center">
       {/* Single-line Top Panel */}
       <div
-        className="flex items-center w-full relative mb-4"
+        className="flex items-center w-full relative mb-4 mt-4"
         style={{ maxWidth: "600px" }}
       >
         <GameControls

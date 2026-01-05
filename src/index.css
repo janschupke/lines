@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    background-color: #0f172a;
+    min-height: 100vh;
+  }
+
+  html {
+    background-color: #0f172a;
+    min-height: 100vh;
+  }
+}
+
 /* Custom CSS Variables for Animation Durations */
 :root {
   --animation-duration-fade: 300ms;

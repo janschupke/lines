@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useGameAnimation } from "./useGameAnimation";
-import type { BallColor, SpawnedBall } from "../game/types";
-import { ANIMATION_DURATIONS } from "../game/config";
+import { useGameAnimation } from "../features/game/hooks/useGameAnimation";
+import type { BallColor, SpawnedBall } from "../features/game/types";
+import { ANIMATION_DURATIONS } from "../features/game/config";
 
 describe("useGameAnimation", () => {
   describe("initial state", () => {

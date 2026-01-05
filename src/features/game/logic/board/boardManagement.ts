@@ -1,0 +1,274 @@
+import { BOARD_SIZE, BALLS_PER_TURN } from "../../config";
+import type { Cell, BallColor, ConversionResult } from "../../types";
+import { getRandomNextBalls } from "../balls/ballGeneration";
+import { LineDetectionEngine } from "../lines/lineDetectionEngine";
+import { coordToKey } from "@shared/utils/coordinates";
+import { cloneBoard } from "../../utils/boardUtils";
+
+/**
+ * Create an empty game board
+ */
+export function createEmptyBoard(): Cell[][] {
+  return Array.from({ length: BOARD_SIZE }, (_, y) =>
+    Array.from({ length: BOARD_SIZE }, (_, x) => ({
+      x,
+      y,
+      ball: null,
+      incomingBall: null,
+      active: false,
+    })),
+  );
+}
+
+/**
+ * Get random empty cells from the board
+ */
+export function getRandomEmptyCells(
+  board: Cell[][],
+  count: number,
+  exclude = new Set<string>(),
+): [number, number][] {
+  const emptyCells: [number, number][] = [];
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    const row = board[y];
+    if (!row) continue;
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      const cell = row[x];
+      if (!cell) continue;
+      const key = coordToKey({ x, y });
+      if (!cell.ball && !exclude.has(key)) {
+        emptyCells.push([x, y]);
+      }
+    }
+  }
+  // Shuffle for random placement (but keep deterministic for tests)
+  // Randomly shuffle and select cells to distribute balls across the board
+  // Shuffle array using Fisher-Yates algorithm
+  for (let i = emptyCells.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [emptyCells[i], emptyCells[j]] = [emptyCells[j]!, emptyCells[i]!];
+  }
+  return emptyCells.slice(0, count);
+}
+
+/**
+ * Place real balls on the board
+ */
+export function placeRealBalls(
+  board: Cell[][],
+  colors: BallColor[],
+  exclude = new Set<string>(),
+): Cell[][] {
+  const newBoard = cloneBoard(board);
+  const positions = getRandomEmptyCells(newBoard, colors.length, exclude);
+  positions.forEach(([x, y], i) => {
+    const color = colors[i];
+    if (color === undefined) return;
+    const row = newBoard[y];
+    if (!row) return;
+    const cell = row[x];
+    if (!cell) return;
+    cell.ball = { color };
+  });
+  return newBoard;
+}
+
+/**
+ * Place preview balls on the board
+ */
+export function placePreviewBalls(
+  board: Cell[][],
+  colors: BallColor[],
+  exclude = new Set<string>(),
+): Cell[][] {
+  const newBoard = cloneBoard(board);
+  const positions = getRandomEmptyCells(newBoard, colors.length, exclude);
+  positions.forEach(([x, y], i) => {
+    const color = colors[i];
+    if (color === undefined) return;
+    const row = newBoard[y];
+    if (!row) return;
+    const cell = row[x];
+    if (!cell) return;
+    cell.incomingBall = { color };
+  });
+  return newBoard;
+}
+
+/**
+ * Recalculate incoming ball positions
+ */
+export function recalculateIncomingPositions(
+  board: Cell[][],
+  colors: BallColor[],
+): Cell[][] {
+  const newBoard = cloneBoard(board);
+
+  // Remove all incoming balls
+  newBoard.forEach((row) =>
+    row.forEach((cell) => {
+      cell.incomingBall = null;
+    }),
+  );
+
+  // Place new incoming balls
+  return placePreviewBalls(newBoard, colors);
+}
+
+/**
+ * Check if the board is full
+ */
+export function isBoardFull(board: Cell[][]): boolean {
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    const row = board[y];
+    if (!row) return false;
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      const cell = row[x];
+      if (!cell || !cell.ball) return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Handles incoming ball conversion and new ball placement
+ * According to SPAWN.md:
+ * - If ball steps on preview cell: recalculate that preview to new position
+ * - If ball steps on preview cell AND gets popped: DON'T recalculate, spawn in original position
+ */
+export function handleIncomingBallConversion(
+  board: Cell[][],
+  steppedOnIncomingBall?: BallColor,
+  _wasSteppedOnBallPopped = false,
+): ConversionResult {
+  // Convert incoming balls to real balls
+  const boardWithRealBalls = cloneBoard(board);
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    const row = boardWithRealBalls[y];
+    if (!row) continue;
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      const cell = row[x];
+      if (cell?.incomingBall) {
+        cell.ball = cell.incomingBall;
+        cell.incomingBall = null;
+      }
+    }
+  }
+
+  // Check if board is full after conversion
+  if (isBoardFull(boardWithRealBalls)) {
+    return {
+      newBoard: boardWithRealBalls,
+      nextBalls: getRandomNextBalls(BALLS_PER_TURN),
+      gameOver: true,
+    };
+  }
+
+  // Generate next preview balls and handle stepped-on ball if present
+  let workingBoard = boardWithRealBalls;
+  const spawnedPositions: [number, number][] = [];
+
+  // If a ball was stepped on, place it as a real ball in a new position
+  if (steppedOnIncomingBall) {
+    // Note: Both cases (popped or not) need to place the stepped-on ball
+    // as a real ball since the move handler cleared it from the destination
+    workingBoard = placeRealBalls(workingBoard, [steppedOnIncomingBall]);
+
+    // Track the position where the stepped-on ball was placed
+    const steppedOnPosition = findBallPosition(
+      workingBoard,
+      steppedOnIncomingBall,
+    );
+    if (steppedOnPosition) {
+      spawnedPositions.push(steppedOnPosition);
+    }
+  }
+
+  // Generate and place next preview balls
+  const nextPreviewBalls = getRandomNextBalls(BALLS_PER_TURN);
+  const afterBalls = placePreviewBalls(workingBoard, nextPreviewBalls);
+
+  // Track positions of all balls that were converted from incoming to real
+  // (including the stepped-on ball if present, and all other incoming balls)
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    const boardRow = board[y];
+    const afterRow = afterBalls[y];
+    if (!boardRow || !afterRow) continue;
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      const boardCell = boardRow[x];
+      const afterCell = afterRow[x];
+      // Track balls that were incoming and are now real
+      if (boardCell?.incomingBall && afterCell?.ball) {
+        spawnedPositions.push([x, y]);
+      }
+      // Also track any new balls that appeared (for normal case)
+      else {
+        const afterRow = afterBalls[y];
+        const afterCell = afterRow?.[x];
+        const boardRow = board[y];
+        const boardCell = boardRow?.[x];
+        if (afterCell?.ball && !boardCell?.ball && !boardCell?.incomingBall) {
+          spawnedPositions.push([x, y]);
+        }
+      }
+    }
+  }
+
+  // Check for lines formed by spawned balls
+  const lineDetectionEngine = new LineDetectionEngine();
+  const lineResult = lineDetectionEngine.detectLinesAtPositions(
+    afterBalls,
+    spawnedPositions,
+  );
+
+  if (lineResult) {
+    // Remove balls from board
+    const boardAfterRemoval = cloneBoard(afterBalls);
+    for (const [x, y] of lineResult.ballsToRemove) {
+      const row = boardAfterRemoval[y];
+      if (row) {
+        const cell = row[x];
+        if (cell) {
+          cell.ball = null;
+        }
+      }
+    }
+
+    // Lines were formed by spawning - return the board after line removal
+    return {
+      newBoard: boardAfterRemoval,
+      nextBalls: nextPreviewBalls,
+      gameOver: isBoardFull(boardAfterRemoval),
+      linesFormed: true,
+      ballsRemoved: lineResult.ballsToRemove,
+      pointsEarned: lineResult.score,
+      lines: lineResult.lines, // Include lines for statistics
+    };
+  }
+
+  return {
+    newBoard: afterBalls,
+    nextBalls: nextPreviewBalls,
+    gameOver: isBoardFull(afterBalls),
+  };
+}
+
+/**
+ * Helper function to find the position of a ball with a specific color
+ */
+function findBallPosition(
+  board: Cell[][],
+  color: BallColor,
+): [number, number] | null {
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    const row = board[y];
+    if (!row) continue;
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      const cell = row[x];
+      if (cell?.ball?.color === color) {
+        return [x, y];
+      }
+    }
+  }
+  return null;
+}

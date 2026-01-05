@@ -1,0 +1,1 @@
+export { useGameStateManager } from "./gameStateManager";

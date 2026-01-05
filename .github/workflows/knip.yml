@@ -1,0 +1,16 @@
+name: Knip
+
+on:
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  knip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Check for dead code (knip)
+        run: npm run knip

@@ -50,3 +50,6 @@ tsconfig.tsbuildinfo
 
 # Env
 .env
+
+# Prisma generated client (regenerated via postinstall)
+/src/generated/

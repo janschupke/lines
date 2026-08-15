@@ -6,12 +6,16 @@ const config: KnipConfig = {
   ignore: [
     "**/*.test.{ts,tsx}",
     "src/generated/**",
+    "src/shared/names/lists/ldnoobw/index.ts",
     "coverage/**",
     "dist/**",
     ".next/**",
     "node_modules/**",
   ],
-  ignoreDependencies: [],
+  ignoreDependencies: [
+    // imported by the generated Prisma client, which knip ignores
+    "@prisma/client",
+  ],
   vitest: {
     config: "vitest.config.ts",
   },

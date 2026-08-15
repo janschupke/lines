@@ -76,8 +76,13 @@ test("a taller top panel shrinks the board instead of overflowing", async ({
         document.documentElement.clientHeight,
   }));
   expect(scroll.ok).toBe(true);
-  const box = await page.locator('[data-cell="80"]').boundingBox();
-  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport!.height);
+  // Container-query units settle one layout pass after the style change.
+  await expect
+    .poll(async () => {
+      const box = await page.locator('[data-cell="80"]').boundingBox();
+      return box!.y + box!.height;
+    })
+    .toBeLessThanOrEqual(viewport!.height);
 });
 
 test("the small-screen warning no longer exists", async ({ page }) => {

@@ -1,13 +1,13 @@
 import React from "react";
-import type { GameStatistics } from "@/features/game/types";
+import type { GameStats } from "@/engine";
 import { formatTime } from "@/shared/utils";
 
 interface GameEndDialogProps {
   isOpen: boolean;
   score: number;
   currentGameBeatHighScore: boolean;
-  statistics: GameStatistics;
-  timer: number;
+  stats: GameStats;
+  elapsedMs: number;
   onNewGame: () => void;
   onClose: () => void;
 }
@@ -16,8 +16,8 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   isOpen,
   score,
   currentGameBeatHighScore,
-  statistics,
-  timer,
+  stats,
+  elapsedMs,
   onNewGame,
   onClose,
 }) => {
@@ -26,6 +26,9 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   return (
     <div
       className="absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-6 overflow-auto scrollbar-hide animate-in fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Game over"
       onClick={onClose}
     >
       <div
@@ -59,13 +62,13 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {statistics.turnsCount}
+                  {stats.turns}
                 </div>
                 <div className="text-sm text-game-text-secondary">Turns</div>
               </div>
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {formatTime(timer)}
+                  {formatTime((elapsedMs / 1000) | 0)}
                 </div>
                 <div className="text-sm text-game-text-secondary">Duration</div>
               </div>
@@ -75,7 +78,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {statistics.linesPopped}
+                  {stats.linesPopped}
                 </div>
                 <div className="text-sm text-game-text-secondary">
                   Lines Popped
@@ -83,7 +86,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               </div>
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {statistics.longestLinePopped}
+                  {stats.longestLine}
                 </div>
                 <div className="text-sm text-game-text-secondary">
                   Longest Line

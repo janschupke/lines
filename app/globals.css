@@ -14,13 +14,28 @@
   }
 }
 
-/* Remove focus outlines globally */
-button:focus {
-  outline: none !important;
+/* Focus is invisible for mouse users but keyboard users get a real ring. */
+button:focus,
+[role="button"]:focus {
+  outline: none;
 }
 
-button:focus-visible {
-  outline: none !important;
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 1px;
+}
+
+/* Reduced motion: durations collapse to 1ms; the controller separately
+   resolves to the instant clock, so this is belt and braces. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 /* Game-specific styles */

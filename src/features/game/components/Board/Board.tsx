@@ -1,164 +1,76 @@
-import React, { useCallback, useMemo } from "react";
-import type { Cell } from "../../types";
-import type { GrowingBall } from "../../hooks/useGameAnimation";
-import { findUnreachableCells } from "../../logic/pathfinding";
+"use client";
+
+import React from "react";
+import { CELL_COUNT, COLOR_NAMES } from "@/engine";
+import type { ColorName } from "@/engine";
+import { useGameController } from "@/game/useGameController";
 import { BoardCell } from "./BoardCell";
-import { coordToKey } from "@/shared/utils/coordinates";
-import { BOARD_SIZE } from "../../config";
 
-interface BoardProps {
-  board: Cell[][];
-  onCellClick: (x: number, y: number) => void;
-  children?: React.ReactNode;
-  movingBall?: { color: string; path: [number, number][] } | null;
-  movingStep?: number;
-  poppingBalls?: Set<string>;
-  hoveredCell?: { x: number; y: number } | null;
-  pathTrail?: [number, number][] | null;
-  notReachable?: boolean;
-  onCellHover?: (x: number, y: number) => void;
-  onCellLeave?: () => void;
-  selected?: { x: number; y: number } | null;
-  growingBalls?: GrowingBall[];
-}
+const colorName = (id: number): ColorName | null =>
+  id === 0 ? null : (COLOR_NAMES[id] as ColorName);
 
-const Board: React.FC<BoardProps> = ({
-  board,
-  onCellClick,
-  children,
-  movingBall,
-  movingStep = 0,
-  poppingBalls,
-  hoveredCell,
-  pathTrail,
-  notReachable,
-  onCellHover,
-  onCellLeave,
-  selected,
-  growingBalls = [],
-}) => {
-  // Memoize flattened board cells for performance
-  const boardCells = useMemo(() => board.flat(), [board]);
+/**
+ * Renders the ViewBoard from the controller snapshot. All turn logic lives
+ * in the engine; all timing lives in the effect player.
+ */
+const Board: React.FC = () => {
+  const [snapshot, controller] = useGameController();
+  const { view, anim, selected, hovered, pathTrail, unreachable, busy } =
+    snapshot;
 
-  // Convert pathTrail to a Set for fast lookup
-  const pathSet = useMemo(
-    () =>
-      pathTrail
-        ? new Set(pathTrail.map(([x, y]) => coordToKey({ x, y })))
-        : new Set(),
-    [pathTrail],
-  );
+  const pathSet = pathTrail ? new Set(pathTrail) : null;
+  const movingAt =
+    anim.moving !== null ? anim.moving.path[anim.moving.step]! : null;
+  const movingSource = anim.moving !== null ? anim.moving.path[0]! : null;
 
-  // Check if any animation is in progress
-  const isAnimationInProgress =
-    movingBall ||
-    (poppingBalls && poppingBalls.size > 0) ||
-    (growingBalls && growingBalls.length > 0);
-
-  // Calculate unreachable cells when a ball is selected
-  const unreachableCells = useMemo(() => {
-    if (!selected || isAnimationInProgress) {
-      return new Set<string>();
-    }
-    const unreachable = findUnreachableCells(board, selected);
-    return new Set(unreachable.map(([x, y]) => coordToKey({ x, y })));
-  }, [selected, board, isAnimationInProgress]);
-
-  // Handle cell click with animation check
-  const handleCellClick = useCallback(
-    (x: number, y: number) => {
-      if (isAnimationInProgress) return;
-      onCellClick(x, y);
-    },
-    [isAnimationInProgress, onCellClick],
-  );
-
-  // Handle cell hover with animation check
-  const handleCellHover = useCallback(
-    (x: number, y: number) => {
-      if (isAnimationInProgress) return;
-      onCellHover?.(x, y);
-    },
-    [isAnimationInProgress, onCellHover],
-  );
-
-  // Handle cell leave with animation check
-  const handleCellLeave = useCallback(() => {
-    if (isAnimationInProgress) return;
-    onCellLeave?.();
-  }, [isAnimationInProgress, onCellLeave]);
+  const cells = [];
+  for (let index = 0; index < CELL_COUNT; index++) {
+    const isSelected = selected === index;
+    const isHovered = hovered === index;
+    const isUnreachable =
+      selected !== null &&
+      view.balls[index] === 0 &&
+      unreachable !== null &&
+      unreachable[index] !== 1;
+    cells.push(
+      <BoardCell
+        key={index}
+        index={index}
+        ball={colorName(view.balls[index]!)}
+        ghost={colorName(view.ghosts[index]!)}
+        isSelected={isSelected}
+        isHovered={isHovered}
+        isInPath={pathSet?.has(index) ?? false}
+        isNotReachable={isUnreachable}
+        isPopping={anim.popping.has(index)}
+        growing={anim.growing.get(index) ?? null}
+        movingColor={
+          movingAt === index && anim.moving !== null
+            ? (COLOR_NAMES[anim.moving.color] as ColorName)
+            : null
+        }
+        hideBall={movingSource === index}
+        onClick={() => controller.clickCell(index)}
+        onHover={() => controller.hoverCell(index)}
+        onLeave={() => controller.leaveBoard()}
+      />,
+    );
+  }
 
   return (
     <div
-      className={`game-board board-grid ${
-        isAnimationInProgress ? "pointer-events-none" : ""
-      }`}
+      className={`game-board board-grid select-none ${busy ? "pointer-events-none" : ""}`}
       style={{
-        gridTemplateColumns: `repeat(${board[0]?.length ?? BOARD_SIZE}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${board.length}, minmax(0, 1fr))`,
+        gridTemplateColumns: "repeat(9, minmax(0, 1fr))",
+        gridTemplateRows: "repeat(9, minmax(0, 1fr))",
         gridAutoFlow: "row",
+        touchAction: "manipulation",
+        WebkitTapHighlightColor: "transparent",
       }}
     >
-      {boardCells.map((cell) => {
-        const key = coordToKey(cell);
-        const isHovered = !!(
-          hoveredCell &&
-          hoveredCell.x === cell.x &&
-          hoveredCell.y === cell.y
-        );
-        const inPath = pathSet.has(key);
-        const showNotReachable = isHovered && !!notReachable && !cell.ball;
-        const isSelected =
-          selected && selected.x === cell.x && selected.y === cell.y;
-        const isUnreachable = unreachableCells.has(key) && !cell.ball;
-        const isPopping = !!(poppingBalls && poppingBalls.has(key));
-
-        return (
-          <BoardCell
-            key={key}
-            cell={cell}
-            isSelected={!!isSelected}
-            isHovered={isHovered}
-            isInPath={inPath}
-            isNotReachable={!!(showNotReachable || isUnreachable)}
-            isPopping={isPopping}
-            growingBalls={growingBalls}
-            movingBall={movingBall ?? null}
-            movingStep={movingStep}
-            onClick={() => handleCellClick(cell.x, cell.y)}
-            onHover={() => handleCellHover(cell.x, cell.y)}
-            onLeave={handleCellLeave}
-          />
-        );
-      })}
-      {children}
+      {cells}
     </div>
   );
 };
 
-// Memoize Board to prevent re-renders when props haven't changed
-export default React.memo(Board, (prevProps, nextProps) => {
-  // Custom comparison function
-  if (prevProps.board !== nextProps.board) return false;
-  if (
-    prevProps.selected?.x !== nextProps.selected?.x ||
-    prevProps.selected?.y !== nextProps.selected?.y
-  )
-    return false;
-  if (
-    prevProps.hoveredCell?.x !== nextProps.hoveredCell?.x ||
-    prevProps.hoveredCell?.y !== nextProps.hoveredCell?.y
-  )
-    return false;
-  if (prevProps.pathTrail !== nextProps.pathTrail) return false;
-  if (prevProps.notReachable !== nextProps.notReachable) return false;
-  if (prevProps.movingBall !== nextProps.movingBall) return false;
-  if (prevProps.movingStep !== nextProps.movingStep) return false;
-  if (prevProps.poppingBalls !== nextProps.poppingBalls) return false;
-  if (prevProps.growingBalls?.length !== nextProps.growingBalls?.length)
-    return false;
-  if (prevProps.onCellClick !== nextProps.onCellClick) return false;
-  if (prevProps.onCellHover !== nextProps.onCellHover) return false;
-  if (prevProps.onCellLeave !== nextProps.onCellLeave) return false;
-  return true;
-});
+export default Board;

@@ -1,75 +1,53 @@
 import React from "react";
-import type { Cell } from "../../types";
-import type { GrowingBall } from "../../hooks/useGameAnimation";
+import type { CellIndex, ColorName } from "@/engine";
 import { getBallColor } from "@/shared/utils";
 
 interface BoardCellProps {
-  cell: Cell;
+  index: CellIndex;
+  ball: ColorName | null;
+  ghost: ColorName | null;
   isSelected: boolean;
   isHovered: boolean;
   isInPath: boolean;
   isNotReachable: boolean;
   isPopping: boolean;
-  growingBalls: GrowingBall[];
-  movingBall?: { color: string; path: [number, number][] } | null;
-  movingStep?: number;
+  growing: "new" | "transition" | null;
+  /** Set when the moving-ball overlay is at this cell. */
+  movingColor: ColorName | null;
+  /** Set on the move's source cell while the ball travels. */
+  hideBall: boolean;
   onClick: () => void;
   onHover: () => void;
   onLeave: () => void;
 }
 
 /**
- * Individual Board Cell Component
- * Renders a single cell with ball, preview ball, and interaction states
+ * Individual Board Cell Component. The class logic is kept verbatim from the
+ * pre-engine implementation — only the inputs changed.
  */
 export const BoardCell: React.FC<BoardCellProps> = ({
-  cell,
+  index,
+  ball,
+  ghost,
   isSelected,
   isHovered,
   isInPath,
   isNotReachable,
   isPopping,
-  growingBalls,
-  movingBall,
-  movingStep = 0,
+  growing,
+  movingColor,
+  hideBall,
   onClick,
   onHover,
   onLeave,
 }) => {
-  const growingBall = growingBalls.find(
-    (gb) => gb.x === cell.x && gb.y === cell.y,
-  );
-
-  // Check if this cell should show the moving ball
-  let showMovingBall = false;
-  let movingBallColor: string | null = null;
-  if (movingBall && movingBall.path && movingBall.path.length > 0) {
-    if (movingStep >= 0 && movingStep < movingBall.path.length) {
-      const pathStep = movingBall.path[movingStep];
-      if (pathStep) {
-        const [mx, my] = pathStep;
-        if (cell.x === mx && cell.y === my) {
-          showMovingBall = true;
-          movingBallColor = movingBall.color;
-        }
-      }
-    }
-  }
-
-  // Hide the ball in the source cell if a ball is moving
-  const hideBall =
-    movingBall &&
-    movingBall.path &&
-    movingBall.path.length > 0 &&
-    movingBall.path[0] &&
-    cell.x === movingBall.path[0][0] &&
-    cell.y === movingBall.path[0][1];
+  const showMovingBall = movingColor !== null;
 
   // Determine cell background and border classes
   let cellBgClass = "bg-game-bg-cell-empty";
   let borderClass = "border-game-border-default";
 
-  if (cell.active || isSelected) {
+  if (isSelected) {
     cellBgClass = "bg-game-bg-cell-hover";
   } else if (isInPath) {
     cellBgClass = "bg-game-bg-cell-path";
@@ -88,17 +66,15 @@ export const BoardCell: React.FC<BoardCellProps> = ({
     "game-cell relative flex items-center justify-center",
     cellBgClass,
     borderClass,
-    isPopping ? "animate-pop" : "",
   ]
     .filter(Boolean)
     .join(" ");
 
   // Assertion hooks: tests read state from data-* attributes, never from
-  // Tailwind class strings. These survive the engine cutover unchanged.
-  const cellIndex = cell.y * 9 + cell.x;
+  // Tailwind class strings.
   const dataState = isPopping
     ? "popping"
-    : cell.active || isSelected
+    : isSelected
       ? "selected"
       : isInPath
         ? "path"
@@ -106,60 +82,65 @@ export const BoardCell: React.FC<BoardCellProps> = ({
           ? "unreachable"
           : undefined;
 
+  const contents = ball
+    ? `${ball} ball`
+    : ghost
+      ? `incoming ${ghost} ball`
+      : "empty";
+
   return (
     <div
       className={cellClasses}
-      data-cell={cellIndex}
-      data-ball={cell.ball && !hideBall ? cell.ball.color : undefined}
-      data-ghost={
-        !cell.ball && cell.incomingBall ? cell.incomingBall.color : undefined
-      }
+      data-cell={index}
+      data-ball={ball && !hideBall ? ball : undefined}
+      data-ghost={!ball && ghost ? ghost : undefined}
       data-state={dataState}
       style={{
-        gridColumn: `${cell.x + 1}`,
-        gridRow: `${cell.y + 1}`,
+        gridColumn: `${(index % 9) + 1}`,
+        gridRow: `${((index / 9) | 0) + 1}`,
       }}
       onClick={onClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       role="button"
       tabIndex={0}
-      aria-label={`Cell at position ${cell.x}, ${cell.y}`}
+      aria-label={`Cell ${(index % 9) + 1}, ${((index / 9) | 0) + 1}: ${contents}`}
     >
       {/* Show moving ball if this cell is the current position, but only if not popping */}
-      {showMovingBall && movingBallColor && !isPopping && (
+      {showMovingBall && !isPopping && (
         <span
-          className={"game-ball ball-main animate-move-ball"}
-          style={{ backgroundColor: getBallColor(movingBallColor) }}
+          className="game-ball ball-main animate-move-ball"
+          style={{ backgroundColor: getBallColor(movingColor) }}
         />
       )}
 
       {/* Show regular ball - prioritize showing ball at destination if it should be popped */}
-      {/* If isPopping, always show the regular ball (even if moving ball was active) */}
-      {cell.ball && !hideBall && (!showMovingBall || isPopping) && (
+      {ball && !hideBall && (!showMovingBall || isPopping) && (
         <span
-          className={`game-ball ${
-            cell.active || isSelected ? "game-ball-active" : ""
-          } ${
-            growingBall && growingBall.isTransitioning
+          className={`game-ball ${isSelected ? "game-ball-active" : ""} ${
+            growing === "transition"
               ? "grow-ball-transition"
               : isPopping
                 ? "z-20 animate-pop-ball"
                 : ""
           } ball-main`}
-          style={{ backgroundColor: getBallColor(cell.ball.color) }}
+          style={{ backgroundColor: getBallColor(ball) }}
         />
       )}
 
       {/* Preview Ball (incoming) - hide when moving ball is at this cell */}
-      {!cell.ball && cell.incomingBall && !showMovingBall && (
+      {!ball && ghost && !showMovingBall && (
         <span
           className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
-            growingBall && !growingBall.isTransitioning ? "grow-ball-new" : ""
+            growing === "new" ? "grow-ball-new" : ""
           } ball-ghost`}
-          style={{
-            backgroundColor: getBallColor(cell.incomingBall.color),
-          }}
+          style={{ backgroundColor: getBallColor(ghost) }}
         />
       )}
 

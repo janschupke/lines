@@ -1,5 +1,5 @@
 import React from "react";
-import { SCORING_TABLE } from "@/features/game/config";
+import { SCORING_TABLE } from "@/engine";
 
 interface GuideProps {
   onClose?: () => void;

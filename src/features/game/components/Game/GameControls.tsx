@@ -22,6 +22,7 @@ const GameControls: React.FC<GameControlsProps> = ({
         className="game-button game-button-primary p-3 rounded-lg hover:bg-opacity-80 transition-colors"
         data-testid="new-game-button"
         title="New Game"
+        aria-label="New game"
       >
         <svg
           className="w-6 h-6"
@@ -45,6 +46,7 @@ const GameControls: React.FC<GameControlsProps> = ({
           showGuide ? "game-button-accent" : "game-button-primary"
         }`}
         title="Game Guide"
+        aria-label="Game guide"
       >
         <svg
           className="w-6 h-6"

@@ -1,28 +1,25 @@
 import React from "react";
-import type { BallColor } from "../../types";
-import { getBallColor } from "@/shared/utils/helpers";
+import type { ColorName } from "@/engine";
+import { getBallColor } from "@/shared/utils";
 
 interface NextBallsPreviewProps {
-  nextBalls: BallColor[];
+  preview: readonly ColorName[];
 }
 
 /**
  * Next Balls Preview Component
- * Displays the upcoming balls that will be placed
+ * Displays the upcoming balls, derived from the ghosts on the board.
  */
-const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({ nextBalls }) => {
+const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({ preview }) => {
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-game-text-secondary text-sm">Next:</span>
-      <div className="flex gap-1">
-        {nextBalls.map((color, index) => (
-          <div
-            key={index}
-            className="w-6 h-6 rounded-full border-2 border-game-border-muted"
-            style={{ backgroundColor: getBallColor(color) }}
-          />
-        ))}
-      </div>
+    <div className="flex gap-1">
+      {preview.map((color, index) => (
+        <div
+          key={index}
+          className="w-7 h-7 rounded-full border-2 border-game-border-muted"
+          style={{ backgroundColor: getBallColor(color) }}
+        />
+      ))}
     </div>
   );
 };

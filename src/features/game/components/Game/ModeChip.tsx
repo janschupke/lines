@@ -33,58 +33,66 @@ const ModeChip: React.FC = () => {
     }
   };
 
+  const switchDisabled = probing || (!isRanked && !canSwitchToRankedInPlace);
+
   return (
-    <div
-      className="game-panel px-3 py-1 flex items-center gap-2 text-sm"
-      data-testid="mode-chip"
-      data-mode={probing ? "checking" : active}
-      aria-live="polite"
-      aria-label={`${label} mode — ${reasonText}`}
-      title={`${label}: ${subtitle} — ${reasonText}`}
-    >
-      <span
-        className={
-          isRanked
-            ? "text-game-text-accent font-semibold"
-            : "text-game-text-secondary font-semibold"
-        }
+    // The wrapper anchors the popover: it must NOT sit inside the
+    // .game-panel chip, whose overflow-hidden clips it into invisibility.
+    <div className="relative">
+      <div
+        className="game-panel px-3 py-1 flex items-center gap-2 text-sm"
+        data-testid="mode-chip"
+        data-mode={probing ? "checking" : active}
+        aria-live="polite"
+        aria-label={`${label} mode — ${reasonText}`}
       >
-        {isRanked ? "◆" : "◇"} {label}
-      </span>
-      <span
-        className="mode-reason-text text-game-text-secondary"
-        data-testid="mode-reason"
-      >
-        {reasonText}
-      </span>
-      <button
-        className="text-game-text-secondary hover:text-game-text-primary cursor-pointer"
-        aria-label="About game modes"
-        onClick={() => setInfoOpen((v) => !v)}
-      >
-        ⓘ
-      </button>
-      <button
-        className={`cursor-pointer ${
-          probing || (!isRanked && !canSwitchToRankedInPlace)
-            ? "text-game-border-default"
-            : "text-game-text-secondary hover:text-game-text-primary"
-        }`}
-        aria-label="Switch mode"
-        data-testid="mode-switch"
-        aria-disabled={probing || (!isRanked && !canSwitchToRankedInPlace)}
-        title={
-          !isRanked && !canSwitchToRankedInPlace
-            ? "Ranked games have to start from the beginning."
-            : "Switch mode"
-        }
-        onClick={onSwitch}
-      >
-        ⇄
-      </button>
+        <span
+          className={
+            isRanked
+              ? "text-game-text-accent font-semibold"
+              : "text-game-text-secondary font-semibold"
+          }
+        >
+          {isRanked ? "◆" : "◇"} {label}
+        </span>
+        <span
+          className="mode-reason-text text-game-text-secondary"
+          data-testid="mode-reason"
+        >
+          {reasonText}
+        </span>
+        <button
+          className="px-1.5 py-0.5 rounded-sm text-game-text-secondary hover:text-game-text-primary hover:bg-game-bg-tertiary cursor-pointer"
+          aria-label="About game modes"
+          aria-expanded={infoOpen}
+          onClick={() => setInfoOpen((v) => !v)}
+        >
+          ⓘ
+        </button>
+        <button
+          className={`px-1.5 py-0.5 rounded-sm ${
+            switchDisabled
+              ? "text-game-border-default cursor-default"
+              : "text-game-text-secondary hover:text-game-text-primary hover:bg-game-bg-tertiary cursor-pointer"
+          }`}
+          aria-label={isRanked ? "Switch to Casual" : "Switch to Ranked"}
+          data-testid="mode-switch"
+          aria-disabled={switchDisabled}
+          title={
+            !isRanked && !canSwitchToRankedInPlace
+              ? "Ranked games have to start from the beginning."
+              : isRanked
+                ? "Switch to Casual"
+                : "Switch to Ranked"
+          }
+          onClick={onSwitch}
+        >
+          ⇄
+        </button>
+      </div>
       {infoOpen && (
         <div
-          className="absolute top-full left-0 right-0 game-dialog z-50 p-4 mt-1 text-left text-game-text-secondary text-sm"
+          className="absolute top-full left-1/2 -translate-x-1/2 w-80 max-w-[90vw] game-dialog z-50 p-4 mt-1 text-left text-game-text-secondary text-sm"
           role="dialog"
           aria-label="About game modes"
         >
@@ -98,7 +106,9 @@ const ModeChip: React.FC = () => {
             is for playing: instant, works offline. Scores stay on your device
             as a local best.
           </p>
-          <p className="mb-2">Right now: {reasonText}.</p>
+          <p className="mb-2">
+            {label}: {subtitle} — {reasonText}.
+          </p>
           {!isRanked && !canSwitchToRankedInPlace && (
             <p className="mb-2">
               Ranked games have to start from the beginning.{" "}

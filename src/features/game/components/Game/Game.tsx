@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GameController } from "@/game/controller";
 import {
@@ -25,19 +25,22 @@ interface GameProps {
 }
 
 const Game: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
-  const controllerRef = useRef<GameController | null>(null);
-  controllerRef.current ??= new GameController();
+  const [controller, setController] = useState(() => new GameController());
 
   useEffect(() => {
-    const controller = controllerRef.current;
-    return () => {
-      controller?.destroy();
-      controllerRef.current = null;
-    };
-  }, []);
+    // StrictMode mounts, unmounts and remounts: the first pass destroys its
+    // controller in cleanup, so the remount pass MUST mint a fresh one.
+    // Rendering against the destroyed store left the app frozen at
+    // "checking connection…" with an empty board and dead buttons.
+    if (controller.isDestroyed) {
+      setController(new GameController());
+      return;
+    }
+    return () => controller.destroy();
+  }, [controller]);
 
   return (
-    <GameControllerContext.Provider value={controllerRef.current}>
+    <GameControllerContext.Provider value={controller}>
       <GameView showGuide={showGuide} setShowGuide={setShowGuide} />
     </GameControllerContext.Provider>
   );

@@ -1,13 +1,19 @@
 import React from "react";
 
-// Same page structure at the same dimensions as the real game, so the
-// client-only Game mounts without layout shift.
+// Same page structure at the same dimensions as the real game — INCLUDING
+// the mode-chip row and footer. The board sizes itself from the leftover
+// height, so a skeleton missing a row renders a different-sized board and
+// the page jumps when the real Game mounts.
 const BoardSkeleton: React.FC = () => {
   return (
     <div className="game-page">
       <div
         className="top-panel game-chrome flex items-center relative mb-4 mt-4"
         style={{ minHeight: "64px" }}
+      />
+      <div
+        className="mode-chip-row game-chrome flex justify-center mb-2 relative"
+        style={{ minHeight: "30px" }}
       />
       <div className="board-area">
         <div className="board-frame game-panel p-4">
@@ -29,6 +35,10 @@ const BoardSkeleton: React.FC = () => {
           </div>
         </div>
       </div>
+      <div
+        className="page-footer game-chrome flex items-center justify-between relative mt-4"
+        style={{ minHeight: "32px" }}
+      />
     </div>
   );
 };

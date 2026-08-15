@@ -198,6 +198,12 @@ export class GameController {
   private listeners = new Set<() => void>();
   private snapshot: UiSnapshot | null = null;
   private destroyed = false;
+  /** Bumps whenever a new game supersedes an in-flight /start probe. */
+  private probeGen = 0;
+
+  get isDestroyed(): boolean {
+    return this.destroyed;
+  }
 
   constructor(deps: ControllerDeps = {}) {
     const prefersReduced =
@@ -250,7 +256,10 @@ export class GameController {
         this.state.score > 0 && this.state.score >= this.highScore,
       stats: this.state.stats,
       over: this.state.over,
-      preview: previewColors({ ...this.state, ghosts: this.view.ghosts }).map(
+      // From the FINAL state, not the animating view: deriving it from
+      // view.ghosts made the preview flicker through transient values while
+      // the spawn animation folded.
+      preview: previewColors(this.state).map(
         (c) => COLOR_NAMES[c] as ColorName,
       ),
       selected: this.selected,
@@ -403,15 +412,16 @@ export class GameController {
     this.modeReason = "checking";
     this.publish();
     const sticky = decision.reason === "your-choice";
+    const gen = ++this.probeGen;
     void this.api
       .start(getPlayerId())
       .then((res) => {
-        if (this.destroyed || !this.probing) return;
+        if (this.destroyed || gen !== this.probeGen) return;
         this.probing = false;
         this.beginRanked(res, sticky ? "your-choice" : "connection-good");
       })
       .catch(() => {
-        if (this.destroyed || !this.probing) return;
+        if (this.destroyed || gen !== this.probeGen) return;
         this.probing = false;
         this.modeReason = "server-unreachable";
         this.beginCasual(mintCasualKey());
@@ -457,7 +467,13 @@ export class GameController {
   // -- input ----------------------------------------------------------------
 
   clickCell(index: CellIndex): void {
-    if (this.busy() || this.state.over) return;
+    if (this.state.over) return;
+    // While probing or awaiting the server's packet the state is not final —
+    // drop the click. A merely-animating turn IS final, so fast-forward the
+    // pixels instead of eating the input: nothing feels worse than a board
+    // that ignores clicks while balls grow.
+    if (this.probing || this.pendingMove !== null) return;
+    if (this.player.busy) this.player.finish();
     this.activity();
     if (this.view.balls[index] !== 0) {
       this.selected = this.selected === index ? null : index;
@@ -506,16 +522,17 @@ export class GameController {
     this.probing = true;
     this.modeReason = "checking";
     this.publish();
+    const gen = ++this.probeGen;
     void this.api
       .start(getPlayerId())
       .then((res) => {
-        if (this.destroyed) return;
+        if (this.destroyed || gen !== this.probeGen) return;
         this.probing = false;
         saveModePref("ranked");
         this.beginRanked(res, "your-choice");
       })
       .catch(() => {
-        if (this.destroyed) return;
+        if (this.destroyed || gen !== this.probeGen) return;
         this.probing = false;
         this.modeReason = "server-unreachable";
         this.beginCasual(mintCasualKey());
@@ -530,6 +547,8 @@ export class GameController {
   }
 
   private abandonCurrent(): void {
+    this.probeGen++; // a superseded in-flight probe must not win later
+    this.probing = false;
     this.submission = idleSubmission();
     this.player.cancel();
     this.cancelRetries();

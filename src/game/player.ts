@@ -39,6 +39,12 @@ export class EffectPlayer {
   private floatingId = 0;
   overlay: Overlay = EMPTY_OVERLAY;
   private playing = false;
+  /** The in-flight timeline; `i` is the first effect NOT yet folded. */
+  private cursor: {
+    effects: readonly Effect[];
+    i: number;
+    onDone: () => void;
+  } | null = null;
 
   constructor(
     clock: Clock,
@@ -66,8 +72,31 @@ export class EffectPlayer {
   cancel(): void {
     for (const c of this.cancels) c();
     this.cancels = [];
+    this.cursor = null;
     this.overlay = EMPTY_OVERLAY;
     this.playing = false;
+  }
+
+  /**
+   * Fast-forward: fold everything not yet folded, clear the overlay and
+   * complete synchronously. Safe because the game state is final before the
+   * first pixel animates — this only skips the pixels.
+   */
+  finish(): void {
+    if (!this.playing) return;
+    for (const c of this.cancels) c();
+    this.cancels = [];
+    const cursor = this.cursor;
+    this.cursor = null;
+    this.playing = false;
+    if (cursor) {
+      for (let j = cursor.i; j < cursor.effects.length; j++) {
+        this.fold(cursor.effects[j]!);
+      }
+    }
+    this.overlay = EMPTY_OVERLAY;
+    this.onChange();
+    cursor?.onDone();
   }
 
   play(effects: readonly Effect[], onDone: () => void): void {
@@ -85,8 +114,10 @@ export class EffectPlayer {
     i: number,
     onDone: () => void,
   ): void {
+    this.cursor = { effects, i, onDone };
     if (i >= effects.length) {
       this.playing = false;
+      this.cursor = null;
       this.overlay = {
         ...this.overlay,
         moving: null,
@@ -166,6 +197,7 @@ export class EffectPlayer {
         // Fold first so the cells render as real balls, animated by the
         // grow transition class while `growing` marks them.
         this.fold(e);
+        this.cursor = { effects, i: i + 1, onDone }; // already folded
         this.overlay = { ...this.overlay, growing };
         this.onChange();
         this.after(effectDuration(e, this.timings), () => {
@@ -196,6 +228,7 @@ export class EffectPlayer {
           }
           this.fold(g);
         }
+        this.cursor = { effects, i: i + group.length, onDone }; // folded
         this.overlay = { ...this.overlay, growing };
         this.onChange();
         this.after(this.timings.growBall, () => {

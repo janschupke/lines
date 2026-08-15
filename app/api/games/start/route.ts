@@ -23,14 +23,18 @@ export async function POST(request: Request): Promise<Response> {
   }
   const ipHash = ipHashOf(request);
 
-  // /start writes a row, so it is rate-limited hard.
-  const [byPlayer, byIp] = await Promise.all([
-    attemptsInWindow({ playerId: body.playerId }, HOUR, ["start"]),
-    attemptsInWindow({ ipHash }, HOUR, ["start"]),
-  ]);
-  if (byPlayer >= 20 || byIp >= 40) {
-    await recordAttempt("rate_limited", ipHash, body.playerId);
-    return errorResponse("rate_limited", 429);
+  // /start writes a row, so it is rate-limited hard — in production. Dev
+  // burns starts fast (StrictMode double-mounts, hot reloads, new-game
+  // spam while iterating) and a 429 there just makes the game look broken.
+  if (process.env.NODE_ENV !== "development") {
+    const [byPlayer, byIp] = await Promise.all([
+      attemptsInWindow({ playerId: body.playerId }, HOUR, ["start"]),
+      attemptsInWindow({ ipHash }, HOUR, ["start"]),
+    ]);
+    if (byPlayer >= 20 || byIp >= 40) {
+      await recordAttempt("rate_limited", ipHash, body.playerId);
+      return errorResponse("rate_limited", 429);
+    }
   }
   await recordAttempt("start", ipHash, body.playerId);
 

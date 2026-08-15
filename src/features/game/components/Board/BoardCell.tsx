@@ -95,9 +95,28 @@ export const BoardCell: React.FC<BoardCellProps> = ({
     .filter(Boolean)
     .join(" ");
 
+  // Assertion hooks: tests read state from data-* attributes, never from
+  // Tailwind class strings. These survive the engine cutover unchanged.
+  const cellIndex = cell.y * 9 + cell.x;
+  const dataState = isPopping
+    ? "popping"
+    : cell.active || isSelected
+      ? "selected"
+      : isInPath
+        ? "path"
+        : isNotReachable
+          ? "unreachable"
+          : undefined;
+
   return (
     <div
       className={cellClasses}
+      data-cell={cellIndex}
+      data-ball={cell.ball && !hideBall ? cell.ball.color : undefined}
+      data-ghost={
+        !cell.ball && cell.incomingBall ? cell.incomingBall.color : undefined
+      }
+      data-state={dataState}
       style={{
         gridColumn: `${cell.x + 1}`,
         gridRow: `${cell.y + 1}`,

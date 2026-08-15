@@ -60,6 +60,10 @@ export default defineConfig({
           environment: "node",
           include: ["**/*.int.test.ts"],
           exclude: ["node_modules/**", "e2e/**"],
+          // The files share one database and truncate in beforeEach —
+          // they must never run in parallel.
+          pool: "forks",
+          poolOptions: { forks: { singleFork: true } },
         },
       },
     ],

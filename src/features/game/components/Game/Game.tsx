@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { GameController } from "@/game/controller";
 import {
   GameControllerContext,
@@ -44,17 +45,19 @@ const Game: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
 
 const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
   const [snapshot, controller] = useGameController();
+  const router = useRouter();
 
   const keyboardHandlers = useMemo(
     () => ({
       onKeyG: () => setShowGuide(!showGuide),
       onKeyN: () => controller.newGame(),
+      onKeyL: () => router.push("/leaderboard"),
       onKeyEscape: () => {
         if (showGuide) setShowGuide(false);
         if (controller.getSnapshot().dialogOpen) controller.closeDialog();
       },
     }),
-    [showGuide, setShowGuide, controller],
+    [showGuide, setShowGuide, controller, router],
   );
   useKeyboard(keyboardHandlers);
 
@@ -121,7 +124,7 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
             {/* Guide Overlay - exactly same size as board */}
             {showGuide && (
               <div
-                className="absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide animate-in fade-in"
+                className="game-overlay absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide animate-in fade-in"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Game guide"
@@ -138,7 +141,11 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
                 currentGameBeatHighScore={snapshot.highScoreBeaten}
                 stats={snapshot.stats}
                 elapsedMs={snapshot.elapsedMs}
+                submission={snapshot.submission}
+                onSubmit={(name) => void controller.submitScore(name)}
+                onRetry={() => controller.retrySubmission()}
                 onNewGame={() => controller.newGame()}
+                onPlayRanked={() => controller.startRankedGame()}
                 onClose={() => controller.closeDialog()}
               />
             )}

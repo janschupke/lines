@@ -104,6 +104,7 @@ describe("ranked connection machine", () => {
       finish: vi.fn(async () => {
         throw new Error("unused");
       }),
+      scores: vi.fn(async () => ({ entries: [], threshold: 0 })),
     };
     const clock = fakeClock();
     const controller = new GameController({ clock, api });
@@ -229,6 +230,7 @@ describe("ranked connection machine", () => {
       move: vi.fn(),
       state: vi.fn(),
       finish: vi.fn(),
+      scores: vi.fn(),
     };
     const clock = fakeClock();
     const controller = new GameController({ clock, api });

@@ -59,6 +59,7 @@ export async function POST(
         accepted: true,
         qualified: true,
         score: existing.score,
+        scoreId: existing.id,
       });
     }
     await recordAttempt("no_session", ipHash);
@@ -77,6 +78,7 @@ export async function POST(
       accepted: true,
       qualified: true,
       score: existing.score,
+      scoreId: existing.id,
     });
   }
 
@@ -227,6 +229,7 @@ export async function POST(
         accepted: true,
         qualified: true,
         score: raced.score,
+        scoreId: raced.id,
       });
     }
     throw error;
@@ -237,11 +240,13 @@ export async function POST(
     (await prisma.score.count({
       where: { score: { gt: audit.state.score } },
     })) + 1;
+  const written = await prisma.score.findUnique({ where: { gameId } });
   return Response.json({
     accepted: true,
     qualified: true,
     score: audit.state.score,
     rank,
+    scoreId: written?.id,
   });
 }
 

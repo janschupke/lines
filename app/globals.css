@@ -477,3 +477,17 @@ button:focus-visible,
     margin-top: 0.5rem;
   }
 }
+
+/* Dialogs as sheets below the sheet breakpoint: the page never scrolls, so
+   any dialog taller than the board scrolls inside itself, full-screen, with
+   safe-area padding. */
+@media (max-width: 599px) {
+  .game-overlay {
+    position: fixed;
+    inset: 0;
+    border-radius: 0;
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 100;
+  }
+}

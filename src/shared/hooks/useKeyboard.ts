@@ -3,6 +3,7 @@ import { useEffect, useCallback } from "react";
 interface KeyboardHandlers {
   onKeyG?: () => void;
   onKeyN?: () => void;
+  onKeyL?: () => void;
   onKeyEscape?: () => void;
 }
 
@@ -24,6 +25,9 @@ export const useKeyboard = (handlers: KeyboardHandlers) => {
           break;
         case "n":
           handlers.onKeyN?.();
+          break;
+        case "l":
+          handlers.onKeyL?.();
           break;
         case "escape":
           handlers.onKeyEscape?.();

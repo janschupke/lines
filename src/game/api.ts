@@ -55,9 +55,25 @@ export interface FinishResponse {
   score: number;
   rank?: number;
   threshold?: number;
+  scoreId?: string;
 }
 
-class ApiError extends Error {
+export interface ScoresResponse {
+  entries: {
+    id: string;
+    rank: number;
+    name: string;
+    score: number;
+    durationMs: number;
+    moveCount: number;
+    linesPopped: number;
+    longestLine: number;
+    createdAt: string;
+  }[];
+  threshold: number;
+}
+
+export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
   constructor(status: number, code: string) {
@@ -73,6 +89,7 @@ export interface GameApi {
   move(req: MoveRequest): Promise<MoveResponse>;
   state(gameId: string, token: string): Promise<StateResponse>;
   finish(req: FinishRequest): Promise<FinishResponse>;
+  scores(): Promise<ScoresResponse>;
 }
 
 const START_TIMEOUT_MS = 1500;
@@ -151,4 +168,5 @@ export const httpGameApi: GameApi = {
       },
       REQUEST_TIMEOUT_MS,
     ),
+  scores: () => call("/api/scores", {}, REQUEST_TIMEOUT_MS),
 };

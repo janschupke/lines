@@ -43,10 +43,12 @@ import {
   pushNetOutcome,
   saveCasualGame,
   saveHighScore,
+  saveLastName,
   saveModePref,
   saveRankedGame,
 } from "./persistence";
 import type { GameApi, MoveRequest } from "./api";
+import { ApiError } from "./api";
 import { httpGameApi } from "./api";
 import type { Mode, ModeReason } from "./mode";
 import { navigatorInfo, preProbeDecision } from "./mode";
@@ -88,6 +90,26 @@ export interface UiSnapshot {
   };
   connection: ConnectionState;
   showModeIntro: boolean;
+  submission: SubmissionState;
+}
+
+export interface SubmissionState {
+  status:
+    | "casual"
+    | "checking"
+    | "idle"
+    | "not-qualified"
+    | "unreachable"
+    | "submitting"
+    | "accepted"
+    | "rejected";
+  /** Set when a ranked game continued as casual after a switch. */
+  switched: boolean;
+  threshold: number | null;
+  rank: number | null;
+  scoreId: string | null;
+  errorCode: string | null;
+  casualBest: number;
 }
 
 export interface ControllerDeps {
@@ -171,6 +193,7 @@ export class GameController {
 
   private moves: GameAction[] = [];
   private startedAt: number;
+  private submission: SubmissionState = idleSubmission();
 
   private listeners = new Set<() => void>();
   private snapshot: UiSnapshot | null = null;
@@ -248,6 +271,7 @@ export class GameController {
       },
       connection: this.connection,
       showModeIntro: this.showModeIntro,
+      submission: this.submission,
     };
     return this.snapshot;
   };
@@ -506,6 +530,7 @@ export class GameController {
   }
 
   private abandonCurrent(): void {
+    this.submission = idleSubmission();
     this.player.cancel();
     this.cancelRetries();
     this.pendingMove = null;
@@ -674,8 +699,95 @@ export class GameController {
         pushNetOutcome(this.hadReconnect ? "reconnected" : "clean");
       }
       clearGame(); // game end is the only place the save is cleared
+      this.prepareSubmission();
     } else {
       this.saveNow(); // one write per completed turn
+    }
+    this.publish();
+  }
+
+  /** At game over: only offer the name field when the score can place. */
+  private prepareSubmission(): void {
+    const casualBest = loadHighScores().casual;
+    if (this.mode !== "ranked" || !this.ranked) {
+      this.submission = {
+        ...idleSubmission(),
+        status: "casual",
+        switched: this.localKey !== null && this.ranked !== null,
+        casualBest,
+      };
+      return;
+    }
+    this.submission = { ...idleSubmission(), status: "checking", casualBest };
+    void this.api
+      .scores()
+      .then((res) => {
+        if (this.destroyed) return;
+        const qualifies =
+          res.entries.length < 20 || this.state.score > res.threshold;
+        this.submission = {
+          ...this.submission,
+          status: qualifies ? "idle" : "not-qualified",
+          threshold: res.threshold,
+        };
+        this.publish();
+      })
+      .catch(() => {
+        if (this.destroyed) return;
+        this.submission = { ...this.submission, status: "unreachable" };
+        this.publish();
+      });
+  }
+
+  /** Retry from the dialog re-checks and re-offers. */
+  retrySubmission(): void {
+    if (this.submission.status !== "unreachable") return;
+    this.prepareSubmission();
+    this.publish();
+  }
+
+  async submitScore(name: string): Promise<void> {
+    if (!this.ranked || this.mode !== "ranked") return;
+    this.submission = {
+      ...this.submission,
+      status: "submitting",
+      errorCode: null,
+    };
+    this.publish();
+    try {
+      const res = await this.api.finish({
+        gameId: this.ranked.gameId,
+        token: this.ranked.token,
+        name,
+        durationMs: this.elapsedMs,
+      });
+      if (this.destroyed) return;
+      if (res.qualified) {
+        saveLastName(name);
+        this.submission = {
+          ...this.submission,
+          status: "accepted",
+          rank: res.rank ?? null,
+          scoreId: res.scoreId ?? null,
+        };
+      } else {
+        this.submission = {
+          ...this.submission,
+          status: "not-qualified",
+          threshold: res.threshold ?? this.submission.threshold,
+        };
+      }
+    } catch (error) {
+      if (this.destroyed) return;
+      if (error instanceof ApiError) {
+        this.submission = {
+          ...this.submission,
+          status: "rejected",
+          errorCode: error.code,
+        };
+      } else {
+        this.submission = { ...this.submission, status: "unreachable" };
+      }
     }
     this.publish();
   }
@@ -795,6 +907,18 @@ export class GameController {
       this.timerCancel = this.clock.after(TIMER_TICK_MS, tick);
     }
   }
+}
+
+function idleSubmission(): SubmissionState {
+  return {
+    status: "casual",
+    switched: false,
+    threshold: null,
+    rank: null,
+    scoreId: null,
+    errorCode: null,
+    casualBest: 0,
+  };
 }
 
 function emptyState(): GameState {

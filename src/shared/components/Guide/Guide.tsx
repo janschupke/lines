@@ -46,6 +46,21 @@ const Guide: React.FC<GuideProps> = ({ onClose }) => {
           </p>
         </div>
 
+        <div className="mt-6 space-y-2 text-base text-game-text-secondary">
+          <h4 className="game-title text-base">Two ways to play:</h4>
+          <p>
+            <span className="text-game-text-accent">Ranked</span> is for the
+            leaderboard: the server referees every move, so games can&apos;t be
+            played with foreknowledge, and every submitted game is re-verified
+            move by move and publicly replayable.
+          </p>
+          <p>
+            <span className="text-game-text-primary">Casual</span> is for
+            playing: instant, works offline, and your score stays on this device
+            as a local best.
+          </p>
+        </div>
+
         <div className="mt-6 flex gap-6">
           <div className="flex-1">
             <h4 className="game-title mb-3 text-base">Scoring:</h4>
@@ -70,6 +85,11 @@ const Guide: React.FC<GuideProps> = ({ onClose }) => {
 
           <div className="flex-1">
             <h4 className="game-title mb-3 text-base">Hotkeys:</h4>
+            <div className="space-y-2 text-base text-game-text-secondary mb-2">
+              <p>
+                <span className="text-game-text-accent">L</span> — leaderboard
+              </p>
+            </div>
             <div className="space-y-2 text-base text-game-text-secondary">
               <p>
                 • <strong>G</strong> - Toggle guide

@@ -28,6 +28,7 @@ const KEY_PLAYER_ID = "lines:playerId:v1";
 export const KEY_NET_HISTORY = "lines:netHistory:v1";
 const KEY_MODE_PREF = "lines:modePref:v1";
 const KEY_MODE_INTRO = "lines:seenModeIntro:v1";
+const KEY_LAST_NAME = "lines:lastName:v1";
 
 const LEGACY_HIGH_SCORE_KEY = "lines-game-high-score";
 
@@ -331,4 +332,14 @@ export function hasSeenModeIntro(): boolean {
 
 export function markModeIntroSeen(): void {
   write(KEY_MODE_INTRO, "1");
+}
+
+// -- last submitted name -----------------------------------------------------
+
+export function loadLastName(): string {
+  return read(KEY_LAST_NAME) ?? "";
+}
+
+export function saveLastName(name: string): void {
+  write(KEY_LAST_NAME, name);
 }

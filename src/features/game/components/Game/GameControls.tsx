@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 interface GameControlsProps {
   onNewGame: () => void;
@@ -63,6 +64,29 @@ const GameControls: React.FC<GameControlsProps> = ({
           />
         </svg>
       </button>
+
+      <Link
+        href="/leaderboard"
+        className="game-button game-button-primary p-3 rounded-lg hover:bg-opacity-80 transition-colors inline-flex"
+        title="Leaderboard"
+        aria-label="Leaderboard"
+        data-testid="leaderboard-link"
+      >
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 21h8m-4-4v4m-6-8a6 6 0 0012 0V5H6v8zM6 5H4v2a3 3 0 003 3m11-5h2v2a3 3 0 01-3 3"
+          />
+        </svg>
+      </Link>
     </div>
   );
 };

@@ -39,7 +39,7 @@ const ConnectionOverlays: React.FC = () => {
           : "Couldn't reach the server.";
     return (
       <div
-        className="game-overlay absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-6 flex items-center justify-center"
+        className="game-overlay absolute inset-0 bg-slate-800/95 rounded-xl z-50 p-6 flex items-center justify-center"
         role="dialog"
         aria-modal="true"
         aria-label="Switch to Casual?"
@@ -91,7 +91,7 @@ const ConnectionOverlays: React.FC = () => {
   if (connection.state === "reconnecting") {
     return (
       <div
-        className="absolute inset-0 bg-slate-800 bg-opacity-90 rounded-xl z-40 flex items-center justify-center"
+        className="absolute inset-0 bg-slate-800/90 rounded-xl z-40 flex items-center justify-center"
         data-testid="reconnect-panel"
       >
         <div className="game-panel p-5 text-center text-game-text-secondary">

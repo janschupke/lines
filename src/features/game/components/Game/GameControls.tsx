@@ -20,7 +20,7 @@ const GameControls: React.FC<GameControlsProps> = ({
     <div className="flex gap-2 flex-1">
       <button
         onClick={onNewGame}
-        className="game-button game-button-primary p-3 rounded-lg hover:bg-opacity-80 transition-colors"
+        className="game-button game-button-primary p-3 rounded-lg transition-colors"
         data-testid="new-game-button"
         title="New Game"
         aria-label="New game"
@@ -43,7 +43,7 @@ const GameControls: React.FC<GameControlsProps> = ({
 
       <button
         onClick={onToggleGuide}
-        className={`game-button p-3 rounded-lg hover:bg-opacity-80 transition-colors ${
+        className={`game-button p-3 rounded-lg transition-colors ${
           showGuide ? "game-button-accent" : "game-button-primary"
         }`}
         title="Game Guide"
@@ -67,7 +67,7 @@ const GameControls: React.FC<GameControlsProps> = ({
 
       <Link
         href="/leaderboard"
-        className="game-button game-button-primary p-3 rounded-lg hover:bg-opacity-80 transition-colors inline-flex"
+        className="game-button game-button-primary p-3 rounded-lg transition-colors inline-flex"
         title="Leaderboard"
         aria-label="Leaderboard"
         data-testid="leaderboard-link"

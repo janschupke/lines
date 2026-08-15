@@ -1,8 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+/* Generated @theme + gradient utilities — the single source of truth is
+   src/design/tokens.ts; run `npm run tokens`. */
+@import "./theme.generated.css";
 
 @layer base {
+  /* v4's preflight switched buttons to cursor: default; keep v3's pointer. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
   body {
     background-color: var(--color-bg-primary);
     min-height: 100vh;
@@ -100,66 +107,21 @@ button:focus-visible,
     aspect-ratio: 1 / 1;
   }
 
+  /* Absolutely centred in the top panel; the responsive blocks below the
+     layers reflow it. Owned here (not via translate utilities) because v4's
+     translate-x utility writes the native `translate` property, which the
+     breakpoint overrides could not reliably reset through the minifier. */
+  .top-panel .panel-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   /* Game-over score: resolves to the old text-6xl (60px) on desktop but
      cannot dominate a phone screen. */
   .score-hero {
     font-size: clamp(2rem, 12vmin, 3.75rem);
     line-height: 1;
-  }
-
-  /* Below ~480px the absolutely-centred Next Balls block overlaps the
-     score, so the panel wraps to two rows: controls + score on the first,
-     next-balls on its own row. Flex order, not a second layout. */
-  @media (max-width: 479px) {
-    .top-panel {
-      flex-wrap: wrap;
-      justify-content: space-between;
-    }
-
-    .top-panel .panel-center {
-      position: static;
-      transform: none;
-      order: 3;
-      width: 100%;
-      margin-top: 0.5rem;
-    }
-  }
-
-  /* Landscape phones: chrome moves beside the board so it consumes width
-     (abundant) instead of height (scarce). Without this the pitch drops
-     below the WCAG 24px floor. */
-  @media (orientation: landscape) and (max-height: 500px) {
-    .game-page {
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .top-panel {
-      flex-direction: column;
-      width: 9rem;
-      gap: 0.75rem;
-      margin: 0 0.5rem;
-    }
-
-    .top-panel .panel-center {
-      position: static;
-      transform: none;
-    }
-
-    .board-area {
-      max-height: none;
-      height: 100%;
-      padding: 8px;
-    }
-
-    .page-footer {
-      flex-direction: column;
-      align-items: flex-end;
-      width: auto;
-      margin: 0 0.5rem;
-      gap: 0.75rem;
-    }
   }
 
   .game-board {
@@ -192,7 +154,7 @@ button:focus-visible,
   }
 
   .game-cell {
-    @apply rounded-lg flex items-center justify-center transition-all box-border relative border-2 backdrop-blur-sm;
+    @apply rounded-lg flex items-center justify-center transition-all box-border relative border-2 backdrop-blur-xs;
     position: relative;
     z-index: 1;
     transition-duration: var(--duration-button-hover);
@@ -214,12 +176,8 @@ button:focus-visible,
     pointer-events: none;
   }
 
-  .bg-game-bg-cell-unreachable {
-    background-color: theme("colors.game.bg.cell.unreachable");
-  }
-
   .game-ball {
-    @apply block rounded-full border-2 border-game-border-ball shadow-[0_2px_8px_theme(colors.game.shadow.ball)] relative;
+    @apply block rounded-full border-2 border-game-border-ball shadow-[0_2px_8px_var(--color-game-shadow-ball)] relative;
   }
 
   .game-ball::before {
@@ -383,13 +341,13 @@ button:focus-visible,
 
   @keyframes scoreFlash {
     0% {
-      color: theme("colors.game.text.primary");
+      color: var(--color-game-text-primary);
     }
     20% {
-      color: theme("colors.game.text.success");
+      color: var(--color-game-text-success);
     }
     100% {
-      color: theme("colors.game.text.primary");
+      color: var(--color-game-text-primary);
     }
   }
 
@@ -416,7 +374,61 @@ button:focus-visible,
   }
 }
 
-/* Animations */
+/* Animations. The four ball keyframes are referenced by the generated
+   --animate-* theme tokens (timings live in src/design/tokens.ts). */
+@keyframes moveBall {
+  0% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes popBall {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseBall {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes floatScore {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -80px) scale(1);
+    opacity: 0;
+  }
+}
+
 @keyframes gradientShift {
   0%,
   100% {
@@ -449,6 +461,70 @@ button:focus-visible,
       rgba(255, 255, 255, 0.05) 0%,
       rgba(255, 255, 255, 0.02) 100%
     );
+  }
+}
+
+/* Responsive overrides live OUTSIDE the layers: with v4's real cascade
+   layers, anything inside @layer components loses to the utilities layer
+   regardless of specificity, and these blocks exist precisely to override
+   utility-set position/transform/margins at a breakpoint. */
+
+/* Below ~480px the absolutely-centred Next Balls block overlaps the
+   score, so the panel wraps to two rows: controls + score on the first,
+   next-balls on its own row. Flex order, not a second layout. */
+@media (max-width: 479px) {
+  .top-panel {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .top-panel .panel-center {
+    position: static;
+    transform: none;
+    order: 3;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Landscape phones: chrome moves beside the board so it consumes width
+   (abundant) instead of height (scarce). Without this the pitch drops
+   below the WCAG 24px floor. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .game-page {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .top-panel {
+    flex-direction: column;
+    width: 9rem;
+    gap: 0.75rem;
+    /* 1rem vertical: in v3 the mt-4/mb-4 utilities beat this block's
+       `margin: 0 0.5rem` by source order; keep those computed values. */
+    margin: 1rem 0.5rem;
+  }
+
+  .top-panel .panel-center {
+    position: static;
+    transform: none;
+  }
+
+  .board-area {
+    max-height: none;
+    height: 100%;
+    padding: 8px;
+  }
+
+  .page-footer {
+    flex-direction: column;
+    /* v3 outcome preserved: the items-center utility beat the old
+       `align-items: flex-end` here, and mt-4 beat the margin's top/0. */
+    align-items: center;
+    width: auto;
+    margin: 1rem 0.5rem 0;
+    gap: 0.75rem;
   }
 }
 

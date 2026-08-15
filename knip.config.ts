@@ -15,6 +15,8 @@ const config: KnipConfig = {
   ignoreDependencies: [
     // imported by the generated Prisma client, which knip ignores
     "@prisma/client",
+    // consumed via `@import "tailwindcss"` in globals.css, invisible to knip
+    "tailwindcss",
   ],
   vitest: {
     config: "vitest.config.ts",

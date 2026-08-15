@@ -137,7 +137,7 @@ export const BoardCell: React.FC<BoardCellProps> = ({
       {/* Preview Ball (incoming) - hide when moving ball is at this cell */}
       {!ball && ghost && !showMovingBall && (
         <span
-          className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
+          className={`game-ball rounded-full border border-game-border-preview shadow-xs opacity-50 ${
             growing === "new" ? "grow-ball-new" : ""
           } ball-ghost`}
           style={{ backgroundColor: getBallColor(ghost) }}

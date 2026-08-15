@@ -2,9 +2,10 @@
  * THE source of truth for every design value.
  *
  * Direction is TS -> CSS, never the reverse: `scripts/build-tokens.ts`
- * generates `app/tokens.generated.css` from this file, and
- * `tailwind.config.ts` imports it. The effect player and node tests read
- * these numbers at runtime, which is why TS is the source.
+ * generates `app/tokens.generated.css` (plain vars) and
+ * `app/theme.generated.css` (the Tailwind 4 @theme block + gradient
+ * utilities) from this file. The effect player and node tests read these
+ * numbers at runtime, which is why TS is the source.
  */
 
 /** Animation durations in milliseconds. */
@@ -138,8 +139,4 @@ export const BREAKPOINTS = {
  */
 export const FONTS = {
   sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
-} as const;
-
-export const Z = {
-  dialog: 1000,
 } as const;

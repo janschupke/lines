@@ -176,7 +176,7 @@ const ReplayViewer: React.FC<{ id: string }> = ({ id }) => {
                 )}
                 {ghost && (
                   <span
-                    className="game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ball-ghost"
+                    className="game-ball rounded-full border border-game-border-preview shadow-xs opacity-50 ball-ghost"
                     style={{ backgroundColor: getBallColor(ghost) }}
                   />
                 )}
@@ -201,7 +201,7 @@ const ReplayViewer: React.FC<{ id: string }> = ({ id }) => {
           Step
         </button>
         <select
-          className="game-panel px-2 py-1 bg-transparent border border-game-border-default rounded"
+          className="game-panel px-2 py-1 bg-transparent border border-game-border-default rounded-sm"
           value={speed}
           aria-label="Replay speed"
           onChange={(e) => setSpeed(Number(e.target.value))}

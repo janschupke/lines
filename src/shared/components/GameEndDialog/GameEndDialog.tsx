@@ -195,7 +195,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               <input
                 id="score-name"
                 ref={inputRef}
-                className="game-panel px-3 py-2 text-game-text-primary bg-transparent outline-none border border-game-border-default rounded-lg"
+                className="game-panel px-3 py-2 text-game-text-primary bg-transparent outline-hidden border border-game-border-default rounded-lg"
                 value={name}
                 maxLength={32}
                 autoComplete="off"
@@ -237,7 +237,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
 
   return (
     <div
-      className="game-overlay absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-6 overflow-auto scrollbar-hide animate-in fade-in"
+      className="game-overlay absolute inset-0 bg-slate-800/95 rounded-xl z-50 p-6 overflow-auto scrollbar-hide animate-in fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="game-end-title"

@@ -72,7 +72,7 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
         />
 
         {/* Center: Next Balls - absolutely centered */}
-        <div className="panel-center flex flex-col items-center absolute left-1/2 transform -translate-x-1/2">
+        <div className="panel-center flex flex-col items-center">
           <div className="text-game-text-secondary font-semibold mb-2 text-sm">
             Next Balls
           </div>
@@ -124,7 +124,7 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
             {/* Guide Overlay - exactly same size as board */}
             {showGuide && (
               <div
-                className="game-overlay absolute inset-0 bg-slate-800 bg-opacity-95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide animate-in fade-in"
+                className="game-overlay absolute inset-0 bg-slate-800/95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide animate-in fade-in"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Game guide"

@@ -1,7 +1,7 @@
 import React from "react";
 import type { Cell } from "../../types";
 import type { GrowingBall } from "../../hooks/useGameAnimation";
-import { getBallColor, getGameSizing } from "@/shared/utils";
+import { getBallColor } from "@/shared/utils";
 
 interface BoardCellProps {
   cell: Cell;
@@ -36,7 +36,6 @@ export const BoardCell: React.FC<BoardCellProps> = ({
   onHover,
   onLeave,
 }) => {
-  const sizing = getGameSizing();
   const growingBall = growingBalls.find(
     (gb) => gb.x === cell.x && gb.y === cell.y,
   );
@@ -87,7 +86,6 @@ export const BoardCell: React.FC<BoardCellProps> = ({
 
   const cellClasses = [
     "game-cell relative flex items-center justify-center",
-    sizing.cellSizeClass,
     cellBgClass,
     borderClass,
     isPopping ? "animate-pop" : "",
@@ -131,7 +129,7 @@ export const BoardCell: React.FC<BoardCellProps> = ({
       {/* Show moving ball if this cell is the current position, but only if not popping */}
       {showMovingBall && movingBallColor && !isPopping && (
         <span
-          className={`game-ball animate-move-ball ${sizing.ballSizeClass}`}
+          className={"game-ball ball-main animate-move-ball"}
           style={{ backgroundColor: getBallColor(movingBallColor) }}
         />
       )}
@@ -148,7 +146,7 @@ export const BoardCell: React.FC<BoardCellProps> = ({
               : isPopping
                 ? "z-20 animate-pop-ball"
                 : ""
-          } ${sizing.ballSizeClass}`}
+          } ball-main`}
           style={{ backgroundColor: getBallColor(cell.ball.color) }}
         />
       )}
@@ -158,7 +156,7 @@ export const BoardCell: React.FC<BoardCellProps> = ({
         <span
           className={`game-ball rounded-full border border-game-border-preview shadow-sm opacity-50 ${
             growingBall && !growingBall.isTransitioning ? "grow-ball-new" : ""
-          } ${sizing.incomingBallSizeClass}`}
+          } ball-ghost`}
           style={{
             backgroundColor: getBallColor(cell.incomingBall.color),
           }}

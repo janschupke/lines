@@ -5,22 +5,14 @@ import {
   FIXTURE_GHOSTS,
 } from "./fixtures/savedGame";
 
-// Below 600px the app currently refuses to render the game — that is
-// today's behaviour and it is asserted as such until Phase 2 removes the gate.
-const isGated = (width: number) => width < 600;
-
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(seedScript());
 });
 
-test("board or gate renders", async ({ page, viewport }) => {
+test("board renders with the seeded state at every viewport", async ({
+  page,
+}) => {
   await page.goto("/");
-  if (isGated(viewport!.width)) {
-    await expect(
-      page.getByText(/require a screen width of at least 600px/),
-    ).toBeVisible();
-    return;
-  }
   // 81 cells with data-cell hooks
   await expect(page.locator("[data-cell]")).toHaveCount(81);
   // Seeded balls and ghosts are restored exactly
@@ -40,8 +32,7 @@ test("board or gate renders", async ({ page, viewport }) => {
   await expect(page.locator("[data-ghost]")).toHaveCount(FIXTURE_GHOSTS.length);
 });
 
-test("selection marks data-state", async ({ page, viewport }) => {
-  test.skip(isGated(viewport!.width), "gated below 600px");
+test("selection marks data-state", async ({ page }) => {
   await page.goto("/");
   const cell = page.locator('[data-cell="10"]'); // (1,1) red ball
   await cell.click();

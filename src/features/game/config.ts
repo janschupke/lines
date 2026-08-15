@@ -1,3 +1,5 @@
+import { DURATIONS } from "@/design/tokens";
+
 /**
  * Game Configuration
  *
@@ -70,40 +72,45 @@ export const SCORING_TABLE: Record<number, number> = {
 // ANIMATION CONFIGURATION
 // ============================================================================
 
-/** Animation durations in milliseconds */
+/**
+ * Animation durations in milliseconds, sourced from the design tokens.
+ * GROW_BALL stays 100: it is the JS bookkeeping cadence for clearing the
+ * growing state, not the CSS grow animation (DURATIONS.growBall, 600ms).
+ * Both this object and the timing code it drives are deleted in Phase 4.
+ */
 export const ANIMATION_DURATIONS = {
   /** Duration of ball popping animation */
-  POP_BALL: 300,
+  POP_BALL: DURATIONS.popBall,
 
-  /** Duration of ball growing animation */
+  /** Duration of ball growing state bookkeeping (see note above) */
   GROW_BALL: 100,
 
   /** Duration of floating score animation */
-  FLOATING_SCORE: 2000,
+  FLOATING_SCORE: DURATIONS.floatingScore,
 
   /** Duration of score flash animation */
-  SCORE_FLASH: 1000,
+  SCORE_FLASH: DURATIONS.scoreFlash,
 
   /** Duration of high score flash animation */
-  HIGH_SCORE_FLASH: 1000,
+  HIGH_SCORE_FLASH: DURATIONS.highScoreFlash,
 
   /** Duration of fade in/out animations */
-  FADE: 300,
+  FADE: DURATIONS.fade,
 
   /** Duration of button hover transition */
-  BUTTON_HOVER: 300,
+  BUTTON_HOVER: DURATIONS.buttonHover,
 
   /** Duration of moving ball animation step */
-  MOVING_STEP: 100,
+  MOVING_STEP: DURATIONS.movingStep,
 
   /** Duration of button shine effect transition */
-  BUTTON_SHINE: 500,
+  BUTTON_SHINE: DURATIONS.buttonShine,
 
   /** Duration of gradient shift animation */
-  GRADIENT_SHIFT: 8000,
+  GRADIENT_SHIFT: DURATIONS.gradientShift,
 
   /** Duration of selected ball pulse animation */
-  SELECTED_BALL_PULSE: 1500,
+  SELECTED_BALL_PULSE: DURATIONS.selectedBallPulse,
 } as const;
 
 // ============================================================================

@@ -1,0 +1,62 @@
+/* GENERATED, do not edit. Run `npm run tokens`. Source: src/design/tokens.ts */
+:root {
+  --duration-pop-ball: 300ms;
+  --duration-grow-ball: 600ms;
+  --duration-move-ball: 400ms;
+  --duration-moving-step: 100ms;
+  --duration-floating-score: 1000ms;
+  --duration-score-flash: 1000ms;
+  --duration-high-score-flash: 1000ms;
+  --duration-fade: 300ms;
+  --duration-button-hover: 300ms;
+  --duration-button-shine: 500ms;
+  --duration-gradient-shift: 8000ms;
+  --duration-selected-ball-pulse: 1500ms;
+  --ball-red: #ef4444;
+  --ball-green: #10b981;
+  --ball-blue: #3b82f6;
+  --ball-yellow: #f59e0b;
+  --ball-purple: #8b5cf6;
+  --ball-pink: #f472b6;
+  --ball-black: #1f2937;
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-bg-board: #f8fafc;
+  --color-bg-cell-empty: #ffffff;
+  --color-bg-cell-hover: #f1f5f9;
+  --color-bg-cell-active: #fef3c7;
+  --color-bg-cell-path: #dbeafe;
+  --color-bg-cell-unreachable: #ffffff;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-accent: #fbbf24;
+  --color-text-success: #34d399;
+  --color-text-error: #f87171;
+  --color-border-default: #475569;
+  --color-border-path: #3b82f6;
+  --color-border-error: #f87171;
+  --color-border-accent: #fbbf24;
+  --color-border-ball: #64748b;
+  --color-border-preview: #94a3b8;
+  --color-border-muted: #e5e7eb;
+  --color-shadow-ball: #00000040;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --gradient-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --gradient-board: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-button: linear-gradient(135deg, #475569 0%, #64748b 100%);
+  --gradient-button-hover: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+  --gradient-accent: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  --gradient-accent-hover: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --board-max: 584px;
+  --board-frame-max: 620px;
+  --panel-max: 620px;
+  --board-padding-pct: 1.36519%; /* 8 / 586 */
+  --grid-gap-pct: 1.40845%; /* 8 / 568 */
+  --ball-pct: 71.42857%; /* 40 / 56 */
+  --ghost-pct: 50.00000%; /* 28 / 56 */
+  --breakpoint-sheet: 600px;
+  --breakpoint-landscape-max-h: 500px;
+}

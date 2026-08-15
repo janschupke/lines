@@ -4,29 +4,14 @@
 
 @layer base {
   body {
-    background-color: #0f172a;
+    background-color: var(--color-bg-primary);
     min-height: 100vh;
   }
 
   html {
-    background-color: #0f172a;
+    background-color: var(--color-bg-primary);
     min-height: 100vh;
   }
-}
-
-/* Custom CSS Variables for Animation Durations */
-:root {
-  --animation-duration-fade: 300ms;
-  --animation-duration-button-hover: 300ms;
-  --animation-duration-button-shine: 500ms;
-  --animation-duration-score-flash: 1000ms;
-  --animation-duration-gradient-shift: 8000ms;
-  --animation-duration-grow-ball: 100ms;
-  --animation-duration-pop-ball: 300ms;
-  --animation-duration-floating-score: 2000ms;
-  --animation-duration-moving-step: 100ms;
-  --animation-duration-high-score-flash: 1000ms;
-  --animation-duration-selected-ball-pulse: 1500ms;
 }
 
 /* Remove focus outlines globally */
@@ -40,11 +25,115 @@ button:focus-visible {
 
 /* Game-specific styles */
 @layer components {
+  /* One screen, no scrolling: the page is exactly one viewport tall. */
+  .game-page {
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* Top panel and footer track one shared cap instead of a magic number. */
+  .game-chrome {
+    width: 100%;
+    max-width: var(--panel-max);
+  }
+
+  /* The flexible middle. `min-height: 0` is load-bearing: without it the
+     flex child refuses to shrink and the board overflows small screens.
+     `max-height` caps it at the frame size so tall viewports keep today's
+     top-anchored flow (footer directly under the board). */
+  .board-area {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-height: var(--board-frame-max);
+    padding: 0 8px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    container-type: size;
+  }
+
+  /* The browser resolves the largest square that fits both axes.
+     Overflow is structurally impossible: a board that cannot fit
+     becomes a smaller board. */
+  .board-frame {
+    width: min(100cqw, 100cqh, var(--board-frame-max));
+    aspect-ratio: 1 / 1;
+  }
+
+  .board-grid {
+    display: grid;
+    gap: var(--grid-gap-pct);
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Board balls are sized as ratios of their cell (40/56 and 28/56). */
+  .ball-main {
+    width: var(--ball-pct);
+    aspect-ratio: 1 / 1;
+  }
+
+  .ball-ghost {
+    width: var(--ghost-pct);
+    aspect-ratio: 1 / 1;
+  }
+
+  /* Game-over score: resolves to the old text-6xl (60px) on desktop but
+     cannot dominate a phone screen. */
+  .score-hero {
+    font-size: clamp(2rem, 12vmin, 3.75rem);
+    line-height: 1;
+  }
+
+  /* Landscape phones: chrome moves beside the board so it consumes width
+     (abundant) instead of height (scarce). Without this the pitch drops
+     below the WCAG 24px floor. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .game-page {
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .top-panel {
+      flex-direction: column;
+      width: 9rem;
+      gap: 0.75rem;
+      margin: 0 0.5rem;
+    }
+
+    .top-panel .panel-center {
+      position: static;
+      transform: none;
+    }
+
+    .board-area {
+      max-height: none;
+      height: 100%;
+      padding: 8px;
+    }
+
+    .page-footer {
+      flex-direction: column;
+      align-items: flex-end;
+      width: auto;
+      margin: 0 0.5rem;
+      gap: 0.75rem;
+    }
+  }
+
   .game-board {
     @apply bg-game-gradient-board border border-game-border-default rounded-xl shadow-lg relative overflow-hidden;
     background-size: 200% 200%;
-    animation: gradientShift var(--animation-duration-gradient-shift)
-      ease-in-out infinite;
+    padding: var(--board-padding-pct);
+    animation: gradientShift var(--duration-gradient-shift) ease-in-out infinite;
   }
 
   .game-board::before {
@@ -73,7 +162,7 @@ button:focus-visible {
     @apply rounded-lg flex items-center justify-center transition-all box-border relative border-2 backdrop-blur-sm;
     position: relative;
     z-index: 1;
-    transition-duration: var(--animation-duration-button-hover);
+    transition-duration: var(--duration-button-hover);
   }
 
   .game-cell::before {
@@ -122,8 +211,8 @@ button:focus-visible {
 
   .game-button {
     @apply font-semibold rounded-lg border border-game-border-default cursor-pointer transition-all relative overflow-hidden;
-    background: linear-gradient(135deg, #475569 0%, #64748b 100%);
-    transition-duration: var(--animation-duration-button-hover);
+    background: var(--gradient-button);
+    transition-duration: var(--duration-button-hover);
   }
 
   .game-button::before {
@@ -139,7 +228,7 @@ button:focus-visible {
       rgba(255, 255, 255, 0.2),
       transparent
     );
-    transition: left var(--animation-duration-button-shine);
+    transition: left var(--duration-button-shine);
   }
 
   .game-button:hover::before {
@@ -227,35 +316,27 @@ button:focus-visible {
 
   .fade-in {
     animation-name: fadeIn;
-    animation-duration: var(--animation-duration-fade);
+    animation-duration: var(--duration-fade);
   }
 
   .fade-out {
     animation-name: fadeIn;
     animation-direction: reverse;
-    animation-duration: var(--animation-duration-fade);
-  }
-
-  /* Transition utilities */
-  .transition-colors {
-    transition-property:
-      color, background-color, border-color, text-decoration-color, fill, stroke;
-    transition-duration: var(--animation-duration-button-hover);
+    animation-duration: var(--duration-fade);
   }
 
   /* Score flash animation */
   .score-flash {
-    animation: scoreFlash var(--animation-duration-score-flash) ease-out
-      forwards;
+    animation: scoreFlash var(--duration-score-flash) ease-out forwards;
   }
 
   /* Growing ball animations */
   .grow-ball-transition {
-    animation: growBallTransition var(--grow-ball-duration) ease-out forwards;
+    animation: growBallTransition var(--duration-grow-ball) ease-out forwards;
   }
 
   .grow-ball-new {
-    animation: growBallNew var(--grow-ball-duration) ease-out forwards;
+    animation: growBallNew var(--duration-grow-ball) ease-out forwards;
   }
 
   @keyframes fadeIn {

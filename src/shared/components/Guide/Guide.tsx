@@ -1,4 +1,5 @@
 import React from "react";
+import { SCORING_TABLE } from "@/features/game/config";
 
 interface GuideProps {
   onClose?: () => void;
@@ -50,26 +51,19 @@ const Guide: React.FC<GuideProps> = ({ onClose }) => {
             <h4 className="game-title mb-3 text-base">Scoring:</h4>
             <table className="w-full text-base">
               <tbody>
-                <tr className="text-game-text-accent">
-                  <td>5 balls:</td>
-                  <td>5 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>6 balls:</td>
-                  <td>8 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>7 balls:</td>
-                  <td>13 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>8 balls:</td>
-                  <td>21 points</td>
-                </tr>
-                <tr className="text-game-text-secondary">
-                  <td>9 balls:</td>
-                  <td>34 points</td>
-                </tr>
+                {Object.entries(SCORING_TABLE).map(([length, points], i) => (
+                  <tr
+                    key={length}
+                    className={
+                      i === 0
+                        ? "text-game-text-accent"
+                        : "text-game-text-secondary"
+                    }
+                  >
+                    <td>{length} balls:</td>
+                    <td>{points} points</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

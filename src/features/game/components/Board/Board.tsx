@@ -90,7 +90,7 @@ const Board: React.FC<BoardProps> = ({
 
   return (
     <div
-      className={`game-board grid p-board-padding mx-auto w-fit h-fit box-content gap-gap ${
+      className={`game-board board-grid ${
         isAnimationInProgress ? "pointer-events-none" : ""
       }`}
       style={{

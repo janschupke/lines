@@ -88,10 +88,8 @@ describe("Preview Balls Functionality", () => {
       previewBalls.forEach((cell) => {
         const ball = cell.querySelector(".game-ball");
         if (ball) {
-          // Preview balls use the incoming-ball size class
-          const hasIncomingBallSize =
-            ball.classList.contains("w-incoming-ball") &&
-            ball.classList.contains("h-incoming-ball");
+          // Preview balls use the ghost ratio size class
+          const hasIncomingBallSize = ball.classList.contains("ball-ghost");
           expect(hasIncomingBallSize).toBe(true);
           expect(ball).toHaveClass("rounded-full");
           expect(ball).toHaveClass("border");
@@ -104,11 +102,8 @@ describe("Preview Balls Functionality", () => {
       regularBalls.forEach((cell) => {
         const ball = cell.querySelector(".game-ball");
         if (ball) {
-          // On mobile, balls are smaller (w-9 h-9)
-          // On desktop, they are larger (w-ball h-ball)
-          const hasRegularBallSize =
-            ball.classList.contains("w-ball") &&
-            ball.classList.contains("h-ball");
+          // Regular balls use the main ratio size class
+          const hasRegularBallSize = ball.classList.contains("ball-main");
           expect(hasRegularBallSize).toBe(true);
         }
       });
@@ -244,10 +239,8 @@ describe("Preview Balls Functionality", () => {
       previewBalls.forEach((cell) => {
         const ball = cell.querySelector(".game-ball");
         if (ball) {
-          // Preview balls use the incoming-ball size class
-          const hasIncomingBallSize =
-            ball.classList.contains("w-incoming-ball") &&
-            ball.classList.contains("h-incoming-ball");
+          // Preview balls use the ghost ratio size class
+          const hasIncomingBallSize = ball.classList.contains("ball-ghost");
           expect(hasIncomingBallSize).toBe(true);
           expect(ball).toHaveClass("rounded-full"); // border-radius: 50%
           expect(ball).toHaveClass("opacity-50"); // opacity: 0.5

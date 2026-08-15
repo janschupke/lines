@@ -18,7 +18,7 @@ const NextBallsPreview: React.FC<NextBallsPreviewProps> = ({ nextBalls }) => {
         {nextBalls.map((color, index) => (
           <div
             key={index}
-            className="w-6 h-6 rounded-full border-2 border-game-border"
+            className="w-6 h-6 rounded-full border-2 border-game-border-muted"
             style={{ backgroundColor: getBallColor(color) }}
           />
         ))}

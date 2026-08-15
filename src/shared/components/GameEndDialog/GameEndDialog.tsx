@@ -1,5 +1,6 @@
 import React from "react";
 import type { GameStatistics } from "@/features/game/types";
+import { formatTime } from "@/shared/utils";
 
 interface GameEndDialogProps {
   isOpen: boolean;
@@ -21,12 +22,6 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
   onClose,
 }) => {
   if (!isOpen) return null;
-
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
 
   return (
     <div
@@ -54,7 +49,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
         <div className="flex-1 overflow-auto scrollbar-hide">
           {/* Main Score Display */}
           <div className="text-center mb-8">
-            <div className="game-score text-6xl font-bold mb-2">{score}</div>
+            <div className="game-score score-hero font-bold mb-2">{score}</div>
             <div className="text-xl text-game-text-secondary">Final Score</div>
           </div>
 
@@ -70,7 +65,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
               </div>
               <div className="text-center p-4 bg-game-bg-secondary rounded-lg">
                 <div className="text-3xl font-bold text-game-text-primary">
-                  {formatDuration(timer)}
+                  {formatTime(timer)}
                 </div>
                 <div className="text-sm text-game-text-secondary">Duration</div>
               </div>

@@ -19,7 +19,10 @@
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
     "check": "npm run knip && npm run typecheck && npm run test && npm run lint:fix && npm run format && npm run build",
-    "start": "next start"
+    "start": "next start",
+    "tokens": "tsx scripts/build-tokens.ts",
+    "predev": "npm run tokens",
+    "prebuild": "npm run tokens"
   },
   "dependencies": {
     "next": "^16.3.1",
@@ -44,6 +47,7 @@
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.12",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
     "vite-tsconfig-paths": "^6.1.1",

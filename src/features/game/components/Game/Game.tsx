@@ -107,12 +107,9 @@ const Game: React.FC<GameProps> = ({
   useKeyboard(keyboardHandlers);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="game-page">
       {/* Single-line Top Panel */}
-      <div
-        className="flex items-center w-full relative mb-4 mt-4"
-        style={{ maxWidth: "600px" }}
-      >
+      <div className="top-panel game-chrome flex items-center relative mb-4 mt-4">
         <GameControls
           onNewGame={startNewGame}
           onToggleGuide={() => setShowGuide(!showGuide)}
@@ -120,7 +117,7 @@ const Game: React.FC<GameProps> = ({
         />
 
         {/* Center: Next Balls - absolutely centered */}
-        <div className="flex flex-col items-center absolute left-1/2 transform -translate-x-1/2">
+        <div className="panel-center flex flex-col items-center absolute left-1/2 transform -translate-x-1/2">
           <div className="text-game-text-secondary font-semibold mb-2 text-sm">
             Next Balls
           </div>
@@ -137,9 +134,9 @@ const Game: React.FC<GameProps> = ({
       </div>
 
       {/* Game Board Container with Overlays */}
-      <div className="relative" style={{ maxWidth: "600px" }}>
-        <div className="game-panel p-4">
-          <div className="relative">
+      <div className="board-area">
+        <div className="board-frame game-panel p-4">
+          <div className="relative h-full w-full">
             <Board
               board={board}
               onCellClick={handleCellClick}
@@ -191,10 +188,7 @@ const Game: React.FC<GameProps> = ({
       </div>
 
       {/* Timer and Footer */}
-      <div
-        className="flex justify-between w-full relative mt-4"
-        style={{ maxWidth: "600px" }}
-      >
+      <div className="page-footer game-chrome flex justify-between relative mt-4">
         <div>
           <a
             href="https://github.com/janschupke/lines"

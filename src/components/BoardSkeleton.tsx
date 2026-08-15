@@ -1,29 +1,31 @@
 import React from "react";
 
-// Same 9x9 grid at the same dimensions as the real board, so the
+// Same page structure at the same dimensions as the real game, so the
 // client-only Game mounts without layout shift.
 const BoardSkeleton: React.FC = () => {
   return (
-    <div className="flex flex-col items-center">
+    <div className="game-page">
       <div
-        className="flex items-center w-full relative mb-4 mt-4"
-        style={{ maxWidth: "600px", minHeight: "64px" }}
+        className="top-panel game-chrome flex items-center relative mb-4 mt-4"
+        style={{ minHeight: "64px" }}
       />
-      <div className="relative" style={{ maxWidth: "600px" }}>
-        <div className="game-panel p-4">
-          <div
-            className="game-board grid p-board-padding mx-auto w-fit h-fit box-content gap-gap"
-            style={{
-              gridTemplateColumns: "repeat(9, minmax(0, 1fr))",
-              gridTemplateRows: "repeat(9, minmax(0, 1fr))",
-            }}
-          >
-            {Array.from({ length: 81 }, (_, i) => (
-              <div
-                key={i}
-                className="game-cell w-cell h-cell bg-game-bg-cell-empty border-game-border-default relative flex items-center justify-center"
-              />
-            ))}
+      <div className="board-area">
+        <div className="board-frame game-panel p-4">
+          <div className="relative h-full w-full">
+            <div
+              className="game-board board-grid"
+              style={{
+                gridTemplateColumns: "repeat(9, minmax(0, 1fr))",
+                gridTemplateRows: "repeat(9, minmax(0, 1fr))",
+              }}
+            >
+              {Array.from({ length: 81 }, (_, i) => (
+                <div
+                  key={i}
+                  className="game-cell relative flex items-center justify-center bg-game-bg-cell-empty border-game-border-default"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

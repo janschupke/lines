@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { COLORS } from "@/design/tokens";
 import "./globals.css";
+import "./tokens.generated.css";
 
 export const metadata: Metadata = {
   title: "Lines, The Balls!",
@@ -16,7 +18,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: COLORS.bg.primary,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

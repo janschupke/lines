@@ -1,7 +1,7 @@
 {
   "name": "random-seed-34",
   "key": "403634373c42484f786e6c6f747a8087b0a6a4a7acb2b8bfe8dedcdfe4eaf0f7",
-  "moves": "A80Ae1AGDAW7AFfAsIAAHAGxAI_ADAAGgABRAABABRAABABRAABABRAABABRAABApJAJQAHtAJHA7FBGVA7FA5rAuRAivAXNALrAAJABRACjAD1AFHAD3AFHAD3AFHAD3AFHAD3AFHAD3AFHAD3AFHAD3AFHAD3AFHAD3AFHAD3AFHAD3AFH",
+  "moves": "A80Ae1AGDAW7AFfAsIAAHAGxAI_ADAAGgABRAABABRAABABRAABABRAABABRAABApJAJQAHtAcNAs_",
   "packets": [
     {
       "ghosts": [
@@ -351,17 +351,21 @@
         {
           "c": 58,
           "color": 4
+        },
+        {
+          "c": 16,
+          "color": 3
         }
       ]
     },
     {
       "ghosts": [
         {
-          "c": 32,
+          "c": 55,
           "color": 6
         },
         {
-          "c": 7,
+          "c": 32,
           "color": 2
         },
         {
@@ -371,258 +375,50 @@
       ]
     },
     {
-      "relocate": {
-        "to": 23
-      },
       "ghosts": [
         {
           "c": 6,
-          "color": 3
+          "color": 1
+        },
+        {
+          "c": 23,
+          "color": 7
         },
         {
           "c": 72,
-          "color": 2
+          "color": 6
         }
       ]
     },
     {
+      "relocate": {
+        "to": 22
+      },
       "ghosts": [
         {
           "c": 44,
-          "color": 3
-        },
-        {
-          "c": 55,
           "color": 5
-        },
-        {
-          "c": 7,
-          "color": 3
         }
       ]
     },
     {
       "relocate": {
-        "to": 46
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 55
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 46
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 45
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 36
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 27
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 18
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 4
+        "to": 35
       },
       "ghosts": []
     }
   ],
   "expect": {
     "score": 0,
-    "rngDraws": 199,
-    "boardHash": "c7ffde81",
+    "rngDraws": 165,
+    "boardHash": "cb437a51",
     "stats": {
-      "turns": 60,
+      "turns": 26,
       "linesPopped": 0,
       "longestLine": 0,
       "ballsCleared": 0
     },
-    "over": false,
-    "moveCount": 60
+    "over": true,
+    "moveCount": 26
   }
 }

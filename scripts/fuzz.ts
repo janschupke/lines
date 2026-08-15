@@ -31,10 +31,17 @@ for (let seed = 0; seed < games; seed++) {
     if (detectLines(state.balls).length !== 0) {
       throw new Error(`seed ${seed} move ${t}: line survived`);
     }
-    // invariant 4: ghost count and disjointness
+    // invariant 4: ghost count and disjointness (a late pop after the
+    // relocation-materialise can leave fewer than the target)
     const free = freeOfBalls(state.balls).length;
     const expected = free < 3 ? free : 3;
-    if (countNonZero(state.ghosts) !== expected) {
+    const latePop =
+      r.effects.some((e) => e.k === "ghostMoved") &&
+      r.effects.some((e) => e.k === "pop");
+    if (
+      countNonZero(state.ghosts) > expected ||
+      (!latePop && countNonZero(state.ghosts) !== expected)
+    ) {
       throw new Error(`seed ${seed} move ${t}: ghost count`);
     }
     // invariant 7: over iff full

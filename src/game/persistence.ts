@@ -26,6 +26,8 @@ export const KEY_GAME = "lines:game:v1";
 export const KEY_HIGHSCORE = "lines:highscore:v1"; // { casual: n, ranked: n }
 const KEY_PLAYER_ID = "lines:playerId:v1";
 export const KEY_NET_HISTORY = "lines:netHistory:v1";
+const KEY_MODE_PREF = "lines:modePref:v1";
+const KEY_MODE_INTRO = "lines:seenModeIntro:v1";
 
 const LEGACY_HIGH_SCORE_KEY = "lines-game-high-score";
 
@@ -167,6 +169,16 @@ function parseSavedGame(raw: string): SavedGame | null {
       return null;
     }
     if ("key" in p) return null; // the client never holds a server key
+    // localKey marks a ranked game continued as casual after a switch: the
+    // replay still runs on the recorded packets, the key only rules future
+    // draws. Optional and client-minted — never a server key.
+    if (
+      "localKey" in p &&
+      (typeof p["localKey"] !== "string" ||
+        !/^[0-9a-f]{64}$/.test(p["localKey"] as string))
+    ) {
+      return null;
+    }
     if (typeof p["init"] !== "object" || p["init"] === null) return null;
     if (!Array.isArray(p["packets"])) return null;
     return p as unknown as SavedGame;
@@ -248,10 +260,12 @@ export interface RankedSaveInput {
   packets: SpawnPacket[];
   startedAt: number;
   elapsedMs: number;
+  /** Set when the game switched to casual mid-play; see parseSavedGame. */
+  localKey?: string;
 }
 
 export function saveRankedGame(input: RankedSaveInput): void {
-  const saved: SavedGame = {
+  const saved: SavedGame & { localKey?: string } = {
     v: 1,
     mode: "ranked",
     gameId: input.gameId,
@@ -262,6 +276,7 @@ export function saveRankedGame(input: RankedSaveInput): void {
     startedAt: input.startedAt,
     elapsedMs: input.elapsedMs,
   };
+  if (input.localKey) saved.localKey = input.localKey;
   write(KEY_GAME, JSON.stringify(saved));
 }
 
@@ -297,4 +312,23 @@ export function pushNetOutcome(outcome: NetOutcome): void {
   }
   const history = [...loadNetHistory(), outcome].slice(-3);
   write(KEY_NET_HISTORY, JSON.stringify(history));
+}
+
+// -- mode preference / intro -------------------------------------------------
+
+export function loadModePref(): "casual" | "ranked" | null {
+  const raw = read(KEY_MODE_PREF);
+  return raw === "casual" || raw === "ranked" ? raw : null;
+}
+
+export function saveModePref(mode: "casual" | "ranked"): void {
+  write(KEY_MODE_PREF, mode);
+}
+
+export function hasSeenModeIntro(): boolean {
+  return read(KEY_MODE_INTRO) === "1";
+}
+
+export function markModeIntroSeen(): void {
+  write(KEY_MODE_INTRO, "1");
 }

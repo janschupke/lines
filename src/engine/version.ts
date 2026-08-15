@@ -28,5 +28,9 @@ export const RULES_HASH = fnv1a(
   }),
 );
 
-/** Bumps only when RULES_HASH changes — refactors do not bump it. */
-export const ENGINE_VERSION = 1;
+/**
+ * Bumps on any rules change. v2: on a no-pop turn the displaced ghost
+ * materialises at its relocated cell (v1 left it a ghost, which made game
+ * over unreachable once every free cell carried a ghost).
+ */
+export const ENGINE_VERSION = 2;

@@ -6,7 +6,7 @@ describe("versioning", () => {
     expect(RULES_HASH).toBe("841324ed");
   });
 
-  it("ENGINE_VERSION is 1", () => {
-    expect(ENGINE_VERSION).toBe(1);
+  it("ENGINE_VERSION is 2", () => {
+    expect(ENGINE_VERSION).toBe(2);
   });
 });

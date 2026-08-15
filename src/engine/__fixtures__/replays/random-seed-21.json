@@ -1,7 +1,7 @@
 {
   "name": "random-seed-21",
   "key": "a09c9ea2a8aeb5bcd8d4d6dae0e6edf4100c0e12181e252c4844464a50565d64",
-  "moves": "ATjANFAEsAA7ALsAIUAKMAFJAAvAGZATBACtAD4AwtAEFAH-AClAGbABTACjABTACjABTBihACjABTACjABTACjABTACjABTACjABTAABABRACjABTAABABR",
+  "moves": "ATjANFAEsAA7ALsAIUAKMAFJAAvAGZATBACtAD4AwtAEFAH-AClAGbABTACjABTACjABTBihACjABT",
   "packets": [
     {
       "ghosts": [
@@ -403,103 +403,19 @@
         "to": 1
       },
       "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
     }
   ],
   "expect": {
     "score": 0,
-    "rngDraws": 178,
-    "boardHash": "ffe1589e",
+    "rngDraws": 164,
+    "boardHash": "375277ee",
     "stats": {
-      "turns": 40,
+      "turns": 26,
       "linesPopped": 0,
       "longestLine": 0,
       "ballsCleared": 0
     },
-    "over": false,
-    "moveCount": 40
+    "over": true,
+    "moveCount": 26
   }
 }

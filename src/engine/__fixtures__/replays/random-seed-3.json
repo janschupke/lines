@@ -1,7 +1,7 @@
 {
   "name": "random-seed-3",
   "key": "60656b727980878e989da3aab1b8bfc6d0d5dbe2e9f0f7fe080d131a21282f36",
-  "moves": "AQAAXIAdFAbXA_XBixABVASzBQ8Ao0ACrAFRAD3AFHBV3BlNACjAD3AFHAD3AFHAmdAe5AD3AClAD1AClAD1AClABTACjAD1AClABTACjABTACjAD1APPAD_AClAD1AClAD1AClAD1AClAD1AClAD1AClABTACjAD1AClAD1AClAD1AClAD1",
+  "moves": "AQAAXIAdFAbXA_XBixABVASzBQ8Ao0ACrAFRAD3AFHBV3BlNACjAD3AFHAD3AFHAmdAe5AD3AClBmX",
   "packets": [
     {
       "ghosts": [
@@ -383,243 +383,42 @@
         {
           "c": 67,
           "color": 4
+        },
+        {
+          "c": 3,
+          "color": 6
         }
       ]
     },
     {
+      "relocate": {
+        "to": 2
+      },
       "ghosts": [
         {
           "c": 71,
           "color": 1
-        },
-        {
-          "c": 2,
-          "color": 2
         }
       ]
     },
     {
       "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 12
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 2
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 3
+        "to": 80
       },
       "ghosts": []
     }
   ],
   "expect": {
     "score": 0,
-    "rngDraws": 198,
-    "boardHash": "5521a1ea",
+    "rngDraws": 165,
+    "boardHash": "53099b90",
     "stats": {
-      "turns": 60,
+      "turns": 26,
       "linesPopped": 0,
       "longestLine": 0,
       "ballsCleared": 0
     },
-    "over": false,
-    "moveCount": 60
+    "over": true,
+    "moveCount": 26
   }
 }

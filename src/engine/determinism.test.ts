@@ -126,12 +126,23 @@ describe("property suite", () => {
     fc.assert(
       fc.property(seedArb, (seed) => {
         const g = playGame(seed, 40);
-        for (const s of g.states) {
+        for (let i = 0; i < g.states.length; i++) {
+          const s = g.states[i]!;
           const free = freeOfBalls(s.balls).length;
           const expected = free < 3 ? free : 3;
-          expect(countNonZero(s.ghosts)).toBe(expected);
-          for (let i = 0; i < CELL_COUNT; i++) {
-            expect(s.ghosts[i] !== 0 && s.balls[i] !== 0).toBe(false);
+          // A pop after the late relocation-materialise can free cells the
+          // top-up could not know about, so equality holds except then.
+          const latePop =
+            i > 0 &&
+            g.effectLists[i - 1]!.some((e) => e.k === "ghostMoved") &&
+            g.effectLists[i - 1]!.some((e) => e.k === "pop");
+          if (latePop) {
+            expect(countNonZero(s.ghosts)).toBeLessThanOrEqual(expected);
+          } else {
+            expect(countNonZero(s.ghosts)).toBe(expected);
+          }
+          for (let c = 0; c < CELL_COUNT; c++) {
+            expect(s.ghosts[c] !== 0 && s.balls[c] !== 0).toBe(false);
           }
         }
       }),
@@ -320,17 +331,23 @@ describe("property suite", () => {
           // The client can verify every packet cell from the deterministic
           // prefix alone: fold the non-entropy effects and assert each cell
           // is free there — a packet never references a hidden cell.
-          const prefix = g.effectLists[i]!.filter(
-            (e) =>
-              e.k !== "ghostMoved" &&
-              e.k !== "spawnGhosts" &&
-              e.k !== "gameOver",
-          ).reduce(applyEffect, viewOf(prev));
+          const prefix = deterministicPrefix(g.effectLists[i]!).reduce(
+            applyEffect,
+            viewOf(prev),
+          );
           for (const c of cells) {
             expect(prefix.balls[c]).toBe(0);
             expect(prefix.ghosts[c]).toBe(0);
-            // and rendered immediately after the turn
-            expect(next.ghosts[c] !== 0).toBe(true);
+            // and rendered immediately after the turn (a relocated ghost
+            // materialises into a ball on a no-pop turn, or may even have
+            // popped in a line it completed)
+            const turnPopped = g.effectLists[i]!.some(
+              (e) =>
+                e.k === "pop" && (e.cells as readonly number[]).includes(c),
+            );
+            expect(
+              next.ghosts[c] !== 0 || next.balls[c] !== 0 || turnPopped,
+            ).toBe(true);
           }
         }
       }),
@@ -348,13 +365,7 @@ describe("property suite", () => {
         // up to (excluding) entropy-derived effects.
         const i = g.moves.length - 1;
         const prev = g.states[i]!;
-        const deterministic = (effects: readonly import("./types").Effect[]) =>
-          effects.filter(
-            (e) =>
-              e.k !== "ghostMoved" &&
-              e.k !== "spawnGhosts" &&
-              e.k !== "gameOver",
-          );
+        const deterministic = deterministicPrefix;
         const rA = applyAction(
           prev,
           g.moves[i]!,
@@ -469,10 +480,16 @@ describe("property suite", () => {
           const ghostMovedIdx = kinds.indexOf("ghostMoved");
           if (ghostMovedIdx !== -1) {
             expect(ghostMovedIdx).toBeGreaterThan(moveIdx);
-            // ghostMoved sits in the entropy tail: nothing deterministic
-            // (pop/score/materialize) ever follows it
+            // ghostMoved sits in the entropy tail; on a no-pop turn its
+            // relocated ghost materialises (and may pop) right after it
             for (const k of kinds.slice(ghostMovedIdx + 1)) {
-              expect(["spawnGhosts", "gameOver"]).toContain(k);
+              expect([
+                "materialize",
+                "pop",
+                "score",
+                "spawnGhosts",
+                "gameOver",
+              ]).toContain(k);
             }
           }
         }
@@ -481,6 +498,14 @@ describe("property suite", () => {
     );
   });
 });
+
+/** Everything before the first entropy-derived effect. */
+function deterministicPrefix(effects: readonly import("./types").Effect[]) {
+  const cut = effects.findIndex(
+    (e) => e.k === "ghostMoved" || e.k === "spawnGhosts" || e.k === "gameOver",
+  );
+  return cut === -1 ? effects.slice() : effects.slice(0, cut);
+}
 
 function placed(arr: Uint8Array) {
   const out = [];

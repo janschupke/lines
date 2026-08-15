@@ -170,12 +170,22 @@ export function applyAction(
   }
 
   // 5. Entropy — one packet: relocation, then top-up to min(3, cells free of balls).
+  //
+  // In the FREE-TURN branch (a line popped) the displaced ghost relocates
+  // and stays a ghost. In the NO-POP branch it MATERIALISES at its
+  // relocated cell along with its brethren — just late, because its cell
+  // needed the entropy phase. Without this, whenever every free cell
+  // carries a ghost (always true once freeOfBalls <= 3), every move
+  // displaces a ghost whose relocation keeps one cell perpetually
+  // ball-free and the game can never end. Classic Lines materialises the
+  // relocated preview in the same turn; so do we.
   const free = freeOfBoth(balls, ghosts);
-  // The displaced ghost re-enters the board via the packet's relocation, so
-  // it counts toward the top-up target.
+  const relocateBecomesBall = !poppedAny;
+  const willRelocate = displaced !== null && free.length > 0;
   const ghostsNow =
-    countNonZero(ghosts) + (displaced !== null && free.length > 0 ? 1 : 0);
-  const ballFreeCount = freeOfBalls(balls).length;
+    countNonZero(ghosts) + (willRelocate && !relocateBecomesBall ? 1 : 0);
+  const ballFreeCount =
+    freeOfBalls(balls).length - (willRelocate && relocateBecomesBall ? 1 : 0);
   const target =
     BALLS_PER_TURN < ballFreeCount ? BALLS_PER_TURN : ballFreeCount;
   const ghostCount = target > ghostsNow ? target - ghostsNow : 0;
@@ -187,13 +197,45 @@ export function applyAction(
   if (typeof packet === "string") return { ok: false, error: packet };
 
   if (packet.relocate && displaced !== null) {
-    ghosts[packet.relocate.to] = displaced;
     effects.push({
       k: "ghostMoved",
       from: to,
       to: packet.relocate.to,
       color: displaced,
     });
+    if (relocateBecomesBall) {
+      balls[packet.relocate.to] = displaced;
+      effects.push({
+        k: "materialize",
+        cells: [{ c: packet.relocate.to, color: displaced }],
+      });
+      // The late materialisation can complete a line. Deterministic given
+      // the packet, so keyed and scripted agree.
+      const late = resolveLines(balls);
+      balls.set(late.balls);
+      for (const round of late.rounds) {
+        effects.push({
+          k: "pop",
+          cells: round.cells,
+          lines: round.lines,
+          round: effectsRound(effects),
+        });
+        score += round.points;
+        effects.push({
+          k: "score",
+          delta: round.points,
+          total: score,
+          at: centroidOf(round.cells),
+        });
+        linesPopped += round.lines.length;
+        ballsCleared += round.cells.length;
+        for (const line of round.lines) {
+          if (line.length > longestLine) longestLine = line.length;
+        }
+      }
+    } else {
+      ghosts[packet.relocate.to] = displaced;
+    }
   }
   if (packet.ghosts.length > 0) {
     for (const g of packet.ghosts) ghosts[g.c] = g.color;

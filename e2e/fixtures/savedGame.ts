@@ -18,5 +18,7 @@ export function seedScript(): string {
       return origin(arr);
     };
     localStorage.setItem("lines-game-high-score", "34");
+    localStorage.setItem("lines:modePref:v1", "casual");
+    localStorage.setItem("lines:seenModeIntro:v1", "1");
   `;
 }

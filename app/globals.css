@@ -451,3 +451,29 @@ button:focus-visible,
     );
   }
 }
+
+/* Chrome budget (outside the layers so it beats the margin utilities):
+   the board shrinks with every extra chrome pixel, and the pitch must
+   clear the 24px WCAG floor at 320x480. */
+@media (max-width: 479px) {
+  .top-panel {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .top-panel .panel-center {
+    margin-top: 0.25rem;
+  }
+
+  .mode-chip-row {
+    margin-bottom: 0.25rem;
+  }
+
+  .mode-reason-text {
+    display: none; /* still in the chip's title/aria-label and popover */
+  }
+
+  .page-footer {
+    margin-top: 0.5rem;
+  }
+}

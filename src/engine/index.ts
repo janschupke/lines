@@ -7,6 +7,7 @@ export {
   BALLS_PER_TURN,
   MIN_LINE_LENGTH,
   SCORING_TABLE,
+  LEADERBOARD_SIZE,
   scoreForLength,
 } from "./config";
 export type {

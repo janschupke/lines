@@ -76,5 +76,9 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: false,
     timeout: 180_000,
+    env: {
+      // The only test affordance: a fixed ranked game key, server-side.
+      E2E_FIXED_KEY: "07".repeat(32),
+    },
   },
 });

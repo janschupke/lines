@@ -1,7 +1,7 @@
 {
   "name": "random-seed-8",
   "key": "0003080e141b2229383b40464c535a617073787e848b9299a8abb0b6bcc3cad1",
-  "moves": "AEbAIBAinBcNAW_AQrAR7AEeAQrAnfAKbACsAM1BTHAOFAM1AOFBR3AGgAM2APWACnAADADzAABABRBTbBH5A8XAw1AvbAkBAYfAM9ALjAAJALZAAJABRAMrABbAABALZAAJALZAAJALZAAJABRAABALZAAJALZAMzALjAAJABRAMrABbAMrABbAMrABbAABALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJABRAMrABbAMrABbAMrABbAABABRAMrABbAMrABbAMrABbAMrABbAMrABbAMrABbAMrABbAMrABbAMrABbAABALZAAJALZAAJABRAABALZAAJALZAAJALZAAJ",
+  "moves": "AEbAIBAinBcNAW_AQrAR7AEeAQrAnfAKbACsAM1AapAOFAM1AFGAXWAClAD1AClAD1AClAD1AClAD1",
   "packets": [
     {
       "ghosts": [
@@ -207,13 +207,17 @@
         {
           "c": 59,
           "color": 1
+        },
+        {
+          "c": 54,
+          "color": 3
         }
       ]
     },
     {
       "ghosts": [
         {
-          "c": 8,
+          "c": 57,
           "color": 5
         },
         {
@@ -221,118 +225,24 @@
           "color": 3
         },
         {
+          "c": 33,
+          "color": 7
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 5,
+          "color": 6
+        },
+        {
           "c": 71,
-          "color": 7
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 26,
-          "color": 6
-        },
-        {
-          "c": 41,
           "color": 4
-        },
-        {
-          "c": 65,
-          "color": 7
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 27,
-          "color": 6
-        },
-        {
-          "c": 57,
-          "color": 5
-        },
-        {
-          "c": 10,
-          "color": 7
-        }
-      ]
-    },
-    {
-      "relocate": {
-        "to": 5
-      },
-      "ghosts": [
-        {
-          "c": 73,
-          "color": 6
-        },
-        {
-          "c": 15,
-          "color": 5
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 11,
-          "color": 4
-        },
-        {
-          "c": 44,
-          "color": 7
-        },
-        {
-          "c": 64,
-          "color": 1
-        }
-      ]
-    },
-    {
-      "relocate": {
-        "to": 22
-      },
-      "ghosts": [
-        {
-          "c": 31,
-          "color": 6
-        },
-        {
-          "c": 51,
-          "color": 2
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 0,
-          "color": 6
-        },
-        {
-          "c": 36,
-          "color": 2
-        },
-        {
-          "c": 2,
-          "color": 5
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 56,
-          "color": 5
-        },
-        {
-          "c": 67,
-          "color": 3
         },
         {
           "c": 12,
-          "color": 3
+          "color": 7
         }
       ]
     },
@@ -343,11 +253,107 @@
           "color": 6
         },
         {
-          "c": 48,
+          "c": 8,
+          "color": 5
+        },
+        {
+          "c": 26,
+          "color": 7
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 56,
+          "color": 7
+        },
+        {
+          "c": 67,
           "color": 1
         },
         {
-          "c": 33,
+          "c": 25,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 31,
+          "color": 4
+        },
+        {
+          "c": 51,
+          "color": 7
+        },
+        {
+          "c": 21,
+          "color": 1
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 73,
+          "color": 3
+        },
+        {
+          "c": 1,
+          "color": 4
+        },
+        {
+          "c": 27,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 22,
+          "color": 6
+        },
+        {
+          "c": 55,
+          "color": 2
+        },
+        {
+          "c": 72,
+          "color": 5
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 74,
+          "color": 5
+        },
+        {
+          "c": 61,
+          "color": 3
+        },
+        {
+          "c": 4,
+          "color": 3
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 48,
+          "color": 6
+        },
+        {
+          "c": 18,
+          "color": 1
+        },
+        {
+          "c": 62,
           "color": 3
         }
       ]
@@ -359,18 +365,18 @@
           "color": 5
         },
         {
-          "c": 72,
+          "c": 41,
           "color": 4
         },
         {
-          "c": 0,
+          "c": 15,
           "color": 4
         }
       ]
     },
     {
       "relocate": {
-        "to": 3
+        "to": 0
       },
       "ghosts": [
         {
@@ -378,615 +384,44 @@
           "color": 6
         },
         {
-          "c": 62,
+          "c": 10,
           "color": 3
+        },
+        {
+          "c": 3,
+          "color": 2
         }
       ]
     },
     {
+      "relocate": {
+        "to": 44
+      },
       "ghosts": [
         {
-          "c": 25,
+          "c": 2,
           "color": 1
-        },
-        {
-          "c": 4,
-          "color": 6
-        },
-        {
-          "c": 61,
-          "color": 3
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 74,
-          "color": 7
-        },
-        {
-          "c": 1,
-          "color": 3
         }
       ]
     },
     {
       "relocate": {
-        "to": 65
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 56
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 47
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 38
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 37
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 28
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 19
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 10
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 1
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 9
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 0
+        "to": 3
       },
       "ghosts": []
     }
   ],
   "expect": {
     "score": 0,
-    "rngDraws": 260,
-    "boardHash": "31b7c8b1",
+    "rngDraws": 166,
+    "boardHash": "cc85db6f",
     "stats": {
-      "turns": 120,
+      "turns": 26,
       "linesPopped": 0,
       "longestLine": 0,
       "ballsCleared": 0
     },
-    "over": false,
-    "moveCount": 120
+    "over": true,
+    "moveCount": 26
   }
 }

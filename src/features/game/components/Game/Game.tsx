@@ -12,6 +12,8 @@ import GameEndDialog from "@/shared/components/GameEndDialog/GameEndDialog";
 import Guide from "@/shared/components/Guide/Guide";
 import FloatingScore from "@/shared/components/FloatingScore/FloatingScore";
 import GameControls from "./GameControls";
+import ModeChip from "./ModeChip";
+import ConnectionOverlays from "./ConnectionOverlays";
 import NextBallsPreview from "./NextBallsPreview";
 import ScoreDisplay from "./ScoreDisplay";
 import TimerDisplay from "./TimerDisplay";
@@ -83,6 +85,33 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
         />
       </div>
 
+      {/* Mode indicator row */}
+      <div className="mode-chip-row game-chrome flex justify-center mb-2 relative">
+        <ModeChip />
+      </div>
+
+      {/* One-time mode intro */}
+      {snapshot.showModeIntro && (
+        <div className="game-chrome mb-2">
+          <div
+            className="game-panel p-3 text-sm text-game-text-secondary flex items-start gap-3"
+            data-testid="mode-intro"
+          >
+            <div>
+              Two ways to play: <b>Casual</b> is instant and works offline; your
+              score stays on this device. <b>Ranked</b> is refereed by the
+              server and competes for the leaderboard.
+            </div>
+            <button
+              className="game-button game-button-primary px-3 py-1 shrink-0"
+              onClick={() => controller.dismissModeIntro()}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Game Board Container with Overlays */}
       <div className="board-area">
         <div className="board-frame game-panel p-4">
@@ -113,6 +142,9 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
                 onClose={() => controller.closeDialog()}
               />
             )}
+
+            {/* Connection overlays: syncing chip, reconnect panel, gate */}
+            <ConnectionOverlays />
 
             {/* Floating Score Animations */}
             {snapshot.anim.floating.map((floating) => (

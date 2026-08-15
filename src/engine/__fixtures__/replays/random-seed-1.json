@@ -1,7 +1,7 @@
 {
   "name": "random-seed-1",
   "key": "20262d343b424950585e656c737a818890969da4abb2b9c0c8ced5dce3eaf1f8",
-  "moves": "AgYADJAx6AKpASHAEKALfAHtABeAZXACxBmXAFJAGbAHrAGbAHrALmAD_AAT",
+  "moves": "AgYADJAx6AKpASHAEKALfAHtABeAZXACxBmXAFJAGbAHrAGbAHrAOIALcAD3",
   "packets": [
     {
       "ghosts": [
@@ -210,20 +210,28 @@
         {
           "c": 5,
           "color": 4
+        },
+        {
+          "c": 38,
+          "color": 5
         }
       ]
     },
     {
       "relocate": {
-        "to": 67
+        "to": 28
       },
       "ghosts": [
         {
-          "c": 45,
+          "c": 37,
           "color": 4
         },
         {
-          "c": 66,
+          "c": 31,
+          "color": 2
+        },
+        {
+          "c": 76,
           "color": 2
         }
       ]
@@ -231,15 +239,15 @@
     {
       "ghosts": [
         {
-          "c": 24,
+          "c": 72,
           "color": 7
         },
         {
-          "c": 53,
+          "c": 45,
           "color": 1
         },
         {
-          "c": 28,
+          "c": 8,
           "color": 7
         }
       ]
@@ -247,31 +255,31 @@
     {
       "ghosts": [
         {
-          "c": 18,
+          "c": 6,
           "color": 3
-        },
-        {
-          "c": 3,
-          "color": 7
         },
         {
           "c": 21,
           "color": 7
+        },
+        {
+          "c": 17,
+          "color": 7
         }
       ]
     },
     {
       "ghosts": [
         {
-          "c": 38,
+          "c": 80,
           "color": 5
         },
         {
-          "c": 0,
+          "c": 41,
           "color": 5
         },
         {
-          "c": 63,
+          "c": 59,
           "color": 1
         }
       ]
@@ -279,40 +287,43 @@
     {
       "ghosts": [
         {
-          "c": 50,
+          "c": 19,
           "color": 5
-        },
-        {
-          "c": 55,
-          "color": 4
         },
         {
           "c": 4,
+          "color": 4
+        },
+        {
+          "c": 66,
           "color": 5
         }
       ]
     },
     {
+      "relocate": {
+        "to": 33
+      },
       "ghosts": [
         {
-          "c": 3,
+          "c": 23,
+          "color": 3
+        },
+        {
+          "c": 24,
           "color": 4
         },
         {
-          "c": 36,
-          "color": 6
-        },
-        {
-          "c": 60,
-          "color": 1
+          "c": 12,
+          "color": 5
         }
       ]
     }
   ],
   "expect": {
     "score": 5,
-    "rngDraws": 128,
-    "boardHash": "e0e12423",
+    "rngDraws": 133,
+    "boardHash": "46653cdf",
     "stats": {
       "turns": 20,
       "linesPopped": 1,

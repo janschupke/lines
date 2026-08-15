@@ -21,6 +21,13 @@ export const SCORING_TABLE: Readonly<Record<number, number>> = {
 
 const MAX_SCORED_LENGTH = 9;
 
+/**
+ * Governs three things at once: how many rows the table holds, how many the
+ * API returns, and how many the UI renders. Not part of RULES_HASH — it
+ * cannot change a game's outcome.
+ */
+export const LEADERBOARD_SIZE = 20;
+
 export const scoreForLength = (len: number): number =>
   SCORING_TABLE[
     len < MIN_LINE_LENGTH

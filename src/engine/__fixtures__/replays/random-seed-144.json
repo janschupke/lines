@@ -1,7 +1,7 @@
 {
   "name": "random-seed-144",
   "key": "00bfa29795979ca238f7dacfcdcfd4da702f120705070c12a8674a3f3d3f444a",
-  "moves": "BP8AM1AOFAESAJFABsAM2AOAAGbAHrATFBH3AEOAGeAFGAClAD1AClAD1ABRAHrAYfAABABRAABABRBSJAZnAYXAZn",
+  "moves": "BP8AM1AOFAESAJFABsAM2AOAAGbAHrATFBH3AEOAGeAFGAClAD1AClAD1ABRA0jAnvAClABcAABABRBYR",
   "packets": [
     {
       "ghosts": [
@@ -319,13 +319,17 @@
         {
           "c": 25,
           "color": 2
+        },
+        {
+          "c": 1,
+          "color": 2
         }
       ]
     },
     {
       "ghosts": [
         {
-          "c": 75,
+          "c": 55,
           "color": 6
         },
         {
@@ -333,7 +337,7 @@
           "color": 7
         },
         {
-          "c": 55,
+          "c": 8,
           "color": 4
         }
       ]
@@ -341,15 +345,15 @@
     {
       "ghosts": [
         {
-          "c": 6,
+          "c": 5,
           "color": 7
         },
         {
-          "c": 3,
+          "c": 28,
           "color": 5
         },
         {
-          "c": 21,
+          "c": 50,
           "color": 1
         }
       ]
@@ -357,12 +361,44 @@
     {
       "ghosts": [
         {
-          "c": 42,
+          "c": 2,
           "color": 1
         },
         {
-          "c": 36,
+          "c": 63,
           "color": 7
+        },
+        {
+          "c": 51,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 36,
+          "color": 3
+        },
+        {
+          "c": 41,
+          "color": 2
+        },
+        {
+          "c": 31,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 75,
+          "color": 3
+        },
+        {
+          "c": 73,
+          "color": 1
         },
         {
           "c": 0,
@@ -372,93 +408,41 @@
     },
     {
       "relocate": {
-        "to": 8
+        "to": 18
       },
       "ghosts": [
         {
-          "c": 50,
-          "color": 1
-        },
-        {
-          "c": 63,
-          "color": 1
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 51,
-          "color": 3
+          "c": 1,
+          "color": 2
         },
         {
           "c": 60,
+          "color": 6
+        },
+        {
+          "c": 21,
           "color": 1
-        },
-        {
-          "c": 32,
-          "color": 2
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 11,
-          "color": 7
-        },
-        {
-          "c": 18,
-          "color": 4
-        },
-        {
-          "c": 1,
-          "color": 5
-        }
-      ]
-    },
-    {
-      "ghosts": [
-        {
-          "c": 19,
-          "color": 6
-        },
-        {
-          "c": 64,
-          "color": 6
         }
       ]
     },
     {
       "relocate": {
-        "to": 20
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 19
-      },
-      "ghosts": []
-    },
-    {
-      "relocate": {
-        "to": 20
+        "to": 69
       },
       "ghosts": []
     }
   ],
   "expect": {
     "score": 5,
-    "rngDraws": 177,
-    "boardHash": "df1dca15",
+    "rngDraws": 175,
+    "boardHash": "97ac5baf",
     "stats": {
-      "turns": 30,
+      "turns": 27,
       "linesPopped": 1,
       "longestLine": 5,
       "ballsCleared": 5
     },
-    "over": false,
-    "moveCount": 30
+    "over": true,
+    "moveCount": 27
   }
 }

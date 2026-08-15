@@ -5,6 +5,7 @@ const config: KnipConfig = {
   project: ["app/**/*.{ts,tsx}", "src/**/*.{ts,tsx}", "*.{ts,tsx,js,cjs}"],
   ignore: [
     "**/*.test.{ts,tsx}",
+    "src/generated/**",
     "coverage/**",
     "dist/**",
     ".next/**",

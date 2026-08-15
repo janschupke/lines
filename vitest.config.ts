@@ -14,6 +14,7 @@ export default defineConfig({
       exclude: [
         "src/**/*.test.{ts,tsx}",
         "src/engine/__fixtures__/**",
+        "src/generated/**",
         "src/engine/testutil.ts",
         "src/**/*.d.ts",
       ],

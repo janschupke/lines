@@ -47,3 +47,6 @@ playwright-report/
 out/
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Env
+.env

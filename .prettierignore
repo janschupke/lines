@@ -1,0 +1,4 @@
+src/generated/
+.next/
+test-results/
+app/tokens.generated.css

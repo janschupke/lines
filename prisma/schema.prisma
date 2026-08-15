@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// Connection URLs live in prisma.config.ts (CLI) and src/server/db.ts (app):
+// DATABASE_URL for the running app (pooled on Supabase), DIRECT_URL for migrate.
+datasource db {
+  provider = "postgresql"
+}
+
+/// THE LEADERBOARD ITSELF — at most LEADERBOARD_SIZE (20) rows, ever.
+/// Not a ledger: a submission that does not beat the lowest row is never stored, and a
+/// row that gets surpassed is deleted in the same transaction that admits its successor.
+/// Casual games never reach the database at all — they are local-only. See 13-modes.md.
+model Score {
+  id            String   @id @default(uuid()) @db.Uuid
+  /// From the start token. Unique => idempotent submits.
+  gameId        String   @unique @db.Uuid
+  /// Anonymous, client-minted, stored in localStorage. Used only to highlight
+  /// the viewer's own row. Rate limiting reads SubmissionAttempt, not this table.
+  playerId      String   @db.Uuid
+  name          String   @db.VarChar(64)
+  score         Int
+  durationMs    Int
+  moveCount     Int
+  linesPopped   Int
+  longestLine   Int
+  ballsCleared  Int
+  /// Which ENTROPY_SECRET derived this game's key. The key itself is never stored.
+  keyVersion    Int
+  /// base64url action log; the replay input.
+  moves         String
+  engineVersion Int
+  boardHash     String   @db.Char(8)
+  /// sha256(ip + IP_HASH_SALT). Raw IPs are never stored.
+  ipHash        String   @db.Char(64)
+  suspicious    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  /// The ordering used by the read, the qualification gate and the eviction.
+  /// At <=20 rows Postgres will seq-scan regardless; the index documents intent
+  /// and keeps the plan stable if LEADERBOARD_SIZE is ever raised.
+  @@index([score(sort: Desc), createdAt(sort: Asc)])
+}
+
+/// An in-progress, server-authoritative game. Deleted at /finish; swept by TTL otherwise.
+/// This row is what makes server-side spawns work on serverless: it IS the session.
+model GameSession {
+  gameId        String   @id @db.Uuid
+  playerId      String   @db.Uuid
+  /// Which ENTROPY_SECRET derives this game's key. The key itself is NEVER stored —
+  /// it is HKDF(ENTROPY_SECRET[keyVersion], gameId), recomputed per request.
+  keyVersion    Int
+  /// Authoritative board. 81 bytes each.
+  balls         Bytes
+  ghosts        Bytes
+  boardHash     String   @db.Char(8)
+  score         Int      @default(0)
+  moveCount     Int      @default(0)
+  over          Boolean  @default(false)
+  stats         Json
+  /// base64url log, appended per move; the finish-time replay audit input.
+  moves         String   @default("")
+  /// Last issued packet + move, so a lost response can be retried idempotently.
+  lastPacket    Json?
+  lastFrom      Int?
+  lastTo        Int?
+  engineVersion Int
+  ipHash        String   @db.Char(64)
+  createdAt     DateTime @default(now())
+  lastSeenAt    DateTime @default(now())
+
+  @@index([playerId, createdAt])
+  @@index([createdAt]) // TTL sweep — deliberately NOT lastSeenAt: createdAt never changes so updates stay HOT
+}
+
+/// Every submission outcome, including rejections. Kept indefinitely — the abuse audit trail.
+model SubmissionAttempt {
+  id        BigInt   @id @default(autoincrement())
+  playerId  String?  @db.Uuid
+  ipHash    String   @db.Char(64)
+  /// accepted | bad_request | bad_token | expired | engine_version | rate_limited
+  /// | no_session | already_over | invalid_move | state_mismatch | rewind
+  /// | not_finished | audit_failed | bad_name | rejected_name | duplicate
+  outcome   String   @db.VarChar(32)
+  createdAt DateTime @default(now())
+
+  @@index([playerId, createdAt])
+  @@index([ipHash, createdAt])
+  @@index([createdAt])
+}

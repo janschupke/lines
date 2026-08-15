@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lines
+      POSTGRES_PASSWORD: lines
+      POSTGRES_DB: lines
+    ports:
+      # 5432 is taken by corpus/realtime/template; 5434 by mei/quire; 5435 by tefl; 5436 also taken.
+      - "5437:5432"
+    volumes:
+      - lines_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lines -d lines"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  lines_pgdata:

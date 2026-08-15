@@ -13,6 +13,7 @@ export default tseslint.config(
       "test-results",
       "playwright-report",
       "next-env.d.ts",
+      "src/generated",
       "*.config.js",
       "*.config.cjs",
       "*.config.mjs",

@@ -1,0 +1,799 @@
+{
+  "name": "random-seed-5",
+  "key": "a0a4aab0b7bec5ccd8dce2e8eff6fd0410141a20272e353c484c52585f666d74",
+  "moves": "ABvAO3ACoAHtAKiAmBALZBMxAAJACCAoQAD3AFaAH1ABVACiABkAABABRAABAx0ABTAABABRAcWA69BerAMrABbAvbA5iAuRAivAXNALrAAJABRACjABTACjABTACjABTAABALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJALZAAJ",
+  "packets": [
+    {
+      "ghosts": [
+        {
+          "c": 2,
+          "color": 3
+        },
+        {
+          "c": 13,
+          "color": 2
+        },
+        {
+          "c": 70,
+          "color": 3
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 10,
+          "color": 5
+        },
+        {
+          "c": 8,
+          "color": 1
+        },
+        {
+          "c": 72,
+          "color": 5
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 18,
+          "color": 3
+        },
+        {
+          "c": 41,
+          "color": 4
+        },
+        {
+          "c": 75,
+          "color": 1
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 46,
+          "color": 2
+        },
+        {
+          "c": 1,
+          "color": 1
+        },
+        {
+          "c": 68,
+          "color": 5
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 9,
+          "color": 5
+        },
+        {
+          "c": 3,
+          "color": 7
+        },
+        {
+          "c": 79,
+          "color": 5
+        }
+      ]
+    },
+    {
+      "relocate": {
+        "to": 34
+      },
+      "ghosts": [
+        {
+          "c": 8,
+          "color": 7
+        },
+        {
+          "c": 35,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 24,
+          "color": 4
+        },
+        {
+          "c": 59,
+          "color": 1
+        },
+        {
+          "c": 31,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 33,
+          "color": 6
+        },
+        {
+          "c": 67,
+          "color": 6
+        },
+        {
+          "c": 32,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 48,
+          "color": 1
+        },
+        {
+          "c": 14,
+          "color": 4
+        },
+        {
+          "c": 71,
+          "color": 3
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 50,
+          "color": 4
+        },
+        {
+          "c": 60,
+          "color": 6
+        },
+        {
+          "c": 38,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 76,
+          "color": 4
+        },
+        {
+          "c": 77,
+          "color": 4
+        },
+        {
+          "c": 45,
+          "color": 5
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 25,
+          "color": 3
+        },
+        {
+          "c": 6,
+          "color": 7
+        },
+        {
+          "c": 58,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 56,
+          "color": 2
+        },
+        {
+          "c": 31,
+          "color": 6
+        },
+        {
+          "c": 1,
+          "color": 7
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 2,
+          "color": 5
+        },
+        {
+          "c": 52,
+          "color": 4
+        },
+        {
+          "c": 37,
+          "color": 1
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 1,
+          "color": 3
+        },
+        {
+          "c": 74,
+          "color": 5
+        },
+        {
+          "c": 39,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 6,
+          "color": 7
+        },
+        {
+          "c": 55,
+          "color": 4
+        },
+        {
+          "c": 78,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 27,
+          "color": 5
+        },
+        {
+          "c": 11,
+          "color": 7
+        },
+        {
+          "c": 17,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 0,
+          "color": 1
+        },
+        {
+          "c": 20,
+          "color": 3
+        },
+        {
+          "c": 3,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "relocate": {
+        "to": 62
+      },
+      "ghosts": [
+        {
+          "c": 64,
+          "color": 3
+        },
+        {
+          "c": 61,
+          "color": 7
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 30,
+          "color": 6
+        },
+        {
+          "c": 0,
+          "color": 5
+        },
+        {
+          "c": 28,
+          "color": 7
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 42,
+          "color": 5
+        },
+        {
+          "c": 21,
+          "color": 2
+        },
+        {
+          "c": 69,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 33,
+          "color": 7
+        },
+        {
+          "c": 30,
+          "color": 1
+        },
+        {
+          "c": 80,
+          "color": 4
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 39,
+          "color": 7
+        },
+        {
+          "c": 73,
+          "color": 6
+        },
+        {
+          "c": 63,
+          "color": 3
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 54,
+          "color": 5
+        },
+        {
+          "c": 29,
+          "color": 2
+        },
+        {
+          "c": 23,
+          "color": 4
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 23,
+          "color": 7
+        },
+        {
+          "c": 36,
+          "color": 7
+        },
+        {
+          "c": 12,
+          "color": 4
+        }
+      ]
+    },
+    {
+      "ghosts": []
+    },
+    {
+      "ghosts": [
+        {
+          "c": 57,
+          "color": 4
+        },
+        {
+          "c": 41,
+          "color": 6
+        },
+        {
+          "c": 1,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "relocate": {
+        "to": 44
+      },
+      "ghosts": [
+        {
+          "c": 32,
+          "color": 4
+        },
+        {
+          "c": 10,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "relocate": {
+        "to": 22
+      },
+      "ghosts": [
+        {
+          "c": 74,
+          "color": 3
+        },
+        {
+          "c": 56,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 14,
+          "color": 7
+        },
+        {
+          "c": 47,
+          "color": 2
+        },
+        {
+          "c": 29,
+          "color": 6
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 1,
+          "color": 6
+        },
+        {
+          "c": 31,
+          "color": 6
+        },
+        {
+          "c": 46,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "ghosts": [
+        {
+          "c": 50,
+          "color": 1
+        },
+        {
+          "c": 36,
+          "color": 2
+        }
+      ]
+    },
+    {
+      "relocate": {
+        "to": 27
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 18
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 1
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 2
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 1
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 2
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 1
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 2
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 1
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 9
+      },
+      "ghosts": []
+    },
+    {
+      "relocate": {
+        "to": 0
+      },
+      "ghosts": []
+    }
+  ],
+  "expect": {
+    "score": 15,
+    "rngDraws": 244,
+    "boardHash": "a43fd0bf",
+    "stats": {
+      "turns": 80,
+      "linesPopped": 3,
+      "longestLine": 5,
+      "ballsCleared": 15
+    },
+    "over": false,
+    "moveCount": 80
+  }
+}

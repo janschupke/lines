@@ -14,9 +14,19 @@ export default defineConfig({
       exclude: [
         "src/**/*.test.{ts,tsx}",
         "src/engine/__fixtures__/**",
+        "src/engine/testutil.ts",
         "src/**/*.d.ts",
       ],
       reporter: ["text", "html"],
+      thresholds: {
+        // the engine is pure and small — hold it high
+        "src/engine/**": {
+          statements: 90,
+          branches: 85,
+          functions: 95,
+          lines: 90,
+        },
+      },
     },
     projects: [
       {

@@ -58,6 +58,34 @@ export default tseslint.config(
     },
   },
   {
+    // Engine purity: pure, deterministic, framework-free. ChaCha20 needs no
+    // multiply — add/xor/rotate only — so Math is banned outright.
+    files: ["src/engine/**/*.ts"],
+    ignores: ["src/engine/**/*.test.ts"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        "Math",
+        "Date",
+        "crypto",
+        "performance",
+        "window",
+        "document",
+        "localStorage",
+        "fetch",
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.property.name='sort'][arguments.length=0]",
+          message:
+            "Array.sort without a comparator is implementation-defined for equal keys.",
+        },
+      ],
+    },
+  },
+  {
     files: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",

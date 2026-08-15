@@ -34,7 +34,7 @@ describe("calculateLineScore", () => {
 
     // Scores should be non-decreasing (longer lines give more or equal points)
     for (let i = 1; i < scores.length; i++) {
-      expect(scores[i]).toBeGreaterThanOrEqual(scores[i - 1]);
+      expect(scores[i]).toBeGreaterThanOrEqual(scores[i - 1]!);
     }
   });
 

@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useGameAnimation } from "../features/game/hooks/useGameAnimation";
-import type { BallColor, SpawnedBall } from "../features/game/types";
-import { ANIMATION_DURATIONS } from "../features/game/config";
+import { useGameAnimation } from "./useGameAnimation";
+import type { BallColor, SpawnedBall } from "../types";
+import { ANIMATION_DURATIONS } from "../config";
 
 describe("useGameAnimation", () => {
   describe("initial state", () => {
@@ -187,14 +187,14 @@ describe("useGameAnimation", () => {
         color: "red",
         isTransitioning: true,
       });
-      expect(result.current.spawningBalls[0].id).toBeDefined();
+      expect(result.current.spawningBalls[0]!.id).toBeDefined();
       expect(result.current.spawningBalls[1]).toMatchObject({
         x: 1,
         y: 1,
         color: "blue",
         isTransitioning: false,
       });
-      expect(result.current.spawningBalls[1].id).toBeDefined();
+      expect(result.current.spawningBalls[1]!.id).toBeDefined();
     });
 
     it("removes spawning balls after animation duration", async () => {
@@ -214,7 +214,7 @@ describe("useGameAnimation", () => {
         color: "red",
         isTransitioning: true,
       });
-      expect(result.current.spawningBalls[0].id).toBeDefined();
+      expect(result.current.spawningBalls[0]!.id).toBeDefined();
 
       // Wait for the animation to complete
       await act(async () => {
@@ -273,11 +273,11 @@ describe("useGameAnimation", () => {
 
       expect(result.current.floatingScores).toHaveLength(1);
       const floatingScore = result.current.floatingScores[0];
-      expect(floatingScore.score).toBe(score);
-      expect(floatingScore.x).toBe(x);
-      expect(floatingScore.y).toBe(y);
-      expect(floatingScore.id).toBeDefined();
-      expect(floatingScore.timestamp).toBeDefined();
+      expect(floatingScore!.score!).toBe(score);
+      expect(floatingScore!.x!).toBe(x);
+      expect(floatingScore!.y!).toBe(y);
+      expect(floatingScore!.id!).toBeDefined();
+      expect(floatingScore!.timestamp!).toBeDefined();
     });
 
     it("adds multiple floating scores", () => {
@@ -289,8 +289,8 @@ describe("useGameAnimation", () => {
       });
 
       expect(result.current.floatingScores).toHaveLength(2);
-      expect(result.current.floatingScores[0].score).toBe(5);
-      expect(result.current.floatingScores[1].score).toBe(3);
+      expect(result.current.floatingScores[0]!.score).toBe(5);
+      expect(result.current.floatingScores[1]!.score).toBe(3);
     });
 
     it("generates unique IDs for floating scores", () => {
@@ -345,12 +345,12 @@ describe("useGameAnimation", () => {
 
       expect(result.current.growingBalls).toHaveLength(1);
       const growingBall = result.current.growingBalls[0];
-      expect(growingBall.x).toBe(x);
-      expect(growingBall.y).toBe(y);
-      expect(growingBall.color).toBe(color);
-      expect(growingBall.isTransitioning).toBe(isTransitioning);
-      expect(growingBall.id).toBeDefined();
-      expect(growingBall.timestamp).toBeDefined();
+      expect(growingBall!.x!).toBe(x);
+      expect(growingBall!.y!).toBe(y);
+      expect(growingBall!.color!).toBe(color);
+      expect(growingBall!.isTransitioning!).toBe(isTransitioning);
+      expect(growingBall!.id!).toBeDefined();
+      expect(growingBall!.timestamp!).toBeDefined();
     });
 
     it("distinguishes between transitioning and new preview balls", () => {
@@ -362,8 +362,8 @@ describe("useGameAnimation", () => {
       });
 
       expect(result.current.growingBalls).toHaveLength(2);
-      expect(result.current.growingBalls[0].isTransitioning).toBe(true);
-      expect(result.current.growingBalls[1].isTransitioning).toBe(false);
+      expect(result.current.growingBalls[0]!.isTransitioning).toBe(true);
+      expect(result.current.growingBalls[1]!.isTransitioning).toBe(false);
     });
 
     it("removes growing ball after animation duration", async () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import type { Cell } from "../../types";
 import type { GrowingBall } from "../../hooks/useGameAnimation";
-import { getBallColor, getGameSizing } from "@shared/utils";
+import { getBallColor, getGameSizing } from "@/shared/utils";
 
 interface BoardCellProps {
   cell: Cell;

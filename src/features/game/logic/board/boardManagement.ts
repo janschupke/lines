@@ -2,7 +2,7 @@ import { BOARD_SIZE, BALLS_PER_TURN } from "../../config";
 import type { Cell, BallColor, ConversionResult } from "../../types";
 import { getRandomNextBalls } from "../balls/ballGeneration";
 import { LineDetectionEngine } from "../lines/lineDetectionEngine";
-import { coordToKey } from "@shared/utils/coordinates";
+import { coordToKey } from "@/shared/utils/coordinates";
 import { cloneBoard } from "../../utils/boardUtils";
 
 /**

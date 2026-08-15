@@ -1,6 +1,6 @@
 import React from "react";
 import type { BallColor } from "../../types";
-import { getBallColor } from "@shared/utils/helpers";
+import { getBallColor } from "@/shared/utils/helpers";
 
 interface NextBallsPreviewProps {
   nextBalls: BallColor[];

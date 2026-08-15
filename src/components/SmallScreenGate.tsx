@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom/client";
-import Game from "@features/game/components/Game/Game";
-import { SmallScreenWarning } from "@shared/components/SmallScreenWarning";
-import "../index.css";
+"use client";
 
-export function App() {
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { SmallScreenWarning } from "@/shared/components/SmallScreenWarning";
+import BoardSkeleton from "@/components/BoardSkeleton";
+
+// The game reads localStorage during initial state setup, so it must never
+// server-render: the whole game tree is client-only behind this gate.
+const Game = dynamic(() => import("@/features/game/components/Game/Game"), {
+  ssr: false,
+  loading: () => <BoardSkeleton />,
+});
+
+function SmallScreenGate() {
   const [showGuide, setShowGuide] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -30,16 +38,4 @@ export function App() {
   return <Game key="game" showGuide={showGuide} setShowGuide={setShowGuide} />;
 }
 
-// Only render in browser, not in tests
-if (typeof window !== "undefined" && import.meta.env.MODE !== "test") {
-  const root = document.getElementById("root");
-  if (!root) {
-    throw new Error("Root element not found");
-  }
-
-  ReactDOM.createRoot(root).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
-}
+export default SmallScreenGate;

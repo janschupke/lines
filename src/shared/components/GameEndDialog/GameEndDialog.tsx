@@ -1,5 +1,5 @@
 import React from "react";
-import type { GameStatistics } from "@features/game/types";
+import type { GameStatistics } from "@/features/game/types";
 
 interface GameEndDialogProps {
   isOpen: boolean;

@@ -55,7 +55,7 @@ export const getGameSizing = () => {
   };
 };
 
-import { BallColor } from "@features/game/config";
+import { BallColor } from "@/features/game/config";
 
 // Helper function to get ball color
 export const getBallColor = (color: BallColor | string): string => {

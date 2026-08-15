@@ -8,7 +8,7 @@ import type {
   Coord,
 } from "../types";
 import { LineDetectionEngine } from "./lines/lineDetectionEngine";
-import { coordsFromKeys, coordToKey } from "@shared/utils/coordinates";
+import { coordsFromKeys, coordToKey } from "@/shared/utils/coordinates";
 import { cloneBoard } from "../utils/boardUtils";
 import {
   createEmptyBoard,

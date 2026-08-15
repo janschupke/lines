@@ -6,16 +6,16 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: !!process.env["CI"],
   // Visual baselines are darwin-rendered; CI (linux) runs the behavioural
   // specs and skips screenshot comparison until linux baselines exist.
-  ignoreSnapshots: !!process.env.CI,
+  ignoreSnapshots: !!process.env["CI"],
   retries: 0,
-  reporter: process.env.CI ? "github" : "list",
+  reporter: process.env["CI"] ? "github" : "list",
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://localhost:3000",
     // Determinism comes from the real reduced-motion path, not a test flag.
-    reducedMotion: "reduce",
+    contextOptions: { reducedMotion: "reduce" },
     trace: "retain-on-failure",
   },
   projects: [
@@ -71,9 +71,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    // Always build first: `next start` alone would serve a stale build.
+    command: "npm run build && npm run start",
+    url: "http://localhost:3000",
+    reuseExistingServer: false,
+    timeout: 180_000,
   },
 });

@@ -66,15 +66,15 @@ npm run test:run
 - `npm run test:run` - Run all tests
 - `npm run test:coverage` - Run tests with coverage report
 - `npm run lint` - Run ESLint with auto-fix
-- `npm run types` - Type checking
-- `npm run check:all` - Run all quality checks
+- `npm run typecheck` - Type checking
+- `npm run check` - Run all quality checks
 
 ## 🏗️ Architecture
 
 ### Tech Stack
 
 - **React 18** with TypeScript
-- **Vite** for fast development and building
+- **Next.js 16** (app router) for the framework
 - **Tailwind CSS** with custom theme system
 - **Vitest** + React Testing Library for testing
 - **ESLint** + Prettier for code quality
@@ -155,7 +155,7 @@ If you'd like to contribute code changes:
 - Add appropriate tests for new features
 - Update documentation as needed
 - Ensure all tests pass before submitting
-- Run `npm run check:all` to run all code checks
+- Run `npm run check` to run all code checks
 
 ## 📄 License
 

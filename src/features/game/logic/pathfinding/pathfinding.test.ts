@@ -22,7 +22,7 @@ describe("findPath", () => {
 
   it("finds path around single obstacle", () => {
     // Place only one obstacle
-    board[1][1].ball = { color: "red" as BallColor };
+    board[1]![1]!.ball = { color: "red" as BallColor };
 
     const path = findPath(board, { x: 0, y: 0 }, { x: 2, y: 2 });
 
@@ -43,7 +43,7 @@ describe("findPath", () => {
   it("returns null when no path exists", () => {
     // Block all possible paths
     for (let i = 0; i < 9; i++) {
-      board[1][i].ball = { color: "red" as BallColor };
+      board[1]![i]!.ball = { color: "red" as BallColor };
     }
 
     const path = findPath(board, { x: 0, y: 0 }, { x: 4, y: 2 });
@@ -71,8 +71,8 @@ describe("findPath", () => {
 
   it("finds path with diagonal obstacles", () => {
     // Place obstacles in a diagonal pattern
-    board[1][1].ball = { color: "red" as BallColor };
-    board[2][2].ball = { color: "blue" as BallColor };
+    board[1]![1]!.ball = { color: "red" as BallColor };
+    board[2]![2]!.ball = { color: "blue" as BallColor };
 
     const path = findPath(board, { x: 0, y: 0 }, { x: 3, y: 3 });
 
@@ -102,7 +102,7 @@ describe("findUnreachableCells", () => {
   it("finds unreachable cells when blocked by obstacles", () => {
     // Create a wall that blocks access to half the board
     for (let i = 0; i < 9; i++) {
-      board[4][i].ball = { color: "red" as BallColor };
+      board[4]![i]!.ball = { color: "red" as BallColor };
     }
 
     const unreachable = findUnreachableCells(board, { x: 0, y: 0 });
@@ -121,11 +121,11 @@ describe("findUnreachableCells", () => {
   it("finds unreachable cells in isolated areas", () => {
     // Create a wall that completely blocks access to some cells
     for (let i = 0; i < 9; i++) {
-      board[3][i].ball = { color: "red" as BallColor };
+      board[3]![i]!.ball = { color: "red" as BallColor };
     }
     // Also block the left and right edges
     for (let i = 0; i < 9; i++) {
-      board[i][3].ball = { color: "blue" as BallColor };
+      board[i]![3]!.ball = { color: "blue" as BallColor };
     }
 
     const unreachable = findUnreachableCells(board, { x: 0, y: 0 });

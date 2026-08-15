@@ -7,7 +7,7 @@ import type {
   LineDirection,
 } from "../../types";
 import { LineDirection as LineDirectionEnum } from "../../types/enums";
-import { coordsFromKeys, coordToKey } from "@shared/utils/coordinates";
+import { coordsFromKeys, coordToKey } from "@/shared/utils/coordinates";
 
 type Direction = [number, number];
 

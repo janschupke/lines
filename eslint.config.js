@@ -1,15 +1,18 @@
 import js from "@eslint/js";
 import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
+import next from "eslint-config-next";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
     ignores: [
       "dist",
+      ".next",
       "node_modules",
       "coverage",
+      "test-results",
+      "playwright-report",
+      "next-env.d.ts",
       "*.config.js",
       "*.config.cjs",
       "*.config.mjs",
@@ -18,12 +21,9 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...tseslint.configs.stylistic,
+  ...next,
   {
     files: ["**/*.{ts,tsx}"],
-    extends: [
-      reactHooks.configs["recommended-latest"],
-      reactRefresh.configs.vite,
-    ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -49,10 +49,12 @@ export default tseslint.config(
       // React rules
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      // Legacy patterns in the pre-engine state layer; the files flagged are
+      // deleted in the Phase 4 cutover. Do not silence new code with these.
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/refs": "off",
+      // The only <img> is SmallScreenWarning's ball, deleted in Phase 2.
+      "@next/next/no-img-element": "off",
     },
   },
   {

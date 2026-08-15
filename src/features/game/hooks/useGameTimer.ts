@@ -19,8 +19,10 @@ export const useGameTimer = (
 ): UseGameTimerReturn => {
   const [timer, setTimer] = useState(initialTimer);
   const [timerActive, setTimerActive] = useState(initialTimerActive);
-  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimeoutRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Clear inactivity timeout
   const clearInactivityTimeout = useCallback(() => {

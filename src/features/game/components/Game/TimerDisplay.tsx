@@ -1,5 +1,5 @@
 import React from "react";
-import { formatTime } from "@shared/utils";
+import { formatTime } from "@/shared/utils";
 
 interface TimerDisplayProps {
   timer: number;

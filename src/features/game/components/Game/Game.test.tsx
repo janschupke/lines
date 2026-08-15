@@ -1,4 +1,3 @@
-import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import Game from "./Game";
@@ -62,7 +61,7 @@ vi.mock("../../state", () => ({
 }));
 
 // Mock the keyboard hook
-vi.mock("@shared/hooks/useKeyboard", () => ({
+vi.mock("@/shared/hooks/useKeyboard", () => ({
   useKeyboard: vi.fn(),
 }));
 

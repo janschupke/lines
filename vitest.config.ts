@@ -1,20 +1,56 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import path from "path";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@features": path.resolve(__dirname, "./src/features"),
-      "@shared": path.resolve(__dirname, "./src/shared"),
-      "@app": path.resolve(__dirname, "./src/app"),
-    },
+  plugins: [tsconfigPaths()],
+  esbuild: {
+    jsx: "automatic",
   },
   test: {
-    environment: "jsdom",
     globals: true,
-    setupFiles: "./src/setupTests.ts",
-    exclude: ["node_modules/**", "e2e/**"],
+    coverage: {
+      provider: "v8",
+      include: ["src/**"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/engine/__fixtures__/**",
+        "src/**/*.d.ts",
+      ],
+      reporter: ["text", "html"],
+    },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "engine",
+          environment: "node",
+          include: ["src/engine/**/*.test.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "ui",
+          environment: "jsdom",
+          setupFiles: ["./src/setupTests.ts"],
+          include: [
+            "src/**/*.test.tsx",
+            "src/features/**/*.test.ts",
+            "src/game/**/*.test.ts",
+            "src/shared/**/*.test.ts",
+          ],
+          exclude: ["src/engine/**"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "integration",
+          environment: "node",
+          include: ["**/*.int.test.ts"],
+          exclude: ["node_modules/**", "e2e/**"],
+        },
+      },
+    ],
   },
 });

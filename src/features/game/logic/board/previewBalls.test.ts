@@ -46,19 +46,19 @@ describe("Preview Balls Functionality", () => {
       const boardWithIncoming = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithIncoming[0][0].incomingBall = { color: "red" as BallColor };
-      boardWithIncoming[1][1].incomingBall = { color: "blue" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
+      boardWithIncoming[0]![0]!.incomingBall = { color: "red" as BallColor };
+      boardWithIncoming[1]![1]!.incomingBall = { color: "blue" as BallColor };
+      boardWithIncoming[2]![2]!.incomingBall = { color: "green" as BallColor };
 
       const result = handleIncomingBallConversion(boardWithIncoming);
 
       // Should convert all incoming balls to real balls
-      expect(result.newBoard[0][0].ball?.color).toBe("red");
-      expect(result.newBoard[1][1].ball?.color).toBe("blue");
-      expect(result.newBoard[2][2].ball?.color).toBe("green");
-      expect(result.newBoard[0][0].incomingBall).toBeNull();
-      expect(result.newBoard[1][1].incomingBall).toBeNull();
-      expect(result.newBoard[2][2].incomingBall).toBeNull();
+      expect(result.newBoard[0]![0]!.ball?.color).toBe("red");
+      expect(result.newBoard[1]![1]!.ball?.color).toBe("blue");
+      expect(result.newBoard[2]![2]!.ball?.color).toBe("green");
+      expect(result.newBoard[0]![0]!.incomingBall).toBeNull();
+      expect(result.newBoard[1]![1]!.incomingBall).toBeNull();
+      expect(result.newBoard[2]![2]!.incomingBall).toBeNull();
 
       // Should generate new preview balls for the top panel
       expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
@@ -67,7 +67,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].incomingBall) {
+          if (result.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -80,16 +80,16 @@ describe("Preview Balls Functionality", () => {
       const boardWithIncoming = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithIncoming[0][0].incomingBall = { color: "red" as BallColor };
-      boardWithIncoming[1][1].incomingBall = { color: "blue" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
+      boardWithIncoming[0]![0]!.incomingBall = { color: "red" as BallColor };
+      boardWithIncoming[1]![1]!.incomingBall = { color: "blue" as BallColor };
+      boardWithIncoming[2]![2]!.incomingBall = { color: "green" as BallColor };
 
       const result = handleIncomingBallConversion(boardWithIncoming, "blue");
 
       // Should convert all incoming balls to real balls
-      expect(result.newBoard[0][0].ball?.color).toBe("red");
-      expect(result.newBoard[1][1].ball?.color).toBe("blue");
-      expect(result.newBoard[2][2].ball?.color).toBe("green");
+      expect(result.newBoard[0]![0]!.ball?.color).toBe("red");
+      expect(result.newBoard[1]![1]!.ball?.color).toBe("blue");
+      expect(result.newBoard[2]![2]!.ball?.color).toBe("green");
 
       // Should generate new preview balls for the top panel (NOT including stepped-on color)
       expect(result.nextBalls).toHaveLength(BALLS_PER_TURN);
@@ -100,12 +100,12 @@ describe("Preview Balls Functionality", () => {
       let blueBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].incomingBall) {
+          if (result.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
           // Check if blue ball is spawned as a REAL BALL (not preview)
           if (
-            result.newBoard[y][x].ball?.color === "blue" &&
+            result.newBoard[y]![x]!.ball?.color === "blue" &&
             (x !== 1 || y !== 1)
           ) {
             // Not the original position
@@ -139,7 +139,7 @@ describe("Preview Balls Functionality", () => {
           return { ...cell, ball: { color: "red" as BallColor } };
         }),
       );
-      almostFullBoard[0][0].incomingBall = { color: "blue" as BallColor };
+      almostFullBoard[0]![0]!.incomingBall = { color: "blue" as BallColor };
 
       const result = handleIncomingBallConversion(almostFullBoard, "blue");
 
@@ -147,7 +147,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].incomingBall) {
+          if (result.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -164,7 +164,7 @@ describe("Preview Balls Functionality", () => {
           return { ...cell, ball: { color: "red" as BallColor } };
         }),
       );
-      almostFullBoard[0][0].incomingBall = { color: "blue" as BallColor };
+      almostFullBoard[0]![0]!.incomingBall = { color: "blue" as BallColor };
 
       const result = handleIncomingBallConversion(almostFullBoard, "blue");
 
@@ -172,7 +172,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result.newBoard[y][x].incomingBall) {
+          if (result.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -190,7 +190,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result[y][x].incomingBall) {
+          if (result[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -203,21 +203,21 @@ describe("Preview Balls Functionality", () => {
       const boardWithBalls = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithBalls[0][0].ball = { color: "red" as BallColor };
-      boardWithBalls[1][1].ball = { color: "blue" as BallColor };
+      boardWithBalls[0]![0]!.ball = { color: "red" as BallColor };
+      boardWithBalls[1]![1]!.ball = { color: "blue" as BallColor };
 
       const colors: BallColor[] = ["green", "yellow", "purple"];
       const result = placePreviewBalls(boardWithBalls, colors);
 
       // Should not place preview balls in occupied cells
-      expect(result[0][0].incomingBall).toBeNull();
-      expect(result[1][1].incomingBall).toBeNull();
+      expect(result[0]![0]!.incomingBall).toBeNull();
+      expect(result[1]![1]!.incomingBall).toBeNull();
 
       // Should place preview balls in empty cells
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result[y][x].incomingBall) {
+          if (result[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -241,7 +241,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result[y][x].incomingBall) {
+          if (result[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -256,9 +256,9 @@ describe("Preview Balls Functionality", () => {
       const boardWithIncoming = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithIncoming[0][0].incomingBall = { color: "red" as BallColor };
-      boardWithIncoming[1][1].incomingBall = { color: "blue" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
+      boardWithIncoming[0]![0]!.incomingBall = { color: "red" as BallColor };
+      boardWithIncoming[1]![1]!.incomingBall = { color: "blue" as BallColor };
+      boardWithIncoming[2]![2]!.incomingBall = { color: "green" as BallColor };
 
       const colors: BallColor[] = ["yellow", "purple", "pink"];
       const result = recalculateIncomingPositions(boardWithIncoming, colors);
@@ -273,7 +273,7 @@ describe("Preview Balls Functionality", () => {
         let found = false;
         for (let y = 0; y < 9; y++) {
           for (let x = 0; x < 9; x++) {
-            if (result[y][x].incomingBall?.color === color) {
+            if (result[y]![x]!.incomingBall?.color === color) {
               found = true;
               break;
             }
@@ -288,7 +288,7 @@ describe("Preview Balls Functionality", () => {
         let found = false;
         for (let y = 0; y < 9; y++) {
           for (let x = 0; x < 9; x++) {
-            if (result[y][x].incomingBall?.color === color) {
+            if (result[y]![x]!.incomingBall?.color === color) {
               found = true;
               break;
             }
@@ -302,7 +302,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (result[y][x].incomingBall) {
+          if (result[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -355,7 +355,7 @@ describe("Preview Balls Functionality", () => {
 
     it("returns false for partially filled board", () => {
       const partialBoard = board.map((row) => row.map((cell) => ({ ...cell })));
-      partialBoard[0][0].ball = { color: "red" as BallColor };
+      partialBoard[0]![0]!.ball = { color: "red" as BallColor };
       expect(isBoardFull(partialBoard)).toBe(false);
     });
   });
@@ -366,10 +366,10 @@ describe("Preview Balls Functionality", () => {
       const boardWithIncoming = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithIncoming[0][0].ball = { color: "red" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
-      boardWithIncoming[3][3].incomingBall = { color: "yellow" as BallColor };
-      boardWithIncoming[4][4].incomingBall = { color: "blue" as BallColor };
+      boardWithIncoming[0]![0]!.ball = { color: "red" as BallColor };
+      boardWithIncoming[2]![2]!.incomingBall = { color: "green" as BallColor };
+      boardWithIncoming[3]![3]!.incomingBall = { color: "yellow" as BallColor };
+      boardWithIncoming[4]![4]!.incomingBall = { color: "blue" as BallColor };
 
       // 2. Simulate move completion (stepping on green preview ball)
       const moveResult = simulateMove(
@@ -381,9 +381,9 @@ describe("Preview Balls Functionality", () => {
       );
 
       // 3. Verify move completion preserves other incoming balls
-      expect(moveResult.newBoard[3][3].incomingBall?.color).toBe("yellow");
-      expect(moveResult.newBoard[4][4].incomingBall?.color).toBe("blue");
-      expect(moveResult.newBoard[2][2].incomingBall).toBeNull(); // Stepped-on ball cleared
+      expect(moveResult.newBoard[3]![3]!.incomingBall?.color).toBe("yellow");
+      expect(moveResult.newBoard[4]![4]!.incomingBall?.color).toBe("blue");
+      expect(moveResult.newBoard[2]![2]!.incomingBall).toBeNull(); // Stepped-on ball cleared
 
       // 4. Simulate incoming ball conversion
       const conversionResult = handleIncomingBallConversion(
@@ -392,17 +392,17 @@ describe("Preview Balls Functionality", () => {
       );
 
       // 5. Verify that all existing incoming balls are converted to real balls
-      expect(conversionResult.newBoard[3][3].ball?.color).toBe("yellow");
-      expect(conversionResult.newBoard[4][4].ball?.color).toBe("blue");
-      expect(conversionResult.newBoard[3][3].incomingBall).toBeNull();
-      expect(conversionResult.newBoard[4][4].incomingBall).toBeNull();
+      expect(conversionResult.newBoard[3]![3]!.ball?.color).toBe("yellow");
+      expect(conversionResult.newBoard[4]![4]!.ball?.color).toBe("blue");
+      expect(conversionResult.newBoard[3]![3]!.incomingBall).toBeNull();
+      expect(conversionResult.newBoard[4]![4]!.incomingBall).toBeNull();
 
       // 6. Verify that the stepped-on ball (green) is spawned as a REAL BALL at a new position
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
           if (
-            conversionResult.newBoard[y][x].ball?.color === "green" &&
+            conversionResult.newBoard[y]![x]!.ball?.color === "green" &&
             (x !== 2 || y !== 2)
           ) {
             // Not the original position
@@ -418,7 +418,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].incomingBall) {
+          if (conversionResult.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -435,9 +435,9 @@ describe("Preview Balls Functionality", () => {
       const boardWithIncoming = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithIncoming[0][0].ball = { color: "red" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
-      boardWithIncoming[3][3].incomingBall = { color: "yellow" as BallColor };
+      boardWithIncoming[0]![0]!.ball = { color: "red" as BallColor };
+      boardWithIncoming[2]![2]!.incomingBall = { color: "green" as BallColor };
+      boardWithIncoming[3]![3]!.incomingBall = { color: "yellow" as BallColor };
 
       // 2. Simulate move completion (stepping on green preview ball)
       const moveResult = simulateMove(
@@ -459,7 +459,7 @@ describe("Preview Balls Functionality", () => {
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
           if (
-            conversionResult.newBoard[y][x].ball?.color === "green" &&
+            conversionResult.newBoard[y]![x]!.ball?.color === "green" &&
             (x !== 2 || y !== 2)
           ) {
             // Not the original position
@@ -478,7 +478,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].incomingBall) {
+          if (conversionResult.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -494,8 +494,8 @@ describe("Preview Balls Functionality", () => {
           return { ...cell, ball: { color: "red" as BallColor } };
         }),
       );
-      almostFullBoard[0][0].ball = { color: "blue" as BallColor };
-      almostFullBoard[8][8].incomingBall = { color: "green" as BallColor };
+      almostFullBoard[0]![0]!.ball = { color: "blue" as BallColor };
+      almostFullBoard[8]![8]!.incomingBall = { color: "green" as BallColor };
 
       // Simulate move completion
       const moveResult = simulateMove(
@@ -516,7 +516,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].incomingBall) {
+          if (conversionResult.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -530,9 +530,9 @@ describe("Preview Balls Functionality", () => {
       const boardWithIncoming = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithIncoming[0][0].ball = { color: "red" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
-      boardWithIncoming[3][3].incomingBall = { color: "yellow" as BallColor };
+      boardWithIncoming[0]![0]!.ball = { color: "red" as BallColor };
+      boardWithIncoming[2]![2]!.incomingBall = { color: "green" as BallColor };
+      boardWithIncoming[3]![3]!.incomingBall = { color: "yellow" as BallColor };
 
       // 2. Simulate move completion (stepping on empty cell)
       const moveResult = simulateMove(
@@ -544,8 +544,8 @@ describe("Preview Balls Functionality", () => {
       );
 
       // 3. Verify move completion preserves incoming balls
-      expect(moveResult.newBoard[2][2].incomingBall?.color).toBe("green");
-      expect(moveResult.newBoard[3][3].incomingBall?.color).toBe("yellow");
+      expect(moveResult.newBoard[2]![2]!.incomingBall?.color).toBe("green");
+      expect(moveResult.newBoard[3]![3]!.incomingBall?.color).toBe("yellow");
 
       // 4. Simulate incoming ball conversion
       const conversionResult = handleIncomingBallConversion(
@@ -554,16 +554,16 @@ describe("Preview Balls Functionality", () => {
       );
 
       // 5. Verify that all incoming balls are converted to real balls
-      expect(conversionResult.newBoard[2][2].ball?.color).toBe("green");
-      expect(conversionResult.newBoard[3][3].ball?.color).toBe("yellow");
-      expect(conversionResult.newBoard[2][2].incomingBall).toBeNull();
-      expect(conversionResult.newBoard[3][3].incomingBall).toBeNull();
+      expect(conversionResult.newBoard[2]![2]!.ball?.color).toBe("green");
+      expect(conversionResult.newBoard[3]![3]!.ball?.color).toBe("yellow");
+      expect(conversionResult.newBoard[2]![2]!.incomingBall).toBeNull();
+      expect(conversionResult.newBoard[3]![3]!.incomingBall).toBeNull();
 
       // 6. Verify that we have exactly BALLS_PER_TURN new preview balls
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].incomingBall) {
+          if (conversionResult.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -579,10 +579,10 @@ describe("Preview Balls Functionality", () => {
       const boardWithIncoming = board.map((row) =>
         row.map((cell) => ({ ...cell })),
       );
-      boardWithIncoming[0][0].ball = { color: "red" as BallColor };
-      boardWithIncoming[2][2].incomingBall = { color: "green" as BallColor };
-      boardWithIncoming[3][3].incomingBall = { color: "yellow" as BallColor };
-      boardWithIncoming[4][4].incomingBall = { color: "blue" as BallColor };
+      boardWithIncoming[0]![0]!.ball = { color: "red" as BallColor };
+      boardWithIncoming[2]![2]!.incomingBall = { color: "green" as BallColor };
+      boardWithIncoming[3]![3]!.incomingBall = { color: "yellow" as BallColor };
+      boardWithIncoming[4]![4]!.incomingBall = { color: "blue" as BallColor };
 
       // 2. Simulate move completion (stepping on green preview ball)
       const moveResult = simulateMove(
@@ -600,15 +600,15 @@ describe("Preview Balls Functionality", () => {
       );
 
       // 4. Verify that all existing incoming balls are converted to real balls
-      expect(conversionResult.newBoard[3][3].ball?.color).toBe("yellow");
-      expect(conversionResult.newBoard[4][4].ball?.color).toBe("blue");
+      expect(conversionResult.newBoard[3]![3]!.ball?.color).toBe("yellow");
+      expect(conversionResult.newBoard[4]![4]!.ball?.color).toBe("blue");
 
       // 5. Verify that the stepped-on ball (green) is spawned as a REAL BALL at a new position
       let greenBallFound = false;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
           if (
-            conversionResult.newBoard[y][x].ball?.color === "green" &&
+            conversionResult.newBoard[y]![x]!.ball?.color === "green" &&
             (x !== 2 || y !== 2)
           ) {
             // Not the original position
@@ -624,7 +624,7 @@ describe("Preview Balls Functionality", () => {
       let incomingBallCount = 0;
       for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-          if (conversionResult.newBoard[y][x].incomingBall) {
+          if (conversionResult.newBoard[y]![x]!.incomingBall) {
             incomingBallCount++;
           }
         }
@@ -641,7 +641,7 @@ describe("Preview Balls Functionality", () => {
           return { ...cell, ball: { color: "red" as BallColor } };
         }),
       );
-      almostFullBoard[0][0].ball = { color: "blue" as BallColor };
+      almostFullBoard[0]![0]!.ball = { color: "blue" as BallColor };
 
       // Simulate move completion
       const moveResult = simulateMove(
@@ -670,13 +670,13 @@ describe("Spawning Ball Line Detection", () => {
     const board = createEmptyBoard();
 
     // Create a setup where spawning balls will form lines
-    board[1][1].ball = { color: "red" };
-    board[1][2].ball = { color: "red" };
-    board[1][3].ball = { color: "red" };
-    board[1][4].ball = { color: "red" };
+    board[1]![1]!.ball = { color: "red" };
+    board[1]![2]!.ball = { color: "red" };
+    board[1]![3]!.ball = { color: "red" };
+    board[1]![4]!.ball = { color: "red" };
 
     // Place incoming balls that will complete the line when converted
-    board[1][0].incomingBall = { color: "red" };
+    board[1]![0]!.incomingBall = { color: "red" };
 
     const result = handleIncomingBallConversion(board);
 
@@ -690,13 +690,13 @@ describe("Spawning Ball Line Detection", () => {
     const board = createEmptyBoard();
 
     // Create a line setup (4 balls, need 1 more for 5)
-    board[1][0].ball = { color: "green" };
-    board[1][1].ball = { color: "green" };
-    board[1][2].ball = { color: "green" };
-    board[1][3].ball = { color: "green" };
+    board[1]![0]!.ball = { color: "green" };
+    board[1]![1]!.ball = { color: "green" };
+    board[1]![2]!.ball = { color: "green" };
+    board[1]![3]!.ball = { color: "green" };
 
     // Place incoming ball that will be stepped on
-    board[2][2].incomingBall = { color: "green" };
+    board[2]![2]!.incomingBall = { color: "green" };
 
     const result = handleIncomingBallConversion(board, "green");
 
@@ -711,13 +711,13 @@ describe("Spawning Ball Line Detection", () => {
     const board = createEmptyBoard();
 
     // Place isolated balls
-    board[1][1].ball = { color: "red" };
-    board[2][2].ball = { color: "blue" };
+    board[1]![1]!.ball = { color: "red" };
+    board[2]![2]!.ball = { color: "blue" };
 
     // Place incoming balls that won't form lines
-    board[0][0].incomingBall = { color: "green" };
-    board[3][3].incomingBall = { color: "yellow" };
-    board[4][4].incomingBall = { color: "pink" };
+    board[0]![0]!.incomingBall = { color: "green" };
+    board[3]![3]!.incomingBall = { color: "yellow" };
+    board[4]![4]!.incomingBall = { color: "pink" };
 
     const result = handleIncomingBallConversion(board);
 
@@ -731,13 +731,13 @@ describe("Spawning Ball Line Detection", () => {
     const board = createEmptyBoard();
 
     // Create diagonal line setup
-    board[0][0].ball = { color: "yellow" };
-    board[1][1].ball = { color: "yellow" };
-    board[2][2].ball = { color: "yellow" };
-    board[3][3].ball = { color: "yellow" };
+    board[0]![0]!.ball = { color: "yellow" };
+    board[1]![1]!.ball = { color: "yellow" };
+    board[2]![2]!.ball = { color: "yellow" };
+    board[3]![3]!.ball = { color: "yellow" };
 
     // Place incoming ball that will complete the diagonal
-    board[4][4].incomingBall = { color: "yellow" };
+    board[4]![4]!.incomingBall = { color: "yellow" };
 
     const result = handleIncomingBallConversion(board);
 
@@ -750,13 +750,13 @@ describe("Spawning Ball Line Detection", () => {
     const board = createEmptyBoard();
 
     // Create line at board edge
-    board[0][0].ball = { color: "pink" };
-    board[0][1].ball = { color: "pink" };
-    board[0][2].ball = { color: "pink" };
-    board[0][3].ball = { color: "pink" };
+    board[0]![0]!.ball = { color: "pink" };
+    board[0]![1]!.ball = { color: "pink" };
+    board[0]![2]!.ball = { color: "pink" };
+    board[0]![3]!.ball = { color: "pink" };
 
     // Place incoming ball that will complete the edge line
-    board[0][4].incomingBall = { color: "pink" };
+    board[0]![4]!.incomingBall = { color: "pink" };
 
     const result = handleIncomingBallConversion(board);
 
@@ -773,13 +773,13 @@ describe("Spawning Ball Line Detection", () => {
       for (let x = 0; x < 9; x++) {
         if (!(y === 8 && x === 0)) {
           // Leave one spot empty
-          board[y][x].ball = { color: "red" };
+          board[y]![x]!.ball = { color: "red" };
         }
       }
     }
 
     // Place incoming ball in the last empty spot
-    board[8][0].incomingBall = { color: "blue" };
+    board[8]![0]!.incomingBall = { color: "blue" };
 
     const result = handleIncomingBallConversion(board);
 
@@ -793,21 +793,21 @@ describe("Spawning Ball Line Detection", () => {
 
     // Create multiple line setups
     // Horizontal line 1
-    board[1][0].ball = { color: "red" };
-    board[1][1].ball = { color: "red" };
-    board[1][2].ball = { color: "red" };
-    board[1][3].ball = { color: "red" };
+    board[1]![0]!.ball = { color: "red" };
+    board[1]![1]!.ball = { color: "red" };
+    board[1]![2]!.ball = { color: "red" };
+    board[1]![3]!.ball = { color: "red" };
 
     // Horizontal line 2
-    board[3][0].ball = { color: "blue" };
-    board[3][1].ball = { color: "blue" };
-    board[3][2].ball = { color: "blue" };
-    board[3][3].ball = { color: "blue" };
+    board[3]![0]!.ball = { color: "blue" };
+    board[3]![1]!.ball = { color: "blue" };
+    board[3]![2]!.ball = { color: "blue" };
+    board[3]![3]!.ball = { color: "blue" };
 
     // Place incoming balls that will complete both lines
-    board[1][4].incomingBall = { color: "red" };
-    board[3][4].incomingBall = { color: "blue" };
-    board[5][5].incomingBall = { color: "green" }; // Isolated ball
+    board[1]![4]!.incomingBall = { color: "red" };
+    board[3]![4]!.incomingBall = { color: "blue" };
+    board[5]![5]!.incomingBall = { color: "green" }; // Isolated ball
 
     const result = handleIncomingBallConversion(board);
 

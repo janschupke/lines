@@ -21,7 +21,7 @@ import {
   type UIUpdateCallbacks,
 } from "../logic/turnFlowController";
 import { GameEngine } from "../logic/gameEngine";
-import { coordToKey } from "@shared/utils/coordinates";
+import { coordToKey } from "@/shared/utils/coordinates";
 import { cloneBoard } from "../utils/boardUtils";
 
 /**

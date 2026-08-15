@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { TurnFlowController } from "./turnFlowController";
-import { TurnPhase } from "../types/enums";
 import type { GameState } from "../types";
 import { GameEngine } from "./gameEngine";
 import { createEmptyBoard } from "./board/boardManagement";
@@ -37,9 +36,9 @@ describe("TurnFlowController", () => {
       const board = createEmptyBoard();
       // Create horizontal line of 5 red balls - place 4, move to complete
       for (let x = 1; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -70,9 +69,9 @@ describe("TurnFlowController", () => {
     it("calls phases in correct order when line is detected", async () => {
       const board = createEmptyBoard();
       for (let x = 1; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -95,9 +94,9 @@ describe("TurnFlowController", () => {
     it("updates game state after popping lines", async () => {
       const board = createEmptyBoard();
       for (let x = 1; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -125,12 +124,12 @@ describe("TurnFlowController", () => {
     it("handles blocked preview balls recalculation after line pop", async () => {
       const board = createEmptyBoard();
       for (let x = 1; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       // Add incoming ball that will be blocked
-      board[1][0].incomingBall = { color: BallColorEnum.Blue };
-      board[1][0].ball = { color: BallColorEnum.Green }; // Blocked
+      board[1]![0]!.incomingBall = { color: BallColorEnum.Blue };
+      board[1]![0]!.ball = { color: BallColorEnum.Green }; // Blocked
       const state: GameState = {
         ...initialState,
         board,
@@ -162,15 +161,15 @@ describe("TurnFlowController", () => {
             !(x === 3 && y === 0) &&
             !(x === 4 && y === 0)
           ) {
-            board[y][x].ball = { color: BallColorEnum.Red };
+            board[y]![x]!.ball = { color: BallColorEnum.Red };
           }
         }
       }
       // Create line that will fill the board
       for (let x = 1; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -195,7 +194,7 @@ describe("TurnFlowController", () => {
   describe("executeTurn - No Line Detection Path", () => {
     it("executes turn flow without line detection", async () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -218,8 +217,8 @@ describe("TurnFlowController", () => {
 
     it("converts preview balls to real balls", async () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[1][1].incomingBall = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[1]![1]!.incomingBall = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -235,16 +234,16 @@ describe("TurnFlowController", () => {
       const result = await resultPromise;
 
       // Preview ball should be converted
-      expect(result.board[1][1].ball?.color).toBe(BallColorEnum.Blue);
-      expect(result.board[1][1].incomingBall).toBeNull();
+      expect(result.board[1]![1]!.ball?.color).toBe(BallColorEnum.Blue);
+      expect(result.board[1]![1]!.incomingBall).toBeNull();
     });
 
     it("handles lines formed after ball conversion", async () => {
       // This test verifies the flow works - actual line formation after conversion
       // is complex to set up correctly, so we verify the phase is checked
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[1][1].incomingBall = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[1]![1]!.incomingBall = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -276,11 +275,11 @@ describe("TurnFlowController", () => {
             !(x === 2 && y === 0) &&
             !(x === 0 && y === 2)
           ) {
-            board[y][x].ball = { color: BallColorEnum.Red };
+            board[y]![x]!.ball = { color: BallColorEnum.Red };
           }
         }
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -303,8 +302,8 @@ describe("TurnFlowController", () => {
 
     it("handles stepped-on incoming ball", async () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[1][1].incomingBall = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[1]![1]!.incomingBall = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -371,7 +370,7 @@ describe("TurnFlowController", () => {
   describe("executeTurn - Statistics Preservation", () => {
     it("preserves turnsCount correctly through a turn", async () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -401,9 +400,9 @@ describe("TurnFlowController", () => {
       const board = createEmptyBoard();
       // Create horizontal line of 5 red balls - place 4, move to complete
       for (let x = 1; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,

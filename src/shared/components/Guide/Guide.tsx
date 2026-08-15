@@ -29,14 +29,14 @@ const Guide: React.FC<GuideProps> = ({ onClose }) => {
 
           <p>
             To play, simply click on a ball to select it, then click on an empty
-            cell where you'd like to move it. The game will automatically find
-            the best path for your ball to reach its destination.
+            cell where you&apos;d like to move it. The game will automatically
+            find the best path for your ball to reach its destination.
           </p>
 
           <p>
-            The longer the line you create, the more points you'll earn. Try to
-            plan ahead and create multiple lines at once for maximum scoring
-            potential.
+            The longer the line you create, the more points you&apos;ll earn.
+            Try to plan ahead and create multiple lines at once for maximum
+            scoring potential.
           </p>
 
           <p>

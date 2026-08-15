@@ -25,7 +25,7 @@ describe("Board", () => {
   it("calls onCellClick when a cell is clicked", () => {
     const onCellClick = vi.fn();
     render(<Board board={board} onCellClick={onCellClick} />);
-    fireEvent.click(screen.getAllByRole("button")[0]);
+    fireEvent.click(screen.getAllByRole("button")[0]!);
     expect(onCellClick).toHaveBeenCalled();
   });
 

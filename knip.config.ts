@@ -1,21 +1,21 @@
 import type { KnipConfig } from "knip";
 
 const config: KnipConfig = {
-  entry: ["src/app/main.tsx"],
-  project: ["src/**/*.{ts,tsx}", "*.{ts,tsx,js,cjs}"],
+  entry: ["e2e/**/*.spec.ts"],
+  project: ["app/**/*.{ts,tsx}", "src/**/*.{ts,tsx}", "*.{ts,tsx,js,cjs}"],
   ignore: [
     "**/*.test.{ts,tsx}",
-    "**/*.spec.{ts,tsx}",
     "coverage/**",
     "dist/**",
+    ".next/**",
     "node_modules/**",
   ],
   ignoreDependencies: [],
-  vite: {
-    config: "vite.config.ts",
-  },
   vitest: {
     config: "vitest.config.ts",
+  },
+  playwright: {
+    config: "playwright.config.ts",
   },
 };
 

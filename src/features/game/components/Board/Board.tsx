@@ -3,7 +3,7 @@ import type { Cell } from "../../types";
 import type { GrowingBall } from "../../hooks/useGameAnimation";
 import { findUnreachableCells } from "../../logic/pathfinding";
 import { BoardCell } from "./BoardCell";
-import { coordToKey } from "@shared/utils/coordinates";
+import { coordToKey } from "@/shared/utils/coordinates";
 import { BOARD_SIZE } from "../../config";
 
 interface BoardProps {

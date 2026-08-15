@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { GameEngine } from "./gameEngine";
-import type { GameState, Cell, BallColor, Coord } from "../types";
+import type { GameState } from "../types";
 import {
   BallColor as BallColorEnum,
   BOARD_SIZE,
   INITIAL_BALLS,
   BALLS_PER_TURN,
 } from "../config";
-import { createEmptyBoard, placeRealBalls } from "./board/boardManagement";
+import { createEmptyBoard } from "./board/boardManagement";
 
 describe("GameEngine", () => {
   let engine: GameEngine;
@@ -51,7 +51,7 @@ describe("GameEngine", () => {
   describe("moveBall", () => {
     it("moves a ball from one cell to another", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -59,8 +59,8 @@ describe("GameEngine", () => {
 
       const result = engine.moveBall(state, { x: 0, y: 0 }, { x: 1, y: 1 });
 
-      expect(result.newState.board[0][0].ball).toBeNull();
-      expect(result.newState.board[1][1].ball?.color).toBe(BallColorEnum.Red);
+      expect(result.newState.board[0]![0]!.ball).toBeNull();
+      expect(result.newState.board[1]![1]!.ball?.color).toBe(BallColorEnum.Red);
     });
 
     it("throws error if source cell has no ball", () => {
@@ -77,8 +77,8 @@ describe("GameEngine", () => {
 
     it("throws error if target cell is occupied", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[1][1].ball = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[1]![1]!.ball = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -91,8 +91,8 @@ describe("GameEngine", () => {
 
     it("handles stepping on incoming ball", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[1][1].incomingBall = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[1]![1]!.incomingBall = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -110,7 +110,7 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Create horizontal line of 5 red balls
       for (let x = 0; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
       const state: GameState = {
         ...initialState,
@@ -128,7 +128,7 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Create vertical line of 5 blue balls
       for (let y = 0; y < 5; y++) {
-        board[y][0].ball = { color: BallColorEnum.Blue };
+        board[y]![0]!.ball = { color: BallColorEnum.Blue };
       }
       const state: GameState = {
         ...initialState,
@@ -143,8 +143,8 @@ describe("GameEngine", () => {
 
     it("returns null if no lines detected", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[0][1].ball = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[0]![1]!.ball = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -161,7 +161,7 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Create horizontal line
       for (let x = 0; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
       const state: GameState = {
         ...initialState,
@@ -175,7 +175,7 @@ describe("GameEngine", () => {
 
       // All balls in line should be removed
       for (let x = 0; x < 5; x++) {
-        expect(newState.board[0][x].ball).toBeNull();
+        expect(newState.board[0]![x]!.ball).toBeNull();
       }
     });
   });
@@ -196,7 +196,7 @@ describe("GameEngine", () => {
   describe("checkGameOver", () => {
     it("returns false for non-full board", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -210,7 +210,7 @@ describe("GameEngine", () => {
       // Fill entire board
       for (let y = 0; y < BOARD_SIZE; y++) {
         for (let x = 0; x < BOARD_SIZE; x++) {
-          board[y][x].ball = { color: BallColorEnum.Red };
+          board[y]![x]!.ball = { color: BallColorEnum.Red };
         }
       }
       const state: GameState = {
@@ -225,8 +225,8 @@ describe("GameEngine", () => {
   describe("checkBlockedPreviewBalls", () => {
     it("detects when preview balls are blocked", () => {
       const board = createEmptyBoard();
-      board[0][0].incomingBall = { color: BallColorEnum.Red };
-      board[0][0].ball = { color: BallColorEnum.Blue }; // Blocked!
+      board[0]![0]!.incomingBall = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Blue }; // Blocked!
       const state: GameState = {
         ...initialState,
         board,
@@ -239,7 +239,7 @@ describe("GameEngine", () => {
 
     it("returns false when no preview balls are blocked", () => {
       const board = createEmptyBoard();
-      board[0][0].incomingBall = { color: BallColorEnum.Red };
+      board[0]![0]!.incomingBall = { color: BallColorEnum.Red };
       // No ball blocking it
       const state: GameState = {
         ...initialState,
@@ -293,13 +293,6 @@ describe("GameEngine", () => {
 
   describe("resetGame", () => {
     it("resets game to initial state while preserving high score", () => {
-      const state: GameState = {
-        ...initialState,
-        score: 1000,
-        highScore: 500,
-        gameOver: true,
-      };
-
       const newState = engine.resetGame(500);
 
       expect(newState.score).toBe(0);
@@ -314,10 +307,10 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Create two separate lines
       for (let x = 0; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
       for (let y = 0; y < 5; y++) {
-        board[y][5].ball = { color: BallColorEnum.Blue };
+        board[y]![5]!.ball = { color: BallColorEnum.Blue };
       }
       const state: GameState = {
         ...initialState,
@@ -336,8 +329,8 @@ describe("GameEngine", () => {
 
     it("returns null if no lines at positions", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[1][1].ball = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[1]![1]!.ball = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -356,7 +349,7 @@ describe("GameEngine", () => {
     it("detects diagonal down-right line", () => {
       const board = createEmptyBoard();
       for (let i = 0; i < 5; i++) {
-        board[i][i].ball = { color: BallColorEnum.Red };
+        board[i]![i]!.ball = { color: BallColorEnum.Red };
       }
       const state: GameState = {
         ...initialState,
@@ -372,7 +365,7 @@ describe("GameEngine", () => {
     it("detects diagonal up-right line", () => {
       const board = createEmptyBoard();
       for (let i = 0; i < 5; i++) {
-        board[4 - i][i].ball = { color: BallColorEnum.Red };
+        board[4 - i]![i]!.ball = { color: BallColorEnum.Red };
       }
       const state: GameState = {
         ...initialState,
@@ -391,10 +384,10 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Create intersection of horizontal and vertical lines
       for (let x = 0; x < 5; x++) {
-        board[4][x].ball = { color: BallColorEnum.Red };
+        board[4]![x]!.ball = { color: BallColorEnum.Red };
       }
       for (let y = 0; y < 5; y++) {
-        board[y][4].ball = { color: BallColorEnum.Red };
+        board[y]![4]!.ball = { color: BallColorEnum.Red };
       }
       const state: GameState = {
         ...initialState,
@@ -415,10 +408,10 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Create two overlapping lines
       for (let x = 0; x < 5; x++) {
-        board[4][x].ball = { color: BallColorEnum.Red };
+        board[4]![x]!.ball = { color: BallColorEnum.Red };
       }
       for (let y = 0; y < 5; y++) {
-        board[y][4].ball = { color: BallColorEnum.Red };
+        board[y]![4]!.ball = { color: BallColorEnum.Red };
       }
       const state: GameState = {
         ...initialState,
@@ -432,10 +425,10 @@ describe("GameEngine", () => {
 
       // All balls in both lines should be removed
       for (let x = 0; x < 5; x++) {
-        expect(newState.board[4][x].ball).toBeNull();
+        expect(newState.board[4]![x]!.ball).toBeNull();
       }
       for (let y = 0; y < 5; y++) {
-        expect(newState.board[y][4].ball).toBeNull();
+        expect(newState.board[y]![4]!.ball).toBeNull();
       }
     });
   });
@@ -477,10 +470,10 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Create two lines
       for (let x = 0; x < 5; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
       for (let y = 0; y < 5; y++) {
-        board[y][5].ball = { color: BallColorEnum.Blue };
+        board[y]![5]!.ball = { color: BallColorEnum.Blue };
       }
       const state: GameState = {
         ...initialState,
@@ -505,8 +498,8 @@ describe("GameEngine", () => {
   describe("convertPreviewToReal", () => {
     it("converts preview balls to real balls", () => {
       const board = createEmptyBoard();
-      board[0][0].incomingBall = { color: BallColorEnum.Red };
-      board[1][1].incomingBall = { color: BallColorEnum.Blue };
+      board[0]![0]!.incomingBall = { color: BallColorEnum.Red };
+      board[1]![1]!.incomingBall = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,
@@ -519,15 +512,15 @@ describe("GameEngine", () => {
 
       const result = engine.convertPreviewToReal(state);
 
-      expect(result.newBoard[0][0].ball?.color).toBe(BallColorEnum.Red);
-      expect(result.newBoard[0][0].incomingBall).toBeNull();
-      expect(result.newBoard[1][1].ball?.color).toBe(BallColorEnum.Blue);
-      expect(result.newBoard[1][1].incomingBall).toBeNull();
+      expect(result.newBoard[0]![0]!.ball?.color).toBe(BallColorEnum.Red);
+      expect(result.newBoard[0]![0]!.incomingBall).toBeNull();
+      expect(result.newBoard[1]![1]!.ball?.color).toBe(BallColorEnum.Blue);
+      expect(result.newBoard[1]![1]!.incomingBall).toBeNull();
     });
 
     it("handles stepped-on incoming ball", () => {
       const board = createEmptyBoard();
-      board[0][0].incomingBall = { color: BallColorEnum.Red };
+      board[0]![0]!.incomingBall = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -548,7 +541,7 @@ describe("GameEngine", () => {
   describe("findPath", () => {
     it("finds path between two positions", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -566,12 +559,12 @@ describe("GameEngine", () => {
       const board = createEmptyBoard();
       // Block all paths
       for (let x = 1; x < 9; x++) {
-        board[0][x].ball = { color: BallColorEnum.Red };
+        board[0]![x]!.ball = { color: BallColorEnum.Red };
       }
       for (let y = 1; y < 9; y++) {
-        board[y][0].ball = { color: BallColorEnum.Red };
+        board[y]![0]!.ball = { color: BallColorEnum.Red };
       }
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -587,8 +580,8 @@ describe("GameEngine", () => {
     it("finds unreachable cells from a position", () => {
       const board = createEmptyBoard();
       // Block some cells
-      board[0][1].ball = { color: BallColorEnum.Red };
-      board[1][0].ball = { color: BallColorEnum.Red };
+      board[0]![1]!.ball = { color: BallColorEnum.Red };
+      board[1]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -607,7 +600,7 @@ describe("GameEngine", () => {
   describe("validateMove", () => {
     it("validates valid move", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
       const state: GameState = {
         ...initialState,
         board,
@@ -640,8 +633,8 @@ describe("GameEngine", () => {
 
     it("rejects invalid move (target occupied)", () => {
       const board = createEmptyBoard();
-      board[0][0].ball = { color: BallColorEnum.Red };
-      board[1][1].ball = { color: BallColorEnum.Blue };
+      board[0]![0]!.ball = { color: BallColorEnum.Red };
+      board[1]![1]!.ball = { color: BallColorEnum.Blue };
       const state: GameState = {
         ...initialState,
         board,

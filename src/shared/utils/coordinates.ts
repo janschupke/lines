@@ -1,4 +1,4 @@
-import type { Coord } from "@features/game/types";
+import type { Coord } from "@/features/game/types";
 
 /**
  * Coordinate utility functions

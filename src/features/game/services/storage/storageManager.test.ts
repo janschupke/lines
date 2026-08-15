@@ -126,7 +126,7 @@ describe("StorageManager", () => {
 
       StorageManager.saveGameState(mockGameState);
 
-      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0]![1]);
 
       // Verify that the board with preview balls is saved correctly
       expect(savedData.board[4][4].ball).toEqual({ color: "red" });
@@ -183,7 +183,7 @@ describe("StorageManager", () => {
 
       StorageManager.saveGameState(mockGameState);
 
-      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0]![1]);
 
       // Verify that the final board state is saved correctly
       expect(savedData.board[5][5].ball).toEqual({ color: "red" });
@@ -246,7 +246,7 @@ describe("StorageManager", () => {
       StorageManager.saveGameState(mockGameState);
 
       // Verify the state was saved correctly
-      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0]![1]);
       expect(savedData.board[4][4].ball).toEqual({ color: "red" });
       expect(savedData.score).toBe(100);
       expect(savedData.timer).toBe(30);
@@ -260,7 +260,7 @@ describe("StorageManager", () => {
       const loadedState = StorageManager.loadGameState();
 
       // Verify the state was loaded correctly
-      expect(loadedState?.board[4][4].ball).toEqual({ color: "red" });
+      expect(loadedState?.board[4]![4]!.ball).toEqual({ color: "red" });
       expect(loadedState?.score).toBe(100);
       expect(loadedState?.timer).toBe(30);
       expect(loadedState?.timerActive).toBe(true);
@@ -311,7 +311,7 @@ describe("StorageManager", () => {
       StorageManager.saveGameState(mockGameState);
 
       // Verify the timer and timerActive were saved
-      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0]![1]);
       expect(savedData.timer).toBe(45);
       expect(savedData.timerActive).toBe(true);
 
@@ -447,8 +447,8 @@ describe("StorageManager", () => {
       const result = StorageManager.loadGameState();
 
       // Verify that the board with preview balls is loaded correctly
-      expect(result?.board[4][4].ball).toEqual({ color: "red" });
-      expect(result?.board[3][3].incomingBall).toEqual({ color: "blue" });
+      expect(result?.board[4]![4]!.ball).toEqual({ color: "red" });
+      expect(result?.board[3]![3]!.incomingBall).toEqual({ color: "blue" });
       expect(result?.nextBalls).toEqual(["green", "yellow", "purple"]);
     });
 
@@ -696,7 +696,7 @@ describe("StorageManager", () => {
       StorageManager.saveGameState(gameStateWithHighScore);
 
       // Verify the saved data includes the high score
-      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0]![1]);
       expect(savedData.highScore).toBe(500);
       expect(savedData.score).toBe(100);
 
@@ -760,7 +760,7 @@ describe("StorageManager", () => {
       StorageManager.saveGameState(gameStateWithNewHighScore);
 
       // Verify the saved data includes the updated high score
-      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0]![1]);
       expect(savedData.highScore).toBe(600);
       expect(savedData.score).toBe(600);
 

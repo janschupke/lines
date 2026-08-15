@@ -1,6 +1,6 @@
 import React from "react";
-import { getGameSizing } from "@shared/utils/helpers";
-import type { FloatingScore } from "@features/game/hooks/useGameAnimation";
+import { getGameSizing } from "@/shared/utils/helpers";
+import type { FloatingScore } from "@/features/game/hooks/useGameAnimation";
 
 interface FloatingScoreProps {
   floatingScore: FloatingScore;

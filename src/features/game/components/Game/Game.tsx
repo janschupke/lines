@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useGameStateManager } from "../../state";
-import { useKeyboard } from "@shared/hooks/useKeyboard";
+import { useKeyboard } from "@/shared/hooks/useKeyboard";
 import { useScoreFlash } from "../../hooks/useScoreFlash";
 import type { Cell, BallColor } from "../../types";
 import { ANIMATION_DURATIONS } from "../../config";
 import Board from "../Board/Board";
-import GameEndDialog from "@shared/components/GameEndDialog/GameEndDialog";
-import Guide from "@shared/components/Guide/Guide";
-import FloatingScore from "@shared/components/FloatingScore/FloatingScore";
+import GameEndDialog from "@/shared/components/GameEndDialog/GameEndDialog";
+import Guide from "@/shared/components/Guide/Guide";
+import FloatingScore from "@/shared/components/FloatingScore/FloatingScore";
 import GameControls from "./GameControls";
 import NextBallsPreview from "./NextBallsPreview";
 import ScoreDisplay from "./ScoreDisplay";

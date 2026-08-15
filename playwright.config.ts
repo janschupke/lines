@@ -1,5 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// A deploy smoke run (SMOKE_BASE_URL set) targets a live deployment: no
+// local web server, no fixed key. Only e2e/deploy-smoke.spec.ts runs then —
+// invoke it as
+//   SMOKE_BASE_URL=https://<preview>.vercel.app \
+//     npx playwright test e2e/deploy-smoke.spec.ts --project=desktop
+const smokeBase = process.env["SMOKE_BASE_URL"];
+
 // Full viewport matrix from 14-responsive.md. Every project runs chromium;
 // what varies is the viewport (and touch on the phone profiles).
 export default defineConfig({
@@ -13,7 +20,7 @@ export default defineConfig({
   retries: 0,
   reporter: process.env["CI"] ? "github" : "list",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: smokeBase ?? "http://localhost:3000",
     // Determinism comes from the real reduced-motion path, not a test flag.
     contextOptions: { reducedMotion: "reduce" },
     trace: "retain-on-failure",
@@ -70,15 +77,19 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    // Always build first: `next start` alone would serve a stale build.
-    command: "npm run build && npm run start",
-    url: "http://localhost:3000",
-    reuseExistingServer: false,
-    timeout: 180_000,
-    env: {
-      // The only test affordance: a fixed ranked game key, server-side.
-      E2E_FIXED_KEY: "07".repeat(32),
-    },
-  },
+  ...(smokeBase
+    ? {}
+    : {
+        webServer: {
+          // Always build first: `next start` alone would serve a stale build.
+          command: "npm run build && npm run start",
+          url: "http://localhost:3000",
+          reuseExistingServer: false,
+          timeout: 180_000,
+          env: {
+            // The only test affordance: a fixed ranked game key, server-side.
+            E2E_FIXED_KEY: "07".repeat(32),
+          },
+        },
+      }),
 });

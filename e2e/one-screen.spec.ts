@@ -59,6 +59,27 @@ test("board is square and capped at 584px content", async ({
   }
 });
 
+test("a taller top panel shrinks the board instead of overflowing", async ({
+  page,
+  viewport,
+}) => {
+  // Artificially squeeze: the regression a chrome-height constant would cause.
+  await page.evaluate(() => {
+    const panel = document.querySelector<HTMLElement>(".top-panel");
+    panel!.style.minHeight = "220px";
+  });
+  const scroll = await page.evaluate(() => ({
+    ok:
+      document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth &&
+      document.documentElement.scrollHeight <=
+        document.documentElement.clientHeight,
+  }));
+  expect(scroll.ok).toBe(true);
+  const box = await page.locator('[data-cell="80"]').boundingBox();
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport!.height);
+});
+
 test("the small-screen warning no longer exists", async ({ page }) => {
   await expect(
     page.getByText(/require a screen width of at least 600px/),

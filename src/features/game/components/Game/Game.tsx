@@ -123,7 +123,11 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
       </div>
 
       {/* Timer and Footer */}
-      <div className="page-footer game-chrome flex justify-end relative mt-4">
+      <div className="page-footer game-chrome flex items-center justify-between relative mt-4">
+        <div className="text-game-text-secondary text-sm">
+          {!snapshot.persistenceAvailable &&
+            "Storage unavailable — progress won't be saved"}
+        </div>
         <TimerDisplay
           elapsedMs={snapshot.elapsedMs}
           timerActive={snapshot.timerActive}

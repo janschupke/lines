@@ -23,7 +23,17 @@ import type { Clock } from "./clock";
 import { instantClock, realClock } from "./clock";
 import { EffectPlayer, type Overlay } from "./player";
 import { defaultTimings } from "./timings";
-import { loadHighScore, mintCasualKey, saveHighScore } from "./persistence";
+import { keyFromHex } from "@/engine";
+import {
+  clearGame,
+  isPersistenceAvailable,
+  loadGame,
+  loadHighScores,
+  mintCasualKey,
+  saveCasualGame,
+  saveHighScore,
+} from "./persistence";
+import { encodeMoves } from "@/engine";
 
 const INACTIVITY_TIMEOUT_MS = 10_000;
 const TIMER_TICK_MS = 1000;
@@ -45,6 +55,7 @@ export interface UiSnapshot {
   elapsedMs: number;
   timerActive: boolean;
   dialogOpen: boolean;
+  persistenceAvailable: boolean;
 }
 
 export interface ControllerDeps {
@@ -77,6 +88,10 @@ export class GameController {
   private lastActivityAt = 0;
   private timerCancel: (() => void) | null = null;
 
+  private key: Uint8Array;
+  private moves: GameAction[] = [];
+  private startedAt: number;
+
   private listeners = new Set<() => void>();
   private snapshot: UiSnapshot | null = null;
 
@@ -86,9 +101,25 @@ export class GameController {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     this.clock = deps.clock ?? (prefersReduced ? instantClock : realClock);
-    this.highScore = loadHighScore();
-    this.entropy = keyedEntropy(deps.key ?? mintCasualKey());
-    this.state = createGame(this.entropy);
+    this.highScore = loadHighScores().casual;
+    this.startedAt = Date.now();
+
+    // Resume the saved game if one replays cleanly; otherwise start fresh.
+    const resumed = deps.key ? null : loadGame();
+    if (resumed && resumed.saved.mode === "casual" && !resumed.state.over) {
+      this.key = keyFromHex(resumed.saved.key);
+      this.moves = resumed.moves;
+      this.startedAt = resumed.saved.startedAt;
+      this.elapsedMs = resumed.saved.elapsedMs;
+      // continue the draw stream from the next turn
+      this.entropy = keyedEntropy(this.key, resumed.state.moveCount);
+      this.state = resumed.state;
+    } else {
+      this.key = deps.key ?? mintCasualKey();
+      this.entropy = keyedEntropy(this.key);
+      this.state = createGame(this.entropy);
+      this.saveNow();
+    }
     this.view = viewOf(this.state);
     this.player = new EffectPlayer(this.clock, defaultTimings, {
       fold: (e: Effect) => {
@@ -129,6 +160,7 @@ export class GameController {
         elapsedMs: this.elapsedMs,
         timerActive: this.timerActive,
         dialogOpen: this.dialogOpen,
+        persistenceAvailable: isPersistenceAvailable(),
       };
     }
     return this.snapshot;
@@ -178,8 +210,12 @@ export class GameController {
 
   newGame(): void {
     this.player.cancel();
-    this.entropy = keyedEntropy(mintCasualKey());
+    this.key = mintCasualKey();
+    this.moves = [];
+    this.startedAt = Date.now();
+    this.entropy = keyedEntropy(this.key);
     this.state = createGame(this.entropy);
+    this.saveNow();
     this.view = viewOf(this.state);
     this.selected = null;
     this.hovered = null;
@@ -214,20 +250,37 @@ export class GameController {
       // an illegal destination keeps the selection; nothing else changes
       return;
     }
-    // The state is final here, before anything animates.
+    // The state is final here, before anything animates — so a
+    // mid-animation reload restores the completed turn.
     this.state = result.state;
+    this.moves.push(action);
     this.selected = null;
     this.pathTrail = null;
     this.unreachable = null;
     this.hovered = null;
     if (this.state.score > this.highScore) {
       this.highScore = this.state.score;
-      saveHighScore(this.highScore);
+      saveHighScore("casual", this.highScore);
+    }
+    if (this.state.over) {
+      // game end is the only place the save is cleared
+      clearGame();
+    } else {
+      this.saveNow(); // one write per completed turn
     }
     this.publish();
     this.player.play(result.effects, () => {
       // The fold has reconstructed the final board (property-tested).
       this.publish();
+    });
+  }
+
+  private saveNow(): void {
+    saveCasualGame({
+      key: this.key,
+      moves: encodeMoves(this.moves),
+      startedAt: this.startedAt,
+      elapsedMs: this.elapsedMs,
     });
   }
 

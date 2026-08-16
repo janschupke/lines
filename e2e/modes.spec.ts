@@ -6,7 +6,7 @@ test.skip(({ viewport }) => viewport!.width !== 1280, "desktop only");
 
 const seenIntro = `localStorage.setItem("lines:seenModeIntro:v1", "1");`;
 
-test("mode-default-good: fast /start -> Ranked, connection looks good", async ({
+test("mode-default-good: fast /start -> Ranked, no commentary", async ({
   page,
 }) => {
   await page.addInitScript(seenIntro);
@@ -16,9 +16,11 @@ test("mode-default-good: fast /start -> Ranked, connection looks good", async ({
     "ranked",
     { timeout: 10_000 },
   );
-  await expect(page.locator('[data-testid="mode-reason"]')).toHaveText(
-    "your connection looks good",
+  // Ranked is the default: the chip states the mode and nothing else.
+  await expect(page.locator('[data-testid="mode-chip"]')).toContainText(
+    "Ranked",
   );
+  await expect(page.locator('[data-testid="mode-reason"]')).toHaveCount(0);
 });
 
 test("mode-default-slow: unreachable /start -> Casual, playable with zero further requests", async ({
@@ -68,7 +70,7 @@ test("mode-default-offline: navigator offline -> Casual, you're offline", async 
   );
 });
 
-test("mode-sticky: a casual preference survives reload as 'your choice'", async ({
+test("mode-sticky: a casual preference survives reload, without excuses", async ({
   page,
 }) => {
   await page.addInitScript(seenIntro);
@@ -80,13 +82,14 @@ test("mode-sticky: a casual preference survives reload as 'your choice'", async 
     "data-mode",
     "casual",
   );
-  await expect(page.locator('[data-testid="mode-reason"]')).toHaveText(
-    "your choice",
-  );
+  // A chosen mode shows no reason line — only degraded Casual explains itself.
+  await expect(page.locator('[data-testid="mode-reason"]')).toHaveCount(0);
   await page.reload();
-  await expect(page.locator('[data-testid="mode-reason"]')).toHaveText(
-    "your choice",
+  await expect(page.locator('[data-testid="mode-chip"]')).toHaveAttribute(
+    "data-mode",
+    "casual",
   );
+  await expect(page.locator('[data-testid="mode-reason"]')).toHaveCount(0);
 });
 
 test("mode-intro: shown once, dismissed forever", async ({ page }) => {
@@ -143,9 +146,7 @@ test("mode-manual-switch: gate names the score; Escape keeps Ranked; confirm swi
     "data-mode",
     "casual",
   );
-  await expect(page.locator('[data-testid="mode-reason"]')).toHaveText(
-    "your choice",
-  );
+  await expect(page.locator('[data-testid="mode-reason"]')).toHaveCount(0);
   // play continues with no further requests
   const ball2 = page.locator("[data-ball]").first();
   await ball2.click();

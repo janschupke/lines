@@ -421,11 +421,22 @@ describe.skipIf(!hasDb)("ranked API", () => {
     }
   });
 
-  it("start rate limit trips at 20 per player", async () => {
-    for (let i = 0; i < 20; i++) {
+  it("start is never blocked per player, only by the per-IP abuse cap", async () => {
+    // Restarting is normal play: far more than the old per-player cap must
+    // succeed. Seed the attempt window directly to reach the IP ceiling
+    // rather than issuing 240 live requests.
+    for (let i = 0; i < 30; i++) {
       const res = await start(req({ playerId: PLAYER }));
       expect(res.status).toBe(200);
     }
+    const ipHash = (await prisma.submissionAttempt.findFirstOrThrow()).ipHash;
+    await prisma.submissionAttempt.createMany({
+      data: Array.from({ length: 240 }, () => ({
+        outcome: "start",
+        ipHash,
+        playerId: PLAYER,
+      })),
+    });
     const res = await start(req({ playerId: PLAYER }));
     expect(res.status).toBe(429);
   });

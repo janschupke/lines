@@ -1,4 +1,6 @@
+import "dotenv/config";
 import { defineConfig, devices } from "@playwright/test";
+import { suffixedDbUrl } from "./scripts/ensure-db";
 
 // A deploy smoke run (SMOKE_BASE_URL set) targets a live deployment: no
 // local web server, no fixed key. Only e2e/deploy-smoke.spec.ts runs then —
@@ -6,6 +8,11 @@ import { defineConfig, devices } from "@playwright/test";
 //   SMOKE_BASE_URL=https://<preview>.vercel.app \
 //     npx playwright test e2e/deploy-smoke.spec.ts --project=desktop
 const smokeBase = process.env["SMOKE_BASE_URL"];
+
+// The e2e server plays with the fixed key against its own `<db>_e2e`
+// database (created/migrated by e2e/global-setup.ts). Fixed-key rows are
+// not reconstructable by a normal server and must never pollute dev.
+const e2eDbUrl = suffixedDbUrl("e2e");
 
 // Full viewport matrix from 14-responsive.md. Every project runs chromium;
 // what varies is the viewport (and touch on the phone profiles).
@@ -81,14 +88,18 @@ export default defineConfig({
     ? {}
     : {
         webServer: {
-          // Always build first: `next start` alone would serve a stale build.
-          command: "npm run build && npm run start",
+          // Provision the isolated e2e database FIRST (the build prerenders
+          // routes against it), then always build: `next start` alone would
+          // serve a stale build.
+          command:
+            "npx tsx scripts/ensure-e2e-db.ts && npm run build && npm run start",
           url: "http://localhost:3000",
           reuseExistingServer: false,
           timeout: 180_000,
           env: {
             // The only test affordance: a fixed ranked game key, server-side.
             E2E_FIXED_KEY: "07".repeat(32),
+            ...(e2eDbUrl ? { DATABASE_URL: e2eDbUrl } : {}),
           },
         },
       }),

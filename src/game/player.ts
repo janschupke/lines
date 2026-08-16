@@ -191,41 +191,36 @@ export class EffectPlayer {
         this.step(effects, i + 1, onDone);
         break;
       }
-      case "materialize": {
-        const growing = new Map<CellIndex, "new" | "transition">();
-        for (const p of e.cells) growing.set(p.c, "transition");
-        // Fold first so the cells render as real balls, animated by the
-        // grow transition class while `growing` marks them.
-        this.fold(e);
-        this.cursor = { effects, i: i + 1, onDone }; // already folded
-        this.overlay = { ...this.overlay, growing };
-        this.onChange();
-        this.after(effectDuration(e, this.timings), () => {
-          this.overlay = { ...this.overlay, growing: new Map() };
-          this.onChange();
-          this.step(effects, i + 1, onDone);
-        });
-        break;
-      }
+      case "materialize":
       case "ghostMoved":
       case "spawnGhosts": {
-        // ghostMoved and spawnGhosts play concurrently in one growBall
-        // window: consume the pair (in either arrival order) as one step.
-        const group: Effect[] = [e];
-        const next = effects[i + 1];
-        if (
-          next &&
-          (next.k === "ghostMoved" || next.k === "spawnGhosts") &&
-          next.k !== e.k
-        ) {
-          group.push(next);
+        // ONE grow window for the whole spawn phase: ghosts materialising
+        // into balls, the displaced ghost relocating, and the new previews
+        // appearing all animate concurrently, exactly like the original
+        // game. Playing them as separate steps doubled the per-turn wait.
+        const group: Effect[] = [];
+        for (let j = i; j < effects.length; j++) {
+          const g = effects[j]!;
+          if (
+            g.k !== "materialize" &&
+            g.k !== "ghostMoved" &&
+            g.k !== "spawnGhosts"
+          ) {
+            break;
+          }
+          group.push(g);
         }
         const growing = new Map<CellIndex, "new" | "transition">();
         for (const g of group) {
+          if (g.k === "materialize") {
+            for (const p of g.cells) growing.set(p.c, "transition");
+          }
           if (g.k === "ghostMoved") growing.set(g.to, "new");
           if (g.k === "spawnGhosts") {
             for (const p of g.cells) growing.set(p.c, "new");
           }
+          // Fold first so materialised cells render as real balls, animated
+          // by the grow class while `growing` marks them.
           this.fold(g);
         }
         this.cursor = { effects, i: i + group.length, onDone }; // folded

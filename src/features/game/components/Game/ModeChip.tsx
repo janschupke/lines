@@ -4,9 +4,58 @@ import React, { useState } from "react";
 import { useGameController } from "@/game/useGameController";
 import { REASON_TEXT } from "@/game/mode";
 
+/** Casual only degrades for a stated cause; a chosen mode needs no excuse. */
+const DEGRADE_REASONS = new Set([
+  "offline",
+  "data-saver",
+  "slow-connection",
+  "unreliable-history",
+  "server-unreachable",
+]);
+
+const ShieldIcon: React.FC<{ className: string }> = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+    />
+  </svg>
+);
+
+const DeviceIcon: React.FC<{ className: string }> = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+    />
+  </svg>
+);
+
 /**
  * Persistent mode indicator — the player must be able to answer "what am I
  * playing right now?" at any moment. Never a transient toast.
+ *
+ * Presentation rule: Ranked is the default and shows no commentary. The
+ * chip only explains itself while checking the connection, or when the
+ * game DEGRADED to Casual for a cause outside the player's choice.
  */
 const ModeChip: React.FC = () => {
   const [snapshot, controller] = useGameController();
@@ -14,8 +63,15 @@ const ModeChip: React.FC = () => {
   const { active, reason, probing, canSwitchToRankedInPlace } = snapshot.mode;
 
   const isRanked = active === "ranked" && !probing;
-  const label = probing ? "Casual" : isRanked ? "Ranked" : "Casual";
+  // While probing the game is HEADED for Ranked — present it that way
+  // instead of flashing a meaningless "Casual".
+  const label = probing || isRanked ? "Ranked" : "Casual";
   const reasonText = probing ? REASON_TEXT.checking : REASON_TEXT[reason];
+  const shownReason = probing
+    ? REASON_TEXT.checking
+    : !isRanked && DEGRADE_REASONS.has(reason)
+      ? REASON_TEXT[reason]
+      : null;
   const subtitle = isRanked
     ? "verified by the server"
     : "instant · works offline";
@@ -47,20 +103,25 @@ const ModeChip: React.FC = () => {
         aria-label={`${label} mode — ${reasonText}`}
       >
         <span
-          className={
-            isRanked
-              ? "text-game-text-accent font-semibold"
-              : "text-game-text-secondary font-semibold"
-          }
+          className={`flex items-center gap-1.5 font-semibold ${
+            isRanked ? "text-game-text-accent" : "text-game-text-secondary"
+          } ${probing ? "opacity-60" : ""}`}
         >
-          {isRanked ? "◆" : "◇"} {label}
+          {label === "Ranked" ? (
+            <ShieldIcon className="w-4 h-4" />
+          ) : (
+            <DeviceIcon className="w-4 h-4" />
+          )}
+          {label}
         </span>
-        <span
-          className="mode-reason-text text-game-text-secondary"
-          data-testid="mode-reason"
-        >
-          {reasonText}
-        </span>
+        {shownReason && (
+          <span
+            className="mode-reason-text text-game-text-secondary"
+            data-testid="mode-reason"
+          >
+            {shownReason}
+          </span>
+        )}
         <button
           className="px-1.5 py-0.5 rounded-sm text-game-text-secondary hover:text-game-text-primary hover:bg-game-bg-tertiary cursor-pointer"
           aria-label="About game modes"

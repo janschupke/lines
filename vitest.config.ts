@@ -60,6 +60,9 @@ export default defineConfig({
           environment: "node",
           include: ["**/*.int.test.ts"],
           exclude: ["node_modules/**", "e2e/**"],
+          // Isolates the tier into `<db>_test` — it truncates tables and
+          // must never point at the dev database.
+          setupFiles: ["./src/server/int-db-setup.ts"],
           // The files share one database and truncate in beforeEach —
           // they must never run in parallel.
           pool: "forks",

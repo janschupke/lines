@@ -7,7 +7,11 @@ import { deriveGameKey } from "@/server/keys";
 import { signToken } from "@/server/token";
 import { errorResponse, ipHashOf } from "@/server/request";
 import { attemptsInWindow, recordAttempt, HOUR } from "@/server/ratelimit";
-import { CURRENT_KEY_VERSION, MAX_GAME_MS } from "@/server/config";
+import {
+  CURRENT_KEY_VERSION,
+  MAX_GAME_MS,
+  e2eFixedKeyHex,
+} from "@/server/config";
 import { MAX_LIVE_SESSIONS, rowFieldsOfState } from "@/server/session";
 
 export const runtime = "nodejs";
@@ -23,15 +27,18 @@ export async function POST(request: Request): Promise<Response> {
   }
   const ipHash = ipHashOf(request);
 
-  // /start writes a row, so it is rate-limited hard — in production. Dev
-  // burns starts fast (StrictMode double-mounts, hot reloads, new-game
-  // spam while iterating) and a 429 there just makes the game look broken.
-  if (process.env.NODE_ENV !== "development") {
-    const [byPlayer, byIp] = await Promise.all([
-      attemptsInWindow({ playerId: body.playerId }, HOUR, ["start"]),
-      attemptsInWindow({ ipHash }, HOUR, ["start"]),
-    ]);
-    if (byPlayer >= 20 || byIp >= 40) {
+  // Abuse cap only — restarting games is normal play and must never be
+  // blocked. There is deliberately NO per-player limit: playerId is minted
+  // by the client, so a per-player cap stops no attacker (they mint a new
+  // one) and only ever punishes an honest player hitting New Game. Row
+  // growth is already bounded by MAX_LIVE_SESSIONS per player and the TTL
+  // sweep; this per-IP ceiling exists solely against bulk insertion, set
+  // far above any human rate. Skipped in dev and under the e2e affordance.
+  const testEnv =
+    process.env.NODE_ENV === "development" || e2eFixedKeyHex() !== null;
+  if (!testEnv) {
+    const byIp = await attemptsInWindow({ ipHash }, HOUR, ["start"]);
+    if (byIp >= 240) {
       await recordAttempt("rate_limited", ipHash, body.playerId);
       return errorResponse("rate_limited", 429);
     }

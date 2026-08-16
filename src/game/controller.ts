@@ -125,18 +125,26 @@ interface RankedIdentity {
   init: InitPacket;
 }
 
-/** Everything before the first entropy-derived effect. */
+/**
+ * Everything before the spawn phase. `materialize` is deterministic, but it
+ * must ride in the tail with ghostMoved/spawnGhosts so the whole spawn
+ * phase animates as ONE grow window — splitting it into the prefix played
+ * two consecutive 600ms windows per turn.
+ */
+const SPAWN_PHASE = new Set<Effect["k"]>([
+  "materialize",
+  "ghostMoved",
+  "spawnGhosts",
+  "gameOver",
+]);
+
 function deterministicPrefix(effects: readonly Effect[]): Effect[] {
-  const cut = effects.findIndex(
-    (e) => e.k === "ghostMoved" || e.k === "spawnGhosts" || e.k === "gameOver",
-  );
+  const cut = effects.findIndex((e) => SPAWN_PHASE.has(e.k));
   return cut === -1 ? effects.slice() : effects.slice(0, cut);
 }
 
 function entropyTail(effects: readonly Effect[]): Effect[] {
-  const cut = effects.findIndex(
-    (e) => e.k === "ghostMoved" || e.k === "spawnGhosts" || e.k === "gameOver",
-  );
+  const cut = effects.findIndex((e) => SPAWN_PHASE.has(e.k));
   return cut === -1 ? [] : effects.slice(cut);
 }
 

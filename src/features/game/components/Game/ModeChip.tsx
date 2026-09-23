@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useGameController } from "@/game/useGameController";
-import { REASON_TEXT } from "@/game/mode";
+import { MODE_BLURB, REASON_TEXT } from "@/game/mode";
+import { useDismissable } from "@/shared/hooks/useDismissable";
 
 /** Casual only degrades for a stated cause; a chosen mode needs no excuse. */
 const DEGRADE_REASONS = new Set([
@@ -60,6 +61,10 @@ const DeviceIcon: React.FC<{ className: string }> = ({ className }) => (
 const ModeChip: React.FC = () => {
   const [snapshot, controller] = useGameController();
   const [infoOpen, setInfoOpen] = useState(false);
+  // Encloses the ⓘ trigger as well as the popover, so pressing ⓘ to close
+  // isn't read as an outside click and immediately re-opened.
+  const chipRef = useRef<HTMLDivElement>(null);
+  useDismissable(infoOpen, chipRef, () => setInfoOpen(false));
   const { active, reason, probing, canSwitchToRankedInPlace } = snapshot.mode;
 
   const isRanked = active === "ranked" && !probing;
@@ -67,15 +72,13 @@ const ModeChip: React.FC = () => {
   // instead of flashing a meaningless "Casual".
   const label = probing || isRanked ? "Ranked" : "Casual";
   const reasonText = probing ? REASON_TEXT.checking : REASON_TEXT[reason];
-  const shownReason = probing
-    ? REASON_TEXT.checking
-    : !isRanked && DEGRADE_REASONS.has(reason)
+  // Only a DEGRADE is worth explaining in prose; "checking connection…" is a
+  // status for the chip, not a reason the player is on a mode.
+  const degradedReason =
+    !probing && !isRanked && DEGRADE_REASONS.has(reason)
       ? REASON_TEXT[reason]
       : null;
-  const subtitle = isRanked
-    ? "verified by the server"
-    : "instant · works offline";
-
+  const shownReason = probing ? REASON_TEXT.checking : degradedReason;
   const onSwitch = () => {
     if (probing) return;
     if (isRanked) {
@@ -94,7 +97,7 @@ const ModeChip: React.FC = () => {
   return (
     // The wrapper anchors the popover: it must NOT sit inside the
     // .game-panel chip, whose overflow-hidden clips it into invisibility.
-    <div className="relative">
+    <div className="relative" ref={chipRef}>
       <div
         className="game-panel px-3 py-1 flex items-center gap-2 text-sm"
         data-testid="mode-chip"
@@ -153,23 +156,25 @@ const ModeChip: React.FC = () => {
       </div>
       {infoOpen && (
         <div
-          className="absolute top-full left-1/2 -translate-x-1/2 w-80 max-w-[90vw] game-dialog z-50 p-4 mt-1 text-left text-game-text-secondary text-sm"
+          // Opens UPWARD: the chip lives in the footer, and the page is
+          // built never to scroll, so anything below the chip is unreachable.
+          className="absolute bottom-full left-1/2 -translate-x-1/2 w-80 max-w-[90vw] game-dialog z-50 p-4 mb-1 text-left text-game-text-secondary text-sm"
           role="dialog"
           aria-label="About game modes"
         >
           <p className="mb-2">
             <span className="text-game-text-accent font-semibold">Ranked</span>{" "}
-            is for the leaderboard: the server referees every move, so games
-            can&apos;t be played with foreknowledge. Needs a connection.
+            {MODE_BLURB.ranked}
           </p>
           <p className="mb-2">
             <span className="text-game-text-primary font-semibold">Casual</span>{" "}
-            is for playing: instant, works offline. Scores stay on your device
-            as a local best.
+            {MODE_BLURB.casual}
           </p>
-          <p className="mb-2">
-            {label}: {subtitle} — {reasonText}.
-          </p>
+          {degradedReason && (
+            <p className="mb-2">
+              You&apos;re playing {label} because {degradedReason}.
+            </p>
+          )}
           {!isRanked && !canSwitchToRankedInPlace && (
             <p className="mb-2">
               Ranked games have to start from the beginning.{" "}

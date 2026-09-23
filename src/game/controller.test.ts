@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { GameController } from "./controller";
+import { GameController, isGameInProgress } from "./controller";
 import { instantClock } from "./clock";
 import { countNonZero, freeOfBalls } from "@/engine";
 
@@ -89,5 +89,36 @@ describe("GameController", () => {
     expect(s2).not.toBe(s1);
     expect(s2.score).toBe(0);
     expect(s2.over).toBe(false);
+  });
+
+  describe("isGameInProgress", () => {
+    it("is false on a board nobody has touched", () => {
+      expect(isGameInProgress(make().getSnapshot())).toBe(false);
+    });
+
+    it("is true once a move has been made", () => {
+      const c = make();
+      const snap = c.getSnapshot();
+      const from = snap.view.balls.findIndex((b) => b !== 0);
+      c.clickCell(from);
+      const dest = freeOfBalls(snap.view.balls).find(
+        (i) => c.getSnapshot().unreachable?.[i] === 1,
+      )!;
+      c.clickCell(dest);
+
+      expect(c.getSnapshot().stats.turns).toBeGreaterThan(0);
+      expect(isGameInProgress(c.getSnapshot())).toBe(true);
+    });
+
+    it("is false again once the game is over — there is nothing left to lose", () => {
+      const finished = { ...make().getSnapshot(), over: true, score: 900 };
+      expect(isGameInProgress(finished)).toBe(false);
+    });
+
+    it("counts a scoring game with no completed turns as in progress", () => {
+      const scored = { ...make().getSnapshot(), over: false, score: 10 };
+      expect(scored.stats.turns).toBe(0);
+      expect(isGameInProgress(scored)).toBe(true);
+    });
   });
 });

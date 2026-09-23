@@ -1,11 +1,15 @@
 import React from "react";
 import { SCORING_TABLE } from "@/engine";
+import { MODE_BLURB } from "@/game/mode";
+import type { Hotkey } from "@/shared/hooks/useHotkeys";
 
 interface GuideProps {
   onClose?: () => void;
+  /** The live bindings, so this list can't drift from what the keys do. */
+  hotkeys?: Hotkey[];
 }
 
-const Guide: React.FC<GuideProps> = ({ onClose }) => {
+const Guide: React.FC<GuideProps> = ({ onClose, hotkeys = [] }) => {
   return (
     <div className="h-full flex flex-col text-game-text-primary">
       <div className="flex justify-between items-center mb-4">
@@ -49,15 +53,12 @@ const Guide: React.FC<GuideProps> = ({ onClose }) => {
         <div className="mt-6 space-y-2 text-base text-game-text-secondary">
           <h4 className="game-title text-base">Two ways to play:</h4>
           <p>
-            <span className="text-game-text-accent">Ranked</span> is for the
-            leaderboard: the server referees every move, so games can&apos;t be
-            played with foreknowledge, and every submitted game is re-verified
-            move by move and publicly replayable.
+            <span className="text-game-text-accent">Ranked</span>{" "}
+            {MODE_BLURB.ranked}
           </p>
           <p>
-            <span className="text-game-text-primary">Casual</span> is for
-            playing: instant, works offline, and your score stays on this device
-            as a local best.
+            <span className="text-game-text-primary">Casual</span>{" "}
+            {MODE_BLURB.casual}
           </p>
         </div>
 
@@ -85,22 +86,20 @@ const Guide: React.FC<GuideProps> = ({ onClose }) => {
 
           <div className="flex-1">
             <h4 className="game-title mb-3 text-base">Hotkeys:</h4>
-            <div className="space-y-2 text-base text-game-text-secondary mb-2">
-              <p>
-                <span className="text-game-text-accent">L</span> — leaderboard
-              </p>
-            </div>
-            <div className="space-y-2 text-base text-game-text-secondary">
-              <p>
-                • <strong>G</strong> - Toggle guide
-              </p>
-              <p>
-                • <strong>N</strong> - New game
-              </p>
-              <p>
-                • <strong>Escape</strong> - Close any overlay
-              </p>
-            </div>
+            <table className="w-full text-base">
+              <tbody>
+                {hotkeys
+                  .filter((hotkey) => hotkey.description)
+                  .map((hotkey) => (
+                    <tr key={hotkey.key} className="text-game-text-secondary">
+                      <td className="text-game-text-accent uppercase">
+                        {hotkey.key}
+                      </td>
+                      <td>{hotkey.description}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

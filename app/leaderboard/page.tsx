@@ -11,15 +11,29 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
+ * Null means "couldn't ask the database", which is NOT the same as an empty
+ * array ("nobody has scored yet"). Collapsing the two would report an outage
+ * as an empty leaderboard.
+ */
+async function loadTopScores() {
+  try {
+    return await prisma.score.findMany({
+      orderBy: [{ score: "desc" }, { createdAt: "asc" }],
+      take: LEADERBOARD_SIZE,
+    });
+  } catch (err) {
+    console.error("[leaderboard] score query failed", err);
+    return null;
+  }
+}
+
+/**
  * A genuine server component (unlike the game). One board, 20 rows, no
  * tabs, no paging, no "your scores" section — the table holds exactly what
  * is displayed.
  */
 export default async function LeaderboardPage() {
-  const rows = await prisma.score.findMany({
-    orderBy: [{ score: "desc" }, { createdAt: "asc" }],
-    take: LEADERBOARD_SIZE,
-  });
+  const rows = await loadTopScores();
 
   return (
     <div className="min-h-screen text-game-text-primary p-4 flex flex-col items-center">
@@ -34,7 +48,15 @@ export default async function LeaderboardPage() {
           Every game here was refereed by the server, move by move.
         </p>
 
-        {rows.length === 0 ? (
+        {rows === null ? (
+          <div
+            className="game-panel p-8 text-center text-game-text-secondary"
+            data-testid="leaderboard-unavailable"
+          >
+            The leaderboard is unavailable right now. The game still plays — try
+            again in a moment.
+          </div>
+        ) : rows.length === 0 ? (
           <div className="game-panel p-8 text-center text-game-text-secondary">
             No scores yet — the board is waiting for its first ranked game.
           </div>

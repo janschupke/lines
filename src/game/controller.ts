@@ -93,6 +93,14 @@ export interface UiSnapshot {
   submission: SubmissionState;
 }
 
+/**
+ * Is there a game here worth protecting? An untouched board has nothing to
+ * lose and a finished one has already lost it — only the span between the
+ * two is worth interrupting the player to confirm.
+ */
+export const isGameInProgress = (snapshot: UiSnapshot): boolean =>
+  !snapshot.over && (snapshot.score > 0 || snapshot.stats.turns > 0);
+
 export interface SubmissionState {
   status:
     | "casual"

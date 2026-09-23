@@ -1,13 +1,22 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
-import { GameController } from "@/game/controller";
+import { GameController, isGameInProgress } from "@/game/controller";
 import {
   GameControllerContext,
   useGameController,
 } from "@/game/useGameController";
-import { useKeyboard } from "@/shared/hooks/useKeyboard";
+import { MODE_BLURB } from "@/game/mode";
+import { useHotkeys, type Hotkey } from "@/shared/hooks/useHotkeys";
+import { useDismissable } from "@/shared/hooks/useDismissable";
+import ConfirmDialog from "@/shared/components/ConfirmDialog/ConfirmDialog";
 import Board from "../Board/Board";
 import GameEndDialog from "@/shared/components/GameEndDialog/GameEndDialog";
 import Guide from "@/shared/components/Guide/Guide";
@@ -49,27 +58,63 @@ const Game: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
 const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
   const [snapshot, controller] = useGameController();
   const router = useRouter();
+  const [confirmNewGame, setConfirmNewGame] = useState(false);
+  const introRef = useRef<HTMLDivElement>(null);
 
-  const keyboardHandlers = useMemo(
-    () => ({
-      onKeyG: () => setShowGuide(!showGuide),
-      onKeyN: () => controller.newGame(),
-      onKeyL: () => router.push("/leaderboard"),
-      onKeyEscape: () => {
-        if (showGuide) setShowGuide(false);
-        if (controller.getSnapshot().dialogOpen) controller.closeDialog();
-      },
-    }),
-    [showGuide, setShowGuide, controller, router],
+  useDismissable(snapshot.showModeIntro, introRef, () =>
+    controller.dismissModeIntro(),
   );
-  useKeyboard(keyboardHandlers);
+
+  // Guarded against re-entry: the top panel stays clickable behind the
+  // dialog, so a second press of New game must not stack another one.
+  const requestNewGame = useCallback(() => {
+    if (confirmNewGame) return;
+    if (isGameInProgress(controller.getSnapshot())) setConfirmNewGame(true);
+    else controller.newGame();
+  }, [confirmNewGame, controller]);
+
+  // The base layer. Overlays register above this and take Escape first.
+  const hotkeys = useMemo<Hotkey[]>(
+    () => [
+      {
+        key: "g",
+        description: "Show or hide this guide",
+        run: () => setShowGuide(!showGuide),
+      },
+      { key: "n", description: "Start a new game", run: requestNewGame },
+      {
+        key: "l",
+        description: "Open the leaderboard",
+        run: () => router.push("/leaderboard"),
+      },
+      {
+        key: "escape",
+        description: "Close whatever is open",
+        run: () => {
+          if (controller.getSnapshot().dialogOpen) controller.closeDialog();
+        },
+      },
+    ],
+    [showGuide, setShowGuide, requestNewGame, controller, router],
+  );
+  useHotkeys(hotkeys);
+
+  // The guide claims Escape for itself while it is up. It needs its own layer
+  // rather than a branch in the base handler: layers are ordered by when they
+  // opened, so a guide raised OVER the end-of-game dialog closes the guide,
+  // where a shared handler would always favour whichever branch came first.
+  const guideHotkeys = useMemo<Hotkey[]>(
+    () => [{ key: "escape", run: () => setShowGuide(false) }],
+    [setShowGuide],
+  );
+  useHotkeys(guideHotkeys, showGuide);
 
   return (
     <div className="game-page">
       {/* Single-line Top Panel */}
       <div className="top-panel game-chrome flex items-center relative mb-4 mt-4">
         <GameControls
-          onNewGame={() => controller.newGame()}
+          onNewGame={requestNewGame}
           onToggleGuide={() => setShowGuide(!showGuide)}
           showGuide={showGuide}
         />
@@ -91,22 +136,16 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
         />
       </div>
 
-      {/* Mode indicator row */}
-      <div className="mode-chip-row game-chrome flex justify-center mb-2 relative">
-        <ModeChip />
-      </div>
-
       {/* One-time mode intro */}
       {snapshot.showModeIntro && (
-        <div className="game-chrome mb-2">
+        <div className="game-chrome mb-2" ref={introRef}>
           <div
             className="game-panel p-3 text-sm text-game-text-secondary flex items-start gap-3"
             data-testid="mode-intro"
           >
             <div>
-              Two ways to play: <b>Casual</b> is instant and works offline; your
-              score stays on this device. <b>Ranked</b> is refereed by the
-              server and competes for the leaderboard.
+              Two ways to play. <b>Ranked</b>: {MODE_BLURB.ranked} <b>Casual</b>
+              : {MODE_BLURB.casual}
             </div>
             <button
               className="game-button game-button-primary px-3 py-1 shrink-0"
@@ -132,7 +171,7 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
                 aria-modal="true"
                 aria-label="Game guide"
               >
-                <Guide onClose={() => setShowGuide(false)} />
+                <Guide onClose={() => setShowGuide(false)} hotkeys={hotkeys} />
               </div>
             )}
 
@@ -156,6 +195,30 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
             {/* Connection overlays: syncing chip, reconnect panel, gate */}
             <ConnectionOverlays />
 
+            <ConfirmDialog
+              open={confirmNewGame}
+              title="Start a new game?"
+              testId="confirm-new-game"
+              cancelTestId="new-game-keep"
+              confirmTestId="new-game-confirm"
+              cancelLabel="Keep playing"
+              confirmLabel="Start a new game"
+              onCancel={() => setConfirmNewGame(false)}
+              onConfirm={() => {
+                setConfirmNewGame(false);
+                controller.newGame();
+              }}
+            >
+              <p className="mb-3">
+                This game is still going. Starting a new one clears the board
+                and the{" "}
+                <span className="text-game-text-accent font-bold">
+                  {snapshot.score}
+                </span>{" "}
+                points you&apos;ve scored.
+              </p>
+            </ConfirmDialog>
+
             {/* Floating Score Animations */}
             {snapshot.anim.floating.map((floating) => (
               <FloatingScore key={floating.id} floating={floating} />
@@ -164,12 +227,40 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
         </div>
       </div>
 
-      {/* Timer and Footer */}
+      {/* Footer: source link, the mode chip, the clock */}
       <div className="page-footer game-chrome flex items-center justify-between relative mt-4">
-        <div className="text-game-text-secondary text-sm">
-          {!snapshot.persistenceAvailable &&
-            "Storage unavailable — progress won't be saved"}
+        <div className="flex items-center gap-3">
+          <a
+            href="https://github.com/janschupke/lines"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-game-text-secondary hover:text-game-text-primary transition-colors"
+            title="View on GitHub"
+            aria-label="View on GitHub"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </a>
+          <span className="text-game-text-secondary text-sm">
+            {!snapshot.persistenceAvailable &&
+              "Storage unavailable — progress won't be saved"}
+          </span>
         </div>
+
+        <div className="panel-center">
+          <ModeChip />
+        </div>
+
         <TimerDisplay
           elapsedMs={snapshot.elapsedMs}
           timerActive={snapshot.timerActive}

@@ -117,6 +117,21 @@ button:focus-visible,
     transform: translateX(-50%);
   }
 
+  /* The mode chip rides the centre of the footer. Centred on both axes
+     rather than only horizontally: taken out of flow it no longer sets the
+     footer's height, so it has to be pinned against the reserved min-height
+     below instead of against its static position. */
+  .page-footer {
+    min-height: 2.25rem;
+  }
+
+  .page-footer .panel-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
   /* Game-over score: resolves to the old text-6xl (60px) on desktop but
      cannot dominate a phone screen. */
   .score-hero {
@@ -526,6 +541,14 @@ button:focus-visible,
     margin: 1rem 0.5rem 0;
     gap: 0.75rem;
   }
+
+  /* The footer is a column here, so the chip takes its turn in the stack
+     instead of floating over the other two slots. */
+  .page-footer .panel-center {
+    position: static;
+    top: auto;
+    transform: none;
+  }
 }
 
 /* Chrome budget (outside the layers so it beats the margin utilities):
@@ -541,16 +564,20 @@ button:focus-visible,
     margin-top: 0.25rem;
   }
 
-  .mode-chip-row {
-    margin-bottom: 0.25rem;
-  }
-
   .mode-reason-text {
     display: none; /* still in the chip's title/aria-label and popover */
   }
 
   .page-footer {
     margin-top: 0.5rem;
+  }
+
+  /* Too narrow to float the chip over the other two slots: let it take the
+     middle share of the row instead. */
+  .page-footer .panel-center {
+    position: static;
+    top: auto;
+    transform: none;
   }
 }
 

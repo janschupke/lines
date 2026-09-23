@@ -23,6 +23,20 @@ export const REASON_TEXT: Record<ModeReason, string> = {
   checking: "checking connection…",
 };
 
+/**
+ * What each mode means to the player, in one place — the chip, the guide and
+ * the first-run intro all render these, so the wording can't drift apart.
+ *
+ * Both modes are for playing. The difference is where the score ends up and
+ * whether a connection is needed; how the server verifies a game is our
+ * problem, not the player's.
+ */
+export const MODE_BLURB: Record<Mode, string> = {
+  ranked: "Your score can make the leaderboard. Needs a connection.",
+  casual:
+    "Play online or off. Your score stays on this device as your local best.",
+};
+
 export interface ModeDecision {
   mode: Mode;
   reason: ModeReason;

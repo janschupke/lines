@@ -1,30 +1,19 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { useGameController } from "@/game/useGameController";
 import { GATE_AFTER_FAILURES } from "@/game/connection";
+import ConfirmDialog from "@/shared/components/ConfirmDialog/ConfirmDialog";
 
 /**
- * The reconnect panel and the shared confirm gate (one component, several
- * triggers, differing only in the opening sentence).
+ * The reconnect panel and the confirm gate (several triggers, differing only
+ * in the opening sentence). The gate's Escape and backdrop handling lives in
+ * ConfirmDialog now — both resolve to "keep the ranked game", never to the
+ * destructive branch.
  */
 const ConnectionOverlays: React.FC = () => {
   const [snapshot, controller] = useGameController();
   const { connection, score } = snapshot;
-  const keepRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (connection.gateOpen) keepRef.current?.focus();
-  }, [connection.gateOpen]);
-
-  useEffect(() => {
-    if (!connection.gateOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") controller.closeSwitchGate();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [connection.gateOpen, controller]);
 
   if (connection.state === "n/a" || connection.state === "live") {
     if (!connection.gateOpen) return null;
@@ -38,53 +27,35 @@ const ConnectionOverlays: React.FC = () => {
           ? "This game's server session has expired."
           : "Couldn't reach the server.";
     return (
-      <div
-        className="game-overlay absolute inset-0 bg-slate-800/95 rounded-xl z-50 p-6 flex items-center justify-center"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Switch to Casual?"
-        data-testid="confirm-gate"
-        onClick={() => controller.closeSwitchGate()}
+      <ConfirmDialog
+        open
+        title="Switch to Casual?"
+        testId="confirm-gate"
+        cancelTestId="gate-keep"
+        confirmTestId="gate-switch"
+        cancelLabel={
+          connection.gateTrigger === "manual"
+            ? "Stay on Ranked"
+            : "Keep waiting"
+        }
+        confirmLabel="Switch to Casual — leaves the leaderboard"
+        onCancel={() => controller.closeSwitchGate()}
+        onConfirm={() => controller.confirmSwitchToCasual()}
       >
-        <div
-          className="game-dialog p-5 max-w-sm text-game-text-secondary"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h3 className="game-title text-xl mb-3">Switch to Casual?</h3>
+        <p className="mb-3">
+          {opening} Switching to Casual means this game can&apos;t go on the
+          leaderboard — including the{" "}
+          <span className="text-game-text-accent font-bold">{score}</span>{" "}
+          points you&apos;ve already scored. It will still count towards your
+          local best.
+        </p>
+        {connection.gateTrigger === "connection-lost" && (
           <p className="mb-3">
-            {opening} Switching to Casual means this game can&apos;t go on the
-            leaderboard — including the{" "}
-            <span className="text-game-text-accent font-bold">{score}</span>{" "}
-            points you&apos;ve already scored. It will still count towards your
-            local best.
+            You can keep waiting instead; the game is saved and resumes when the
+            connection returns.
           </p>
-          {connection.gateTrigger === "connection-lost" && (
-            <p className="mb-3">
-              You can keep waiting instead; the game is saved and resumes when
-              the connection returns.
-            </p>
-          )}
-          <div className="flex flex-col gap-2">
-            <button
-              ref={keepRef}
-              className="game-button game-button-primary px-4 py-2"
-              data-testid="gate-keep"
-              onClick={() => controller.closeSwitchGate()}
-            >
-              {connection.gateTrigger === "manual"
-                ? "Stay on Ranked"
-                : "Keep waiting"}
-            </button>
-            <button
-              className="game-button game-button-accent px-4 py-2"
-              data-testid="gate-switch"
-              onClick={() => controller.confirmSwitchToCasual()}
-            >
-              Switch to Casual — leaves the leaderboard
-            </button>
-          </div>
-        </div>
-      </div>
+        )}
+      </ConfirmDialog>
     );
   }
 

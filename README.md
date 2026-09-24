@@ -47,6 +47,34 @@ ledger; an evicted row takes its replay with it. Design tokens live in
 `src/design/tokens.ts` and generate both `app/tokens.generated.css` and the
 Tailwind 4 `@theme` block (`app/theme.generated.css`) via `npm run tokens`.
 
+### Layering
+
+Every z-index in the app comes from `LAYERS` in `src/design/tokens.ts` and is
+consumed as `var(--z-*)` in CSS or a generated `z-*` utility in markup. There
+are no numeric z-index literals in the source, and a unit test scans for them.
+
+One flat order, because there is one stacking context that matters — the root:
+
+```
+board decor 0 < cell 1 < popping cell 2 < floating score 3 <
+syncing chip 4 < reconnect scrim 5 < chrome 20 < dialog 30
+```
+
+`.board-area` is deliberately **not** sealed. `container-type: size` on it
+computes to `contain: none` and creates neither a stacking context nor a
+containing block, so the board's own layers live in the root context beside
+the page chrome — and any `isolation` or z-index there (a flex item with one
+becomes a stacking context) would trap the `position: fixed` dialog sheet
+used below the sheet breakpoint inside the board. The chrome layer exists
+because the mode popover is anchored inside a transformed `.panel-center`,
+which traps it at level 0 of its own context; the layer has to be owned by
+`.top-panel` / `.page-footer` rather than by the popover.
+
+Modal surfaces share one class, `.game-overlay`; the board's own blocking
+status surface is `.board-scrim`. Paint order is covered by
+`e2e/layering.spec.ts` across all six viewports — jsdom has no layout and
+cannot see a stacking regression.
+
 Leaderboard names pass a multilingual sanitation pipeline
 (`src/shared/names/`): NFKC, invisible/zalgo stripping, a 16-grapheme limit,
 homoglyph/leet folding, and profanity lists for 14 languages — the same

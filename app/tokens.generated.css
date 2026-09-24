@@ -59,4 +59,13 @@
   --ghost-pct: 50.00000%; /* 28 / 56 */
   --breakpoint-sheet: 600px;
   --breakpoint-landscape-max-h: 500px;
+  --z-board-decor: 0;
+  --z-board-cell: 1;
+  --z-board-cell-raised: 2;
+  --z-board-floating: 3;
+  --z-board-chrome: 4;
+  --z-board-scrim: 5;
+  --z-chrome: 20;
+  --z-dialog: 30;
+  --z-chrome-popover: 1;
 }

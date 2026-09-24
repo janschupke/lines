@@ -127,7 +127,7 @@ export const BoardCell: React.FC<BoardCellProps> = ({
             growing === "transition"
               ? "grow-ball-transition"
               : isPopping
-                ? "z-20 animate-pop-ball"
+                ? "animate-pop-ball"
                 : ""
           } ball-main`}
           style={{ backgroundColor: getBallColor(ball) }}

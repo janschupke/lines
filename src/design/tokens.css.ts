@@ -7,6 +7,7 @@ import {
   DURATIONS,
   FONTS,
   GRADIENTS,
+  LAYERS,
   RATIOS,
 } from "./tokens";
 
@@ -56,6 +57,12 @@ export function tokensCss(): string {
   lines.push(
     `  --breakpoint-landscape-max-h: ${BREAKPOINTS.landscapeMaxHeight}px;`,
   );
+
+  // The layering scale. Plain :root vars, deliberately NOT in @theme — the
+  // stylesheet consumes them by name and there is nothing to tree-shake.
+  for (const [name, value] of Object.entries(LAYERS)) {
+    lines.push(`  --z-${kebab(name)}: ${value};`);
+  }
   lines.push("}");
   return lines.join("\n") + "\n";
 }
@@ -103,6 +110,19 @@ export function themeCss(): string {
     lines.push(
       `@utility bg-game-gradient-${kebab(name)} {`,
       `  background-image: ${value};`,
+      `}`,
+    );
+  }
+
+  // v4 has no z-index theme namespace either, so the named layer utilities
+  // are declared explicitly. The names are non-numeric and so cannot collide
+  // with Tailwind's own numeric scale. Do not spell one of those numeric
+  // class names in a comment: the scanner reads comments and would emit the
+  // utility for it.
+  for (const name of Object.keys(LAYERS)) {
+    lines.push(
+      `@utility z-${kebab(name)} {`,
+      `  z-index: var(--z-${kebab(name)});`,
       `}`,
     );
   }

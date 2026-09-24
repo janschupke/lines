@@ -166,7 +166,7 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
             {/* Guide Overlay - exactly same size as board */}
             {showGuide && (
               <div
-                className="game-overlay absolute inset-0 bg-slate-800/95 rounded-xl z-50 p-4 overflow-auto scrollbar-hide animate-in fade-in"
+                className="game-overlay p-4 overflow-auto scrollbar-hide animate-in fade-in"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Game guide"

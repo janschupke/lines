@@ -237,7 +237,7 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
 
   return (
     <div
-      className="game-overlay absolute inset-0 bg-slate-800/95 rounded-xl z-50 p-6 overflow-auto scrollbar-hide animate-in fade-in"
+      className="game-overlay p-6 overflow-auto scrollbar-hide animate-in fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="game-end-title"

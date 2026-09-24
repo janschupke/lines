@@ -46,6 +46,7 @@ export default defineConfig({
           setupFiles: ["./src/setupTests.ts"],
           include: [
             "src/**/*.test.tsx",
+            "src/design/**/*.test.ts",
             "src/features/**/*.test.ts",
             "src/game/**/*.test.ts",
             "src/shared/**/*.test.ts",

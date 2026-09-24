@@ -158,7 +158,7 @@ const ModeChip: React.FC = () => {
         <div
           // Opens UPWARD: the chip lives in the footer, and the page is
           // built never to scroll, so anything below the chip is unreachable.
-          className="absolute bottom-full left-1/2 -translate-x-1/2 w-80 max-w-[90vw] game-dialog z-50 p-4 mb-1 text-left text-game-text-secondary text-sm"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 w-80 max-w-[90vw] game-dialog z-chrome-popover p-4 mb-1 text-left text-game-text-secondary text-sm"
           role="dialog"
           aria-label="About game modes"
         >

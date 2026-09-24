@@ -48,7 +48,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div
-      className="game-overlay absolute inset-0 bg-slate-800/95 rounded-xl z-50 p-6 flex items-center justify-center"
+      className="game-overlay p-6 flex items-center justify-center"
       role="dialog"
       aria-modal="true"
       aria-label={title}

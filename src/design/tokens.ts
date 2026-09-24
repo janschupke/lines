@@ -140,3 +140,38 @@ export const BREAKPOINTS = {
 export const FONTS = {
   sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
 } as const;
+
+/**
+ * THE layering scale. One flat order, because there is exactly one stacking
+ * context that matters: the root.
+ *
+ * `.board-area` is deliberately NOT sealed. `container-type: size` on it
+ * computes to `contain: none` and creates neither a stacking context nor a
+ * containing block, so the board's own values live in the root context
+ * alongside the page chrome — and sealing it (isolation, or any z-index at
+ * all, which a flex item turns into a stacking context) would trap the
+ * `position: fixed` dialog sheet below the sheet breakpoint inside the board.
+ *
+ * That is also the bug this scale fixes: `.game-cell` sat at z-index 1 in the
+ * root context while the mode popover was trapped at level 0 by the
+ * `transform` on `.page-footer .panel-center`, so the board cells painted
+ * over the popover. The chrome is now a declared layer above the board.
+ *
+ * Nothing in this app may write a z-index that does not come from here.
+ */
+export const LAYERS = {
+  // The board's own surfaces, in the root stacking context.
+  boardDecor: 0,
+  boardCell: 1,
+  /** A popping ball scales past its cell; the CELL lifts so it clears its neighbours. */
+  boardCellRaised: 2,
+  boardFloating: 3,
+  boardChrome: 4,
+  boardScrim: 5,
+  /** The top panel and the footer, above the whole board. */
+  chrome: 20,
+  /** Modal surfaces, above the chrome — board-sized on desktop, a full-screen sheet below the sheet breakpoint. */
+  dialog: 30,
+  /** Local to the footer's own context: the mode popover over the chip. */
+  chromePopover: 1,
+} as const;

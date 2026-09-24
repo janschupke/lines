@@ -62,7 +62,7 @@ const ConnectionOverlays: React.FC = () => {
   if (connection.state === "reconnecting") {
     return (
       <div
-        className="absolute inset-0 bg-slate-800/90 rounded-xl z-40 flex items-center justify-center"
+        className="board-scrim flex items-center justify-center"
         data-testid="reconnect-panel"
       >
         <div className="game-panel p-5 text-center text-game-text-secondary">
@@ -86,7 +86,7 @@ const ConnectionOverlays: React.FC = () => {
   if (connection.state === "syncing") {
     return (
       <div
-        className="absolute top-2 right-2 z-30 text-game-text-secondary text-xs game-panel px-2 py-1"
+        className="absolute top-2 right-2 z-board-chrome text-game-text-secondary text-xs game-panel px-2 py-1"
         data-testid="syncing-indicator"
       >
         syncing…

@@ -18,7 +18,8 @@ interface GameEndDialogProps {
   onSubmit: (name: string) => void;
   onRetry: () => void;
   onNewGame: () => void;
-  onPlayRanked: () => void;
+  /** Absent when the server has no database: no ranked pitch at all. */
+  onPlayRanked?: (() => void) | undefined;
   onClose: () => void;
 }
 
@@ -78,26 +79,30 @@ const GameEndDialog: React.FC<GameEndDialogProps> = ({
         return (
           <div className="text-center mb-6" data-testid="submission-casual">
             <div className="text-game-text-secondary mb-1">
-              Local casual best:{" "}
+              {onPlayRanked ? "Local casual best" : "Local best"}:{" "}
               <span className="game-score">
                 {Math.max(submission.casualBest, score)}
               </span>
             </div>
-            {submission.switched && (
+            {onPlayRanked && submission.switched && (
               <div className="text-game-text-secondary mb-2 text-sm">
                 This game switched to Casual, so it isn&apos;t eligible for the
                 leaderboard.
               </div>
             )}
-            <div className="text-game-text-secondary text-sm mb-2">
-              Ranked games go on the leaderboard.
-            </div>
-            <button
-              className="game-button game-button-primary px-4 py-2"
-              onClick={onPlayRanked}
-            >
-              Play ranked
-            </button>
+            {onPlayRanked && (
+              <>
+                <div className="text-game-text-secondary text-sm mb-2">
+                  Ranked games go on the leaderboard.
+                </div>
+                <button
+                  className="game-button game-button-primary px-4 py-2"
+                  onClick={onPlayRanked}
+                >
+                  Play ranked
+                </button>
+              </>
+            )}
           </div>
         );
       case "checking":

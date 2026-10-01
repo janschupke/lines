@@ -42,9 +42,12 @@ throws if it is set while `VERCEL` + `NODE_ENV=production`
 ## 2. Build + migrations
 
 `vercel.json` sets `buildCommand: "npm run build:deploy"`, which runs
-`prisma migrate deploy && npm run build` — migrate goes through
-`prisma.config.ts` (so over `DIRECT_URL`, pooler-guarded), and `npm run build`
-keeps the `prebuild` tokens step. **Never `db push` against production.**
+`scripts/migrate-deploy.ts` and then `npm run build`. The script runs
+`prisma migrate deploy` through `prisma.config.ts` (so over `DIRECT_URL`,
+pooler-guarded). It skips when no database URL is set and only warns when the
+migration fails, so the build itself never depends on the database.
+`npm run build` keeps the `prebuild` tokens step. **Never `db push` against
+production.**
 
 Both migrations must apply: `…_init` and `…_rls_lockdown`. The lockdown is
 not optional — Supabase exposes every table in `public` over PostgREST with

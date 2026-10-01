@@ -67,15 +67,16 @@ describe("Supabase is nothing but hosted Postgres", () => {
 });
 
 describe("Vercel build", () => {
-  it("the build command migrates over the direct URL, then builds via prebuild", () => {
+  it("the build command migrates (never fatally), then builds via prebuild", () => {
     const vercel = JSON.parse(read("vercel.json")) as { buildCommand: string };
     expect(vercel.buildCommand).toBe("npm run build:deploy");
     const pkg = JSON.parse(read("package.json")) as {
       scripts: Record<string, string>;
     };
     // `npm run build` (not `next build`) so the tokens prebuild still fires.
+    // The migrate step skips or warns on its own — the DB is optional.
     expect(pkg.scripts["build:deploy"]).toBe(
-      "prisma migrate deploy && npm run build",
+      "tsx scripts/migrate-deploy.ts && npm run build",
     );
   });
 });

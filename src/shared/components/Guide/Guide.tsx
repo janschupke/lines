@@ -7,9 +7,15 @@ interface GuideProps {
   onClose?: () => void;
   /** The live bindings, so this list can't drift from what the keys do. */
   hotkeys?: Hotkey[];
+  /** Off when the server has no database: there is only one way to play. */
+  showModes?: boolean;
 }
 
-const Guide: React.FC<GuideProps> = ({ onClose, hotkeys = [] }) => {
+const Guide: React.FC<GuideProps> = ({
+  onClose,
+  hotkeys = [],
+  showModes = true,
+}) => {
   return (
     <div className="h-full flex flex-col text-game-text-primary">
       <div className="flex justify-between items-center mb-4">
@@ -50,17 +56,19 @@ const Guide: React.FC<GuideProps> = ({ onClose, hotkeys = [] }) => {
           </p>
         </div>
 
-        <div className="mt-6 space-y-2 text-base text-game-text-secondary">
-          <h4 className="game-title text-base">Two ways to play:</h4>
-          <p>
-            <span className="text-game-text-accent">Ranked</span>{" "}
-            {MODE_BLURB.ranked}
-          </p>
-          <p>
-            <span className="text-game-text-primary">Casual</span>{" "}
-            {MODE_BLURB.casual}
-          </p>
-        </div>
+        {showModes && (
+          <div className="mt-6 space-y-2 text-base text-game-text-secondary">
+            <h4 className="game-title text-base">Two ways to play:</h4>
+            <p>
+              <span className="text-game-text-accent">Ranked</span>{" "}
+              {MODE_BLURB.ranked}
+            </p>
+            <p>
+              <span className="text-game-text-primary">Casual</span>{" "}
+              {MODE_BLURB.casual}
+            </p>
+          </div>
+        )}
 
         <div className="mt-6 flex gap-6">
           <div className="flex-1">

@@ -17,7 +17,7 @@ describe("GameShell", () => {
       configurable: true,
       value: 320,
     });
-    render(<GameShell />);
+    render(<GameShell rankedEnabled />);
     await waitFor(() => {
       expect(screen.getByTestId("game-component")).toBeInTheDocument();
     });

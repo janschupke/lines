@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { ipHashSalt } from "./config";
+import { ipHashSalt, rankedEnabled } from "./config";
 
 /**
  * sha256(ip + IP_HASH_SALT); raw IPs are never stored. On Vercel the IP is
@@ -30,6 +30,7 @@ const MESSAGES: Record<string, string> = {
   audit_failed: "Something went wrong on our side saving this game.",
   bad_name: "That name can't be used.",
   rejected_name: "That name can't be used.",
+  ranked_disabled: "Ranked play is turned off on this server.",
 };
 
 export function errorResponse(code: string, status: number): Response {
@@ -37,4 +38,9 @@ export function errorResponse(code: string, status: number): Response {
     { error: code, message: MESSAGES[code] ?? "Something went wrong." },
     { status },
   );
+}
+
+/** First line of every ranked route: refuse before touching the DB or salt. */
+export function rankedGate(): Response | null {
+  return rankedEnabled() ? null : errorResponse("ranked_disabled", 503);
 }

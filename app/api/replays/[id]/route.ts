@@ -8,7 +8,7 @@ import {
 import type { PlacedBall } from "@/engine";
 import { prisma } from "@/server/db";
 import { deriveGameKey } from "@/server/keys";
-import { errorResponse, ipHashOf } from "@/server/request";
+import { errorResponse, ipHashOf, rankedGate } from "@/server/request";
 import { attemptsInWindow, recordAttempt, HOUR } from "@/server/ratelimit";
 
 export const runtime = "nodejs";
@@ -22,6 +22,8 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
+  const off = rankedGate();
+  if (off) return off;
   const { id } = await context.params;
   const ipHash = ipHashOf(request);
   if ((await attemptsInWindow({ ipHash }, HOUR, ["replay"])) >= 120) {

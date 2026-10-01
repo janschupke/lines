@@ -16,7 +16,12 @@ const submission = (over: Partial<SubmissionState>): SubmissionState => ({
   ...over,
 });
 
-const renderDialog = (sub: SubmissionState, onSubmit = vi.fn()) => {
+const renderDialog = (
+  sub: SubmissionState,
+  onSubmit = vi.fn(),
+  // null, not undefined: an explicit undefined would take the default.
+  onPlayRanked: (() => void) | null = vi.fn(),
+) => {
   render(
     <GameEndDialog
       isOpen
@@ -28,7 +33,7 @@ const renderDialog = (sub: SubmissionState, onSubmit = vi.fn()) => {
       onSubmit={onSubmit}
       onRetry={vi.fn()}
       onNewGame={vi.fn()}
-      onPlayRanked={vi.fn()}
+      onPlayRanked={onPlayRanked ?? undefined}
       onClose={vi.fn()}
     />,
   );
@@ -44,6 +49,18 @@ describe("GameEndDialog submission section", () => {
     expect(screen.getByText("Play ranked")).toBeInTheDocument();
     expect(screen.queryByLabelText(/name for the leaderboard/i)).toBeNull();
     expect(screen.getByText("50")).toBeInTheDocument(); // local best
+  });
+
+  it("without a database: a plain local best, no ranked pitch", () => {
+    renderDialog(
+      submission({ status: "casual", switched: true }),
+      vi.fn(),
+      null,
+    );
+    expect(screen.getByText(/^Local best/)).toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).toBeNull();
+    expect(screen.queryByText(/leaderboard/i)).toBeNull();
+    expect(screen.queryByText("Play ranked")).toBeNull();
   });
 
   it("casual + switched names the destination board honestly", () => {

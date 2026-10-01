@@ -11,6 +11,23 @@ const required = (name: string): string => {
   return value;
 };
 
+const present = (name: string): boolean =>
+  (process.env[name]?.trim() ?? "") !== "";
+
+/**
+ * The database is optional. Ranked play, the leaderboard and replays need it
+ * plus all three secrets; without any one of them the app is a plain local
+ * game. Read per request, never at build — the deploy env lives on the host.
+ */
+export function rankedEnabled(): boolean {
+  return (
+    present("DATABASE_URL") &&
+    present("GAME_TOKEN_SECRET") &&
+    present(`ENTROPY_SECRET_V${CURRENT_KEY_VERSION}`) &&
+    present("IP_HASH_SALT")
+  );
+}
+
 export function gameTokenSecret(): string {
   return required("GAME_TOKEN_SECRET");
 }

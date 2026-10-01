@@ -10,7 +10,7 @@ import {
 import { prisma } from "@/server/db";
 import { deriveGameKey } from "@/server/keys";
 import { verifyToken } from "@/server/token";
-import { errorResponse, ipHashOf } from "@/server/request";
+import { errorResponse, ipHashOf, rankedGate } from "@/server/request";
 import { attemptsInWindow, recordAttempt, HOUR } from "@/server/ratelimit";
 import { stateOfRow, rowFieldsOfState } from "@/server/session";
 
@@ -28,6 +28,8 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
+  const off = rankedGate();
+  if (off) return off;
   const { id: gameId } = await context.params;
   const raw = await request.text();
   if (raw.length > 1024) return errorResponse("bad_request", 400);

@@ -1,7 +1,7 @@
 import { ENGINE_VERSION } from "@/engine";
 import { prisma } from "@/server/db";
 import { verifyToken } from "@/server/token";
-import { errorResponse } from "@/server/request";
+import { errorResponse, rankedGate } from "@/server/request";
 
 export const runtime = "nodejs";
 
@@ -13,6 +13,8 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
+  const off = rankedGate();
+  if (off) return off;
   const { id: gameId } = await context.params;
   const token = request.headers.get("x-game-token") ?? "";
   const verdict = verifyToken(token);

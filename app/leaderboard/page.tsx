@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { LEADERBOARD_SIZE } from "@/engine";
+import { rankedEnabled } from "@/server/config";
 import { prisma } from "@/server/db";
 import { formatTime } from "@/shared/utils";
 import HighlightOwnRow from "./HighlightOwnRow";
@@ -33,6 +35,7 @@ async function loadTopScores() {
  * is displayed.
  */
 export default async function LeaderboardPage() {
+  if (!rankedEnabled()) notFound();
   const rows = await loadTopScores();
 
   return (

@@ -42,6 +42,10 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://lines:lines@localhost:5437/lines
+      # Ranked routes answer 503 unless all three secrets are set too.
+      GAME_TOKEN_SECRET: ci-token-secret-0123456789abcdef0123456789abcdef
+      ENTROPY_SECRET_V1: ci-entropy-secret-0123456789abcdef0123456789abcdef
+      IP_HASH_SALT: ci-salt
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

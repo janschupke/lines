@@ -11,9 +11,15 @@ const Game = dynamic(() => import("@/features/game/components/Game/Game"), {
   loading: () => <BoardSkeleton />,
 });
 
-function GameShell() {
+function GameShell({ rankedEnabled }: { rankedEnabled: boolean }) {
   const [showGuide, setShowGuide] = useState(false);
-  return <Game showGuide={showGuide} setShowGuide={setShowGuide} />;
+  return (
+    <Game
+      showGuide={showGuide}
+      setShowGuide={setShowGuide}
+      rankedEnabled={rankedEnabled}
+    />
+  );
 }
 
 export default GameShell;

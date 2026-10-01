@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { rankedEnabled } from "@/server/config";
 import ReplayViewer from "./ReplayViewer";
 
 export const runtime = "nodejs";
@@ -7,6 +9,7 @@ export default async function ReplayPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  if (!rankedEnabled()) notFound();
   const { id } = await params;
   return <ReplayViewer id={id} />;
 }

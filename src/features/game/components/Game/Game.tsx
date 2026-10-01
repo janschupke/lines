@@ -28,13 +28,23 @@ import NextBallsPreview from "./NextBallsPreview";
 import ScoreDisplay from "./ScoreDisplay";
 import TimerDisplay from "./TimerDisplay";
 
-interface GameProps {
+interface GameViewProps {
   showGuide: boolean;
   setShowGuide: (v: boolean) => void;
 }
 
-const Game: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
-  const [controller, setController] = useState(() => new GameController());
+interface GameProps extends GameViewProps {
+  rankedEnabled: boolean;
+}
+
+const Game: React.FC<GameProps> = ({
+  showGuide,
+  setShowGuide,
+  rankedEnabled,
+}) => {
+  const [controller, setController] = useState(
+    () => new GameController({ rankedEnabled }),
+  );
 
   useEffect(() => {
     // StrictMode mounts, unmounts and remounts: the first pass destroys its
@@ -42,11 +52,11 @@ const Game: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
     // Rendering against the destroyed store left the app frozen at
     // "checking connection…" with an empty board and dead buttons.
     if (controller.isDestroyed) {
-      setController(new GameController());
+      setController(new GameController({ rankedEnabled }));
       return;
     }
     return () => controller.destroy();
-  }, [controller]);
+  }, [controller, rankedEnabled]);
 
   return (
     <GameControllerContext.Provider value={controller}>
@@ -55,7 +65,7 @@ const Game: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
   );
 };
 
-const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
+const GameView: React.FC<GameViewProps> = ({ showGuide, setShowGuide }) => {
   const [snapshot, controller] = useGameController();
   const router = useRouter();
   const [confirmNewGame, setConfirmNewGame] = useState(false);
@@ -73,6 +83,8 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
     else controller.newGame();
   }, [confirmNewGame, controller]);
 
+  const { rankedEnabled } = snapshot;
+
   // The base layer. Overlays register above this and take Escape first.
   const hotkeys = useMemo<Hotkey[]>(
     () => [
@@ -82,11 +94,15 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
         run: () => setShowGuide(!showGuide),
       },
       { key: "n", description: "Start a new game", run: requestNewGame },
-      {
-        key: "l",
-        description: "Open the leaderboard",
-        run: () => router.push("/leaderboard"),
-      },
+      ...(rankedEnabled
+        ? [
+            {
+              key: "l",
+              description: "Open the leaderboard",
+              run: () => router.push("/leaderboard"),
+            },
+          ]
+        : []),
       {
         key: "escape",
         description: "Close whatever is open",
@@ -95,7 +111,14 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
         },
       },
     ],
-    [showGuide, setShowGuide, requestNewGame, controller, router],
+    [
+      showGuide,
+      setShowGuide,
+      requestNewGame,
+      controller,
+      router,
+      rankedEnabled,
+    ],
   );
   useHotkeys(hotkeys);
 
@@ -117,6 +140,7 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
           onNewGame={requestNewGame}
           onToggleGuide={() => setShowGuide(!showGuide)}
           showGuide={showGuide}
+          showLeaderboard={rankedEnabled}
         />
 
         {/* Center: Next Balls - absolutely centered */}
@@ -171,7 +195,11 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
                 aria-modal="true"
                 aria-label="Game guide"
               >
-                <Guide onClose={() => setShowGuide(false)} hotkeys={hotkeys} />
+                <Guide
+                  onClose={() => setShowGuide(false)}
+                  hotkeys={hotkeys}
+                  showModes={rankedEnabled}
+                />
               </div>
             )}
 
@@ -187,7 +215,9 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
                 onSubmit={(name) => void controller.submitScore(name)}
                 onRetry={() => controller.retrySubmission()}
                 onNewGame={() => controller.newGame()}
-                onPlayRanked={() => controller.startRankedGame()}
+                onPlayRanked={
+                  rankedEnabled ? () => controller.startRankedGame() : undefined
+                }
                 onClose={() => controller.closeDialog()}
               />
             )}
@@ -257,9 +287,7 @@ const GameView: React.FC<GameProps> = ({ showGuide, setShowGuide }) => {
           </span>
         </div>
 
-        <div className="panel-center">
-          <ModeChip />
-        </div>
+        <div className="panel-center">{rankedEnabled && <ModeChip />}</div>
 
         <TimerDisplay
           elapsedMs={snapshot.elapsedMs}

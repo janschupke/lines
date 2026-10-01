@@ -10,7 +10,7 @@ import { validateName } from "@/shared/names";
 import { prisma } from "@/server/db";
 import { deriveGameKey } from "@/server/keys";
 import { verifyToken } from "@/server/token";
-import { errorResponse, ipHashOf } from "@/server/request";
+import { errorResponse, ipHashOf, rankedGate } from "@/server/request";
 import { attemptsInWindow, recordAttempt, HOUR, DAY } from "@/server/ratelimit";
 import { CLOCK_SKEW_MS, MAX_GAME_MS, MIN_MS_PER_MOVE } from "@/server/config";
 
@@ -26,6 +26,8 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
+  const off = rankedGate();
+  if (off) return off;
   const { id: gameId } = await context.params;
   let body: z.infer<typeof FinishBody>;
   try {

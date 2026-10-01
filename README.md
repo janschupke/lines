@@ -17,6 +17,9 @@ Play at [https://lines.schupke.io/](https://lines.schupke.io/).
     at a time so no move can be made with foreknowledge, and the whole game
     is replayed server-side before a score is accepted. Ranked scores go on
     the public leaderboard, and every leaderboard row links a public replay.
+    Ranked needs the database and the three server secrets. Without any of
+    them the app runs casual-only, with no mode chip, leaderboard or
+    replays, and the build never touches the database.
   - **Casual** — instant and offline-capable; the client holds the game key.
     Scores stay on the device as a local best. The game picks a mode
     automatically (and says why in the mode chip); a ranked game that loses

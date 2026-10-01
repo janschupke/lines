@@ -91,6 +91,8 @@ export interface UiSnapshot {
   connection: ConnectionState;
   showModeIntro: boolean;
   submission: SubmissionState;
+  /** False when the server has no database: every ranked surface hides. */
+  rankedEnabled: boolean;
 }
 
 /**
@@ -125,6 +127,8 @@ export interface ControllerDeps {
   /** Overrides the minted key — tests. Forces casual, skips the probe. */
   key?: Uint8Array;
   api?: GameApi;
+  /** False: the server runs without a database, so the game is casual only. */
+  rankedEnabled?: boolean;
 }
 
 interface RankedIdentity {
@@ -171,6 +175,7 @@ const probeEntropy: EntropySource = {
 export class GameController {
   private readonly clock: Clock;
   private readonly api: GameApi;
+  private readonly rankedEnabled: boolean;
   private entropy: EntropySource;
   private state: GameState;
   private view: ViewBoard;
@@ -232,9 +237,10 @@ export class GameController {
     const animationClock =
       deps.clock ?? (prefersReduced ? instantClock : realClock);
     this.api = deps.api ?? httpGameApi;
+    this.rankedEnabled = deps.rankedEnabled ?? true;
     this.highScore = loadHighScores().casual;
     this.startedAt = Date.now();
-    this.showModeIntro = !hasSeenModeIntro();
+    this.showModeIntro = this.rankedEnabled && !hasSeenModeIntro();
     this.player = new EffectPlayer(animationClock, defaultTimings, {
       fold: (e: Effect) => {
         this.view = applyEffect(this.view, e);
@@ -297,6 +303,7 @@ export class GameController {
       connection: this.connection,
       showModeIntro: this.showModeIntro,
       submission: this.submission,
+      rankedEnabled: this.rankedEnabled,
     };
     return this.snapshot;
   };
@@ -334,6 +341,8 @@ export class GameController {
       return true;
     }
     const saved = loaded.saved as typeof loaded.saved & { localKey?: string };
+    // A ranked game lives on the server; with ranked off it cannot go on.
+    if (!this.rankedEnabled && !saved.localKey) return false;
     this.ranked = {
       gameId: saved.gameId,
       token: saved.token,
@@ -417,6 +426,11 @@ export class GameController {
   }
 
   private chooseModeAndStart(): void {
+    if (!this.rankedEnabled) {
+      this.modeReason = "your-choice";
+      this.beginCasual(mintCasualKey());
+      return;
+    }
     const decision = preProbeDecision(navigatorInfo());
     if (!decision.probe) {
       this.modeReason = decision.reason;
@@ -534,6 +548,7 @@ export class GameController {
 
   /** Explicit ranked start — refused (stays casual) if /start fails. */
   startRankedGame(): void {
+    if (!this.rankedEnabled) return;
     this.abandonCurrent();
     this.probing = true;
     this.modeReason = "checking";

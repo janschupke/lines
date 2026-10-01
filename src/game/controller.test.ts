@@ -1,7 +1,16 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GameController, isGameInProgress } from "./controller";
 import { instantClock } from "./clock";
-import { countNonZero, freeOfBalls } from "@/engine";
+import {
+  countNonZero,
+  createGame,
+  encodeMoves,
+  freeOfBalls,
+  keyedEntropy,
+} from "@/engine";
+import type { PlacedBall } from "@/engine";
+import type { GameApi } from "./api";
+import { saveRankedGame } from "./persistence";
 
 const fixedKey = (n: number) => {
   const k = new Uint8Array(32);
@@ -119,6 +128,102 @@ describe("GameController", () => {
       const scored = { ...make().getSnapshot(), over: false, score: 10 };
       expect(scored.stats.turns).toBe(0);
       expect(isGameInProgress(scored)).toBe(true);
+    });
+  });
+
+  describe("without a database (rankedEnabled: false)", () => {
+    const offlineApi = () => {
+      const unreachable = () => Promise.reject(new Error("no server"));
+      return {
+        start: vi.fn(unreachable),
+        move: vi.fn(unreachable),
+        state: vi.fn(unreachable),
+        finish: vi.fn(unreachable),
+        scores: vi.fn(unreachable),
+      } satisfies GameApi;
+    };
+
+    const placed = (arr: Uint8Array): PlacedBall[] =>
+      Array.from(arr).flatMap((color, c) =>
+        color ? [{ c, color: color as PlacedBall["color"] }] : [],
+      );
+
+    /** A valid, untouched ranked save — resumable when ranked is on. */
+    const saveUntouchedRankedGame = () => {
+      const initial = createGame(keyedEntropy(fixedKey(7)));
+      saveRankedGame({
+        gameId: "00000000-0000-4000-8000-000000000007",
+        token: "t",
+        init: { balls: placed(initial.balls), ghosts: placed(initial.ghosts) },
+        moves: encodeMoves([]),
+        packets: [],
+        startedAt: Date.now(),
+        elapsedMs: 0,
+      });
+    };
+
+    it("starts casual without probing the server", () => {
+      const api = offlineApi();
+      const c = new GameController({
+        clock: instantClock,
+        api,
+        rankedEnabled: false,
+      });
+      const snap = c.getSnapshot();
+      expect(api.start).not.toHaveBeenCalled();
+      expect(snap.rankedEnabled).toBe(false);
+      expect(snap.mode.active).toBe("casual");
+      expect(snap.mode.probing).toBe(false);
+      expect(countNonZero(snap.view.balls)).toBe(5);
+      c.destroy();
+    });
+
+    it("never shows the two-modes intro", () => {
+      const off = new GameController({
+        clock: instantClock,
+        api: offlineApi(),
+        rankedEnabled: false,
+      });
+      expect(off.getSnapshot().showModeIntro).toBe(false);
+      off.destroy();
+      const on = make();
+      expect(on.getSnapshot().showModeIntro).toBe(true);
+    });
+
+    it("refuses an explicit ranked start", () => {
+      const api = offlineApi();
+      const c = new GameController({
+        clock: instantClock,
+        api,
+        rankedEnabled: false,
+      });
+      c.startRankedGame();
+      expect(api.start).not.toHaveBeenCalled();
+      expect(c.getSnapshot().mode.active).toBe("casual");
+      c.destroy();
+    });
+
+    it("drops a saved ranked game instead of resuming it", () => {
+      // Control: with ranked on, the same save resumes and reconciles.
+      saveUntouchedRankedGame();
+      const onApi = offlineApi();
+      const on = new GameController({ clock: instantClock, api: onApi });
+      expect(on.getSnapshot().mode.active).toBe("ranked");
+      expect(onApi.state).toHaveBeenCalledTimes(1);
+      on.destroy();
+
+      localStorage.clear();
+      saveUntouchedRankedGame();
+      const offApi = offlineApi();
+      const off = new GameController({
+        clock: instantClock,
+        api: offApi,
+        rankedEnabled: false,
+      });
+      expect(off.getSnapshot().mode.active).toBe("casual");
+      expect(offApi.state).not.toHaveBeenCalled();
+      expect(offApi.start).not.toHaveBeenCalled();
+      off.destroy();
     });
   });
 });

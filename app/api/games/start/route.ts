@@ -5,7 +5,7 @@ import type { InitPacket, PlacedBall } from "@/engine";
 import { prisma } from "@/server/db";
 import { deriveGameKey } from "@/server/keys";
 import { signToken } from "@/server/token";
-import { errorResponse, ipHashOf } from "@/server/request";
+import { errorResponse, ipHashOf, rankedGate } from "@/server/request";
 import { attemptsInWindow, recordAttempt, HOUR } from "@/server/ratelimit";
 import {
   CURRENT_KEY_VERSION,
@@ -19,6 +19,8 @@ export const runtime = "nodejs";
 const StartBody = z.object({ playerId: z.string().uuid() });
 
 export async function POST(request: Request): Promise<Response> {
+  const off = rankedGate();
+  if (off) return off;
   let body: z.infer<typeof StartBody>;
   try {
     body = StartBody.parse(await request.json());
